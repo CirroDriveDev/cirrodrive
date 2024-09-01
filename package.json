@@ -1,0 +1,43 @@
+{
+  "name": "cirrodrive",
+  "version": "0.0.0",
+  "private": true,
+  "scripts": {
+    "build": "turbo build",
+    "dev": "turbo dev",
+    "lint": "turbo lint",
+    "check-types": "turbo check-types",
+    "format": "prettier --write \"**/*.{ts,tsx,md}\"",
+    "prepare": "husky",
+    "docker:compose:up": "docker-compose --env-file .env.production.local up --detach",
+    "docker:compose:down": "docker-compose --env-file .env.production.local down -v",
+    "docker:compose:logs": "docker-compose --env-file .env.production.local logs -f",
+    "docker:compose:start:db": "docker-compose --env-file .env.production.local up -d db",
+    "docker:compose:start:api": "docker-compose --env-file .env.production.local up -d api",
+    "predocker:build": "npm run docker:clean && docker rmi -f capstone/api-server:1.0.0 capstone/api-server:latest || true",
+    "docker:build": "docker image build . -t capstone/api-server:latest",
+    "docker:run": "npm run docker:clean && docker run --name cicd-server --detach --publish 8000:8000 --env DATABASE_URL=file:./dev.db capstone/api-server",
+    "docker:clean": "docker rm -f cicd-server",
+    "predocker:taillogs": "echo Web Server Logs:",
+    "docker:taillogs": "docker logs -f cicd-server",
+    "docker:open": "echo Trying to launch on Windows && timeout 2 && start http://localhost:8000",
+    "docker:debugmessage": "echo Docker Debug Completed Successfully! Hit Ctrl+C to terminate log tailing.",
+    "predocker:debug": "npm run docker:build && npm run docker:run",
+    "docker:debug": "docker:open:win docker:open:mac docker:debugmessage docker:taillogs"
+  },
+  "devDependencies": {
+    "husky": "^9.1.5",
+    "lint-staged": "^15.2.9",
+    "prettier": "^3.3.3",
+    "turbo": "^2.1.0",
+    "typescript": "^5.5.4"
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "packageManager": "npm@10.7.0",
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ]
+}

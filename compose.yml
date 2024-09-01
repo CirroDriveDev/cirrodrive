@@ -1,0 +1,41 @@
+# service: react spa, nodejs api, mariadb
+services:
+  # react:
+  #   image: react:latest
+  #   ports:
+  #     - 80:80
+  #   volumes:
+  #     - ./react:/app
+  #   environment:
+  #     - NODE_ENV=development
+  #   command: npm start
+  api:
+    image: capstone/api-server:latest
+    ports:
+      - 8000:8000
+    volumes:
+      - app-data:/app/data
+    environment:
+      - DATABASE_URL=${DATABASE_URL}
+    depends_on:
+      - db
+  db:
+    image: mariadb:11.4.3-noble
+    command:
+      - --character-set-server=utf8mb4
+      - --collation-server=utf8mb4_unicode_ci
+    ports:
+      - 3306:3306
+    volumes:
+      - db-data:/var/lib/mysql:z
+    environment:
+      - MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD}
+      - MYSQL_DATABASE=${MYSQL_DATABASE}
+      - MYSQL_USER=${MYSQL_USER}
+      - MYSQL_PASSWORD=${MYSQL_PASSWORD}
+      - TZ=Asia/Seoul
+volumes:
+  app-data:
+    external: false
+  db-data:
+    external: false
