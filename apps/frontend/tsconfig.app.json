@@ -22,9 +22,9 @@
     "module": "ESNext",
     // "rootDir": "./",
     "moduleResolution": "bundler",
-    "baseUrl": "./",
+    "baseUrl": ".",
     "paths": {
-      "@/*": ["src/*"]
+      "@/*": ["./src/*"]
     },
     // "rootDirs": [],
     // "typeRoots": [],
