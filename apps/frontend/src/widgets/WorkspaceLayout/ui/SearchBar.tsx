@@ -3,12 +3,11 @@ import { useTheme } from "@/shared/components/ThemeProvider.tsx";
 
 export function SearchBar(): JSX.Element {
   const { theme } = useTheme();
-
   const outlineClassList = [
     "outline",
     "outline-1",
-    "outline-gray-500",
-    theme === "light" ? "hover:outline-black" : "hover:outline-white",
+    "outline-ring",
+    "hover:outline-foreground",
   ];
 
   const handleFocus = (): void => {
@@ -30,7 +29,7 @@ export function SearchBar(): JSX.Element {
   return (
     <div
       id="searchBarDiv"
-      className={`bg-background m-[2px] h-10 max-w-96 flex-grow rounded-md ${outlineClassList.join(
+      className={`bg-background h-10 max-w-96 flex-grow rounded-md ${outlineClassList.join(
         " ",
       )}`}
     >
