@@ -10,10 +10,10 @@
     "build": "turbo build",
     "prepare": "husky",
     "compose:prod:build": "docker compose -f compose.prod.yaml build",
-    "compose:prod:up": "docker compose -f compose.prod.yaml up -d --remove-orphans",
+    "compose:prod:up": "docker compose -f compose.prod.yaml up -d --remove-orphans --renew-anon-volumes",
     "compose:prod:down": "docker compose -f compose.prod.yaml down -v",
     "compose:dev:build": "docker compose -f compose.dev.yaml build",
-    "compose:dev:up": "docker compose -f compose.dev.yaml up -d --remove-orphans",
+    "compose:dev:up": "docker compose -f compose.dev.yaml up -d --remove-orphans --renew-anon-volumes",
     "compose:dev:down": "docker compose -f compose.dev.yaml down -v"
   },
   "devDependencies": {
