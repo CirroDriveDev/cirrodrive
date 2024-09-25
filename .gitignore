@@ -25,6 +25,9 @@ coverage
 # Turbo
 .turbo
 
+# Docker
+.docker
+
 # Vercel
 .vercel
 

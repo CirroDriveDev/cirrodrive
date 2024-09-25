@@ -5,11 +5,11 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "tsc -b && vite build",
-    "check": "tsc --noEmit",
-    "test": "vitest",
-    "preview": "vite preview",
     "lint": "eslint . --fix --ext ts,tsx --report-unused-disable-directives --max-warnings 0 && prettier --write .",
+    "tsc": "tsc --noEmit",
+    "test": "vitest",
+    "build": "tsc -b && vite build",
+    "preview": "vite preview",
     "shadcn:add": "shadcn add"
   },
   "dependencies": {
