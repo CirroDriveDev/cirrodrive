@@ -1,0 +1,3 @@
+name: cirrodrive-dev
+include:
+  - path: /apps/frontend/compose.dev.yaml
