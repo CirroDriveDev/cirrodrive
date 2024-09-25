@@ -12,13 +12,20 @@ pipeline {
     }
 
     stages {
+        stage('Install') {
+            steps {
+                echo 'Installing dependencies...'
+                sh 'npm ci'
+            }
+        }
+
         stage('Type check') {
             steps {
                 echo 'Running tsc...'
                 sh 'npm run tsc'
             }
         }
-        
+
         stage('Test') {
             steps {
                 echo 'Running vitest...'
