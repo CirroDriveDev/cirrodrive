@@ -42,12 +42,14 @@ pipeline {
                 }
             }
             steps {
-                if (BRANCH_NAME == MAIN) {
-                    echo 'Deploying to production...'
-                    sh 'npm run compose:prod:up'
-                } else if (BRANCH_NAME == DEVELOP) {
-                    echo 'Deploying to development...'
-                    sh 'npm run compose:dev:up'
+                script {
+                    if (BRANCH_NAME == MAIN) {
+                        echo 'Deploying to production...'
+                        sh 'npm run compose:prod:up'
+                    } else if (BRANCH_NAME == DEVELOP) {
+                        echo 'Deploying to development...'
+                        sh 'npm run compose:dev:up'
+                    }
                 }
             }
         }
