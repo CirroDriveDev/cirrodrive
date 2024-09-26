@@ -1,41 +1,27 @@
 import { Search } from "lucide-react";
+import { useState } from "react";
 import { useTheme } from "@/shared/components/ThemeProvider.tsx";
 
 export function SearchBar(): JSX.Element {
   const { theme } = useTheme();
-
-  const outlineClassList = [
-    "outline",
-    "outline-1",
-    "outline-gray-500",
-    theme === "light" ? "hover:outline-black" : "hover:outline-white",
-  ];
+  const foregroundColor = theme === "light" ? "black" : "white";
+  const outlineClassList = `outline outline-1 outline-ring hover:outline-foreground`;
+  const [classList, setClassList] = useState<string>(outlineClassList);
 
   const handleFocus = (): void => {
-    const searchBarDiv = document.getElementById("searchBarDiv");
-    if (searchBarDiv) {
-      searchBarDiv.classList.add("outline-none");
-      searchBarDiv.classList.remove(...outlineClassList);
-    }
+    setClassList("outline-none");
   };
 
   const handleBlur = (): void => {
-    const searchBarDiv = document.getElementById("searchBarDiv");
-    if (searchBarDiv) {
-      searchBarDiv.classList.add(...outlineClassList);
-      searchBarDiv.classList.remove("outline-none");
-    }
+    setClassList(outlineClassList);
   };
 
   return (
     <div
-      id="searchBarDiv"
-      className={`bg-background m-[2px] h-10 max-w-96 flex-grow rounded-md ${outlineClassList.join(
-        " ",
-      )}`}
+      className={`bg-background h-10 max-w-96 flex-grow rounded-md ${classList}`}
     >
       <label className="flex space-x-2 p-2">
-        <Search color={theme === "light" ? "black" : "white"} />
+        <Search color={foregroundColor} />
         <input
           type="text"
           placeholder="검색"

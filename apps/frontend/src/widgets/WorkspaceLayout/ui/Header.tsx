@@ -7,10 +7,7 @@ export function Header(): JSX.Element {
   return (
     <header className="bg-primary flex flex-grow">
       <div className="flex w-[250px] items-center p-4">
-        <Link
-          className="flex h-16 items-center space-x-2 text-white"
-          to="/home"
-        >
+        <Link className="flex items-center space-x-2 text-white" to="/home">
           <Logo />
           <div className="text-2xl font-bold">CirroDrive</div>
         </Link>

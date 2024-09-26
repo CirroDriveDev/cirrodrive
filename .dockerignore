@@ -1,0 +1,50 @@
+# Dependencies
+node_modules
+
+# Git files
+.git
+.github
+
+# Dockerfile
+Dockerfile*
+
+# ignore files
+.gitignore
+.dockerignore
+
+# Database files
+*.db
+*.db-journal
+
+# Testing
+coverage
+
+# Turbo
+.turbo
+
+# Build Outputs
+out/
+build
+dist
+dist-ssr
+
+# Logs
+logs
+*.log
+
+# Debug
+npm-debug.log
+
+# Editor directories and files
+.vscode/*
+!.vscode/extensions.json
+.idea
+.DS_Store
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
+# Misc
+README.md

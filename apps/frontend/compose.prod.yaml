@@ -1,0 +1,10 @@
+name: cirrodrive
+services:
+  frontend:
+    build:
+      context: ../../
+      dockerfile: ./apps/frontend/Dockerfile.prod
+    container_name: frontend
+    ports:
+      - 80:80
+    restart: always

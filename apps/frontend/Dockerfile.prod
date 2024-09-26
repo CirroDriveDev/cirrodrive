@@ -1,0 +1,47 @@
+# 1단계: Turbo를 사용해 모노레포를 트림하는 단계
+FROM node:20-alpine AS pruner
+
+# 작업 디렉토리를 /repo로 설정
+WORKDIR /repo
+
+# 터보 레포 설치
+RUN npm install -g turbo
+
+# 모노레포 전체 소스 코드를 컨테이너로 복사
+COPY . .
+
+# Turbo prune을 사용해 불필요한 부분을 트림
+RUN turbo prune frontend --docker
+
+# 2단계: 빌드 단계
+FROM node:20-alpine AS builder
+
+# 작업 디렉토리를 /repo로 설정
+WORKDIR /repo
+
+# pruner 단계에서 만들어진 의존성 관련 json 파일 복사
+COPY --from=pruner /repo/out/json/ .
+
+# 의존성 설치
+RUN npm ci
+
+# pruner 단계에서 트림된 전체 소스 파일 복사
+COPY --from=pruner /repo/out/full/ .
+
+# 프론트엔드 워크스페이스를 빌드
+RUN npm run build -- --filter frontend
+
+# 3단계: 실행 단계
+FROM nginx:alpine AS runner
+
+# Nginx 설정 파일 복사
+COPY apps/frontend/nginx.conf /etc/nginx/nginx.conf
+
+# 빌드된 프론트엔드 파일을 Nginx의 정적 파일 제공 디렉토리로 복사
+COPY --from=builder /repo/apps/frontend/dist /usr/share/nginx/html
+
+# Nginx가 사용할 80번 포트 노출
+EXPOSE 80
+
+# Nginx 실행 명령어
+CMD ["nginx", "-g", "daemon off;"]
