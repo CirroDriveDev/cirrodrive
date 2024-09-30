@@ -3,7 +3,7 @@ import type { RouteObject } from "react-router-dom";
 import { HomePage } from "@/pages/home/ui/HomePage.tsx";
 import { LoginPage } from "@/pages/login/ui/LoginPage.tsx";
 import { SignupPage } from "@/pages/signup/ui/SignupPage.tsx";
-import { LandingPage } from "@/pages/landing/LandingPage.tsx";
+import { LandingPage } from "@/pages/landing/ui/LandingPage.tsx";
 
 const routeTree: RouteObject[] = [
   {
