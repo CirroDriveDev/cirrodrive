@@ -11,7 +11,14 @@ module.exports = {
     "turbo",
   ],
   plugins: ["only-warn"],
-  ignorePatterns: ["dist/", "build/", "coverage/", "node_modules/"],
+  ignorePatterns: [
+    "dist/",
+    "build/",
+    "coverage/",
+    "node_modules/",
+    "*.js",
+    "*.jsx",
+  ],
   parserOptions: {
     project,
   },

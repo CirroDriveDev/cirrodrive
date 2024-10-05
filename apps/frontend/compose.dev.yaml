@@ -1,0 +1,15 @@
+name: cirrodrive-dev
+services:
+  frontend-dev:
+    build:
+      context: ../../
+      dockerfile: ./apps/frontend/Dockerfile.dev
+    container_name: frontend-dev
+    ports:
+      - 5173:5173
+    restart: always
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "10"
