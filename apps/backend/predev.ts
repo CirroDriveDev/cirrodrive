@@ -10,6 +10,10 @@ function checkContainerHealth(): Promise<boolean> {
       `docker inspect -f {{.State.Health.Status}} ${containerName}`,
       (error, stdout, stderr) => {
         if (error) {
+          if (error.code === 127) {
+            resolve(true);
+            return;
+          }
           reject(error);
           return;
         }
