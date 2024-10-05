@@ -5,8 +5,8 @@
     "test/**/*.ts",
     "test/**/*.tsx",
     "vitestSetup.ts",
-    "devRunner.ts",
     "vite.config.ts",
+    "predev.ts",
     ".eslintrc.cjs"
   ],
   "compilerOptions": {

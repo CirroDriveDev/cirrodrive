@@ -1,10 +1,13 @@
 import "reflect-metadata";
+import { type Server } from "node:http";
 import type express from "express";
 import { expressLoader } from "@/loaders/express.ts";
 import { logger } from "@/loaders/logger.ts";
 import { prisma } from "@/loaders/prisma.ts";
 
 await prisma.user.findMany();
+
+let server: Server;
 
 function load(): express.Application {
   logger.info("Loading application...");
@@ -16,7 +19,7 @@ function load(): express.Application {
 }
 
 function startServer(app: express.Application): void {
-  const server = app.listen(import.meta.env.VITE_PORT, () => {
+  server = app.listen(import.meta.env.VITE_PORT, () => {
     logger.info(`Server listening on port: ${import.meta.env.VITE_PORT}`);
     logger.info(`Currently running on ${import.meta.env.MODE} mode.`);
   });
@@ -35,20 +38,14 @@ const app = load();
 startServer(app);
 
 /**
- * Hot module replacement for development mode.
- * Automatically reloads the server when changes are made.
+ * 개발 모드를 위한 HMR(Hot Module Replacement) 설정
+ * 변경 사항이 발생하면 서버를 닫고 다시 시작합니다.
  */
 if (import.meta.hot) {
-  /**
-   * Closes the server and reloads it when changes are made.
-   */
-  const closeServer = (): never => {
-    logger.debug("--------------------");
-    logger.debug("Reloading server...");
-    logger.debug("--------------------");
-    process.exit(0);
+  const closeServer = (): void => {
+    server.close();
   };
 
-  import.meta.hot.on("vite:beforeUpdate", closeServer);
+  import.meta.hot.dispose(closeServer);
   import.meta.hot.accept();
 }

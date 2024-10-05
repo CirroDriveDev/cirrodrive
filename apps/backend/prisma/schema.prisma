@@ -19,45 +19,7 @@ model User {
   nickname           String
   createdAt          DateTime  @default(now())
   updatedAt          DateTime  @updatedAt
-  profileImageFile   File?     @relation(fields: [profileImageFileId], references: [id])
-  sessions           Session[]
-  posts              Post[]
-  comments           Comment[]
-}
-
-model Post {
-  id        Int       @id @default(autoincrement())
-  authorId  Int
-  fileId    Int?      @unique
-  title     String
-  content   String
-  viewCount Int       @default(0)
-  category  String
-  createdAt DateTime  @default(now())
-  updatedAt DateTime  @updatedAt
-  author    User      @relation(fields: [authorId], references: [id])
-  file      File?     @relation(fields: [fileId], references: [id])
-  comments  Comment[]
-}
-
-model Comment {
-  id        Int      @id @default(autoincrement())
-  postId    Int
-  authorId  Int
-  content   String
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  author    User     @relation(fields: [authorId], references: [id])
-  post      Post     @relation(fields: [postId], references: [id])
-}
-
-model File {
-  id           Int      @id @default(autoincrement())
-  path         String   @unique
-  originalName String
-  createdAt    DateTime @default(now())
-  user         User?
-  post         Post?
+  session            Session[]
 }
 
 model Session {

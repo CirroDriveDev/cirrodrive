@@ -37,7 +37,9 @@ if (import.meta.env.DEV) {
     options: {
       destination: 1, // stdout
       mkdir: false,
+      sync: true,
     },
+    level: "debug",
   });
 }
 
