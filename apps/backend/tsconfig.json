@@ -1,9 +1,7 @@
 {
   "include": [
-    "src/**/*.ts",
-    "src/**/*.tsx",
-    "test/**/*.ts",
-    "test/**/*.tsx",
+    "src/**/*",
+    "test/**/*",
     "vitestSetup.ts",
     "vite.config.ts",
     "predev.ts",
