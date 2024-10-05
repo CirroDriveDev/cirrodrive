@@ -8,20 +8,24 @@ ENV TURBO_TELEMETRY_DISABLED=1
 WORKDIR /cirrodrive
 
 # turborepo 설치
-RUN npm install turbo
+RUN npm install -g turbo
 
 # 모노레포를 컨테이너로 복사
 COPY . .
 
 # Turbo prune을 사용해 불필요한 파일을 정리
-RUN npx turbo prune frontend --docker
+RUN npx turbo prune backend --docker
 
 # 결과를 압축
 RUN tar -czf json.tar.gz -C ./out/json . && \
   tar -czf full.tar.gz -C ./out/full .
 
-# 2단계: Vite 개발 서버 실행 단계
-FROM node:20-alpine AS dev
+# 2단계: 실행 단계
+FROM node:20 AS runner
+
+# 환경 변수 설정
+ENV VITE_PORT=3000
+ENV DATABASE_URL=mysql://apiuser:apipassword@database-dev:3307/apidatabase
 
 # 작업 디렉터리 설정
 WORKDIR /cirrodrive
@@ -38,10 +42,13 @@ COPY --from=pruner /cirrodrive/full.tar.gz .
 RUN tar -xzf full.tar.gz -C . && rm full.tar.gz
 
 # 작업 디렉터리 설정
-WORKDIR /cirrodrive/apps/frontend
+WORKDIR /cirrodrive/apps/backend
 
-# 5173 포트 노출
-EXPOSE 5173
+# prisma 클라이언트 생성
+RUN npm run prisma:generate
 
-# Vite 개발 서버를 실행
-CMD ["npm", "run", "dev", "--", "--host", "0.0.0.0"]
+# 3000번 포트 노출
+EXPOSE 3000
+
+# 실행 명령어
+ENTRYPOINT [ "npm", "run", "dev" ]

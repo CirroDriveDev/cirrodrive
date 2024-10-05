@@ -1,50 +1,57 @@
 # Dependencies
-node_modules
+**/node_modules
 
 # Git files
-.git
-.github
+**/.git
+**/.github
 
-# Dockerfile
-Dockerfile*
+# Docker
+**/Dockerfile*
+**/compose*.yaml
+
+# Jenkinsfile
+**/Jenkinsfile*
 
 # ignore files
-.gitignore
-.dockerignore
+**/.gitignore
+**/.dockerignore
+
+# Configuration files
+**/.env*
 
 # Database files
-*.db
-*.db-journal
+**/*.db
+**/*.db-journal
 
 # Testing
-coverage
+**/coverage
 
 # Turbo
-.turbo
+**/.turbo
 
 # Build Outputs
-out/
-build
-dist
-dist-ssr
+**/out/
+**/build
+**/dist
+**/dist-ssr
 
 # Logs
-logs
-*.log
+**/logs
+**/*.log
 
 # Debug
-npm-debug.log
+**/npm-debug.log
 
 # Editor directories and files
-.vscode/*
-!.vscode/extensions.json
-.idea
-.DS_Store
-*.suo
-*.ntvs*
-*.njsproj
-*.sln
-*.sw?
+**/.vscode/*
+**/!.vscode/extensions.json
+**/.idea
+**/.DS_Store
+**/*.suo
+**/*.ntvs*
+**/*.njsproj
+**/*.sln
+**/*.sw?
 
 # Misc
-README.md
+**/README.md
