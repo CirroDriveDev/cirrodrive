@@ -28,7 +28,7 @@ function checkContainerHealth(): Promise<boolean> {
 // 1초 간격으로 컨테이너 상태를 확인하는 함수
 async function waitForContainerHealth(): Promise<void> {
   let healthy = false;
-  process.stdout.write("MariaDB 로딩");
+  process.stdout.write("MariaDB 로딩.");
 
   while (!healthy) {
     healthy = await checkContainerHealth();
@@ -43,5 +43,11 @@ async function waitForContainerHealth(): Promise<void> {
   process.stdout.write("MariaDB 로딩 완료\n");
 }
 
+function main(): void {
+  exec("npm run compose:dev:up -- database-dev");
+  void waitForContainerHealth();
+  exec("prisma db push");
+}
+
 // 스크립트 실행
-void waitForContainerHealth();
+main();
