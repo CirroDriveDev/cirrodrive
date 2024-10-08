@@ -11,12 +11,12 @@
     "build": "tsc -b && vite build",
     "preview": "vite preview",
     "shadcn:add": "shadcn add",
-    "compose:prod:build": "docker compose -f compose.prod.yaml build",
-    "compose:prod:up": "docker compose -f compose.prod.yaml up -d --renew-anon-volumes",
-    "compose:prod:down": "docker compose -f compose.prod.yaml down -v",
-    "compose:dev:build": "docker compose -f compose.dev.yaml build",
-    "compose:dev:up": "docker compose -f compose.dev.yaml up -d --renew-anon-volumes",
-    "compose:dev:down": "docker compose -f compose.dev.yaml down -v"
+    "compose:prod:build": "docker-compose -f compose.prod.yaml build",
+    "compose:prod:up": "docker-compose -f compose.prod.yaml up -d --renew-anon-volumes",
+    "compose:prod:down": "docker-compose -f compose.prod.yaml down -v",
+    "compose:dev:build": "docker-compose -f compose.dev.yaml build",
+    "compose:dev:up": "docker-compose -f compose.dev.yaml up -d --renew-anon-volumes",
+    "compose:dev:down": "docker-compose -f compose.dev.yaml down -v"
   },
   "dependencies": {
     "@radix-ui/react-dropdown-menu": "^2.1.1",
