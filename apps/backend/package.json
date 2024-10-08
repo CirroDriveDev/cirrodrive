@@ -18,12 +18,12 @@
     "prisma:migrate:deploy": "prisma migrate deploy",
     "prisma:db:push": "prisma db push",
     "prisma:db:seed": "prisma db seed",
-    "compose:prod:build": "docker compose -f compose.prod.yaml build",
-    "compose:prod:up": "docker compose -f compose.prod.yaml up -d --renew-anon-volumes",
-    "compose:prod:down": "docker compose -f compose.prod.yaml down -v",
-    "compose:dev:build": "docker compose -f compose.dev.yaml build",
-    "compose:dev:up": "docker compose -f compose.dev.yaml up -d --renew-anon-volumes",
-    "compose:dev:down": "docker compose -f compose.dev.yaml down -v"
+    "compose:prod:build": "docker-compose -f compose.prod.yaml build",
+    "compose:prod:up": "docker-compose -f compose.prod.yaml up -d --renew-anon-volumes",
+    "compose:prod:down": "docker-compose -f compose.prod.yaml down -v",
+    "compose:dev:build": "docker-compose -f compose.dev.yaml build",
+    "compose:dev:up": "docker-compose -f compose.dev.yaml up -d --renew-anon-volumes",
+    "compose:dev:down": "docker-compose -f compose.dev.yaml down -v"
   },
   "engines": {
     "node": ">=20.0.0"
