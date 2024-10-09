@@ -17,7 +17,7 @@ export function DownloadPage(): JSX.Element {
             placeholder="Code"
             className="mb-1 mt-2 w-full rounded-md border border-gray-300 px-3 py-2"
           />
-          <span className="text-l">코드가 없으신 가요?</span>
+          <span className="text-l">코드가 없으신가요?</span>
           <Link to="/upload">
             <span className="text-l text-blue-600"> 새로운 코드 발급.</span>
           </Link>

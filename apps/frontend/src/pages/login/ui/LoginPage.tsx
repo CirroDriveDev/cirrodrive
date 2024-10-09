@@ -29,7 +29,7 @@ export function LoginPage(): JSX.Element {
               />
             </li>
           </ul>
-          <span className="text-l">계정이 없으신 가요?</span>
+          <span className="text-l">계정이 없으신가요?</span>
           <Link to="/signup">
             <span className="text-l text-blue-600"> 새로 만드세요.</span>
           </Link>
