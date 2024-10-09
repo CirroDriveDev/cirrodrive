@@ -19,10 +19,10 @@ export function LandingPage(): JSX.Element {
             </div>
             <div className="flex w-4/12 flex-row justify-evenly">
               <Button className="mr-3">
-                <Link to="/home">업로드</Link>
+                <Link to="/upload">업로드</Link>
               </Button>
               <Button>
-                <Link to="/home">다운로드</Link>
+                <Link to="/download">다운로드</Link>
               </Button>
             </div>
           </div>
@@ -43,10 +43,10 @@ export function LandingPage(): JSX.Element {
             </div>
             <div className="flex w-4/12 flex-row justify-evenly">
               <Button className="mr-3">
-                <Link to="/home">로그인</Link>
+                <Link to="/login">로그인</Link>
               </Button>
               <Button>
-                <Link to="/home">회원가입</Link>
+                <Link to="/signup">회원가입</Link>
               </Button>
             </div>
           </div>

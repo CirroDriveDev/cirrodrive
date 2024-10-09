@@ -4,6 +4,8 @@ import { HomePage } from "@/pages/home/ui/HomePage.tsx";
 import { LoginPage } from "@/pages/login/ui/LoginPage.tsx";
 import { SignupPage } from "@/pages/signup/ui/SignupPage.tsx";
 import { LandingPage } from "@/pages/landing/ui/LandingPage.tsx";
+import { UploadPage } from "@/pages/upload/ui/UploadPage.tsx";
+import { DownloadPage } from "@/pages/download/ui/DownloadPage.tsx";
 
 const routeTree: RouteObject[] = [
   {
@@ -21,6 +23,14 @@ const routeTree: RouteObject[] = [
   {
     path: "/signup",
     element: <SignupPage />,
+  },
+  {
+    path: "/upload",
+    element: <UploadPage />,
+  },
+  {
+    path: "/download",
+    element: <DownloadPage />,
   },
 ];
 
