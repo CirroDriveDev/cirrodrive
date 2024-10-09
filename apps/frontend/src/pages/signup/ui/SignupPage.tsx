@@ -21,7 +21,7 @@ export function SignupPage(): JSX.Element {
               />
               <Button
                 variant="outline"
-                className="ml-2 rounded border-gray-300 bg-gray-300 p-2"
+                className="bg-muted ml-2 rounded border-gray-300 p-2"
               >
                 Check ID
               </Button>
@@ -81,7 +81,7 @@ export function SignupPage(): JSX.Element {
           <div className="my-6 border-t border-gray-300" />
 
           <div className="flex justify-center">
-            <Button variant="default" className="mr-4">
+            <Button variant="default" className="mr-4 text-white">
               저장
             </Button>
             <Button

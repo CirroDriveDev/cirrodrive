@@ -34,7 +34,7 @@ export function LoginPage(): JSX.Element {
             <span className="text-l text-blue-600"> 새로 만드세요.</span>
           </Link>
           <div className="mt-6 flex justify-center">
-            <Button variant="default" type="submit">
+            <Button variant="default" type="submit" className="text-white">
               로그인
             </Button>
           </div>
