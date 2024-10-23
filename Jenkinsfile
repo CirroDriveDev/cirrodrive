@@ -13,6 +13,9 @@ pipeline {
 
     stages {
         stage('Install') {
+            environment {
+                DATABASE_URL = 'mysql://apiuser:apipassword@database-dev:3307/apidatabase'
+            }
             steps {
                 echo 'Installing dependencies...'
                 sh 'npm ci'
