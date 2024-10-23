@@ -29,8 +29,14 @@ export function UploadPage(): JSX.Element {
               </button>
             </span>
             <div className="w-[90px] bg-gray-300">
-              <button type="button" className="ms-6">
-                내 PC
+              <button
+                type="button"
+                className="ms-6"
+                onClick={() => {
+                  window.open("/Code", "width=800,height=400", "_self");
+                }}
+              >
+                코드
               </button>
             </div>
           </div>
