@@ -34,7 +34,7 @@ const routeTree: RouteObject[] = [
     element: <DownloadPage />,
   },
   {
-    path: "/Code",
+    path: "/code",
     element: <CodePage />,
   },
 ];
