@@ -14,12 +14,12 @@ pipeline {
     stages {
         stage('Install') {
             environment {
-                DATABASE_URL = 'mysql://apiuser:apipassword@database:3307/apidatabase'
+                DATABASE_URL = 'mysql://apiuser:apipassword@database-dev:3307/apidatabase'
             }
             steps {
                 echo 'Installing dependencies...'
                 sh 'npm ci'
-                sh 'npm run predev --workspace=backend'
+                sh 'npm run ci:runDatabase --workspace=backend'
                 sh 'npm run prisma:generate --workspace=backend'
             }
         }

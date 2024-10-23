@@ -5,6 +5,7 @@
     "vitestSetup.ts",
     "vite.config.ts",
     "predev.ts",
+    "runDatabase.jenkins.ts",
     ".eslintrc.cjs"
   ],
   "compilerOptions": {
