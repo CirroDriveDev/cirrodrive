@@ -9,7 +9,7 @@ services:
       - 3000:3000
     restart: always
     volumes:
-      - app-data:/repo/apps/backend/data
+      - app-data:/cirrodrive/apps/backend/data
     depends_on:
       database-dev:
         condition: service_healthy
