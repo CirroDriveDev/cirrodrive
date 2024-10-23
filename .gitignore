@@ -63,3 +63,4 @@ yarn-error.log*
 *.pem
 .stfolder
 .stignore
+**/backend/data

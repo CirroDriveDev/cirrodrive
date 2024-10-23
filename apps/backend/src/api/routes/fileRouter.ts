@@ -12,7 +12,7 @@ const storage = diskStorage({
     __: Express.Multer.File,
     cb: (error: Error | null, destination: string) => void,
   ) => {
-    cb(null, "uploads/");
+    cb(null, "data/");
   },
   filename: (
     _: Express.Request,
