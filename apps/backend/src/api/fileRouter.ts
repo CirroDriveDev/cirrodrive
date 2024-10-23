@@ -1,15 +1,28 @@
 // src/api/routes/fileRouter.ts
 import { Router, Request, Response } from "express";
-import multer, { diskStorage } from "multer"; // diskStorage를 명시적으로 임포트
-import { prisma } from "@/loaders/prisma.ts"; // Prisma 클라이언트 임포트
+import multer, { diskStorage } from "multer"; 
+import { prisma } from "@/loaders/prisma.ts"; 
 import crypto from "crypto";
-import fs from "fs"; // fs 모듈 임포트
+import fs from "fs";
 
 // 파일 업로드 설정
 const storage = diskStorage({
-  destination: (_, __, cb) => cb(null, "uploads/"),
-  filename: (_, file, cb) => cb(null, `${String(Date.now())}-${file.originalname}`), // Date.now()를 문자열로 변환
+  destination: (
+    _: Express.Request,
+    __: Express.Multer.File,
+    cb: (error: Error | null, destination: string) => void
+  ) => {
+    cb(null, "uploads/");
+  },
+  filename: (
+    _: Express.Request,
+    file: Express.Multer.File,
+    cb: (error: Error | null, filename: string) => void
+  ) => {
+    cb(null, `${String(Date.now())}-${file.originalname}`);
+  },
 });
+
 const upload = multer({ storage });
 
 export const FileRouter = (): Router => {
@@ -22,9 +35,7 @@ export const FileRouter = (): Router => {
     }
 
     const { filename, path } = req.file;
-
-    // folderId와 md5Hash 정의
-    const folderId = 1; // 예시로 설정, 실제 값을 제공해야 함
+    const folderId = 1;
 
     // MD5 해시 생성 함수
     const generateMD5 = (filePath: string): string => {
@@ -32,10 +43,8 @@ export const FileRouter = (): Router => {
       return crypto.createHash("md5").update(fileBuffer).digest("hex");
     };
 
-    // MD5 해시 생성
     const md5Hash = generateMD5(req.file.path);
 
-    // 파일 정보를 데이터베이스에 저장
     const newFile = await prisma.file.create({
       data: {
         name: filename,
@@ -44,12 +53,11 @@ export const FileRouter = (): Router => {
         extension: filename.split('.').pop() ?? '',
         created_at: new Date(),
         updated_at: new Date(),
-        folder_id: folderId, // 실제 folder_id 값을 제공
-        md5_hash: md5Hash,    // MD5 해시 값을 제공
+        folder_id: folderId,
+        md5_hash: md5Hash,
       },
     });
 
-    // 파일 ID를 생성하고 반환
     res.status(201).json({ fileId: newFile.id });
   });
 
@@ -57,7 +65,6 @@ export const FileRouter = (): Router => {
   router.get("/download", async (req: Request, res: Response) => {
     const code = req.query.code as string;
 
-    // 코드로 파일 다운로드
     const codeData = await prisma.code.findUnique({
       where: { code_string: code },
     });
