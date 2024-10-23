@@ -9,11 +9,6 @@ pipeline {
         TURBO_TELEMETRY_DISABLED = 1
         MAIN = 'main'
         DEVELOP = 'develop'
-        DATABASE_URL = credentials('DATABASE_URL_CREDENTIAL_ID')
-        MARIADB_ROOT_PASSWORD = credentials('MARIADB_ROOT_PASSWORD_CREDENTIAL_ID')
-        MARIADB_USER = credentials('MARIADB_USER_CREDENTIAL_ID')
-        MARIADB_PASSWORD = credentials('MARIADB_PASSWORD_CREDENTIAL_ID')
-        MARIADB_DATABASE = credentials('MARIADB_DATABASE_CREDENTIAL_ID')
     }
 
     stages {
@@ -49,6 +44,13 @@ pipeline {
         }
 
         stage('Deploy') {
+            environment {
+                DATABASE_URL = credentials('DATABASE_URL_CREDENTIAL_ID')
+                MARIADB_ROOT_PASSWORD = credentials('MARIADB_ROOT_PASSWORD_CREDENTIAL_ID')
+                MARIADB_USER = credentials('MARIADB_USER_CREDENTIAL_ID')
+                MARIADB_PASSWORD = credentials('MARIADB_PASSWORD_CREDENTIAL_ID')
+                MARIADB_DATABASE = credentials('MARIADB_DATABASE_CREDENTIAL_ID')
+            }
             when {
                 anyOf {
                     branch MAIN
