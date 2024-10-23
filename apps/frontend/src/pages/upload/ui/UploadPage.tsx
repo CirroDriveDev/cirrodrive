@@ -1,7 +1,83 @@
 import { File } from "lucide-react";
+import axios from "axios";
+import { useState } from "react";
 import { WorkspaceLayout } from "@/widgets/WorkspaceLayout/ui/WorkspaceLayout.tsx";
 
+interface UploadResponse {
+  fileId: number;
+}
+
+interface CodeResponse {
+  code: string;
+}
+
 export function UploadPage(): JSX.Element {
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [uploadedCode, setUploadedCode] = useState<string | null>(null);
+
+  const baseUrl =
+    "http://ec2-3-38-95-198.ap-northeast-2.compute.amazonaws.com:3000/api/v1";
+
+  async function uploadFile(file: File): Promise<number> {
+    // FormData 생성
+    const formData = new FormData();
+    formData.append("file", file);
+
+    try {
+      // POST 요청 보내기
+      const response = await axios.post<UploadResponse>(
+        `${baseUrl}/files`,
+        formData,
+        {
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
+        },
+      );
+
+      // 응답에서 fileId 추출
+      const fileId: number = response.data.fileId;
+      return fileId;
+    } catch (error) {
+      throw new Error("File upload failed");
+    }
+  }
+
+  async function getCode(fileId: number): Promise<string> {
+    try {
+      const response = await axios.post<CodeResponse>(`${baseUrl}/codes`, {
+        fileId,
+      });
+      const code: string = response.data.code;
+
+      return code;
+    } catch (error) {
+      throw new Error("Failed to get code");
+    }
+  }
+
+  const handleFileChange = (
+    event: React.ChangeEvent<HTMLInputElement>,
+  ): void => {
+    if (event.target.files?.[0]) {
+      setSelectedFile(event.target.files[0]);
+    }
+  };
+
+  const handleClick = async (
+    event: React.FormEvent<HTMLButtonElement>,
+  ): Promise<void> => {
+    event.preventDefault();
+
+    if (!selectedFile) {
+      return;
+    }
+
+    const fileId = await uploadFile(selectedFile);
+    const code = await getCode(fileId);
+    setUploadedCode(code);
+  };
+
   return (
     <WorkspaceLayout>
       <div className="w-full">
@@ -21,27 +97,24 @@ export function UploadPage(): JSX.Element {
             <File size={60} color="gray" />
           </div>
         </div>
-        <form action="#" method="post" encType="multipart/form-data">
-          <div className="relative flex flex-row bg-gray-400">
-            <span className="absolute right-0 top-0">
-              <button type="submit" className="w-[100px] bg-gray-300">
-                업로드
-              </button>
-            </span>
+        <form action="" method="post" encType="multipart/form-data">
+          <div className="flex justify-between bg-gray-400">
             <div className="w-[90px] bg-gray-300">
-              <button
-                type="button"
-                className="ms-6"
-                onClick={() => {
-                  window.open("/Code", "width=800,height=400", "_self");
-                }}
-              >
+              <button type="button" className="ms-6">
                 코드
               </button>
             </div>
+            <div>{uploadedCode}</div>
+            <button
+              type="button"
+              className="w-[100px] bg-gray-300"
+              onClick={void handleClick}
+            >
+              업로드
+            </button>
           </div>
           <div className="place-self-center">
-            <input type="file" name="#" className="mt-20" />
+            <input type="file" className="mt-20" onChange={handleFileChange} />
           </div>
         </form>
       </div>
