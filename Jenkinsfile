@@ -9,13 +9,11 @@ pipeline {
         TURBO_TELEMETRY_DISABLED = 1
         MAIN = 'main'
         DEVELOP = 'develop'
+        DATABASE_URL = 'mysql://apiuser:apipassword@database-dev:3307/apidatabase'
     }
 
     stages {
         stage('Install') {
-            environment {
-                DATABASE_URL = 'mysql://apiuser:apipassword@database-dev:3307/apidatabase'
-            }
             steps {
                 echo 'Installing dependencies...'
                 sh 'npm ci'
