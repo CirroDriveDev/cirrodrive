@@ -21,6 +21,8 @@ pipeline {
             steps {
                 echo 'Installing dependencies...'
                 sh 'npm ci'
+                sh 'npm run predev --workspace=backend'
+                sh 'npm run prisma:generate --workspace=backend'
             }
         }
 
