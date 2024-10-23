@@ -1,0 +1,12 @@
+{
+  "name": "@cirrodrive/types",
+  "version": "0.0.0",
+  "private": true,
+  "types": "index.ts",
+  "dependencies": {
+    "zod": "^3.23.8"
+  },
+  "devDependencies": {
+    "typescript": "^5.5.4"
+  }
+}
