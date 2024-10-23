@@ -1,5 +1,10 @@
 // src/api/routes/codeRouter.ts
-import { Router, Request, Response, NextFunction } from "express";
+import {
+  Router,
+  type Request,
+  type Response,
+  type NextFunction,
+} from "express";
 import { prisma } from "@/loaders/prisma.ts";
 import { generateCode } from "@/utils/generateCode.ts";
 
@@ -13,12 +18,18 @@ export const CodeRouter = (): Router => {
   // 코드 생성
   router.post(
     "/",
-    async (req: Request<unknown, unknown, GenerateCodeRequest>, res: Response, next: NextFunction) => {
+    async (
+      req: Request<unknown, unknown, GenerateCodeRequest>,
+      res: Response,
+      next: NextFunction,
+    ) => {
       try {
         const { fileId } = req.body;
 
         if (!fileId || typeof fileId !== "number") {
-          return res.status(400).json({ error: "유효한 파일 ID가 필요합니다." });
+          return res
+            .status(400)
+            .json({ error: "유효한 파일 ID가 필요합니다." });
         }
 
         const codeString = generateCode(8);
@@ -36,7 +47,7 @@ export const CodeRouter = (): Router => {
       } catch (error) {
         next(error); // 에러를 다음 미들웨어로 전달
       }
-    }
+    },
   );
 
   // 코드 삭제
@@ -60,7 +71,7 @@ export const CodeRouter = (): Router => {
         }
         next(error);
       }
-    }
+    },
   );
 
   return router;

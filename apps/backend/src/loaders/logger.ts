@@ -24,9 +24,19 @@ if (import.meta.env.DEV) {
     options: {
       colorize: true,
       colorizeObjects: true,
-      messageFormat: "{if prefix}\x1b[95m[{prefix}]\x1b[36m {end} {msg}",
+      messageFormat:
+        "{if requestId}" +
+        "\x1b[33m[requestId: {requestId}]\x1b[36m" +
+        "{end} " +
+        "{if serviceName}" +
+        "\x1b[95m[{serviceName}.{methodName}]\x1b[36m" +
+        "{end} " +
+        "{if prefix}" +
+        "\x1b[95m[{prefix}]\x1b[36m" +
+        "{end} " +
+        "{msg}",
       translateTime: true,
-      ignore: "hostname,prefix",
+      ignore: "pid,hostname,serviceName,methodName,prefix,requestId",
       sync: true,
     },
     level: "debug",
