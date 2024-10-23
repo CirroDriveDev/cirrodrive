@@ -34,7 +34,6 @@ pipeline {
         stage('Test') {
             steps {
                 echo 'Running vitest...'
-                sh 'npm run predev --workspace=backend'
                 sh 'npm run test'
             }
         }
