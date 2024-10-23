@@ -1,6 +1,7 @@
-import { File } from "lucide-react";
+import { File as FileIcon } from "lucide-react";
 import axios from "axios";
 import { useState } from "react";
+import { Link } from "react-router-dom";
 import { WorkspaceLayout } from "@/widgets/WorkspaceLayout/ui/WorkspaceLayout.tsx";
 
 interface UploadResponse {
@@ -28,11 +29,6 @@ export function UploadPage(): JSX.Element {
       const response = await axios.post<UploadResponse>(
         `${baseUrl}/files`,
         formData,
-        {
-          headers: {
-            "Content-Type": "multipart/form-data",
-          },
-        },
       );
 
       // 응답에서 fileId 추출
@@ -64,8 +60,8 @@ export function UploadPage(): JSX.Element {
     }
   };
 
-  const handleClick = async (
-    event: React.FormEvent<HTMLButtonElement>,
+  const handleSubmit = async (
+    event: React.FormEvent<HTMLFormElement>,
   ): Promise<void> => {
     event.preventDefault();
 
@@ -94,22 +90,24 @@ export function UploadPage(): JSX.Element {
         </div>
         <div className="flex h-[520px] items-center justify-center">
           <div className="bg-gray-50">
-            <File size={60} color="gray" />
+            <FileIcon size={60} color="gray" />
           </div>
         </div>
-        <form action="" method="post" encType="multipart/form-data">
+        <form
+          method="post"
+          encType="multipart/form-data"
+          // eslint-disable-next-line @typescript-eslint/no-misused-promises -- handleSubmit is a promise
+          onSubmit={handleSubmit}
+        >
           <div className="flex justify-between bg-gray-400">
             <div className="w-[90px] bg-gray-300">
-              <button type="button" className="ms-6">
+              <Link to="/code" className="ms-6">
                 코드
-              </button>
+              </Link>
             </div>
+            <div>{selectedFile?.name}</div>
             <div>{uploadedCode}</div>
-            <button
-              type="button"
-              className="w-[100px] bg-gray-300"
-              onClick={void handleClick}
-            >
+            <button type="submit" className="w-[100px] bg-gray-300">
               업로드
             </button>
           </div>
