@@ -10,16 +10,22 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+enum PricingPlan {
+  free
+  basic
+  premium
+}
+
 model User {
-  id              Int       @id @default(autoincrement())
-  username        String    @unique
+  id              Int         @id @default(autoincrement())
+  username        String      @unique
   password        String
-  email           String    @unique
-  pricingPlan     String    @default("free")
-  usedStorage     Int       @default(0)
-  profileImageUrl String?   @unique
-  createdAt       DateTime  @default(now())
-  updatedAt       DateTime  @updatedAt
+  email           String      @unique
+  pricingPlan     PricingPlan @default(free)
+  usedStorage     Int         @default(0)
+  profileImageUrl String?     @unique
+  createdAt       DateTime    @default(now())
+  updatedAt       DateTime    @updatedAt
   sessions        Session[]
 }
 

@@ -12,6 +12,7 @@ import helmet from "helmet";
 import { StatusCodes } from "http-status-codes";
 import { loggerMiddleware } from "@/loaders/logger.ts";
 import { BaseRouter } from "@/api/baseRouter.ts";
+import { sessionValidator } from "@/api/middlewares/sessionValidator.ts";
 
 /**
  * Express application instance.
@@ -22,6 +23,7 @@ export const expressLoader = (): Express => {
   app.use(json());
   app.use(urlencoded({ extended: true }));
   app.use(cookieParser());
+  app.use(sessionValidator);
   app.use(loggerMiddleware);
 
   if (import.meta.env.PROD) {
