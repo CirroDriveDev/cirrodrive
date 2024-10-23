@@ -54,6 +54,10 @@ async function waitForContainerHealth(): Promise<void> {
 }
 
 async function main(): Promise<void> {
+  Console.write("[MariaDB] 실행 중인 개발 서버 종료...");
+  execSync("npm run compose:dev:down -- database-dev", { stdio: "ignore" });
+  Console.log(" 성공");
+
   Console.write("[MariaDB] 개발 서버 실행...");
   execSync("npm run compose:dev:up -- database-dev", { stdio: "ignore" });
   Console.log(" 성공");
