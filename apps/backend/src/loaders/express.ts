@@ -10,6 +10,7 @@ import express, {
 import cookieParser from "cookie-parser";
 import helmet from "helmet";
 import { StatusCodes } from "http-status-codes";
+import cors from "cors";
 import { loggerMiddleware } from "@/loaders/logger.ts";
 import { BaseRouter } from "@/api/baseRouter.ts";
 import { sessionValidator } from "@/api/middlewares/sessionValidator.ts";
@@ -20,6 +21,8 @@ import { sessionValidator } from "@/api/middlewares/sessionValidator.ts";
 
 export const expressLoader = (): Express => {
   const app = express();
+   
+  app.use(cors());
   app.use(json());
   app.use(urlencoded({ extended: true }));
   app.use(cookieParser());
