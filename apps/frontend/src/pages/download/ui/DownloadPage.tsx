@@ -19,6 +19,7 @@ export function DownloadPage(): JSX.Element {
 
   // 파일 다운로드 핸들러
   const handleDownload = async (): Promise<void> => {
+    console.log(code);
     if (!code) {
       return;
     }
@@ -30,11 +31,13 @@ export function DownloadPage(): JSX.Element {
       },
     );
 
+    const { fileName } = (await axios.get(`${baseUrl}/codes/${code}/metadata`)).data;
+
     // 파일 다운로드 처리
     const url = window.URL.createObjectURL(response.data);
     const a = document.createElement("a");
     a.href = url;
-    a.download = "downloaded_file"; // 필요한 경우 파일명 설정
+    a.download = fileName; // 필요한 경우 파일명 설정
     document.body.appendChild(a);
     a.click();
     a.remove();
@@ -53,7 +56,6 @@ export function DownloadPage(): JSX.Element {
             type="text"
             name="code"
             placeholder="Code"
-            value={code}
             onChange={handleInputChange}
             className="mb-1 mt-2 w-full rounded-md border border-gray-300 px-3 py-2"
           />
@@ -65,7 +67,7 @@ export function DownloadPage(): JSX.Element {
             <Button
               variant="default"
               type="button"
-              onClick={() => handleDownload}
+              onClick={handleDownload}
             >
               OK
             </Button>

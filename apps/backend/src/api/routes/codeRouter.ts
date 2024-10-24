@@ -74,5 +74,32 @@ export const CodeRouter = (): Router => {
     },
   );
 
+  // 코드로 파일 메타데이터 조회
+  router.get(
+    "/:code/metadata",
+    async (req: Request, res: Response, next: NextFunction) => {
+      try {
+        const { code } = req.params;
+
+        const codeData = await prisma.code.findUnique({
+          where: { code_string: code },
+          include: { file: true },
+        });
+
+        if (!codeData) {
+          return res.status(404).json({ error: "유효하지 않은 코드입니다." });
+        }
+
+        res.status(200).json({
+          fileId: codeData.file.id,
+          fileName: codeData.file.name,
+          fileSize: codeData.file.size,
+          fileExtension: codeData.file.extension,
+        });
+      } catch (error) {
+        next(error);
+      }
+    });
+
   return router;
 };
