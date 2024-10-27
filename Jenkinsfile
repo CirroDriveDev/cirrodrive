@@ -1,10 +1,6 @@
 pipeline {
     agent any
 
-    tools {
-        nodejs 'NodeJS_LTS'
-    }
-
     environment {
         TURBO_TELEMETRY_DISABLED = 1
         MAIN = 'main'
