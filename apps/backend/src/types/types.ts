@@ -1,6 +1,6 @@
 import { type Session, type User } from "@prisma/client";
 
-declare module "express-serve-static-core" {
+declare module "express" {
   interface Request {
     user?: User;
     session?: Session;
