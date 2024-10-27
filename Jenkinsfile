@@ -7,40 +7,45 @@ pipeline {
 
     environment {
         TURBO_TELEMETRY_DISABLED = 1
+        PNPM_HOME = '/pnpm'
         MAIN = 'main'
         DEVELOP = 'develop'
         DATABASE_URL = 'mysql://apiuser:apipassword@database-dev:3307/apidatabase'
     }
 
     stages {
-        stage('Install') {
+        stage('Install dependency') {
             steps {
+                script {
+                    env.PATH = "${env.PNPM_HOME}:${env.PATH}"
+                }
                 echo 'Installing dependencies...'
-                sh 'npm ci'
-                sh 'npm run ci:runDatabase --workspace=backend'
-                sh 'npm run prisma:generate --workspace=backend'
+                sh 'corepack enable pnpm'
+                sh 'pnpm install --frozen-lockfile'
+                sh 'pnpm -F @cirrodrive/backend run ci:runDatabase'
+                sh 'pnpm -F @cirrodrive/backend run prisma:generate'
             }
         }
 
         stage('Type check') {
             steps {
-                echo 'Running tsc...'
-                sh 'npm run tsc'
+                echo 'Running typecheck...'
+                sh 'pnpm run typecheck'
             }
         }
 
         stage('Test') {
             steps {
                 echo 'Running vitest...'
-                sh 'npm run test'
+                sh 'pnpm run test'
             }
         }
 
         stage('Build') {
             steps {
                 echo 'Building the app...'
-                sh 'npm run compose:prod:build'
-                sh 'npm run compose:dev:build'
+                sh 'pnpm run compose:prod:build'
+                sh 'pnpm run compose:dev:build'
             }
         }
 
@@ -62,10 +67,10 @@ pipeline {
                 script {
                     if (BRANCH_NAME == MAIN) {
                         echo 'Deploying to production...'
-                        sh 'npm run compose:prod:up'
+                        sh 'pnpm run compose:prod:up'
                     } else if (BRANCH_NAME == DEVELOP) {
                         echo 'Deploying to development...'
-                        sh 'npm run compose:dev:up'
+                        sh 'pnpm run compose:dev:up'
                     }
                 }
             }

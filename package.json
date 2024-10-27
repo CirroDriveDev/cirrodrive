@@ -5,7 +5,7 @@
   "scripts": {
     "dev": "turbo dev",
     "lint": "turbo lint && prettier --write .",
-    "tsc": "turbo tsc",
+    "typecheck": "turbo typecheck",
     "test": "turbo test",
     "build": "turbo build",
     "prepare": "husky",
@@ -21,14 +21,15 @@
     "lint-staged": "^15.2.9",
     "prettier": "^3.3.3",
     "turbo": "^2.1.0",
-    "typescript": "^5.5.4"
+    "typescript": "catalog:"
   },
   "engines": {
     "node": ">=20"
   },
-  "packageManager": "npm@10.7.0",
-  "workspaces": [
-    "apps/*",
-    "packages/*"
-  ]
+  "packageManager": "pnpm@9.12.2",
+  "pnpm": {
+    "overrides": {
+      "vite>rollup": "npm:@rollup/wasm-node"
+    }
+  }
 }
