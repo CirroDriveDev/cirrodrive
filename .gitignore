@@ -29,9 +29,6 @@ coverage
 # Docker
 .docker
 
-# Vercel
-.vercel
-
 # Build Outputs
 out/
 build
@@ -46,17 +43,7 @@ logs
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
-
-# Editor directories and files
-.vscode/*
-!.vscode/extensions.json
-.idea
-.DS_Store
-*.suo
-*.ntvs*
-*.njsproj
-*.sln
-*.sw?
+.pnpm-debug.log*
 
 # Misc
 .DS_Store
