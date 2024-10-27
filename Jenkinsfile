@@ -7,6 +7,7 @@ pipeline {
 
     environment {
         TURBO_TELEMETRY_DISABLED = 1
+        PNPM_HOME = '/pnpm'
         MAIN = 'main'
         DEVELOP = 'develop'
         DATABASE_URL = 'mysql://apiuser:apipassword@database-dev:3307/apidatabase'
@@ -15,7 +16,11 @@ pipeline {
     stages {
         stage('Install dependency') {
             steps {
+                script {
+                    env.PATH = "${env.PNPM_HOME}:${env.PATH}"
+                }
                 echo 'Installing dependencies...'
+                sh 'corepack enable pnpm'
                 sh 'pnpm install --frozen-lockfile'
                 sh 'pnpm -F @cirrodrive/backend run ci:runDatabase'
                 sh 'pnpm -F @cirrodrive/backend run prisma:generate'
