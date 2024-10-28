@@ -6,7 +6,7 @@ import { Button } from "@/shared/ui/Button.tsx";
 
 export function Header(): JSX.Element {
   return (
-    <header className="bg-primary flex flex-grow">
+    <header className="flex flex-grow bg-primary">
       <div className="flex w-[250px] items-center p-4">
         <Link className="flex items-center space-x-2 text-white" to="/">
           <Logo />

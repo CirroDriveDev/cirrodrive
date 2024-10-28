@@ -5,51 +5,52 @@
   "editor.tabSize": 2,
   "editor.defaultFormatter": "esbenp.prettier-vscode",
   "editor.formatOnSave": true,
-  "editor.formatOnType": true,
-  "editor.formatOnPaste": true,
   "editor.codeActionsOnSave": {
-    "source.fixAll.eslint": "always"
+    "source.fixAll.eslint": "explicit"
   },
 
   // files
-  "files.autoSave": "afterDelay",
-  "files.autoSaveWhenNoErrors": true,
-  "files.autoSaveDelay": 500,
-  "files.autoSaveWorkspaceFilesOnly": true,
   "files.associations": {
-    "*.css": "tailwindcss",
-    ".env*": "dotenv"
+    "*.css": "tailwindcss"
   },
 
   // eslint
+  "eslint.rules.customizations": [{ "rule": "*", "severity": "warn" }],
+  "eslint.runtime": "node",
   "eslint.workingDirectories": [
     { "pattern": "apps/*/" },
-    { "pattern": "packages/*/" }
+    { "pattern": "packages/*/" },
+    { "pattern": "tooling/*/" }
   ],
+
+  // prettier
+  "prettier.ignorePath": ".gitignore",
+
+  // tailwindcss
+  "tailwindCSS.experimental.classRegex": [
+    ["cva\\(([^)]*)\\)", "[\"'`]([^\"'`]*).*?[\"'`]"],
+    ["cx\\(([^)]*)\\)", "(?:'|\"|`)([^']*)(?:'|\"|`)"]
+  ],
+  "tailwindCSS.experimental.configFile": "./tooling/tailwind/web.ts",
 
   // javascript & typescript
   "javascript.updateImportsOnFileMove.enabled": "always",
-  "typescript.updateImportsOnFileMove.enabled": "always",
   "javascript.preferences.importModuleSpecifier": "non-relative",
-  "typescript.preferences.importModuleSpecifier": "non-relative",
   "javascript.preferences.importModuleSpecifierEnding": "js",
+  "typescript.updateImportsOnFileMove.enabled": "always",
+  "typescript.preferences.importModuleSpecifier": "non-relative",
   "typescript.preferences.importModuleSpecifierEnding": "js",
+  "typescript.enablePromptUseWorkspaceTsdk": true,
+  "typescript.tsdk": "node_modules/typescript/lib",
 
   // file extensions
+  "[typescript,typescriptreact]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  },
   "[dockerfile]": {
     "editor.defaultFormatter": "ms-azuretools.vscode-docker"
   },
   "[prisma]": {
     "editor.defaultFormatter": "Prisma.prisma"
-  },
-
-  // tailwindcss
-  "tailwindCSS.experimental.classRegex": [
-    ["Classes \\=([^;]*);", "'([^']*)'"],
-    ["Classes \\=([^;]*);", "\"([^\"]*)\""],
-    ["Classes \\=([^;]*);", "\\`([^\\`]*)\\`"],
-    ["Classes\\(([^;]*)\\);", "'([^']*)'"],
-    ["Classes\\(([^;]*)\\);", "\"([^\"]*)\""],
-    ["Classes\\(([^;]*)\\);", "\\`([^\\`]*)\\`"]
-  ]
+  }
 }

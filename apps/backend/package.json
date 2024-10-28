@@ -1,17 +1,23 @@
 {
   "name": "@cirrodrive/backend",
-  "private": true,
   "version": "0.0.0",
+  "private": true,
+  "engines": {
+    "node": ">=20.18.0",
+    "pnpm": "^9.6.0"
+  },
   "type": "module",
   "scripts": {
+    "build": "tsc -b && vite build --ssr src/server.ts",
+    "clean": "git clean -xdf .cache .turbo node_modules",
     "predev": "vite-node predev.ts",
     "dev": "vite-node --watch src/server.ts",
-    "lint": "eslint . --fix --ext ts,tsx --report-unused-disable-directives --max-warnings 0 && prettier --write .",
-    "typecheck": "tsc --noEmit",
-    "test": "vitest",
-    "build": "tsc -b && vite build --ssr src/server.ts",
-    "prestart": "prisma migrate deploy",
+    "format": "prettier --check . --ignore-path ../../.gitignore",
+    "lint": "eslint",
     "start": "node dist/server.js",
+    "prestart": "prisma migrate deploy",
+    "test": "vitest",
+    "typecheck": "tsc --noEmit",
     "prisma:studio": "prisma studio",
     "prisma:generate": "prisma generate",
     "prisma:migrate:dev": "prisma migrate dev --create-only --name init",
@@ -25,9 +31,6 @@
     "compose:dev:build": "docker-compose -f compose.dev.yaml build",
     "compose:dev:up": "docker-compose -f compose.dev.yaml up -d --renew-anon-volumes",
     "compose:dev:down": "docker-compose -f compose.dev.yaml down -v"
-  },
-  "engines": {
-    "node": ">=20.0.0"
   },
   "dependencies": {
     "@node-rs/argon2": "^2.0.0",
@@ -53,27 +56,19 @@
     "zod": "catalog:"
   },
   "devDependencies": {
+    "@cirrodrive/eslint-config": "workspace:^",
     "@cirrodrive/types": "workspace:*",
     "@faker-js/faker": "^8.4.1",
     "@types/cookie-parser": "~1.4.7",
     "@types/cors": "^2.8.17",
-    "@types/eslint": "~8.56.10",
-    "@types/eslint-config-prettier": "~6.11.3",
     "@types/express": "~4.17.21",
     "@types/jsonfile": "~6.1.4",
     "@types/multer": "^1.4.12",
     "@types/node": "^20.14.9",
     "@types/supertest": "~6.0.2",
     "@types/validator": "^13.12.0",
-    "@typescript-eslint/eslint-plugin": "^7.14.1",
-    "@typescript-eslint/parser": "^7.14.1",
     "@vitest/coverage-v8": "^2.0.5",
     "eslint": "catalog:",
-    "eslint-config-prettier": "^9.1.0",
-    "eslint-import-resolver-typescript": "^3.6.1",
-    "eslint-plugin-import": "^2.29.1",
-    "eslint-plugin-vitest": "^0.5.4",
-    "eslint-plugin-vitest-globals": "^1.5.0",
     "prettier": "catalog:",
     "prisma": "^5.16.1",
     "supertest": "^7.0.0",

@@ -1,4 +1,4 @@
-import React from "react";
+import type React from "react";
 import { Header } from "@/widgets/WorkspaceLayout/ui/Header.tsx";
 import { SideBar } from "@/widgets/WorkspaceLayout/ui/SideBar.tsx";
 import { Main } from "@/widgets/WorkspaceLayout/ui/Main.tsx";

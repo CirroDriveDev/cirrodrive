@@ -3,7 +3,7 @@ import { Button } from "@/shared/ui/Button.tsx";
 
 export function SideBar(): JSX.Element {
   return (
-    <aside className="bg-secondary flex flex-grow">
+    <aside className="flex flex-grow bg-secondary">
       <nav className="flex flex-grow flex-col space-y-4 p-4">
         <Button variant="ghost">
           <Link to="#" className="flex-grow">

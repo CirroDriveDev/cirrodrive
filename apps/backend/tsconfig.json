@@ -5,8 +5,7 @@
     "vitestSetup.ts",
     "vite.config.ts",
     "predev.ts",
-    "runDatabase.jenkins.ts",
-    ".eslintrc.cjs"
+    "runDatabase.jenkins.ts"
   ],
   "compilerOptions": {
     /* Visit https://aka.ms/tsconfig to read more about this file */
@@ -14,7 +13,7 @@
     /* Projects */
     // "incremental": true,
     "composite": true,
-    "tsBuildInfoFile": "./node_modules/.tmp/tsconfig.app.tsbuildinfo",
+    "tsBuildInfoFile": "${configDir}/.cache/tsbuildinfo.json",
     // "disableSourceOfProjectReferenceRedirect": true,
     // "disableSolutionSearching": true,
     // "disableReferencedProjectLoad": true,

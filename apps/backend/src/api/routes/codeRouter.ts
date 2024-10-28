@@ -99,7 +99,8 @@ export const CodeRouter = (): Router => {
       } catch (error) {
         next(error);
       }
-    });
+    },
+  );
 
   return router;
 };

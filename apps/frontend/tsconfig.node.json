@@ -1,11 +1,12 @@
 {
-  "include": ["vite.config.ts", ".eslintrc.cjs", "vitestSetup.ts"],
+  "include": ["vite.config.ts", "vitestSetup.ts", "tailwind.config.ts"],
   "exclude": ["src"],
   "compilerOptions": {
     "target": "ES2022",
     "lib": ["ES2023"],
     "module": "ESNext",
     "skipLibCheck": true,
+    "tsBuildInfoFile": "${configDir}/.cache/tsbuildinfo.json",
 
     /* Bundler mode */
     "moduleResolution": "bundler",

@@ -1,4 +1,4 @@
-import React from "react";
+import type React from "react";
 import { Header } from "@/widgets/WorkspaceLayout/ui/Header.tsx";
 
 interface DefaultLayoutProps {
