@@ -21,7 +21,7 @@ import { sessionValidator } from "@/api/middlewares/sessionValidator.ts";
 
 export const expressLoader = (): Express => {
   const app = express();
-   
+
   app.use(cors());
   app.use(json());
   app.use(urlencoded({ extended: true }));

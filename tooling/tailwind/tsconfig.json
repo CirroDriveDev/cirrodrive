@@ -1,0 +1,5 @@
+{
+  "extends": "@cirrodrive/tsconfig/tsconfig.base.json",
+  "include": ["**/*.ts", "**/*.tsx"],
+  "exclude": ["node_modules"]
+}

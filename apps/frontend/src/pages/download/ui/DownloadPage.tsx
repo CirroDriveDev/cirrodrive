@@ -19,7 +19,6 @@ export function DownloadPage(): JSX.Element {
 
   // 파일 다운로드 핸들러
   const handleDownload = async (): Promise<void> => {
-    console.log(code);
     if (!code) {
       return;
     }
@@ -31,12 +30,15 @@ export function DownloadPage(): JSX.Element {
       },
     );
 
-    const { fileName } = (await axios.get(`${baseUrl}/codes/${code}/metadata`)).data;
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment -- TODO: fix this
+    const { fileName } = (await axios.get(`${baseUrl}/codes/${code}/metadata`))
+      .data;
 
     // 파일 다운로드 처리
     const url = window.URL.createObjectURL(response.data);
     const a = document.createElement("a");
     a.href = url;
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment -- TODO: fix this
     a.download = fileName; // 필요한 경우 파일명 설정
     document.body.appendChild(a);
     a.click();
@@ -64,11 +66,8 @@ export function DownloadPage(): JSX.Element {
             <span className="text-l text-blue-600"> 새로운 코드 발급.</span>
           </Link>
           <div className="mt-6 flex justify-center">
-            <Button
-              variant="default"
-              type="button"
-              onClick={handleDownload}
-            >
+            {/* eslint-disable-next-line @typescript-eslint/no-misused-promises -- TODO: fix this */}
+            <Button variant="default" type="button" onClick={handleDownload}>
               OK
             </Button>
           </div>

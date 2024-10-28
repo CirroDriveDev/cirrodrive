@@ -27,7 +27,7 @@ FROM base AS deps
 COPY --from=prune /cirrodrive/json.tar.gz .
 RUN tar -xzf json.tar.gz -C . && rm json.tar.gz
 # 의존성 설치
-RUN --mount=type=cache,id=pnpm,target=/pnpm/store pnpm install --frozen-lockfile
+RUN --mount=type=cache,id=pnpm,target=/pnpm/store pnpm install --frozen-lockfile --ignore-scripts
 
 # 빌드
 FROM deps AS build
