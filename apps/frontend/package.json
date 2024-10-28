@@ -12,7 +12,7 @@
     "preview": "vite preview",
     "typecheck": "tsc --noEmit",
     "test": "vitest",
-    "shadcn:add": "shadcn add",
+    "ui-add": "shadcn add",
     "compose:prod:build": "docker-compose -f compose.prod.yaml build",
     "compose:prod:up": "docker-compose -f compose.prod.yaml up -d --renew-anon-volumes",
     "compose:prod:down": "docker-compose -f compose.prod.yaml down -v",

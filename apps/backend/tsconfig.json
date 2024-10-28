@@ -1,8 +1,7 @@
 {
   "extends": "@cirrodrive/tsconfig/tsconfig.base.json",
   "compilerOptions": {
-    "lib": ["ES2022", "dom", "dom.iterable"],
-    "jsx": "react-jsx",
+    "lib": ["ES2022"],
     "baseUrl": ".",
     "paths": {
       "@/*": ["./src/*"]
