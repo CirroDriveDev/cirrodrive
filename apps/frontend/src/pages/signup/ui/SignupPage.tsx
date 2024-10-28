@@ -1,4 +1,5 @@
-import React, { useState } from "react";
+import type React from "react";
+import { useState } from "react";
 import { Header } from "@/widgets/WorkspaceLayout/ui/Header.tsx";
 import { Button } from "@/shared/ui/Button.tsx";
 

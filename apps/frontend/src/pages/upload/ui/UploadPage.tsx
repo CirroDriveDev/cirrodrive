@@ -34,6 +34,7 @@ export function UploadPage(): JSX.Element {
       // 응답에서 fileId 추출
       const fileId: number = response.data.fileId;
       return fileId;
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars -- TODO: fix this
     } catch (error) {
       throw new Error("File upload failed");
     }
@@ -47,6 +48,7 @@ export function UploadPage(): JSX.Element {
       const code: string = response.data.code;
 
       return code;
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars -- TODO: fix this
     } catch (error) {
       throw new Error("Failed to get code");
     }

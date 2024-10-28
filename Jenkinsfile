@@ -11,6 +11,11 @@ pipeline {
         MAIN = 'main'
         DEVELOP = 'develop'
         DATABASE_URL = 'mysql://apiuser:apipassword@database-dev:3307/apidatabase'
+        PROD_DATABASE_URL = credentials('DATABASE_URL_CREDENTIAL_ID')
+        PROD_MARIADB_ROOT_PASSWORD = credentials('MARIADB_ROOT_PASSWORD_CREDENTIAL_ID')
+        PROD_MARIADB_USER = credentials('MARIADB_USER_CREDENTIAL_ID')
+        PROD_MARIADB_PASSWORD = credentials('MARIADB_PASSWORD_CREDENTIAL_ID')
+        PROD_MARIADB_DATABASE = credentials('MARIADB_DATABASE_CREDENTIAL_ID')
     }
 
     stages {
@@ -50,13 +55,6 @@ pipeline {
         }
 
         stage('Deploy') {
-            environment {
-                DATABASE_URL = credentials('DATABASE_URL_CREDENTIAL_ID')
-                MARIADB_ROOT_PASSWORD = credentials('MARIADB_ROOT_PASSWORD_CREDENTIAL_ID')
-                MARIADB_USER = credentials('MARIADB_USER_CREDENTIAL_ID')
-                MARIADB_PASSWORD = credentials('MARIADB_PASSWORD_CREDENTIAL_ID')
-                MARIADB_DATABASE = credentials('MARIADB_DATABASE_CREDENTIAL_ID')
-            }
             when {
                 anyOf {
                     branch MAIN
@@ -66,6 +64,11 @@ pipeline {
             steps {
                 script {
                     if (BRANCH_NAME == MAIN) {
+                        env.DATABASE_URL = PROD_DATABASE_URL
+                        env.MARIADB_ROOT_PASSWORD = PROD_MARIADB_ROOT_PASSWORD
+                        env.MARIADB_USER = PROD_MARIADB_USER
+                        env.MARIADB_PASSWORD = PROD_MARIADB_PASSWORD
+                        env.MARIADB_DATABASE = PROD_MARIADB_DATABASE
                         echo 'Deploying to production...'
                         sh 'pnpm run compose:prod:up'
                     } else if (BRANCH_NAME == DEVELOP) {
