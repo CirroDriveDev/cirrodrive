@@ -18,9 +18,15 @@
 
     /** Strictness */
     "strict": true,
+    "strictNullChecks": true,
     "noUncheckedIndexedAccess": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "noFallthroughCasesInSwitch": true,
     "checkJs": true,
-    "allowImportingTsExtensions": true, 
+    "allowImportingTsExtensions": true,
+    "allowSyntheticDefaultImports": true,
+    "forceConsistentCasingInFileNames": true,
 
     /** Transpile using Bundler (not tsc) */
     "module": "Preserve",

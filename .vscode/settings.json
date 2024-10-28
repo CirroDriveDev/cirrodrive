@@ -22,6 +22,7 @@
     { "pattern": "packages/*/" },
     { "pattern": "tooling/*/" }
   ],
+  "eslint.useFlatConfig": true,
 
   // prettier
   "prettier.ignorePath": ".gitignore",

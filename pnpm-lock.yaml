@@ -23,7 +23,7 @@ catalogs:
       version: 5.4.10
     vitest:
       specifier: ^2.1.3
-      version: 2.1.3
+      version: 2.1.4
     zod:
       specifier: ^3.23.8
       version: 3.23.8
@@ -72,6 +72,9 @@ importers:
 
   apps/backend:
     dependencies:
+      '@cirrodrive/tsconfig':
+        specifier: workspace:^
+        version: link:../../tooling/typescript
       '@node-rs/argon2':
         specifier: ^2.0.0
         version: 2.0.0
@@ -202,6 +205,9 @@ importers:
 
   apps/frontend:
     dependencies:
+      '@cirrodrive/tsconfig':
+        specifier: workspace:^
+        version: link:../../tooling/typescript
       '@radix-ui/react-dropdown-menu':
         specifier: ^2.1.1
         version: 2.1.2(@types/react-dom@18.3.1)(@types/react@18.3.12)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)

@@ -21,6 +21,7 @@
     "compose:dev:down": "docker-compose -f compose.dev.yaml down -v"
   },
   "dependencies": {
+    "@cirrodrive/tsconfig": "workspace:^",
     "@radix-ui/react-dropdown-menu": "^2.1.1",
     "@radix-ui/react-slot": "^1.1.0",
     "@radix-ui/themes": "^3.1.3",
