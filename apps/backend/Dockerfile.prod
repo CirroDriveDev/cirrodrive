@@ -10,9 +10,6 @@ RUN corepack enable
 RUN --mount=type=cache,id=pnpm,target=/pnpm/store pnpm install -g turbo
 # 작업 디렉터리 설정
 WORKDIR /cirrodrive
-# turborepo 설정 파일 복사
-COPY turbo.json .
-
 # 모노레포 정리
 FROM base AS prune
 # 모노레포 복사
@@ -29,7 +26,7 @@ FROM base AS deps
 COPY --from=prune /cirrodrive/json.tar.gz .
 RUN tar -xzf json.tar.gz -C . && rm json.tar.gz
 # 의존성 설치
-RUN --mount=type=cache,id=pnpm,target=/pnpm/store pnpm install --frozen-lockfile
+RUN --mount=type=cache,id=pnpm,target=/pnpm/store pnpm install --frozen-lockfile --ignore-scripts
 
 # 빌드
 FROM deps AS build
