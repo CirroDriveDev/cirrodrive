@@ -37,4 +37,4 @@ RUN tar -xzf full.tar.gz -C . && rm full.tar.gz
 # 5173 포트 노출
 EXPOSE 5173
 # Vite 개발 서버 실행 명령어
-CMD ["pnpm", "-F", "@cirrodrive/frontend", "run", "dev", "--", "--host", "0.0.0.0"]
+CMD ["pnpm", "-F", "@cirrodrive/frontend", "run", "dev", "--host", "0.0.0.0"]
