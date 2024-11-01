@@ -60,20 +60,16 @@ async function main(): Promise<void> {
     Console.log("Docker가 설치되어 있지 않습니다.\nMariaDB 실행을 건너뜁니다.");
   }
 
-  try {
-    Console.write("[MariaDB] 실행 중인 개발 서버 종료...");
-    execSync("pnpm run compose:dev:down database-dev", { stdio: "ignore" });
-    Console.log(" 성공");
+  Console.write("[MariaDB] 실행 중인 개발 서버 종료...");
+  execSync("pnpm run compose:dev:down database-dev", { stdio: "ignore" });
+  Console.log(" 성공");
 
-    Console.write("[MariaDB] 개발 서버 실행...");
-    execSync("pnpm run compose:dev:up database-dev", { stdio: "ignore" });
-    Console.log(" 성공");
+  Console.write("[MariaDB] 개발 서버 실행...");
+  execSync("pnpm run compose:dev:up database-dev", { stdio: "ignore" });
+  Console.log(" 성공");
 
-    await waitForContainerHealth();
-    Console.log();
-  } catch {
-    Console.log("Docker 명령어 실행 중 오류가 발생했습니다.");
-  }
+  await waitForContainerHealth();
+  Console.log();
 
   Console.log("[Prisma] db push 실행");
   execSync("prisma db push", { stdio: "inherit" });
