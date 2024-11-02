@@ -1,173 +1,72 @@
-import { Router, type Request, type Response } from "express";
-import {
-  createUserRequestBodySchema,
-  createUserResponseBodySchema,
-  getUsersQuerySchema,
-  getUsersResponseBodySchema,
-  getUserParamSchema,
-  getUserResponseBodySchema,
-  updateUserParamSchema,
-  updateUserRequestBodySchema,
-  updateUserResponseBodySchema,
-  deleteUserParamSchema,
-  type CreateUserResponseBody,
-  type GetUsersResponseBody,
-  type GetUserResponseBody,
-  type UpdateUserParam,
-  type UpdateUserRequestBody,
-  type UpdateUserResponseBody,
-  type DeleteUserParam,
-} from "@cirrodrive/types";
-import { StatusCodes } from "http-status-codes";
+import { inputUserDataSchema, outputUserDataSchema } from "@cirrodrive/types";
+import { z } from "zod";
 import { container } from "@/loaders/inversify.ts";
 import { UserService } from "@/services/userService.ts";
 import { logger } from "@/loaders/logger.ts";
+import { router, procedure, authedProcedure } from "@/loaders/trpc.ts";
 
-/**
- * 사용자 라우터입니다.
- */
-export const UserRouter = (): Router => {
-  const router = Router();
-  const userService = container.get<UserService>(UserService);
+const userService = container.get<UserService>(UserService);
 
-  // createUser
-  router.post("/", async (req: Request, res: Response) => {
-    logger.info({ requestId: req.id }, "createUser 요청 시작");
+export const userRouter = router({
+  create: procedure
+    .input(inputUserDataSchema)
+    .output(outputUserDataSchema)
+    .mutation(async ({ input, ctx }) => {
+      logger.info({ requestId: ctx.req.id }, "createUser 요청 시작");
 
-    // Authorization
-    if (req.user) {
-      res.status(StatusCodes.BAD_REQUEST).json({
-        message: "이미 로그인되어 있습니다.",
-      });
-      return;
-    }
+      const user = await userService.create(
+        input.username,
+        input.password,
+        input.email,
+      );
 
-    // Input
-    const { data: requestBody, success } =
-      createUserRequestBodySchema.safeParse(req.body);
+      return user;
+    }),
 
-    if (!success) {
-      res.status(StatusCodes.BAD_REQUEST).json({
-        message: "잘못된 요청입니다.",
-      });
-      return;
-    }
+  list: procedure
+    .input(
+      z.object({
+        limit: z.coerce.number().optional().default(10),
+        offset: z.coerce.number().optional().default(0),
+      }),
+    )
+    .output(z.array(outputUserDataSchema))
+    .query(async ({ input, ctx }) => {
+      logger.info({ requestId: ctx.req.id }, "getUsers 요청 시작");
 
-    // Process
-    const user = await userService.createUser(requestBody);
+      const users = await userService.list(input.limit, input.offset);
 
-    // Output
-    const responseBody: CreateUserResponseBody =
-      createUserResponseBodySchema.parse(user);
-    res.status(StatusCodes.CREATED).json(responseBody);
-  });
+      return users;
+    }),
 
-  // getUsers
-  router.get("/", async (req: Request, res: Response) => {
-    logger.info({ requestId: req.id }, "getUsers 요청 시작");
+  me: authedProcedure.output(outputUserDataSchema).query(({ ctx }) => {
+    logger.info({ requestId: ctx.req.id }, "getUser 요청 시작");
+    return ctx.user;
+  }),
 
-    // Input
-    const query = getUsersQuerySchema.parse(req.query);
+  update: authedProcedure
+    .input(inputUserDataSchema)
+    .output(outputUserDataSchema)
+    .mutation(async ({ input, ctx }) => {
+      logger.info({ requestId: ctx.req.id }, "updateUser 요청 시작");
 
-    // Process
-    const users: GetUsersResponseBody = await userService.getUsers(
-      query.limit,
-      query.offset,
-    );
+      const user = await userService.update(
+        ctx.user.id,
+        input.username,
+        input.password,
+        input.email,
+      );
 
-    // Output
-    const responseBody: GetUsersResponseBody =
-      getUsersResponseBodySchema.parse(users);
-    res.status(StatusCodes.OK).json(responseBody);
-  });
+      return user;
+    }),
 
-  // getUser
-  router.get("/:username", async (req: Request, res: Response) => {
-    logger.info({ requestId: req.id }, "getUser 요청 시작");
+  delete: authedProcedure
+    .output(outputUserDataSchema)
+    .mutation(async ({ ctx }) => {
+      logger.info({ requestId: ctx.req.id }, "deleteUser 요청 시작");
 
-    // Authorization
-    if (!req.user || req.user.username !== req.params.username) {
-      res.status(StatusCodes.UNAUTHORIZED).send();
-      return;
-    }
+      const user = await userService.delete(ctx.user.id);
 
-    // Input
-    const { data: params, success } = getUserParamSchema.safeParse(req.params);
-
-    if (!success) {
-      res.status(StatusCodes.BAD_REQUEST).json({
-        message: "잘못된 요청입니다.",
-      });
-      return;
-    }
-
-    // Process
-    const user: GetUserResponseBody = await userService.getUser(
-      params.username,
-    );
-
-    if (req.user.username !== params.username) {
-      res.status(StatusCodes.UNAUTHORIZED).send();
-      return;
-    }
-
-    // Output
-    const responseBody: GetUserResponseBody =
-      getUserResponseBodySchema.parse(user);
-    res.status(StatusCodes.OK).json(responseBody);
-  });
-
-  // updateUser
-  router.put("/:username", async (req: Request, res: Response) => {
-    logger.info({ requestId: req.id }, "updateUser 요청 시작");
-
-    // Authorization
-    if (!req.user || req.user.username !== req.params.username) {
-      res.status(StatusCodes.UNAUTHORIZED).send();
-      return;
-    }
-
-    // Input
-    const { username }: UpdateUserParam = updateUserParamSchema.parse(
-      req.params,
-    );
-    const data: UpdateUserRequestBody = updateUserRequestBodySchema.parse(
-      req.body,
-    );
-
-    // Process
-    const user: UpdateUserResponseBody = await userService.updateUser(
-      username,
-      data,
-    );
-
-    // Output
-    const responseBody: UpdateUserResponseBody =
-      updateUserResponseBodySchema.parse(user);
-    res.status(StatusCodes.OK).json(responseBody);
-  });
-
-  // deleteUser
-  router.delete("/:username", async (req: Request, res: Response) => {
-    logger.info({ requestId: req.id }, "deleteUser 요청 시작");
-
-    // Authorization
-    if (!req.user || req.user.username !== req.params.username) {
-      res.status(StatusCodes.UNAUTHORIZED).send();
-      return;
-    }
-
-    // Input
-    const { username }: DeleteUserParam = deleteUserParamSchema.parse(
-      req.params,
-    );
-
-    // Process
-    await userService.deleteUser(username);
-
-    // Output
-    res.status(StatusCodes.NO_CONTENT).send();
-  });
-
-  return router;
-};
+      return user;
+    }),
+});
