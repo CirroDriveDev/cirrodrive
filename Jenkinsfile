@@ -10,6 +10,7 @@ pipeline {
         PNPM_HOME = '/pnpm'
         MAIN = 'main'
         DEVELOP = 'develop'
+        VITE_TRPC_SERVER_URL = 'http://ec2-3-38-95-198.ap-northeast-2.compute.amazonaws.com'
         DATABASE_URL = 'mysql://apiuser:apipassword@database-dev:3307/apidatabase'
         PROD_DATABASE_URL = credentials('DATABASE_URL_CREDENTIAL_ID')
         PROD_MARIADB_ROOT_PASSWORD = credentials('MARIADB_ROOT_PASSWORD_CREDENTIAL_ID')

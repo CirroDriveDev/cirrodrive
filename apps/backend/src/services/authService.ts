@@ -28,13 +28,11 @@ export class AuthService {
 
   /**
    * 사용자를 로그인합니다.
+   *
    * @param username - 사용자 이름
    * @param password - 비밀번호
    * @returns 생성된 세션의 토큰
-   * @throws 사용자를 찾을 수 없는 경우.
-   * @throws 비밀번호가 일치하지 않는 경우.
-   * @throws 세션을 생성하는 중 오류가 발생한 경우.
-   **/
+   */
   public async login(
     username: string,
     password: string,
@@ -51,7 +49,7 @@ export class AuthService {
       throw new Error("사용자를 찾을 수 없습니다");
     }
 
-    if (!(await verify(user.password, password))) {
+    if (!(await verify(user.hashedPassword, password))) {
       throw new Error("비밀번호가 일치하지 않습니다");
     }
 
@@ -64,29 +62,27 @@ export class AuthService {
 
   /**
    * 사용자를 로그아웃합니다.
+   *
    * @param token - 세션 ID
-   * @throws 세션을 찾을 수 없는 경우.
-   * @throws 세션을 무효화하는 중 오류가 발생한 경우.
-   **/
+   */
   public async logout(token: string): Promise<void> {
     this.logger.info({ methodName: "logout" }, "로그아웃 중");
-    const sessionId = this.encodeSessionId(token);
+    const sessionId = this.encodeToken(token);
 
     await this.invalidateSession(sessionId);
   }
 
   /**
    * 세션을 검증합니다.
-   * @param sessionId - 세션 ID
+   *
+   * @param token - 세션 토큰
    * @returns 사용자와 세션
-   * @throws 세션을 찾을 수 없는 경우.
-   * @throws 사용자를 찾을 수 없는 경우.
-   **/
+   */
   public async validateSessionToken(
     token: string,
   ): Promise<SessionValidationResult> {
     this.logger.info({ methodName: "validateSessionToken" }, "세션 검증 중");
-    const sessionId = this.encodeSessionId(token);
+    const sessionId = this.encodeToken(token);
 
     const result = await this.sessionModel.findUnique({
       where: {
@@ -123,53 +119,49 @@ export class AuthService {
     return { session, user };
   }
 
+  /**
+   * 세션 토큰 쿠키를 설정합니다.
+   *
+   * @param response - 응답 객체
+   * @param token - 세션 토큰
+   * @param expiresAt - 만료 시각
+   */
   public setSessionTokenCookie(
-    response: Response,
+    res: Response,
     token: string,
     expiresAt: Date,
   ): void {
-    this.logger.info(
-      { methodName: "setSessionTokenCookie" },
-      "세션 쿠키 설정 중",
-    );
-
-    if (import.meta.env.PROD) {
-      response.set(
-        "Set-Cookie",
-        `${AuthService.SESSION_TOKEN_COOKIE_NAME}=${token}; HTTPOnly; SameSite=Lax; Expires=${expiresAt.toUTCString()}; Path=/; Secure;`,
-      );
-    } else {
-      response.set(
-        "Set-Cookie",
-        `${AuthService.SESSION_TOKEN_COOKIE_NAME}=${token}; HTTPOnly; SameSite=Lax; Expires=${expiresAt.toUTCString()}; Path=/;`,
-      );
-    }
+    res.cookie(AuthService.SESSION_TOKEN_COOKIE_NAME, token, {
+      httpOnly: true,
+      sameSite: "lax",
+      expires: expiresAt,
+      path: "/",
+      secure: process.env.PROD === "true",
+    });
   }
 
-  public deleteSessionTokenCookie(response: Response): void {
-    this.logger.info(
-      { methodName: "deleteSessionTokenCookie" },
-      "세션 쿠키 삭제 중",
-    );
-    if (import.meta.env.PROD) {
-      response.set(
-        "Set-Cookie",
-        `${AuthService.SESSION_TOKEN_COOKIE_NAME}=; HTTPOnly; SameSite=Lax; Max-Age=0; Path=/ ;Secure;`,
-      );
-    } else {
-      response.set(
-        "Set-Cookie",
-        `${AuthService.SESSION_TOKEN_COOKIE_NAME}=; HTTPOnly; SameSite=Lax; Max-Age=0; Path=/;`,
-      );
-    }
+  /**
+   * 세션 토큰 쿠키를 삭제합니다.
+   *
+   * @param response - 응답 객체
+   */
+  public clearSessionTokenCookie(response: Response): void {
+    this.setSessionTokenCookie(response, "", new Date(0));
   }
 
+  /**
+   * 세션을 생성합니다.
+   *
+   * @param token - 세션 토큰
+   * @param userId - 사용자 ID
+   * @returns 생성된 세션
+   */
   private async createSession(token: string, userId: number): Promise<Session> {
-    const sessionId = this.encodeSessionId(token);
+    const sessionId = this.encodeToken(token);
     const session: Session = {
       id: sessionId,
       userId,
-      expiresAt: new Date(Date.now() + 1000 * 60 * 60 * 24 * 30), // 30 days
+      expiresAt: new Date(Date.now() + 1000 * 60 * 60 * 24 * 1), // 1 days
     };
     await this.sessionModel.create({
       data: session,
@@ -181,6 +173,11 @@ export class AuthService {
     await this.sessionModel.delete({ where: { id: sessionId } });
   }
 
+  /**
+   * 세션 토큰을 생성합니다.
+   *
+   * @returns 세션 토큰
+   */
   private generateSessionToken(): string {
     const bytes = new Uint8Array(20);
     crypto.getRandomValues(bytes);
@@ -188,7 +185,13 @@ export class AuthService {
     return token;
   }
 
-  private encodeSessionId(sessionId: string): string {
-    return encodeHexLowerCase(sha256(new TextEncoder().encode(sessionId)));
+  /**
+   * 세션 토큰을 해시합니다.
+   *
+   * @param token - 세션 토큰
+   * @returns 해시된 세션 ID
+   */
+  private encodeToken(token: string): string {
+    return encodeHexLowerCase(sha256(new TextEncoder().encode(token)));
   }
 }
