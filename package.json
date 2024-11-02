@@ -7,12 +7,14 @@
     "pnpm": "^9.6.0"
   },
   "packageManager": "pnpm@9.12.2",
+  "type": "module",
   "scripts": {
     "build": "turbo run build",
     "clean": "git clean -xdf node_modules",
     "clean:workspaces": "turbo run clean",
     "prisma:push": "turbo -F @cirrodrive/backend prisma:db:push",
     "prisma:studio": "turbo -F @cirrodrive/backend prisma:studio",
+    "prisma:generate": "turbo -F @cirrodrive/backend prisma:generate",
     "dev": "turbo run dev --continue",
     "format": "turbo run format --continue -- --cache --cache-location .cache/.prettiercache",
     "format:fix": "turbo run format --continue -- --write --cache --cache-location .cache/.prettiercache",
@@ -20,7 +22,7 @@
     "lint:fix": "turbo run lint --continue -- --fix --cache --cache-location .cache/.eslintcache",
     "lint:ws": "pnpx sherif@latest",
     "postinstall": "pnpm lint:ws",
-    "prepare": "husky && turbo -F @cirrodrive/backend prisma:generate",
+    "prepare": "husky",
     "test": "turbo run test",
     "typecheck": "turbo run typecheck",
     "ui-add": "turbo run ui-add",
