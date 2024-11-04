@@ -159,11 +159,11 @@ pipeline {
             // }
             steps {
                 echo 'Saving Docker image...'
-                sh "docker save -o ${DEPLOY_PATH}/cirrodrive-frontend.tar \
+                sh "docker save -o ./cirrodrive-frontend.tar \
                     cirrodrive-frontend:latest"
-                sh "docker save -o ${DEPLOY_PATH}/cirrodrive-backend.tar \
+                sh "docker save -o ./cirrodrive-backend.tar \
                     cirrodrive-backend:latest"
-                sh "docker save -o ${DEPLOY_PATH}/cirrodrive-database.tar \
+                sh "docker save -o ./cirrodrive-database.tar \
                     cirrodrive-database:latest"
             }
         }
@@ -184,15 +184,19 @@ pipeline {
                     }
                     sh  '''
                         scp -i $SSH_CREDS \
-                            ${DEPLOY_PATH}/cirrodrive-frontend.tar \
+                            ./cirrodrive-frontend.tar \
                             ${SSH_CREDS_USR}@${DOCKER_HOST_IP}:${DEPLOY_PATH}/
 
                         scp -i $SSH_CREDS \
-                            ${DEPLOY_PATH}/cirrodrive-backend.tar \
+                            ./cirrodrive-backend.tar \
                             ${SSH_CREDS_USR}@${DOCKER_HOST_IP}:${DEPLOY_PATH}/
 
                         scp -i $SSH_CREDS \
-                            ${DEPLOY_PATH}/cirrodrive-database.tar \
+                            ./cirrodrive-database.tar \
+                            ${SSH_CREDS_USR}@${DOCKER_HOST_IP}:${DEPLOY_PATH}/
+
+                        scp -i $SSH_CREDS \
+                            ./cirrodrive-database.tar \
                             ${SSH_CREDS_USR}@${DOCKER_HOST_IP}:${DEPLOY_PATH}/
 
                         ssh -i $SSH_CREDS \
