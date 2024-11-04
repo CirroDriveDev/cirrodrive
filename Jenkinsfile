@@ -90,7 +90,7 @@ pipeline {
 
         stage('Generate prisma client') {
             environment {
-                DATABASE_URL = DATABASE_URL_DEV
+                DATABASE_URL = "${DATABASE_URL_DEV}"
             }
             steps {
                 echo 'Generating Prisma client...'
@@ -107,7 +107,7 @@ pipeline {
 
         stage('Test') {
             environment {
-                DATABASE_URL = DATABASE_URL_TEST
+                DATABASE_URL = "${DATABASE_URL_TEST}"
             }
             steps {
                 echo 'Running vitest...'
@@ -120,9 +120,9 @@ pipeline {
                 branch MAIN
             }
             environment {
-                DATABASE_URL = DATABASE_URL_PROD
+                DATABASE_URL = "${DATABASE_URL_PROD}"
                 VITE_PORT = '8000'
-                VITE_API_SERVER_PORT = VITE_PORT
+                VITE_API_SERVER_PORT = "${VITE_PORT}"
             }
             steps {
                 echo 'Building in production...'
@@ -136,9 +136,9 @@ pipeline {
             }
             environment {
                 NODE_ENV = 'development'
-                DATABASE_URL = DATABASE_URL_DEV
+                DATABASE_URL = "${DATABASE_URL_DEV}"
                 VITE_PORT = '3000'
-                VITE_API_SERVER_PORT = VITE_PORT
+                VITE_API_SERVER_PORT = "${VITE_PORT}"
             }
             steps {
                 echo 'Building in development...'
