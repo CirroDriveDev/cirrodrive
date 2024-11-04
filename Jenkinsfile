@@ -50,7 +50,7 @@ pipeline {
         VITE_API_SERVER_URL = credentials('EC2_EXTERNAL_URL_ID')
 
         // 배포
-        DOCKER_HOST_IP = credentials('EC2_SSH_INTERNAL_IP')
+        DOCKER_HOST_IP = credentials('EC2_SSH_INTERNAL_IP_ID')
         SSH_CREDS = credentials('EC2_SSH_CREDENTIAL_ID')
         DEPLOY_PATH = '${HOME}/cirrodrive-deploy'
     }
