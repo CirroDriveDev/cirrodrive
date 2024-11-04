@@ -221,8 +221,8 @@ pipeline {
         always {
             echo 'Cleaning up...'
             sh 'docker logs --tail 1000 database'
-            cleanWs(deleteDirs: true)
             sh 'pnpm run -F @cirrodrive/database stop'
+            cleanWs(deleteDirs: true)
         }
     }
 }
