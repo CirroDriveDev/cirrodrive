@@ -78,7 +78,7 @@ pipeline {
         stage('Start database') {
             steps {
                 echo 'Starting database...'
-                sh 'pnpm run db:start'
+                sh 'pnpm run -F @cirrodrive/database start'
             }
         }
 
@@ -217,6 +217,13 @@ pipeline {
                             '''
                     }
                 }
+            }
+        }
+        post {
+            always {
+                echo 'Cleaning up...'
+                cleanWs(deleteDirs: true)
+                sh 'pnpm run -F @cirrodrive/database stop'
             }
         }
     }
