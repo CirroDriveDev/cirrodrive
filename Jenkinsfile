@@ -94,7 +94,7 @@ pipeline {
             }
             steps {
                 echo 'Generating Prisma client...'
-                sh 'pnpm run prisma:generate'
+                sh 'pnpm run generate'
             }
         }
 
