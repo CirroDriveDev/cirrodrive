@@ -18,8 +18,6 @@ pipeline {
         MARIADB_PASSWORD = credentials('MARIADB_PASSWORD_CREDENTIAL_ID')
         MARIADB_HOST = 'localhost'
         MARIADB_PORT = '3307'
-        DATABASE_URL =
-                        'mysql://$MARIADB_USER:$MARIADB_PASSWORD@$MARIADB_HOST:$MARIADB_PORT/$MARIADB_DATABASE'
 
         // API 서버
         VITE_API_SERVER_URL = credentials('EC2_EXTERNAL_URL_ID')
@@ -41,7 +39,10 @@ pipeline {
                         env.MARIADB_DATABASE = 'cirrodrive_dev'
                     }
                 }
-                echo 'DATABASE_URL: $DATABASE_URL'
+                env.DATABASE_URL =
+                /* groovylint-disable-next-line LineLength */
+                "mysql://${env.MARIADB_USER}:${env.MARIADB_PASSWORD}@${env.MARIADB_HOST}:${env.MARIADB_PORT}/${env.MARIADB_DATABASE}"
+                echo "DATABASE_URL: ${env.DATABASE_URL}"
             }
         }
 
