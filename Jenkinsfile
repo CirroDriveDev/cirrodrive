@@ -38,10 +38,9 @@ pipeline {
                     } else {
                         env.MARIADB_DATABASE = 'cirrodrive_dev'
                     }
+                    /* groovylint-disable-next-line LineLength */
+                    env.DATABASE_URL = "mysql://${env.MARIADB_USER}:${env.MARIADB_PASSWORD}@${env.MARIADB_HOST}:${env.MARIADB_PORT}/${env.MARIADB_DATABASE}"
                 }
-                env.DATABASE_URL =
-                /* groovylint-disable-next-line LineLength */
-                "mysql://${env.MARIADB_USER}:${env.MARIADB_PASSWORD}@${env.MARIADB_HOST}:${env.MARIADB_PORT}/${env.MARIADB_DATABASE}"
                 echo "DATABASE_URL: ${env.DATABASE_URL}"
             }
         }
