@@ -78,7 +78,7 @@ pipeline {
                     writeFile file: './apps/database/.env', text: envFileContent
                 }
                 sh 'pnpm run db:start'
-                sh 'socat TCP-LISTEN:3307,fork TCP:database:3307 &'
+                // sh 'socat TCP-LISTEN:3307,fork TCP:database:3307 &'
             }
         }
 
