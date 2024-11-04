@@ -71,17 +71,17 @@ pipeline {
             }
         }
 
+        stage('Install dependency') {
+            steps {
+                sh 'pnpm install --frozen-lockfile'
+            }
+        }
+
         stage('Start database') {
             steps {
                 echo 'Starting database...'
                 sh 'pnpm run db:start'
                 sh 'socat TCP-LISTEN:3307,fork TCP:database:3307 &'
-            }
-        }
-
-        stage('Install dependency') {
-            steps {
-                sh 'pnpm install --frozen-lockfile'
             }
         }
 
