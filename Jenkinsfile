@@ -57,8 +57,8 @@ pipeline {
 
     stages {
         stage('Set environment variables') {
-            echo 'Setting environment variables...'
             steps {
+                echo 'Setting environment variables...'
                 script {
                     echo 'Environment variables set successfully.'
                 }
@@ -157,11 +157,11 @@ pipeline {
             steps {
                 echo 'Saving Docker image...'
                 sh 'docker save -o ${DEPLOY_PATH}/cirrodrive-frontend.tar \
-                   cirrodrive-frontend:latest'
+                    cirrodrive-frontend:latest'
                 sh 'docker save -o ${DEPLOY_PATH}/cirrodrive-backend.tar \
-                   cirrodrive-backend:latest'
+                    cirrodrive-backend:latest'
                 sh 'docker save -o ${DEPLOY_PATH}/cirrodrive-database.tar \
-                   cirrodrive-database:latest'
+                    cirrodrive-database:latest'
             }
         }
 
@@ -172,48 +172,50 @@ pipeline {
                     branch DEVELOP
                 }
             }
-            script {
-                if (env.BRANCH_NAME == MAIN) {
-                    echo 'Deploying to production...'
-                } else if (env.BRANCH_NAME == DEVELOP) {
-                    echo 'Deploying to development...'
-                }
-                sh '''
-                scp -i $SSH_CREDS \
-                    ${DEPLOY_PATH}/cirrodrive-frontend.tar \
-                    ${SSH_CREDS_USR}@${DOCKER_HOST_IP}:${DEPLOY_PATH}/
+            steps {
+                script {
+                    if (env.BRANCH_NAME == MAIN) {
+                        echo 'Deploying to production...'
+                    } else if (env.BRANCH_NAME == DEVELOP) {
+                        echo 'Deploying to development...'
+                    }
+                    sh  '''
+                        scp -i $SSH_CREDS \
+                            ${DEPLOY_PATH}/cirrodrive-frontend.tar \
+                            ${SSH_CREDS_USR}@${DOCKER_HOST_IP}:${DEPLOY_PATH}/
 
-                scp -i $SSH_CREDS \
-                    ${DEPLOY_PATH}/cirrodrive-backend.tar \
-                    ${SSH_CREDS_USR}@${DOCKER_HOST_IP}:${DEPLOY_PATH}/
+                        scp -i $SSH_CREDS \
+                            ${DEPLOY_PATH}/cirrodrive-backend.tar \
+                            ${SSH_CREDS_USR}@${DOCKER_HOST_IP}:${DEPLOY_PATH}/
 
-                scp -i $SSH_CREDS \
-                    ${DEPLOY_PATH}/cirrodrive-database.tar \
-                    ${SSH_CREDS_USR}@${DOCKER_HOST_IP}:${DEPLOY_PATH}/
+                        scp -i $SSH_CREDS \
+                            ${DEPLOY_PATH}/cirrodrive-database.tar \
+                            ${SSH_CREDS_USR}@${DOCKER_HOST_IP}:${DEPLOY_PATH}/
 
-                ssh -i $SSH_CREDS \
-                    ${SSH_CREDS_USR}@${DOCKER_HOST_IP} \
-                    "export MARIADB_USER=${MARIADB_USER} && \
-                     export MARIADB_PASSWORD=${MARIADB_PASSWORD} && \
-                     export MARIADB_HOST=${MARIADB_HOST} && \
-                     export MARIADB_PORT=${MARIADB_PORT} && \
-                     docker load -i ${DEPLOY_PATH}/cirrodrive-frontend.tar && \
-                     docker load -i ${DEPLOY_PATH}/cirrodrive-backend.tar && \
-                     docker load -i ${DEPLOY_PATH}/cirrodrive-database.tar && \
-                     cd ${DEPLOY_PATH}
-                   '''
-                if (env.BRANCH_NAME == MAIN) {
-                    sh '''
-                    ssh -i $SSH_CREDS \
-                        ${SSH_CREDS_USR}@${DOCKER_HOST_IP} \
-                        docker-compose up -d --remove-orphans --renew-anon-volumes frontend backend
-                       '''
-                } else if (env.BRANCH_NAME == DEVELOP) {
-                    sh '''
-                    ssh -i $SSH_CREDS \
-                        ${SSH_CREDS_USR}@${DOCKER_HOST_IP} \
-                        docker-compose up -d --remove-orphans --renew-anon-volumes frontend-dev backend-dev
-                       '''
+                        ssh -i $SSH_CREDS \
+                            ${SSH_CREDS_USR}@${DOCKER_HOST_IP} \
+                            "export MARIADB_USER=${MARIADB_USER} && \
+                             export MARIADB_PASSWORD=${MARIADB_PASSWORD} && \
+                             export MARIADB_HOST=${MARIADB_HOST} && \
+                             export MARIADB_PORT=${MARIADB_PORT} && \
+                             docker load -i ${DEPLOY_PATH}/cirrodrive-frontend.tar && \
+                             docker load -i ${DEPLOY_PATH}/cirrodrive-backend.tar && \
+                             docker load -i ${DEPLOY_PATH}/cirrodrive-database.tar && \
+                             cd ${DEPLOY_PATH}
+                        '''
+                    if (env.BRANCH_NAME == MAIN) {
+                        sh  '''
+                            ssh -i $SSH_CREDS \
+                                ${SSH_CREDS_USR}@${DOCKER_HOST_IP} \
+                                docker-compose up -d --remove-orphans --renew-anon-volumes frontend backend
+                            '''
+                    } else if (env.BRANCH_NAME == DEVELOP) {
+                        sh  '''
+                            ssh -i $SSH_CREDS \
+                            ${SSH_CREDS_USR}@${DOCKER_HOST_IP} \
+                            docker-compose up -d --remove-orphans --renew-anon-volumes frontend-dev backend-dev
+                            '''
+                    }
                 }
             }
         }
