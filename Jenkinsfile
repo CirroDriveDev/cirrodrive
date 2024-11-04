@@ -16,7 +16,7 @@ pipeline {
         MARIADB_ROOT_PASSWORD = credentials('MARIADB_ROOT_PASSWORD_CREDENTIAL_ID')
         MARIADB_USER = credentials('MARIADB_USER_CREDENTIAL_ID')
         MARIADB_PASSWORD = credentials('MARIADB_PASSWORD_CREDENTIAL_ID')
-        MARIADB_HOST = 'localhost'
+        MARIADB_HOST = 'database'
         MARIADB_PORT = '3307'
 
         // API 서버
@@ -78,7 +78,6 @@ pipeline {
                     writeFile file: './apps/database/.env', text: envFileContent
                 }
                 sh 'pnpm run db:start'
-                sh 'socat TCP-LISTEN:3307,fork TCP:database:3307 &'
             }
         }
 
