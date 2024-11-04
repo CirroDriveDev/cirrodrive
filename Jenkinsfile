@@ -79,6 +79,7 @@ pipeline {
             steps {
                 echo 'Starting database...'
                 sh 'pnpm run -F @cirrodrive/database start'
+                sh 'socat TCP-LISTEN:3307,fork TCP:database:3307 &'
             }
         }
 
