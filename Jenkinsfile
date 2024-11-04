@@ -21,30 +21,10 @@ pipeline {
         MARIADB_PASSWORD = credentials('MARIADB_PASSWORD_CREDENTIAL_ID')
         MARIADB_DATABASE_PROD = 'cirrodrive_prod'
         MARIADB_DATABASE_DEV = 'cirrodrive_dev'
-        MARIADB_DATABASE_TEST = 'cirrodrive_test'
         MARIADB_HOST = 'localhost'
         MARIADB_PORT = '3307'
-        DATABASE_URL_PROD = createDatabaseUrl(
-            MARIADB_USER,
-            MARIADB_PASSWORD,
-            MARIADB_HOST,
-            MARIADB_PORT,
-            MARIADB_DATABASE_PROD
-        )
-        DATABASE_URL_DEV = createDatabaseUrl(
-            MARIADB_USER,
-            MARIADB_PASSWORD,
-            MARIADB_HOST,
-            MARIADB_PORT,
-            MARIADB_DATABASE_DEV
-        )
-        DATABASE_URL_TEST = createDatabaseUrl(
-            MARIADB_USER,
-            MARIADB_PASSWORD,
-            MARIADB_HOST,
-            MARIADB_PORT,
-            MARIADB_DATABASE_TEST
-        )
+
+        DATABASE_DATA_PATH = "${HOME}"
 
         // API 서버
         VITE_API_SERVER_URL = credentials('EC2_EXTERNAL_URL_ID')
@@ -52,7 +32,7 @@ pipeline {
         // 배포
         DOCKER_HOST_IP = credentials('EC2_SSH_INTERNAL_IP_ID')
         SSH_CREDS = credentials('EC2_SSH_CREDENTIAL_ID')
-        DEPLOY_PATH = '${HOME}/cirrodrive-deploy'
+        DEPLOY_PATH = "${HOME}/cirrodrive-deploy"
     }
 
     stages {
@@ -60,7 +40,23 @@ pipeline {
             steps {
                 echo 'Setting environment variables...'
                 script {
-                    echo 'Environment variables set successfully.'
+                    if (env.BRANCH_NAME == MAIN) {
+                        env.DATABASE_URL = createDatabaseUrl(
+                            MARIADB_USER,
+                            MARIADB_PASSWORD,
+                            MARIADB_HOST,
+                            MARIADB_PORT,
+                            MARIADB_DATABASE_PROD
+                        )
+                    } else if (env.BRANCH_NAME == DEVELOP) {
+                        env.DATABASE_URL = createDatabaseUrl(
+                            MARIADB_USER,
+                            MARIADB_PASSWORD,
+                            MARIADB_HOST,
+                            MARIADB_PORT,
+                            MARIADB_DATABASE_DEV
+                        )
+                    }
                 }
             }
         }
@@ -78,7 +74,7 @@ pipeline {
         stage('Start database') {
             steps {
                 echo 'Starting database...'
-                sh 'pnpm run -F @cirrodrive/database start'
+                sh 'pnpm run db:start'
                 sh 'socat TCP-LISTEN:3307,fork TCP:database:3307 &'
             }
         }
@@ -90,12 +86,16 @@ pipeline {
         }
 
         stage('Generate prisma client') {
-            environment {
-                DATABASE_URL = "${DATABASE_URL_DEV}"
-            }
             steps {
                 echo 'Generating Prisma client...'
-                sh 'pnpm run generate'
+                sh 'pnpm run db:generate'
+            }
+        }
+
+        stage('DB push') {
+            steps {
+                echo 'Push prisma schema to database...'
+                sh 'pnpm run db:push'
             }
         }
 
@@ -107,12 +107,9 @@ pipeline {
         }
 
         stage('Test') {
-            environment {
-                DATABASE_URL = "${DATABASE_URL_TEST}"
-            }
             steps {
                 echo 'Running vitest...'
-                sh 'pnpm run test'
+                sh 'pnpm run test -- run'
             }
         }
 
@@ -121,7 +118,6 @@ pipeline {
                 branch MAIN
             }
             environment {
-                DATABASE_URL = "${DATABASE_URL_PROD}"
                 VITE_PORT = '8000'
                 VITE_API_SERVER_PORT = "${VITE_PORT}"
             }
@@ -137,7 +133,6 @@ pipeline {
             }
             environment {
                 NODE_ENV = 'development'
-                DATABASE_URL = "${DATABASE_URL_DEV}"
                 VITE_PORT = '3000'
                 VITE_API_SERVER_PORT = "${VITE_PORT}"
             }
@@ -157,12 +152,12 @@ pipeline {
         stage('Save Docker image') {
             steps {
                 echo 'Saving Docker image...'
-                sh 'docker save -o ${DEPLOY_PATH}/cirrodrive-frontend.tar \
-                    cirrodrive-frontend:latest'
-                sh 'docker save -o ${DEPLOY_PATH}/cirrodrive-backend.tar \
-                    cirrodrive-backend:latest'
-                sh 'docker save -o ${DEPLOY_PATH}/cirrodrive-database.tar \
-                    cirrodrive-database:latest'
+                sh "docker save -o ${DEPLOY_PATH}/cirrodrive-frontend.tar \
+                    cirrodrive-frontend:latest"
+                sh "docker save -o ${DEPLOY_PATH}/cirrodrive-backend.tar \
+                    cirrodrive-backend:latest"
+                sh "docker save -o ${DEPLOY_PATH}/cirrodrive-database.tar \
+                    cirrodrive-database:latest"
             }
         }
 
@@ -199,6 +194,7 @@ pipeline {
                              export MARIADB_PASSWORD=${MARIADB_PASSWORD} && \
                              export MARIADB_HOST=${MARIADB_HOST} && \
                              export MARIADB_PORT=${MARIADB_PORT} && \
+                             export DATABASE_URL=${DATABASE_URL} && \
                              docker load -i ${DEPLOY_PATH}/cirrodrive-frontend.tar && \
                              docker load -i ${DEPLOY_PATH}/cirrodrive-backend.tar && \
                              docker load -i ${DEPLOY_PATH}/cirrodrive-database.tar && \
@@ -224,6 +220,7 @@ pipeline {
     post {
         always {
             echo 'Cleaning up...'
+            sh 'docker logs --tail 1000 database'
             cleanWs(deleteDirs: true)
             sh 'pnpm run -F @cirrodrive/database stop'
         }

@@ -64,7 +64,7 @@
       "outputs": [".cache/tsbuildinfo.json"]
     },
     "test": {
-      "dependsOn": ["^test"]
+      "dependsOn": ["^healthcheck", "^db:push", "^test"]
     },
     "clean": {
       "cache": false
