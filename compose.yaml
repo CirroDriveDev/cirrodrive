@@ -45,7 +45,7 @@ services:
         condition: service_healthy
         restart: true
     volumes:
-      - ${HOME}/cirrodrive-app-data:/cirrodrive/apps/backend/data
+      - ${APP_DATA_PATH}/cirrodrive-app-data:/cirrodrive/apps/backend/data
     environment:
       - DATABASE_URL=${DATABASE_URL}
     logging:
@@ -65,7 +65,7 @@ services:
         condition: service_healthy
         restart: true
     volumes:
-      - app-data:/cirrodrive/apps/backend/data
+      - cirrodrive-app-data:/cirrodrive/apps/backend/data
     environment:
       - DATABASE_URL=${DATABASE_URL}
     logging:
@@ -80,7 +80,5 @@ services:
       service: database
 
 volumes:
-  app-data:
-    external: false
-  database-data:
+  cirrodrive-app-data:
     external: false

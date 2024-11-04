@@ -48,9 +48,6 @@ async function healthcheck(): Promise<void> {
     Console.error(
       "[MariaDB] 데이터베이스 컨테이너가 정상적으로 실행 중인지 확인하세요.",
     );
-    Console.error(
-      "[MariaDB] 데이터베이스 컨테이너가 정상적으로 실행 중이 아니라면, `pnpm run db:start` 명령어로 실행하세요.",
-    );
     process.exit(1);
   }
 

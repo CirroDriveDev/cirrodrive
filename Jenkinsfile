@@ -12,7 +12,7 @@ pipeline {
         DEVELOP = 'develop'
 
         // 데이터베이스
-        DATABASE_DATA_PATH = '/home/ec2-user'
+        DATABASE_DATA_PATH = '/home/ec2-user/cirrodrive'
         MARIADB_ROOT_PASSWORD = credentials('MARIADB_ROOT_PASSWORD_CREDENTIAL_ID')
         MARIADB_USER = credentials('MARIADB_USER_CREDENTIAL_ID')
         MARIADB_PASSWORD = credentials('MARIADB_PASSWORD_CREDENTIAL_ID')
@@ -20,12 +20,13 @@ pipeline {
         MARIADB_PORT = '3307'
 
         // API 서버
+        APP_DATA_PATH = '/home/ec2-user/cirrodrive'
         VITE_API_SERVER_URL = credentials('EC2_EXTERNAL_URL_ID')
 
         // 배포
         DOCKER_HOST_IP = credentials('EC2_SSH_INTERNAL_IP_ID')
         SSH_CREDS = credentials('EC2_SSH_CREDENTIAL_ID')
-        DEPLOY_PATH = '/home/ec2-user/cirrodrive-deploy'
+        DEPLOY_PATH = '/home/ec2-user/cirrodrive/deploy'
     }
 
     stages {
@@ -61,9 +62,9 @@ pipeline {
             }
         }
 
-        stage('Start database') {
+        stage('Start development database') {
             steps {
-                echo 'Starting database...'
+                echo 'Starting development database...'
                 script {
                     // .env 파일 생성
                     def envFileContent = """
@@ -77,7 +78,7 @@ pipeline {
 
                     writeFile file: './apps/database/.env', text: envFileContent
                 }
-                sh 'pnpm run db:start'
+                sh 'pnpm run db:dev'
                 sh 'socat TCP-LISTEN:3307,fork TCP:docker:3307 &'
             }
         }

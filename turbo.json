@@ -32,13 +32,28 @@
       "env": ["DATABASE_URL"],
       "outputs": ["dist/**"]
     },
+    "@cirrodrive/database#dev": {
+      "cache": false,
+      "persistent": false
+    },
+    "@cirrodrive/database#healthcheck": {
+      "dependsOn": ["@cirrodrive/database#dev"],
+      "cache": false
+    },
+    "@cirrodrive/database#db:push": {
+      "dependsOn": ["@cirrodrive/database#healthcheck"],
+      "cache": false
+    },
     "dev": {
-      "dependsOn": ["^db:push"],
+      "dependsOn": ["@cirrodrive/database#db:push"],
       "cache": false,
       "persistent": true
     },
+    "@cirrodrive/database#dev:stop": {
+      "cache": false
+    },
     "start": {
-      "dependsOn": ["^healthcheck", "^db:push"],
+      "dependsOn": ["@cirrodrive/database#db:push"],
       "cache": false,
       "persistent": true
     },
@@ -54,16 +69,9 @@
     "db:generate": {
       "outputs": ["dist/**"]
     },
-    "db:push": {
-      "dependsOn": ["healthcheck"],
-      "cache": false
-    },
     "db:studio": {
       "cache": false,
       "persistent": true
-    },
-    "healthcheck": {
-      "cache": false
     },
     "format": {
       "outputs": [".cache/.prettiercache"],
@@ -78,7 +86,7 @@
       "outputs": [".cache/tsbuildinfo.json"]
     },
     "test": {
-      "dependsOn": ["^healthcheck", "^db:push", "^test"]
+      "dependsOn": ["@cirrodrive/database#db:push", "^test"]
     },
     "ui-add": {
       "cache": false,

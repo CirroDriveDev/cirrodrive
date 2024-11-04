@@ -9,6 +9,8 @@
     "build": "prisma generate",
     "build:dev": "prisma generate",
     "clean": "git clean -xdf .cache .turbo node_modules",
+    "dev": "docker-compose up -d database-dev --build",
+    "dev:stop": "docker-compose down -v database-dev",
     "format": "prettier --check . --ignore-path ../../.gitignore",
     "healthcheck": "vite-node healthcheck.ts",
     "lint": "eslint",

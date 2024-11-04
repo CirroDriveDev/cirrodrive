@@ -15,6 +15,8 @@
     "clean:workspaces": "turbo run clean",
     "db:start": "turbo run -F @cirrodrive/database start",
     "db:stop": "turbo run -F @cirrodrive/database stop",
+    "db:dev": "turbo run -F @cirrodrive/database dev",
+    "db:dev:stop": "turbo run -F @cirrodrive/database dev:stop",
     "db:push": "turbo run -F @cirrodrive/database db:push",
     "db:studio": "turbo run -F @cirrodrive/database db:studio",
     "db:generate": "turbo run -F @cirrodrive/database db:generate",
