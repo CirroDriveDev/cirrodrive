@@ -219,12 +219,12 @@ pipeline {
                 }
             }
         }
-        post {
-            always {
-                echo 'Cleaning up...'
-                cleanWs(deleteDirs: true)
-                sh 'pnpm run -F @cirrodrive/database stop'
-            }
+    }
+    post {
+        always {
+            echo 'Cleaning up...'
+            cleanWs(deleteDirs: true)
+            sh 'pnpm run -F @cirrodrive/database stop'
         }
     }
 }
