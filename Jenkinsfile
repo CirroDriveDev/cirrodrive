@@ -16,15 +16,12 @@ pipeline {
         DEVELOP = 'develop'
 
         // 데이터베이스
+        DATABASE_DATA_PATH = "${HOME}"
         MARIADB_ROOT_PASSWORD = credentials('MARIADB_ROOT_PASSWORD_CREDENTIAL_ID')
         MARIADB_USER = credentials('MARIADB_USER_CREDENTIAL_ID')
         MARIADB_PASSWORD = credentials('MARIADB_PASSWORD_CREDENTIAL_ID')
-        MARIADB_DATABASE_PROD = 'cirrodrive_prod'
-        MARIADB_DATABASE_DEV = 'cirrodrive_dev'
         MARIADB_HOST = 'localhost'
         MARIADB_PORT = '3307'
-
-        DATABASE_DATA_PATH = "${HOME}"
 
         // API 서버
         VITE_API_SERVER_URL = credentials('EC2_EXTERNAL_URL_ID')
@@ -41,22 +38,18 @@ pipeline {
                 echo 'Setting environment variables...'
                 script {
                     if (env.BRANCH_NAME == MAIN) {
-                        env.DATABASE_URL = createDatabaseUrl(
-                            MARIADB_USER,
-                            MARIADB_PASSWORD,
-                            MARIADB_HOST,
-                            MARIADB_PORT,
-                            MARIADB_DATABASE_PROD
-                        )
+                        env.MARIADB_DATABASE = 'cirrodrive_prod'
                     } else if (env.BRANCH_NAME == DEVELOP) {
-                        env.DATABASE_URL = createDatabaseUrl(
-                            MARIADB_USER,
-                            MARIADB_PASSWORD,
-                            MARIADB_HOST,
-                            MARIADB_PORT,
-                            MARIADB_DATABASE_DEV
-                        )
+                        env.MARIADB_DATABASE = 'cirrodrive_dev'
                     }
+
+                    env.DATABASE_URL = createDatabaseUrl(
+                        MARIADB_USER,
+                        MARIADB_PASSWORD,
+                        MARIADB_HOST,
+                        MARIADB_PORT,
+                        MARIADB_DATABASE
+                    )
                 }
             }
         }
@@ -80,6 +73,19 @@ pipeline {
         stage('Start database') {
             steps {
                 echo 'Starting database...'
+                script {
+                    // .env 파일 생성
+                    def envFileContent = """
+                    DATABASE_DATA_PATH=${env.DATABASE_DATA_PATH}
+                    MARIADB_ROOT_PASSWORD=${env.MARIADB_ROOT_PASSWORD}
+                    MARIADB_USER=${env.MARIADB_USER}
+                    MARIADB_PASSWORD=${env.MARIADB_PASSWORD}
+                    MARIADB_PORT=${env.MARIADB_PORT}
+                    DATABASE_URL=${env.DATABASE_URL}
+                    """.stripIndent()
+
+                    writeFile file: './apps/database/.env', text: envFileContent
+                }
                 sh 'pnpm run db:start'
                 sh 'socat TCP-LISTEN:3307,fork TCP:database:3307 &'
             }
