@@ -12,7 +12,7 @@ pipeline {
         DEVELOP = 'develop'
 
         // 데이터베이스
-        DATABASE_DATA_PATH = "${HOME}"
+        DATABASE_DATA_PATH = '/home/ec2-user'
         MARIADB_ROOT_PASSWORD = credentials('MARIADB_ROOT_PASSWORD_CREDENTIAL_ID')
         MARIADB_USER = credentials('MARIADB_USER_CREDENTIAL_ID')
         MARIADB_PASSWORD = credentials('MARIADB_PASSWORD_CREDENTIAL_ID')
@@ -25,7 +25,7 @@ pipeline {
         // 배포
         DOCKER_HOST_IP = credentials('EC2_SSH_INTERNAL_IP_ID')
         SSH_CREDS = credentials('EC2_SSH_CREDENTIAL_ID')
-        DEPLOY_PATH = "${HOME}/cirrodrive-deploy"
+        DEPLOY_PATH = '/home/ec2-user/cirrodrive-deploy'
     }
 
     stages {
@@ -78,19 +78,7 @@ pipeline {
                     writeFile file: './apps/database/.env', text: envFileContent
                 }
                 sh 'pnpm run db:start'
-                // sh 'socat TCP-LISTEN:3307,fork TCP:database:3307 &'
-            }
-        }
-
-        stage('Print .env File Content') {
-            steps {
-                script {
-                    // 민감한 정보를 마스킹하여 출력 (예: 비밀번호)
-                    def maskedEnvContent = readFile('./apps/database/.env').replaceAll(/(?<=MARIADB_ROOT_PASSWORD=).*/, '******')
-                                                          .replaceAll(/(?<=MARIADB_PASSWORD=).*/, '******')
-
-                    echo "Contents of .env file (with masked sensitive data):\n${maskedEnvContent}"
-                }
+                sh 'socat TCP-LISTEN:3307,fork TCP:database:3307 &'
             }
         }
 
