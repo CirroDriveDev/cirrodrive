@@ -1,7 +1,3 @@
-def createDatabaseUrl(String user, String password, String host, String port, String database) {
-    return "mysql://${user}:${password}@${host}:${port}/${database}"
-}
-
 pipeline {
     agent any
 
@@ -22,6 +18,8 @@ pipeline {
         MARIADB_PASSWORD = credentials('MARIADB_PASSWORD_CREDENTIAL_ID')
         MARIADB_HOST = 'localhost'
         MARIADB_PORT = '3307'
+        DATABASE_URL =
+                        'mysql://$MARIADB_USER:$MARIADB_PASSWORD@$MARIADB_HOST:$MARIADB_PORT/$MARIADB_DATABASE'
 
         // API 서버
         VITE_API_SERVER_URL = credentials('EC2_EXTERNAL_URL_ID')
@@ -42,17 +40,8 @@ pipeline {
                     } else {
                         env.MARIADB_DATABASE = 'cirrodrive_dev'
                     }
-
-                    env.DATABASE_URL = createDatabaseUrl(
-                        env.MARIADB_USER,
-                        env.MARIADB_PASSWORD,
-                        env.MARIADB_HOST,
-                        env.MARIADB_PORT,
-                        env.MARIADB_DATABASE
-                    )
                 }
-                echo "DATABASE_URL: ${DATABASE_URL}"
-                echo "DATABASE_URL: ${env.DATABASE_URL}"
+                echo 'DATABASE_URL: $DATABASE_URL'
             }
         }
 
@@ -90,6 +79,18 @@ pipeline {
                 }
                 sh 'pnpm run db:start'
                 sh 'socat TCP-LISTEN:3307,fork TCP:database:3307 &'
+            }
+        }
+
+        stage('Print .env File Content') {
+            steps {
+                script {
+                    // 민감한 정보를 마스킹하여 출력 (예: 비밀번호)
+                    def maskedEnvContent = readFile('./apps/database/.env').replaceAll(/(?<=MARIADB_ROOT_PASSWORD=).*/, '******')
+                                                          .replaceAll(/(?<=MARIADB_PASSWORD=).*/, '******')
+
+                    echo "Contents of .env file (with masked sensitive data):\n${maskedEnvContent}"
+                }
             }
         }
 
