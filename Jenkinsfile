@@ -51,6 +51,8 @@ pipeline {
                         env.MARIADB_DATABASE
                     )
                 }
+                echo "DATABASE_URL: ${DATABASE_URL}"
+                echo "DATABASE_URL: ${env.DATABASE_URL}"
             }
         }
 
