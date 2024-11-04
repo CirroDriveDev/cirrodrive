@@ -146,14 +146,14 @@ pipeline {
             }
         }
 
-        script('Build Docker image') {
+        stage('Build Docker image') {
             steps {
                 echo 'Building Docker image...'
                 sh 'pnpm run docker:build'
             }
         }
 
-        script('Save Docker image') {
+        stage('Save Docker image') {
             steps {
                 echo 'Saving Docker image...'
                 sh 'docker save -o ${DEPLOY_PATH}/cirrodrive-frontend.tar \
