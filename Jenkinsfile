@@ -39,7 +39,7 @@ pipeline {
                 script {
                     if (env.BRANCH_NAME == MAIN) {
                         env.MARIADB_DATABASE = 'cirrodrive_prod'
-                    } else if (env.BRANCH_NAME == DEVELOP) {
+                    } else {
                         env.MARIADB_DATABASE = 'cirrodrive_dev'
                     }
 
@@ -136,9 +136,6 @@ pipeline {
         }
 
         stage('Build in development') {
-            when {
-                branch DEVELOP
-            }
             environment {
                 NODE_ENV = 'development'
                 VITE_PORT = '3000'
@@ -151,6 +148,12 @@ pipeline {
         }
 
         stage('Build Docker image') {
+            // when {
+            //     anyOf {
+            //         branch MAIN
+            //         branch DEVELOP
+            //     }
+            // }
             steps {
                 echo 'Building Docker image...'
                 sh 'pnpm run docker:build'
@@ -158,6 +161,12 @@ pipeline {
         }
 
         stage('Save Docker image') {
+            // when {
+            //     anyOf {
+            //         branch MAIN
+            //         branch DEVELOP
+            //     }
+            // }
             steps {
                 echo 'Saving Docker image...'
                 sh "docker save -o ${DEPLOY_PATH}/cirrodrive-frontend.tar \
@@ -170,12 +179,12 @@ pipeline {
         }
 
         stage('Deploy') {
-            when {
-                anyOf {
-                    branch MAIN
-                    branch DEVELOP
-                }
-            }
+            // when {
+            //     anyOf {
+            //         branch MAIN
+            //         branch DEVELOP
+            //     }
+            // }
             steps {
                 script {
                     if (env.BRANCH_NAME == MAIN) {
