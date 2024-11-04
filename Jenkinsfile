@@ -44,11 +44,11 @@ pipeline {
                     }
 
                     env.DATABASE_URL = createDatabaseUrl(
-                        MARIADB_USER,
-                        MARIADB_PASSWORD,
-                        MARIADB_HOST,
-                        MARIADB_PORT,
-                        MARIADB_DATABASE
+                        env.MARIADB_USER,
+                        env.MARIADB_PASSWORD,
+                        env.MARIADB_HOST,
+                        env.MARIADB_PORT,
+                        env.MARIADB_DATABASE
                     )
                 }
             }
