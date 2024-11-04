@@ -26,12 +26,10 @@
     },
     "@cirrodrive/database#build": {
       "env": ["DATABASE_URL"],
-      "dependsOn": ["healthcheck"],
       "outputs": ["dist/**"]
     },
     "@cirrodrive/database#build:dev": {
       "env": ["DATABASE_URL"],
-      "dependsOn": ["healthcheck"],
       "outputs": ["dist/**"]
     },
     "dev": {
@@ -44,9 +42,25 @@
       "cache": false,
       "persistent": true
     },
+    "stop": {
+      "cache": false
+    },
+    "clean": {
+      "cache": false
+    },
+    "//#clean": {
+      "cache": false
+    },
+    "db:generate": {
+      "outputs": ["dist/**"]
+    },
     "db:push": {
       "dependsOn": ["healthcheck"],
       "cache": false
+    },
+    "db:studio": {
+      "cache": false,
+      "persistent": true
     },
     "healthcheck": {
       "cache": false
@@ -65,19 +79,6 @@
     },
     "test": {
       "dependsOn": ["^healthcheck", "^db:push", "^test"]
-    },
-    "clean": {
-      "cache": false
-    },
-    "//#clean": {
-      "cache": false
-    },
-    "studio": {
-      "cache": false,
-      "persistent": true
-    },
-    "generate": {
-      "outputs": ["dist/**"]
     },
     "ui-add": {
       "cache": false,

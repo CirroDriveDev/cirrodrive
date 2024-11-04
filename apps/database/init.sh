@@ -3,8 +3,6 @@ set -e
 
 # SQL 명령어 실행 (환경변수를 사용하여 사용자 생성 및 권한 부여)
 mariadb -u root -p"${MARIADB_ROOT_PASSWORD}" <<-EOSQL
-  CREATE DATABASE IF NOT EXISTS 'cirrodrive_prod';
-  CREATE DATABASE IF NOT EXISTS 'cirrodrive_dev';
   CREATE USER IF NOT EXISTS '${MARIADB_USER}'@'%' IDENTIFIED BY '${MARIADB_PASSWORD}';
   GRANT ALL PRIVILEGES ON *.* TO '${MARIADB_USER}'@'%' WITH GRANT OPTION;
   FLUSH PRIVILEGES;

@@ -16,7 +16,7 @@ pipeline {
         MARIADB_ROOT_PASSWORD = credentials('MARIADB_ROOT_PASSWORD_CREDENTIAL_ID')
         MARIADB_USER = credentials('MARIADB_USER_CREDENTIAL_ID')
         MARIADB_PASSWORD = credentials('MARIADB_PASSWORD_CREDENTIAL_ID')
-        MARIADB_HOST = 'database'
+        MARIADB_HOST = 'localhost'
         MARIADB_PORT = '3307'
 
         // API 서버
@@ -78,6 +78,7 @@ pipeline {
                     writeFile file: './apps/database/.env', text: envFileContent
                 }
                 sh 'pnpm run db:start'
+                sh 'socat TCP-LISTEN:3307,fork TCP:docker:3307 &'
             }
         }
 
@@ -209,13 +210,13 @@ pipeline {
                         sh  '''
                             ssh -i $SSH_CREDS \
                                 ${SSH_CREDS_USR}@${DOCKER_HOST_IP} \
-                                docker-compose up -d --remove-orphans --renew-anon-volumes frontend backend
+                                docker-compose up -d --remove-orphans --renew-anon-volumes frontend backend database
                             '''
                     } else if (env.BRANCH_NAME == DEVELOP) {
                         sh  '''
                             ssh -i $SSH_CREDS \
                             ${SSH_CREDS_USR}@${DOCKER_HOST_IP} \
-                            docker-compose up -d --remove-orphans --renew-anon-volumes frontend-dev backend-dev
+                            docker-compose up -d --remove-orphans --renew-anon-volumes frontend-dev backend-dev database
                             '''
                     }
                 }

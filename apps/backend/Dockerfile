@@ -47,19 +47,14 @@ RUN --mount=type=cache,id=pnpm,target=/pnpm/store pnpm install --frozen-lockfile
 COPY --from=prune /cirrodrive/json.tar.gz .
 RUN tar -xzf json.tar.gz -C . && rm json.tar.gz
 
-# full 파일 복사
-COPY --from=prune /cirrodrive/full.tar.gz .
-RUN tar -xzf full.tar.gz -C . && rm full.tar.gz
 
 
 # 실행 이미지 설정
 FROM deps AS runner
 
-# prisma client 복사
-# COPY ./apps/backend/src/loaders/prisma /cirrodrive/apps/backend/src/loaders/prisma
-
 # 빌드된 서버와 prisma 디렉토리 복사
-COPY ./apps/backend/dist /cirrodrive/apps/backend/dist
+COPY --from=prune /cirrodrive/full.tar.gz .
+RUN tar -xzf full.tar.gz -C . && rm full.tar.gz
 
 # 실행 권한 추가
 RUN chmod +x ./apps/backend/docker-entrypoint.sh
