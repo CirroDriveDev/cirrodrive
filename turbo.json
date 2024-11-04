@@ -8,7 +8,9 @@
     "DEV",
     "SSR",
     "NODE_ENV",
-    "VITE_PORT"
+    "VITE_PORT",
+    "VITE_API_SERVER_URL",
+    "VITE_API_SERVER_PORT"
   ],
   "tasks": {
     "topo": {
@@ -18,9 +20,36 @@
       "dependsOn": ["^build"],
       "outputs": [".cache/tsbuildinfo.json", "dist/**"]
     },
+    "build:dev": {
+      "dependsOn": ["^build:dev"],
+      "outputs": [".cache/tsbuildinfo.json", "dist/**"]
+    },
+    "@cirrodrive/database#build": {
+      "env": ["DATABASE_URL"],
+      "dependsOn": ["healthcheck"],
+      "outputs": ["dist/**"]
+    },
+    "@cirrodrive/database#build:dev": {
+      "env": ["DATABASE_URL"],
+      "dependsOn": ["healthcheck"],
+      "outputs": ["dist/**"]
+    },
     "dev": {
+      "dependsOn": ["^db:push"],
       "cache": false,
       "persistent": true
+    },
+    "start": {
+      "dependsOn": ["^healthcheck", "^db:push"],
+      "cache": false,
+      "persistent": true
+    },
+    "db:push": {
+      "dependsOn": ["healthcheck"],
+      "cache": false
+    },
+    "healthcheck": {
+      "cache": false
     },
     "format": {
       "outputs": [".cache/.prettiercache"],
@@ -43,16 +72,12 @@
     "//#clean": {
       "cache": false
     },
-    "prisma:db:push": {
-      "cache": false,
-      "interactive": true
-    },
-    "prisma:studio": {
+    "studio": {
       "cache": false,
       "persistent": true
     },
-    "prisma:generate": {
-      "dependsOn": ["^prisma:generate"]
+    "generate": {
+      "outputs": ["dist/**"]
     },
     "ui-add": {
       "cache": false,

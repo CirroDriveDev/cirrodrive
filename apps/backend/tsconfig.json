@@ -13,5 +13,5 @@
     "emitDecoratorMetadata": true,
     "resolveJsonModule": true
   },
-  "include": ["**/*.ts", "**/*.tsx"]
+  "include": ["**/*.ts", "**/*.tsx", "src/server.ts", "src/loaders/prisma.ts"]
 }

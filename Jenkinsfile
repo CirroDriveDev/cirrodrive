@@ -1,3 +1,7 @@
+def createDatabaseUrl(String user, String password, String host, String port, String database) {
+    return "mysql://${user}:${password}@${host}:${port}/${database}"
+}
+
 pipeline {
     agent any
 
@@ -10,26 +14,87 @@ pipeline {
         PNPM_HOME = '/pnpm'
         MAIN = 'main'
         DEVELOP = 'develop'
-        VITE_TRPC_SERVER_URL = 'http://ec2-3-38-95-198.ap-northeast-2.compute.amazonaws.com'
-        DATABASE_URL = 'mysql://apiuser:apipassword@database-dev:3307/apidatabase'
-        PROD_DATABASE_URL = credentials('DATABASE_URL_CREDENTIAL_ID')
-        PROD_MARIADB_ROOT_PASSWORD = credentials('MARIADB_ROOT_PASSWORD_CREDENTIAL_ID')
-        PROD_MARIADB_USER = credentials('MARIADB_USER_CREDENTIAL_ID')
-        PROD_MARIADB_PASSWORD = credentials('MARIADB_PASSWORD_CREDENTIAL_ID')
-        PROD_MARIADB_DATABASE = credentials('MARIADB_DATABASE_CREDENTIAL_ID')
+
+        // 데이터베이스
+        MARIADB_ROOT_PASSWORD = credentials('MARIADB_ROOT_PASSWORD_CREDENTIAL_ID')
+        MARIADB_USER = credentials('MARIADB_USER_CREDENTIAL_ID')
+        MARIADB_PASSWORD = credentials('MARIADB_PASSWORD_CREDENTIAL_ID')
+        MARIADB_DATABASE_PROD = 'cirrodrive_prod'
+        MARIADB_DATABASE_DEV = 'cirrodrive_dev'
+        MARIADB_DATABASE_TEST = 'cirrodrive_test'
+        MARIADB_HOST = 'localhost'
+        MARIADB_PORT = '3307'
+        DATABASE_URL_PROD = createDatabaseUrl(
+            MARIADB_USER,
+            MARIADB_PASSWORD,
+            MARIADB_HOST,
+            MARIADB_PORT,
+            MARIADB_DATABASE_PROD
+        )
+        DATABASE_URL_DEV = createDatabaseUrl(
+            MARIADB_USER,
+            MARIADB_PASSWORD,
+            MARIADB_HOST,
+            MARIADB_PORT,
+            MARIADB_DATABASE_DEV
+        )
+        DATABASE_URL_TEST = createDatabaseUrl(
+            MARIADB_USER,
+            MARIADB_PASSWORD,
+            MARIADB_HOST,
+            MARIADB_PORT,
+            MARIADB_DATABASE_TEST
+        )
+
+        // API 서버
+        VITE_API_SERVER_URL = credentials('EC2_EXTERNAL_URL_ID')
+
+        // 배포
+        DOCKER_HOST_IP = credentials('EC2_SSH_INTERNAL_IP')
+        SSH_CREDS = credentials('EC2_SSH_CREDENTIAL_ID')
+        DEPLOY_PATH = '${HOME}/cirrodrive-deploy'
     }
 
     stages {
-        stage('Install dependency') {
+        stage('Set environment variables') {
+            echo 'Setting environment variables...'
             steps {
                 script {
-                    env.PATH = "${env.PNPM_HOME}:${env.PATH}"
+                    echo 'Environment variables set successfully.'
                 }
-                echo 'Installing dependencies...'
+            }
+        }
+
+        stage('Set up pnpm') {
+            steps {
+                echo 'Setting up pnpm...'
+                script {
+                    env.PATH = "${PNPM_HOME}:${PATH}"
+                }
                 sh 'corepack enable pnpm'
+            }
+        }
+
+        stage('Start database') {
+            steps {
+                echo 'Starting database...'
+                sh 'pnpm run db:start'
+            }
+        }
+
+        stage('Install dependency') {
+            steps {
                 sh 'pnpm install --frozen-lockfile'
-                sh 'pnpm -F @cirrodrive/backend run ci:runDatabase'
-                sh 'pnpm -F @cirrodrive/backend run prisma:generate'
+            }
+        }
+
+        stage('Generate prisma client') {
+            environment {
+                DATABASE_URL = DATABASE_URL_DEV
+            }
+            steps {
+                echo 'Generating Prisma client...'
+                sh 'pnpm run prisma:generate'
             }
         }
 
@@ -41,17 +106,62 @@ pipeline {
         }
 
         stage('Test') {
+            environment {
+                DATABASE_URL = DATABASE_URL_TEST
+            }
             steps {
                 echo 'Running vitest...'
                 sh 'pnpm run test'
             }
         }
 
-        stage('Build') {
+        stage('Build in production') {
+            when {
+                branch MAIN
+            }
+            environment {
+                DATABASE_URL = DATABASE_URL_PROD
+                VITE_PORT = '8000'
+                VITE_API_SERVER_PORT = VITE_PORT
+            }
             steps {
-                echo 'Building the app...'
-                sh 'pnpm run compose:prod:build'
-                sh 'pnpm run compose:dev:build'
+                echo 'Building in production...'
+                sh 'pnpm run build'
+            }
+        }
+
+        stage('Build in development') {
+            when {
+                branch DEVELOP
+            }
+            environment {
+                NODE_ENV = 'development'
+                DATABASE_URL = DATABASE_URL_DEV
+                VITE_PORT = '3000'
+                VITE_API_SERVER_PORT = VITE_PORT
+            }
+            steps {
+                echo 'Building in development...'
+                sh 'pnpm run build:dev'
+            }
+        }
+
+        script('Build Docker image') {
+            steps {
+                echo 'Building Docker image...'
+                sh 'pnpm run docker:build'
+            }
+        }
+
+        script('Save Docker image') {
+            steps {
+                echo 'Saving Docker image...'
+                sh 'docker save -o ${DEPLOY_PATH}/cirrodrive-frontend.tar \
+                   cirrodrive-frontend:latest'
+                sh 'docker save -o ${DEPLOY_PATH}/cirrodrive-backend.tar \
+                   cirrodrive-backend:latest'
+                sh 'docker save -o ${DEPLOY_PATH}/cirrodrive-database.tar \
+                   cirrodrive-database:latest'
             }
         }
 
@@ -62,20 +172,48 @@ pipeline {
                     branch DEVELOP
                 }
             }
-            steps {
-                script {
-                    if (BRANCH_NAME == MAIN) {
-                        env.DATABASE_URL = PROD_DATABASE_URL
-                        env.MARIADB_ROOT_PASSWORD = PROD_MARIADB_ROOT_PASSWORD
-                        env.MARIADB_USER = PROD_MARIADB_USER
-                        env.MARIADB_PASSWORD = PROD_MARIADB_PASSWORD
-                        env.MARIADB_DATABASE = PROD_MARIADB_DATABASE
-                        echo 'Deploying to production...'
-                        sh 'pnpm run compose:prod:up'
-                    } else if (BRANCH_NAME == DEVELOP) {
-                        echo 'Deploying to development...'
-                        sh 'pnpm run compose:dev:up'
-                    }
+            script {
+                if (env.BRANCH_NAME == MAIN) {
+                    echo 'Deploying to production...'
+                } else if (env.BRANCH_NAME == DEVELOP) {
+                    echo 'Deploying to development...'
+                }
+                sh '''
+                scp -i $SSH_CREDS \
+                    ${DEPLOY_PATH}/cirrodrive-frontend.tar \
+                    ${SSH_CREDS_USR}@${DOCKER_HOST_IP}:${DEPLOY_PATH}/
+
+                scp -i $SSH_CREDS \
+                    ${DEPLOY_PATH}/cirrodrive-backend.tar \
+                    ${SSH_CREDS_USR}@${DOCKER_HOST_IP}:${DEPLOY_PATH}/
+
+                scp -i $SSH_CREDS \
+                    ${DEPLOY_PATH}/cirrodrive-database.tar \
+                    ${SSH_CREDS_USR}@${DOCKER_HOST_IP}:${DEPLOY_PATH}/
+
+                ssh -i $SSH_CREDS \
+                    ${SSH_CREDS_USR}@${DOCKER_HOST_IP} \
+                    "export MARIADB_USER=${MARIADB_USER} && \
+                     export MARIADB_PASSWORD=${MARIADB_PASSWORD} && \
+                     export MARIADB_HOST=${MARIADB_HOST} && \
+                     export MARIADB_PORT=${MARIADB_PORT} && \
+                     docker load -i ${DEPLOY_PATH}/cirrodrive-frontend.tar && \
+                     docker load -i ${DEPLOY_PATH}/cirrodrive-backend.tar && \
+                     docker load -i ${DEPLOY_PATH}/cirrodrive-database.tar && \
+                     cd ${DEPLOY_PATH}
+                   '''
+                if (env.BRANCH_NAME == MAIN) {
+                    sh '''
+                    ssh -i $SSH_CREDS \
+                        ${SSH_CREDS_USR}@${DOCKER_HOST_IP} \
+                        docker-compose up -d --remove-orphans --renew-anon-volumes frontend backend
+                       '''
+                } else if (env.BRANCH_NAME == DEVELOP) {
+                    sh '''
+                    ssh -i $SSH_CREDS \
+                        ${SSH_CREDS_USR}@${DOCKER_HOST_IP} \
+                        docker-compose up -d --remove-orphans --renew-anon-volumes frontend-dev backend-dev
+                       '''
                 }
             }
         }

@@ -6,14 +6,16 @@ node_modules
 .pnp.js
 
 # local env files
-.env
 .env*.local
 
 # app data
 **/backend/data
+**/cirrodrive-app-data
+**/cirrodrive-database-data
 
 # prisma
 !**/prisma/.env
+**/prisma/client
 
 # testing
 coverage

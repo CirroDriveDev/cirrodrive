@@ -1,0 +1,33 @@
+{
+  "name": "@cirrodrive/database",
+  "version": "0.0.0",
+  "private": true,
+  "exports": {
+    ".": "./dist/index.js"
+  },
+  "scripts": {
+    "build": "prisma generate",
+    "build:dev": "prisma generate",
+    "clean": "git clean -xdf .cache .turbo node_modules",
+    "format": "prettier --check . --ignore-path ../../.gitignore",
+    "healthcheck": "vite-node healthcheck.ts",
+    "lint": "eslint",
+    "start": "docker-compose up -d database --build",
+    "stop": "docker-compose down -v database",
+    "generate": "prisma generate",
+    "migrate:dev": "prisma migrate dev --create-only --name init",
+    "migrate:deploy": "prisma migrate deploy",
+    "studio": "prisma studio",
+    "db:push": "prisma db push",
+    "db:seed": "prisma db seed"
+  },
+  "dependencies": {
+    "@prisma/client": "^5.16.1"
+  },
+  "devDependencies": {
+    "@cirrodrive/tsconfig": "workspace:^",
+    "@types/node": "^20.14.9",
+    "prisma": "^5.16.1",
+    "vite-node": "^2.1.4"
+  }
+}

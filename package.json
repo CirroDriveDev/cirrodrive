@@ -10,12 +10,13 @@
   "type": "module",
   "scripts": {
     "build": "turbo run build",
+    "build:dev": "turbo run build:dev",
     "clean": "git clean -xdf node_modules",
     "clean:workspaces": "turbo run clean",
     "prisma:push": "turbo -F @cirrodrive/backend prisma:db:push",
     "prisma:studio": "turbo -F @cirrodrive/backend prisma:studio",
     "prisma:generate": "turbo -F @cirrodrive/backend prisma:generate",
-    "dev": "turbo run dev --continue",
+    "dev": "turbo run dev",
     "format": "turbo run format --continue -- --cache --cache-location .cache/.prettiercache",
     "format:fix": "turbo run format --continue -- --write --cache --cache-location .cache/.prettiercache",
     "lint": "turbo run lint --continue -- --cache --cache-location .cache/.eslintcache",
@@ -23,15 +24,17 @@
     "lint:ws": "pnpx sherif@latest",
     "postinstall": "pnpm lint:ws",
     "prepare": "husky",
+    "start": "turbo run start",
     "test": "turbo run test",
     "typecheck": "turbo run typecheck",
     "ui-add": "turbo run ui-add",
-    "compose:prod:build": "docker-compose -f compose.prod.yaml build",
-    "compose:prod:up": "docker-compose -f compose.prod.yaml up -d --remove-orphans --renew-anon-volumes",
-    "compose:prod:down": "docker-compose -f compose.prod.yaml down -v",
-    "compose:dev:build": "docker-compose -f compose.dev.yaml build",
-    "compose:dev:up": "docker-compose -f compose.dev.yaml up -d --remove-orphans --renew-anon-volumes",
-    "compose:dev:down": "docker-compose -f compose.dev.yaml down -v"
+    "docker:build": "docker-compose build",
+    "docker:prod:up": "docker-compose up -d --remove-orphans --renew-anon-volumes frontend backend",
+    "docker:prod:down": "docker-compose down -v frontend backend",
+    "docker:dev:up": "docker-compose up -d --remove-orphans --renew-anon-volumes frontend-dev backend-dev",
+    "docker:dev:down": "docker-compose down -v frontend-dev backend-dev",
+    "docker:db:up": "docker-compose up -d database",
+    "docker:db:down": "docker-compose down -v database"
   },
   "devDependencies": {
     "@cirrodrive/prettier-config": "workspace:*",
@@ -40,6 +43,7 @@
     "prettier": "catalog:",
     "turbo": "^2.1.3",
     "typescript": "catalog:",
+    "vite-node": "^2.1.4",
     "vitest": "catalog:"
   },
   "pnpm": {

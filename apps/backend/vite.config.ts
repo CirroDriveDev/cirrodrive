@@ -12,10 +12,16 @@ export default defineConfig({
     setupFiles: "./vitestSetup.ts",
     fileParallelism: false,
   },
+  optimizeDeps: {
+    include: ["../database/dist/index.js"],
+  },
   build: {
     target: "esnext",
     rollupOptions: {
       input: "src/main.ts",
+    },
+    commonjsOptions: {
+      include: ["../database/dist/index.js", /node_modules/],
     },
   },
   resolve: {

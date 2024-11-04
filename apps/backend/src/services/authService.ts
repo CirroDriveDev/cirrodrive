@@ -1,5 +1,5 @@
 import { injectable, inject } from "inversify";
-import { Prisma, User, Session } from "@prisma/client";
+import type { Prisma, User, Session } from "@cirrodrive/database";
 import { verify } from "@node-rs/argon2";
 import type { Logger } from "pino";
 import {
