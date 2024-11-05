@@ -173,7 +173,7 @@ pipeline {
                         env.FRONTEND_CONTAINER_NAME = 'frontend'
                         env.BACKEND_CONTAINER_NAME = 'backend'
                         env.DATABASE_CONTAINER_NAME = 'database'
-                    } else if (env.BRANCH_NAME == DEVELOP) {
+                    } else {
                         echo 'Deploying to development...'
                         env.FRONTEND_CONTAINER_NAME = 'frontend-dev'
                         env.BACKEND_CONTAINER_NAME = 'backend-dev'
