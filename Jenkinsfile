@@ -181,7 +181,7 @@ pipeline {
                     }
 
                     sshagent(credentials: ['EC2_SSH_CREDENTIAL_ID']) {
-                        sh 'deploy.sh'
+                        sh './deploy.sh'
                     }
                 }
             }
