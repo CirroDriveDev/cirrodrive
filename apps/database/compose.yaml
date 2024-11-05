@@ -14,7 +14,7 @@ services:
       - --port=${MARIADB_PORT}
     restart: always
     volumes:
-      - ${DATABASE_DATA_PATH}/cirrodrive-database-data:/var/lib/mysql
+      - ${CIRRODRIVE_HOME}/cirrodrive-database-data:/var/lib/mysql
     environment:
       - TZ=Asia/Seoul
       - MARIADB_ROOT_PASSWORD=${MARIADB_ROOT_PASSWORD}

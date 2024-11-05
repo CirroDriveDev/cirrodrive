@@ -11,8 +11,9 @@ pipeline {
         MAIN = 'main'
         DEVELOP = 'develop'
 
+        CIRRODRIVE_HOME = '/home/ec2-user/cirrodrive'
+
         // 데이터베이스
-        DATABASE_DATA_PATH = '/home/ec2-user/cirrodrive'
         MARIADB_ROOT_PASSWORD = credentials('MARIADB_ROOT_PASSWORD_CREDENTIAL_ID')
         MARIADB_USER = credentials('MARIADB_USER_CREDENTIAL_ID')
         MARIADB_PASSWORD = credentials('MARIADB_PASSWORD_CREDENTIAL_ID')
@@ -20,7 +21,6 @@ pipeline {
         MARIADB_PORT = '3307'
 
         // API 서버
-        APP_DATA_PATH = '/home/ec2-user/cirrodrive'
         VITE_API_SERVER_URL = credentials('EC2_EXTERNAL_URL_ID')
     }
 
@@ -62,7 +62,7 @@ pipeline {
                 script {
                     // .env 파일 생성
                     def envFileContent = """
-                    DATABASE_DATA_PATH=${env.DATABASE_DATA_PATH}
+                    CIRRODRIVE_HOME=${env.CIRRODRIVE_HOME}
                     MARIADB_ROOT_PASSWORD=${env.MARIADB_ROOT_PASSWORD}
                     MARIADB_USER=${env.MARIADB_USER}
                     MARIADB_PASSWORD=${env.MARIADB_PASSWORD}
@@ -146,12 +146,12 @@ pipeline {
             // }
             steps {
                 echo 'Saving Docker image...'
-                sh "docker save -o ./cirrodrive-frontend.tar \
-                    cirrodrive-frontend:latest"
-                sh "docker save -o ./cirrodrive-backend.tar \
-                    cirrodrive-backend:latest"
-                sh "docker save -o ./cirrodrive-database.tar \
-                    cirrodrive-database:latest"
+                sh 'docker save -o ./cirrodrive-frontend.tar \
+                    cirrodrive-frontend:latest'
+                sh 'docker save -o ./cirrodrive-backend.tar \
+                    cirrodrive-backend:latest'
+                sh 'docker save -o ./cirrodrive-database.tar \
+                    cirrodrive-database:latest'
             }
         }
 
@@ -170,49 +170,18 @@ pipeline {
                 script {
                     if (env.BRANCH_NAME == MAIN) {
                         echo 'Deploying to production...'
+                        env.FRONTEND_CONTAINER_NAME = 'frontend'
+                        env.BACKEND_CONTAINER_NAME = 'backend'
+                        env.DATABASE_CONTAINER_NAME = 'database'
                     } else if (env.BRANCH_NAME == DEVELOP) {
                         echo 'Deploying to development...'
+                        env.FRONTEND_CONTAINER_NAME = 'frontend-dev'
+                        env.BACKEND_CONTAINER_NAME = 'backend-dev'
+                        env.DATABASE_CONTAINER_NAME = 'database'
                     }
+
                     sshagent(credentials: ['EC2_SSH_CREDENTIAL_ID']) {
-                        sh  "ssh -o StrictHostKeyChecking=no ${SSH_CREDS_USR}@${EC2_PRIVATE_IP} mkdir -p ${DEPLOY_PATH}"
-                        sh  "ssh -o StrictHostKeyChecking=no ${SSH_CREDS_USR}@${EC2_PRIVATE_IP} mkdir -p ${DEPLOY_PATH}/apps/database"
-                        sh  "scp -o StrictHostKeyChecking=no ./cirrodrive-frontend.tar ${SSH_CREDS_USR}@${EC2_PRIVATE_IP}:${DEPLOY_PATH}/"
-                        sh  "scp -o StrictHostKeyChecking=no ./cirrodrive-backend.tar ${SSH_CREDS_USR}@${EC2_PRIVATE_IP}:${DEPLOY_PATH}/"
-                        sh  "scp -o StrictHostKeyChecking=no ./cirrodrive-database.tar ${SSH_CREDS_USR}@${EC2_PRIVATE_IP}:${DEPLOY_PATH}/"
-                        sh  "ssh -o StrictHostKeyChecking=no \
-                                ${SSH_CREDS_USR}@${EC2_PRIVATE_IP} \
-                                docker load -i ${DEPLOY_PATH}/cirrodrive-frontend.tar"
-                        sh  "ssh -o StrictHostKeyChecking=no \
-                                ${SSH_CREDS_USR}@${EC2_PRIVATE_IP} \
-                                docker load -i ${DEPLOY_PATH}/cirrodrive-backend.tar"
-                        sh  "ssh -o StrictHostKeyChecking=no \
-                                ${SSH_CREDS_USR}@${EC2_PRIVATE_IP} \
-                                docker load -i ${DEPLOY_PATH}/cirrodrive-database.tar"
-                        sh  "scp -o StrictHostKeyChecking=no ./compose.yaml ${SSH_CREDS_USR}@${EC2_PRIVATE_IP}:${DEPLOY_PATH}/"
-                        sh  "scp -o StrictHostKeyChecking=no ./apps/database/compose.yaml ${SSH_CREDS_USR}@${EC2_PRIVATE_IP}:${DEPLOY_PATH}/"
-                        if (env.BRANCH_NAME == MAIN) {
-                            sh  "ssh -o StrictHostKeyChecking=no \
-                                    ${SSH_CREDS_USR}@${EC2_PRIVATE_IP} \
-                                    \"export DATABASE_DATA_PATH=${DATABASE_DATA_PATH} && \
-                                    export MARIADB_ROOT_PASSWORD=${MARIADB_ROOT_PASSWORD} && \
-                                    export MARIADB_USER=${MARIADB_USER} && \
-                                    export MARIADB_PASSWORD=${MARIADB_PASSWORD} && \
-                                    export MARIADB_HOST=${MARIADB_HOST} && \
-                                    export MARIADB_PORT=${MARIADB_PORT} && \
-                                    export DATABASE_URL=${DATABASE_URL} && \
-                                    docker-compose -f ${DEPLOY_PATH}/compose.yaml up -d --remove-orphans --renew-anon-volumes frontend backend database\""
-                        } else {
-                            sh  "ssh -o StrictHostKeyChecking=no \
-                                    ${SSH_CREDS_USR}@${EC2_PRIVATE_IP} \
-                                    \"export DATABASE_DATA_PATH=${DATABASE_DATA_PATH} && \
-                                    export MARIADB_ROOT_PASSWORD=${MARIADB_ROOT_PASSWORD} && \
-                                    export MARIADB_USER=${MARIADB_USER} && \
-                                    export MARIADB_PASSWORD=${MARIADB_PASSWORD} && \
-                                    export MARIADB_HOST=${MARIADB_HOST} && \
-                                    export MARIADB_PORT=${MARIADB_PORT} && \
-                                    export DATABASE_URL=${DATABASE_URL} && \
-                                    docker-compose -f ${DEPLOY_PATH}/compose.yaml up -d --remove-orphans --renew-anon-volumes frontend-dev backend-dev database\""
-                        }
+                        sh 'deploy.sh'
                     }
                 }
             }
