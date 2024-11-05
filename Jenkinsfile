@@ -111,18 +111,20 @@ pipeline {
         }
 
         stage('Build') {
-            script {
-                if (env.BRANCH_NAME == MAIN) {
-                    echo 'Building in production...'
-                    env.VITE_PORT = '8000'
-                    env.VITE_API_SERVER_PORT = "${VITE_PORT}"
-                    sh 'pnpm run build'
-                } else {
-                    echo 'Building in development...'
-                    env.NODE_ENV = 'development'
-                    env.VITE_PORT = '3000'
-                    env.VITE_API_SERVER_PORT = "${VITE_PORT}"
-                    sh 'pnpm run build:dev'
+            steps {
+                script {
+                    if (env.BRANCH_NAME == MAIN) {
+                        echo 'Building in production...'
+                        env.VITE_PORT = '8000'
+                        env.VITE_API_SERVER_PORT = "${VITE_PORT}"
+                        sh 'pnpm run build'
+                    } else {
+                        echo 'Building in development...'
+                        env.NODE_ENV = 'development'
+                        env.VITE_PORT = '3000'
+                        env.VITE_API_SERVER_PORT = "${VITE_PORT}"
+                        sh 'pnpm run build:dev'
+                    }
                 }
             }
         }
