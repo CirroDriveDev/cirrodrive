@@ -187,6 +187,7 @@ pipeline {
                         sh  "ssh -o StrictHostKeyChecking=no \
                                 ${SSH_CREDS_USR}@${EC2_PRIVATE_IP} \
                                 docker load -i ${DEPLOY_PATH}/cirrodrive-database.tar"
+                        sh  "scp -o StrictHostKeyChecking=no ./compose.yaml ${SSH_CREDS_USR}@${EC2_PRIVATE_IP}:${DEPLOY_PATH}/"
                         if (env.BRANCH_NAME == MAIN) {
                             sh  "ssh -o StrictHostKeyChecking=no \
                                     ${SSH_CREDS_USR}@${EC2_PRIVATE_IP} \
