@@ -197,7 +197,7 @@ pipeline {
 
                         // compose 파일 전송
                         sh 'scp -o StrictHostKeyChecking=no ./compose.yaml "${SSH_CREDS_USR}@${EC2_PRIVATE_IP}:${DEPLOY_PATH}/"'
-                        sh 'scp -o StrictHostKeyChecking=no ./apps/database/compose.yaml "${SSH_CREDS_USR}@${EC2_PRIVATE_IP}:${DEPLOY_PATH}/"'
+                        sh 'scp -o StrictHostKeyChecking=no ./apps/database/compose.yaml "${SSH_CREDS_USR}@${EC2_PRIVATE_IP}:${DEPLOY_PATH}/apps/database/"'
 
                         // 도커 컴포즈 실행
                         sh """
