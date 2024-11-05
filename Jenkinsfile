@@ -178,13 +178,17 @@ pipeline {
                         sh  "scp -o StrictHostKeyChecking=no ./cirrodrive-frontend.tar ${SSH_CREDS_USR}@${EC2_PRIVATE_IP}:${DEPLOY_PATH}/"
                         sh  "scp -o StrictHostKeyChecking=no ./cirrodrive-backend.tar ${SSH_CREDS_USR}@${EC2_PRIVATE_IP}:${DEPLOY_PATH}/"
                         sh  "scp -o StrictHostKeyChecking=no ./cirrodrive-database.tar ${SSH_CREDS_USR}@${EC2_PRIVATE_IP}:${DEPLOY_PATH}/"
-                        sh "ssh -o StrictHostKeyChecking=no ${SSH_CREDS_USR}@${EC2_PRIVATE_IP} ls -al ${DEPLOY_PATH}/"
-                        sh "sleep 5"
-                        sh "ssh -o StrictHostKeyChecking=no ${SSH_CREDS_USR}@${EC2_PRIVATE_IP} ls -al ${DEPLOY_PATH}/"
+                        sh  "ssh -o StrictHostKeyChecking=no ${SSH_CREDS_USR}@${EC2_PRIVATE_IP} ls -al ${DEPLOY_PATH}/"
+                        sh  'sleep 5'
+                        sh  "ssh -o StrictHostKeyChecking=no ${SSH_CREDS_USR}@${EC2_PRIVATE_IP} ls -al ${DEPLOY_PATH}/"
                         sh  "ssh -o StrictHostKeyChecking=no \
                                 ${SSH_CREDS_USR}@${EC2_PRIVATE_IP} \
-                                docker load -i ${DEPLOY_PATH}/cirrodrive-frontend.tar && \
-                                docker load -i ${DEPLOY_PATH}/cirrodrive-backend.tar && \
+                                docker load -i ${DEPLOY_PATH}/cirrodrive-frontend.tar"
+                        sh  "ssh -o StrictHostKeyChecking=no \
+                                ${SSH_CREDS_USR}@${EC2_PRIVATE_IP} \
+                                docker load -i ${DEPLOY_PATH}/cirrodrive-backend.tar"
+                        sh  "ssh -o StrictHostKeyChecking=no \
+                                ${SSH_CREDS_USR}@${EC2_PRIVATE_IP} \
                                 docker load -i ${DEPLOY_PATH}/cirrodrive-database.tar"
                         if (env.BRANCH_NAME == MAIN) {
                             sh  "ssh -o StrictHostKeyChecking=no \
