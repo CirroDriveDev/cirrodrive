@@ -175,16 +175,17 @@ pipeline {
                         echo 'Deploying to development...'
                     }
                     sshagent(credentials: ['EC2_SSH_CREDENTIAL_ID']) {
-                        sh  "scp ./cirrodrive-frontend.tar ${SSH_CREDS_USR}@${DOCKER_HOST_IP}:${DEPLOY_PATH}/"
-                        sh  "scp ./cirrodrive-backend.tar ${SSH_CREDS_USR}@${DOCKER_HOST_IP}:${DEPLOY_PATH}/"
-                        sh  "scp ./cirrodrive-database.tar ${SSH_CREDS_USR}@${DOCKER_HOST_IP}:${DEPLOY_PATH}/"
-                        sh  "ssh \
+                        sh  "scp -o StrictHostKeyChecking=no ./cirrodrive-frontend.tar ${SSH_CREDS_USR}@${DOCKER_HOST_IP}:${DEPLOY_PATH}/"
+                        sh  "scp -o StrictHostKeyChecking=no ./cirrodrive-backend.tar ${SSH_CREDS_USR}@${DOCKER_HOST_IP}:${DEPLOY_PATH}/"
+                        sh  "scp -o StrictHostKeyChecking=no ./cirrodrive-database.tar ${SSH_CREDS_USR}@${DOCKER_HOST_IP}:${DEPLOY_PATH}/"
+                        sh  "ssh -o StrictHostKeyChecking=no \
                                 ${SSH_CREDS_USR}@${DOCKER_HOST_IP} \
                                 docker load -i ${DEPLOY_PATH}/cirrodrive-frontend.tar && \
                                 docker load -i ${DEPLOY_PATH}/cirrodrive-backend.tar && \
                                 docker load -i ${DEPLOY_PATH}/cirrodrive-database.tar"
                         if (env.BRANCH_NAME == MAIN) {
-                            sh  "ssh ${SSH_CREDS_USR}@${DOCKER_HOST_IP} \
+                            sh  "ssh -o StrictHostKeyChecking=no \
+                                    ${SSH_CREDS_USR}@${DOCKER_HOST_IP} \
                                     cd ${DEPLOY_PATH} && \
                                     export MARIADB_USER=${MARIADB_USER} && \
                                     export MARIADB_PASSWORD=${MARIADB_PASSWORD} && \
@@ -193,7 +194,8 @@ pipeline {
                                     export DATABASE_URL=${DATABASE_URL} && \
                                     docker-compose up -d --remove-orphans --renew-anon-volumes frontend backend database"
                         } else if (env.BRANCH_NAME == DEVELOP) {
-                            sh  "ssh ${SSH_CREDS_USR}@${DOCKER_HOST_IP} \
+                            sh  "ssh -o StrictHostKeyChecking=no \
+                                    ${SSH_CREDS_USR}@${DOCKER_HOST_IP} \
                                     cd ${DEPLOY_PATH} && \
                                     export MARIADB_USER=${MARIADB_USER} && \
                                     export MARIADB_PASSWORD=${MARIADB_PASSWORD} && \
