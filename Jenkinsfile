@@ -25,6 +25,7 @@ pipeline {
 
         // 배포
         DOCKER_HOST_IP = credentials('EC2_SSH_INTERNAL_IP_ID')
+        SSH_CREDS = credentials('EC2_SSH_CREDENTIAL_ID')
         DEPLOY_PATH = '/home/ec2-user/cirrodrive/deploy'
     }
 
@@ -177,8 +178,7 @@ pipeline {
                                 ${SSH_CREDS_USR}@${DOCKER_HOST_IP} \
                                 docker load -i ${DEPLOY_PATH}/cirrodrive-frontend.tar && \
                                 docker load -i ${DEPLOY_PATH}/cirrodrive-backend.tar && \
-                                docker load -i ${DEPLOY_PATH}/cirrodrive-database.tar
-                            "
+                                docker load -i ${DEPLOY_PATH}/cirrodrive-database.tar"
                         if (env.BRANCH_NAME == MAIN) {
                             sh  "ssh ${SSH_CREDS_USR}@${DOCKER_HOST_IP} \
                                     cd ${DEPLOY_PATH} && \
@@ -187,8 +187,7 @@ pipeline {
                                     export MARIADB_HOST=${MARIADB_HOST} && \
                                     export MARIADB_PORT=${MARIADB_PORT} && \
                                     export DATABASE_URL=${DATABASE_URL} && \
-                                    docker-compose up -d --remove-orphans --renew-anon-volumes frontend backend database
-                                "
+                                    docker-compose up -d --remove-orphans --renew-anon-volumes frontend backend database"
                         } else if (env.BRANCH_NAME == DEVELOP) {
                             sh  "ssh ${SSH_CREDS_USR}@${DOCKER_HOST_IP} \
                                     cd ${DEPLOY_PATH} && \
@@ -197,8 +196,7 @@ pipeline {
                                     export MARIADB_HOST=${MARIADB_HOST} && \
                                     export MARIADB_PORT=${MARIADB_PORT} && \
                                     export DATABASE_URL=${DATABASE_URL} && \
-                                    docker-compose up -d --remove-orphans --renew-anon-volumes frontend-dev backend-dev database
-                                "
+                                    docker-compose up -d --remove-orphans --renew-anon-volumes frontend-dev backend-dev database"
                         }
                     }
                     
