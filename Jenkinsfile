@@ -193,23 +193,25 @@ pipeline {
                         if (env.BRANCH_NAME == MAIN) {
                             sh  "ssh -o StrictHostKeyChecking=no \
                                     ${SSH_CREDS_USR}@${EC2_PRIVATE_IP} \
-                                    'cd ${DEPLOY_PATH} && \
+                                    \"export DATABASE_DATA_PATH=${DATABASE_DATA_PATH} && \
+                                    export MARIADB_ROOT_PASSWORD=${MARIADB_ROOT_PASSWORD} && \
                                     export MARIADB_USER=${MARIADB_USER} && \
                                     export MARIADB_PASSWORD=${MARIADB_PASSWORD} && \
                                     export MARIADB_HOST=${MARIADB_HOST} && \
                                     export MARIADB_PORT=${MARIADB_PORT} && \
                                     export DATABASE_URL=${DATABASE_URL} && \
-                                    docker-compose up -d --remove-orphans --renew-anon-volumes frontend backend database'"
+                                    docker-compose -f ${DEPLOY_PATH}/compose.yaml up -d --remove-orphans --renew-anon-volumes frontend backend database\""
                         } else {
                             sh  "ssh -o StrictHostKeyChecking=no \
                                     ${SSH_CREDS_USR}@${EC2_PRIVATE_IP} \
-                                    'cd ${DEPLOY_PATH} && \
+                                    \"export DATABASE_DATA_PATH=${DATABASE_DATA_PATH} && \
+                                    export MARIADB_ROOT_PASSWORD=${MARIADB_ROOT_PASSWORD} && \
                                     export MARIADB_USER=${MARIADB_USER} && \
                                     export MARIADB_PASSWORD=${MARIADB_PASSWORD} && \
                                     export MARIADB_HOST=${MARIADB_HOST} && \
                                     export MARIADB_PORT=${MARIADB_PORT} && \
                                     export DATABASE_URL=${DATABASE_URL} && \
-                                    docker-compose up -d --remove-orphans --renew-anon-volumes frontend-dev backend-dev database'"
+                                    docker-compose -f ${DEPLOY_PATH}/compose.yaml up -d --remove-orphans --renew-anon-volumes frontend-dev backend-dev database\""
                         }
                     }
                 }
