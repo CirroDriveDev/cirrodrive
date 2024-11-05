@@ -175,6 +175,7 @@ pipeline {
                         echo 'Deploying to development...'
                     }
                     sshagent(credentials: ['EC2_SSH_CREDENTIAL_ID']) {
+                        sh  "ssh -o StrictHostKeyChecking=no ${SSH_CREDS_USR}@${DOCKER_HOST_IP} mkdir -p ${DEPLOY_PATH}"
                         sh  "scp -o StrictHostKeyChecking=no ./cirrodrive-frontend.tar ${SSH_CREDS_USR}@${DOCKER_HOST_IP}:${DEPLOY_PATH}/"
                         sh  "scp -o StrictHostKeyChecking=no ./cirrodrive-backend.tar ${SSH_CREDS_USR}@${DOCKER_HOST_IP}:${DEPLOY_PATH}/"
                         sh  "scp -o StrictHostKeyChecking=no ./cirrodrive-database.tar ${SSH_CREDS_USR}@${DOCKER_HOST_IP}:${DEPLOY_PATH}/"
