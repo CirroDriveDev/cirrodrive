@@ -202,7 +202,7 @@ pipeline {
                         // 도커 컴포즈 실행
                         sh """
                             ssh -o StrictHostKeyChecking=no "${SSH_CREDS_USR}@${EC2_PRIVATE_IP}" <<EOF
-                            export DATABASE_DATA_PATH="${DATABASE_DATA_PATH}"
+                            export CIRRODRIVE_HOME="${CIRRODRIVE_HOME}"
                             export MARIADB_ROOT_PASSWORD="${MARIADB_ROOT_PASSWORD}"
                             export MARIADB_USER="${MARIADB_USER}"
                             export MARIADB_PASSWORD="${MARIADB_PASSWORD}"
