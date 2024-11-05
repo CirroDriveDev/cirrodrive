@@ -25,7 +25,6 @@ pipeline {
 
         // 배포
         DOCKER_HOST_IP = credentials('EC2_SSH_INTERNAL_IP_ID')
-        SSH_CREDS = credentials('EC2_SSH_CREDENTIAL_ID')
         DEPLOY_PATH = '/home/ec2-user/cirrodrive/deploy'
     }
 
@@ -42,7 +41,6 @@ pipeline {
                     /* groovylint-disable-next-line LineLength */
                     env.DATABASE_URL = "mysql://${env.MARIADB_USER}:${env.MARIADB_PASSWORD}@${env.MARIADB_HOST}:${env.MARIADB_PORT}/${env.MARIADB_DATABASE}"
                 }
-                echo "DATABASE_URL: ${env.DATABASE_URL}"
             }
         }
 
@@ -111,28 +109,17 @@ pipeline {
             }
         }
 
-        stage('Build in production') {
-            when {
-                branch MAIN
-            }
-            environment {
-                VITE_PORT = '8000'
-                VITE_API_SERVER_PORT = "${VITE_PORT}"
-            }
-            steps {
+        stage('Build') {
+            if (env.BRANCH_NAME == MAIN) {
                 echo 'Building in production...'
+                env.VITE_PORT = '8000'
+                env.VITE_API_SERVER_PORT = "${VITE_PORT}"
                 sh 'pnpm run build'
-            }
-        }
-
-        stage('Build in development') {
-            environment {
-                NODE_ENV = 'development'
-                VITE_PORT = '3000'
-                VITE_API_SERVER_PORT = "${VITE_PORT}"
-            }
-            steps {
+            } else {
                 echo 'Building in development...'
+                env.NODE_ENV = 'development'
+                env.VITE_PORT = '3000'
+                env.VITE_API_SERVER_PORT = "${VITE_PORT}"
                 sh 'pnpm run build:dev'
             }
         }
@@ -182,48 +169,39 @@ pipeline {
                     } else if (env.BRANCH_NAME == DEVELOP) {
                         echo 'Deploying to development...'
                     }
-                    sh  '''
-                        scp -i $SSH_CREDS \
-                            ./cirrodrive-frontend.tar \
-                            ${SSH_CREDS_USR}@${DOCKER_HOST_IP}:${DEPLOY_PATH}/
-
-                        scp -i $SSH_CREDS \
-                            ./cirrodrive-backend.tar \
-                            ${SSH_CREDS_USR}@${DOCKER_HOST_IP}:${DEPLOY_PATH}/
-
-                        scp -i $SSH_CREDS \
-                            ./cirrodrive-database.tar \
-                            ${SSH_CREDS_USR}@${DOCKER_HOST_IP}:${DEPLOY_PATH}/
-
-                        scp -i $SSH_CREDS \
-                            ./cirrodrive-database.tar \
-                            ${SSH_CREDS_USR}@${DOCKER_HOST_IP}:${DEPLOY_PATH}/
-
-                        ssh -i $SSH_CREDS \
-                            ${SSH_CREDS_USR}@${DOCKER_HOST_IP} \
-                            "export MARIADB_USER=${MARIADB_USER} && \
-                             export MARIADB_PASSWORD=${MARIADB_PASSWORD} && \
-                             export MARIADB_HOST=${MARIADB_HOST} && \
-                             export MARIADB_PORT=${MARIADB_PORT} && \
-                             export DATABASE_URL=${DATABASE_URL} && \
-                             docker load -i ${DEPLOY_PATH}/cirrodrive-frontend.tar && \
-                             docker load -i ${DEPLOY_PATH}/cirrodrive-backend.tar && \
-                             docker load -i ${DEPLOY_PATH}/cirrodrive-database.tar && \
-                             cd ${DEPLOY_PATH}
-                        '''
-                    if (env.BRANCH_NAME == MAIN) {
-                        sh  '''
-                            ssh -i $SSH_CREDS \
+                    sshagent(credentials: ['EC2_SSH_CREDENTIAL_ID']) {
+                        sh  "scp ./cirrodrive-frontend.tar ${SSH_CREDS_USR}@${DOCKER_HOST_IP}:${DEPLOY_PATH}/"
+                        sh  "scp ./cirrodrive-backend.tar ${SSH_CREDS_USR}@${DOCKER_HOST_IP}:${DEPLOY_PATH}/"
+                        sh  "scp ./cirrodrive-database.tar ${SSH_CREDS_USR}@${DOCKER_HOST_IP}:${DEPLOY_PATH}/"
+                        sh  "ssh \
                                 ${SSH_CREDS_USR}@${DOCKER_HOST_IP} \
-                                docker-compose up -d --remove-orphans --renew-anon-volumes frontend backend database
-                            '''
-                    } else if (env.BRANCH_NAME == DEVELOP) {
-                        sh  '''
-                            ssh -i $SSH_CREDS \
-                            ${SSH_CREDS_USR}@${DOCKER_HOST_IP} \
-                            docker-compose up -d --remove-orphans --renew-anon-volumes frontend-dev backend-dev database
-                            '''
+                                docker load -i ${DEPLOY_PATH}/cirrodrive-frontend.tar && \
+                                docker load -i ${DEPLOY_PATH}/cirrodrive-backend.tar && \
+                                docker load -i ${DEPLOY_PATH}/cirrodrive-database.tar
+                            "
+                        if (env.BRANCH_NAME == MAIN) {
+                            sh  "ssh ${SSH_CREDS_USR}@${DOCKER_HOST_IP} \
+                                    cd ${DEPLOY_PATH} && \
+                                    export MARIADB_USER=${MARIADB_USER} && \
+                                    export MARIADB_PASSWORD=${MARIADB_PASSWORD} && \
+                                    export MARIADB_HOST=${MARIADB_HOST} && \
+                                    export MARIADB_PORT=${MARIADB_PORT} && \
+                                    export DATABASE_URL=${DATABASE_URL} && \
+                                    docker-compose up -d --remove-orphans --renew-anon-volumes frontend backend database
+                                "
+                        } else if (env.BRANCH_NAME == DEVELOP) {
+                            sh  "ssh ${SSH_CREDS_USR}@${DOCKER_HOST_IP} \
+                                    cd ${DEPLOY_PATH} && \
+                                    export MARIADB_USER=${MARIADB_USER} && \
+                                    export MARIADB_PASSWORD=${MARIADB_PASSWORD} && \
+                                    export MARIADB_HOST=${MARIADB_HOST} && \
+                                    export MARIADB_PORT=${MARIADB_PORT} && \
+                                    export DATABASE_URL=${DATABASE_URL} && \
+                                    docker-compose up -d --remove-orphans --renew-anon-volumes frontend-dev backend-dev database
+                                "
+                        }
                     }
+                    
                 }
             }
         }
@@ -231,7 +209,6 @@ pipeline {
     post {
         always {
             echo 'Cleaning up...'
-            sh 'docker logs --tail 1000 database'
             sh 'pnpm run -F @cirrodrive/database stop'
             cleanWs(deleteDirs: true)
         }
