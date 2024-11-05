@@ -22,11 +22,6 @@ pipeline {
         // API 서버
         APP_DATA_PATH = '/home/ec2-user/cirrodrive'
         VITE_API_SERVER_URL = credentials('EC2_EXTERNAL_URL_ID')
-
-        // 배포
-        DOCKER_HOST_IP = credentials('EC2_SSH_INTERNAL_IP_ID')
-        SSH_CREDS = credentials('EC2_SSH_CREDENTIAL_ID')
-        DEPLOY_PATH = '/home/ec2-user/cirrodrive/deploy'
     }
 
     stages {
@@ -167,6 +162,11 @@ pipeline {
             //         branch DEVELOP
             //     }
             // }
+            environment {
+                DOCKER_HOST_IP = EC2_PRIVATE_IP
+                SSH_CREDS = credentials('EC2_SSH_CREDENTIAL_ID')
+                DEPLOY_PATH = '/home/ec2-user/cirrodrive/deploy'
+            }
             steps {
                 script {
                     if (env.BRANCH_NAME == MAIN) {
@@ -206,7 +206,6 @@ pipeline {
                                     docker-compose up -d --remove-orphans --renew-anon-volumes frontend-dev backend-dev database"
                         }
                     }
-                    
                 }
             }
         }
