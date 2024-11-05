@@ -163,7 +163,6 @@ pipeline {
             //     }
             // }
             environment {
-                DOCKER_HOST_IP = EC2_PRIVATE_IP
                 SSH_CREDS = credentials('EC2_SSH_CREDENTIAL_ID')
                 DEPLOY_PATH = '/home/ec2-user/cirrodrive/deploy'
             }
@@ -175,18 +174,18 @@ pipeline {
                         echo 'Deploying to development...'
                     }
                     sshagent(credentials: ['EC2_SSH_CREDENTIAL_ID']) {
-                        sh  "ssh -o StrictHostKeyChecking=no ${SSH_CREDS_USR}@${DOCKER_HOST_IP} mkdir -p ${DEPLOY_PATH}"
-                        sh  "scp -o StrictHostKeyChecking=no ./cirrodrive-frontend.tar ${SSH_CREDS_USR}@${DOCKER_HOST_IP}:${DEPLOY_PATH}/"
-                        sh  "scp -o StrictHostKeyChecking=no ./cirrodrive-backend.tar ${SSH_CREDS_USR}@${DOCKER_HOST_IP}:${DEPLOY_PATH}/"
-                        sh  "scp -o StrictHostKeyChecking=no ./cirrodrive-database.tar ${SSH_CREDS_USR}@${DOCKER_HOST_IP}:${DEPLOY_PATH}/"
+                        sh  "ssh -o StrictHostKeyChecking=no ${SSH_CREDS_USR}@${EC2_PRIVATE_IP} mkdir -p ${DEPLOY_PATH}"
+                        sh  "scp -o StrictHostKeyChecking=no ./cirrodrive-frontend.tar ${SSH_CREDS_USR}@${EC2_PRIVATE_IP}:${DEPLOY_PATH}/"
+                        sh  "scp -o StrictHostKeyChecking=no ./cirrodrive-backend.tar ${SSH_CREDS_USR}@${EC2_PRIVATE_IP}:${DEPLOY_PATH}/"
+                        sh  "scp -o StrictHostKeyChecking=no ./cirrodrive-database.tar ${SSH_CREDS_USR}@${EC2_PRIVATE_IP}:${DEPLOY_PATH}/"
                         sh  "ssh -o StrictHostKeyChecking=no \
-                                ${SSH_CREDS_USR}@${DOCKER_HOST_IP} \
+                                ${SSH_CREDS_USR}@${EC2_PRIVATE_IP} \
                                 docker load -i ${DEPLOY_PATH}/cirrodrive-frontend.tar && \
                                 docker load -i ${DEPLOY_PATH}/cirrodrive-backend.tar && \
                                 docker load -i ${DEPLOY_PATH}/cirrodrive-database.tar"
                         if (env.BRANCH_NAME == MAIN) {
                             sh  "ssh -o StrictHostKeyChecking=no \
-                                    ${SSH_CREDS_USR}@${DOCKER_HOST_IP} \
+                                    ${SSH_CREDS_USR}@${EC2_PRIVATE_IP} \
                                     cd ${DEPLOY_PATH} && \
                                     export MARIADB_USER=${MARIADB_USER} && \
                                     export MARIADB_PASSWORD=${MARIADB_PASSWORD} && \
@@ -196,7 +195,7 @@ pipeline {
                                     docker-compose up -d --remove-orphans --renew-anon-volumes frontend backend database"
                         } else if (env.BRANCH_NAME == DEVELOP) {
                             sh  "ssh -o StrictHostKeyChecking=no \
-                                    ${SSH_CREDS_USR}@${DOCKER_HOST_IP} \
+                                    ${SSH_CREDS_USR}@${EC2_PRIVATE_IP} \
                                     cd ${DEPLOY_PATH} && \
                                     export MARIADB_USER=${MARIADB_USER} && \
                                     export MARIADB_PASSWORD=${MARIADB_PASSWORD} && \
