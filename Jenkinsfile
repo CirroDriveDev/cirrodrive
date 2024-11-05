@@ -210,9 +210,7 @@ pipeline {
                             export MARIADB_PORT="${MARIADB_PORT}"
                             export DATABASE_URL="${DATABASE_URL}"
                             docker-compose -f ${DEPLOY_PATH}/compose.yaml up -d --remove-orphans --renew-anon-volumes ${FRONTEND_CONTAINER_NAME} ${BACKEND_CONTAINER_NAME} ${DATABASE_CONTAINER_NAME}
-                            exit
-                            EOF
-                        """
+                            """
                     }
                 }
             }
