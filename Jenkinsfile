@@ -182,6 +182,7 @@ pipeline {
 
                     sshagent(credentials: ['EC2_SSH_CREDENTIAL_ID']) {
                         sh 'chmod -x ./deploy.sh'
+                        sh 'ls -al'
                         sh './deploy.sh'
                     }
                 }
