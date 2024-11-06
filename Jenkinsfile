@@ -146,6 +146,24 @@ pipeline {
             }
         }
 
+        stage('Save Docker image') {
+            // when {
+            //     anyOf {
+            //         branch MAIN
+            //         branch DEVELOP
+            //     }
+            // }
+            steps {
+                echo 'Saving Docker image...'
+                sh 'docker save -o ./cirrodrive-frontend.tar \
+                    cirrodrive-frontend:latest'
+                sh 'docker save -o ./cirrodrive-backend.tar \
+                    cirrodrive-backend:latest'
+                sh 'docker save -o ./cirrodrive-database.tar \
+                    cirrodrive-database:latest'
+            }
+        }
+
         stage('Deploy') {
             // when {
             //     anyOf {
@@ -175,6 +193,16 @@ pipeline {
                         // 원격 디렉토리 생성
                         sh 'ssh -o StrictHostKeyChecking=no "${SSH_CREDS_USR}@${EC2_PRIVATE_IP}" "mkdir -p ${DEPLOY_PATH}"'
                         sh 'ssh -o StrictHostKeyChecking=no "${SSH_CREDS_USR}@${EC2_PRIVATE_IP}" "mkdir -p ${DEPLOY_PATH}/apps/database"'
+
+                        // 파일 전송
+                        sh 'scp -o StrictHostKeyChecking=no ./cirrodrive-frontend.tar "${SSH_CREDS_USR}@${EC2_PRIVATE_IP}:${DEPLOY_PATH}/"'
+                        sh 'scp -o StrictHostKeyChecking=no ./cirrodrive-backend.tar "${SSH_CREDS_USR}@${EC2_PRIVATE_IP}:${DEPLOY_PATH}/"'
+                        sh 'scp -o StrictHostKeyChecking=no ./cirrodrive-database.tar "${SSH_CREDS_USR}@${EC2_PRIVATE_IP}:${DEPLOY_PATH}/"'
+
+                        // Docker 이미지 로드
+                        sh 'ssh -o StrictHostKeyChecking=no "${SSH_CREDS_USR}@${EC2_PRIVATE_IP}" "docker load -i ${DEPLOY_PATH}/cirrodrive-frontend.tar"'
+                        sh 'ssh -o StrictHostKeyChecking=no "${SSH_CREDS_USR}@${EC2_PRIVATE_IP}" "docker load -i ${DEPLOY_PATH}/cirrodrive-backend.tar"'
+                        sh 'ssh -o StrictHostKeyChecking=no "${SSH_CREDS_USR}@${EC2_PRIVATE_IP}" "docker load -i ${DEPLOY_PATH}/cirrodrive-database.tar"'
 
                         // compose 파일 전송
                         sh 'scp -o StrictHostKeyChecking=no ./compose.yaml "${SSH_CREDS_USR}@${EC2_PRIVATE_IP}:${DEPLOY_PATH}/"'
