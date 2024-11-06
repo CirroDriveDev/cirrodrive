@@ -194,23 +194,13 @@ pipeline {
                         sh 'ssh -o StrictHostKeyChecking=no "${SSH_CREDS_USR}@${EC2_PRIVATE_IP}" "mkdir -p ${DEPLOY_PATH}"'
                         sh 'ssh -o StrictHostKeyChecking=no "${SSH_CREDS_USR}@${EC2_PRIVATE_IP}" "mkdir -p ${DEPLOY_PATH}/apps/database"'
 
-                        // 파일 전송
-                        sh 'scp -o StrictHostKeyChecking=no ./cirrodrive-frontend.tar "${SSH_CREDS_USR}@${EC2_PRIVATE_IP}:${DEPLOY_PATH}/"'
-                        sh 'scp -o StrictHostKeyChecking=no ./cirrodrive-backend.tar "${SSH_CREDS_USR}@${EC2_PRIVATE_IP}:${DEPLOY_PATH}/"'
-                        sh 'scp -o StrictHostKeyChecking=no ./cirrodrive-database.tar "${SSH_CREDS_USR}@${EC2_PRIVATE_IP}:${DEPLOY_PATH}/"'
-
-                        // Docker 이미지 로드
-                        sh 'ssh -o StrictHostKeyChecking=no "${SSH_CREDS_USR}@${EC2_PRIVATE_IP}" "docker load -i ${DEPLOY_PATH}/cirrodrive-frontend.tar"'
-                        sh 'ssh -o StrictHostKeyChecking=no "${SSH_CREDS_USR}@${EC2_PRIVATE_IP}" "docker load -i ${DEPLOY_PATH}/cirrodrive-backend.tar"'
-                        sh 'ssh -o StrictHostKeyChecking=no "${SSH_CREDS_USR}@${EC2_PRIVATE_IP}" "docker load -i ${DEPLOY_PATH}/cirrodrive-database.tar"'
-
                         // compose 파일 전송
                         sh 'scp -o StrictHostKeyChecking=no ./compose.yaml "${SSH_CREDS_USR}@${EC2_PRIVATE_IP}:${DEPLOY_PATH}/"'
                         sh 'scp -o StrictHostKeyChecking=no ./apps/database/compose.yaml "${SSH_CREDS_USR}@${EC2_PRIVATE_IP}:${DEPLOY_PATH}/apps/database/"'
 
                         // 도커 컴포즈 실행
                         sh """
-                            ssh -o StrictHostKeyChecking=no "${SSH_CREDS_USR}@${EC2_PUBLIC_IP}" <<EOF
+                            ssh -o StrictHostKeyChecking=no "${SSH_CREDS_USR}@${EC2_PRIVATE_IP}" <<EOF
                             export CIRRODRIVE_HOME="${CIRRODRIVE_HOME}"
                             export MARIADB_ROOT_PASSWORD="${MARIADB_ROOT_PASSWORD}"
                             export MARIADB_USER="${MARIADB_USER}"
@@ -228,7 +218,6 @@ pipeline {
     post {
         always {
             echo 'Cleaning up...'
-            sh 'pnpm run db:stop'
             cleanWs(deleteDirs: true)
         }
     }
