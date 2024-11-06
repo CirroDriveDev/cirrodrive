@@ -26,7 +26,7 @@
     "lint": "turbo run lint --continue -- --cache --cache-location .cache/.eslintcache",
     "lint:fix": "turbo run lint --continue -- --fix --cache --cache-location .cache/.eslintcache",
     "lint:ws": "pnpx sherif@latest",
-    "postinstall": "pnpx sherif@latest",
+    "postinstall": "pnpx sherif@latest && turbo run -F @cirrodrive/database db:generate",
     "prepare": "husky",
     "start": "turbo run start",
     "test": "turbo run test",
@@ -43,7 +43,6 @@
   "devDependencies": {
     "@cirrodrive/prettier-config": "workspace:*",
     "husky": "^9.1.5",
-    "jsdom": "^24.1.0",
     "lint-staged": "^15.2.9",
     "prettier": "catalog:",
     "turbo": "^2.1.3",

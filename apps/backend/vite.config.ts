@@ -13,16 +13,19 @@ export default defineConfig({
     fileParallelism: false,
   },
   optimizeDeps: {
-    include: ["../database/dist/index.js"],
+    include: ["@cirrodrive/database"],
   },
   build: {
     target: "esnext",
     rollupOptions: {
-      input: "src/main.ts",
+      input: "src/server.ts",
     },
     commonjsOptions: {
-      include: ["../database/dist/index.js", /node_modules/],
+      include: ["@cirrodrive/database", /node_modules/],
     },
+  },
+  ssr: {
+    external: ["@cirrodrive/database"],
   },
   resolve: {
     alias: {

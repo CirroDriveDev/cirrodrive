@@ -32,38 +32,6 @@ services:
         max-size: "10m"
         max-file: "10"
 
-  database-dev:
-    image: cirrodrive-database:latest
-    build:
-      context: .
-      dockerfile: Dockerfile
-    container_name: database
-    ports:
-      - "${MARIADB_PORT}:${MARIADB_PORT}"
-    command:
-      - --character-set-server=utf8mb4
-      - --collation-server=utf8mb4_unicode_ci
-      - --port=${MARIADB_PORT}
-    restart: always
-    volumes:
-      - cirrodrive-database-data:/var/lib/mysql
-    environment:
-      - TZ=Asia/Seoul
-      - MARIADB_ROOT_PASSWORD=${MARIADB_ROOT_PASSWORD}
-      - MARIADB_USER=${MARIADB_USER}
-      - MARIADB_PASSWORD=${MARIADB_PASSWORD}
-    healthcheck:
-      test: ["CMD", "healthcheck.sh", "--connect", "--innodb_initialized"]
-      start_period: 10s
-      interval: 10s
-      timeout: 5s
-      retries: 3
-    logging:
-      driver: "json-file"
-      options:
-        max-size: "10m"
-        max-file: "10"
-
 volumes:
   cirrodrive-database-data:
     external: false

@@ -1,6 +1,7 @@
 {
   "extends": "@cirrodrive/tsconfig/tsconfig.base.json",
   "compilerOptions": {
+    "module": "ESNext",
     "lib": ["ES2022"],
     "baseUrl": ".",
     "paths": {
@@ -13,5 +14,5 @@
     "emitDecoratorMetadata": true,
     "resolveJsonModule": true
   },
-  "include": ["**/*.ts", "**/*.tsx", "src/server.ts", "src/loaders/prisma.ts"]
+  "include": ["**/*.ts", "**/*.tsx", "src/server.ts", "src/loaders/prisma.cts"]
 }

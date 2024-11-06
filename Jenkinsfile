@@ -1,3 +1,7 @@
+def createDatabaseUrl(String user, String password, String host, String port, String database) {
+    return "mysql://${user}:${password}@${host}:${port}/${database}"
+}
+
 pipeline {
     agent any
 
@@ -34,8 +38,13 @@ pipeline {
                     } else {
                         env.MARIADB_DATABASE = 'cirrodrive_dev'
                     }
-                    /* groovylint-disable-next-line LineLength */
-                    env.DATABASE_URL = "mysql://${env.MARIADB_USER}:${env.MARIADB_PASSWORD}@${env.MARIADB_HOST}:${env.MARIADB_PORT}/${env.MARIADB_DATABASE}"
+                    env.DATABASE_URL = createDatabaseUrl(
+                        env.MARIADB_USER,
+                        env.MARIADB_PASSWORD,
+                        env.MARIADB_HOST,
+                        env.MARIADB_PORT,
+                        env.MARIADB_DATABASE
+                    )
                 }
             }
         }
@@ -56,7 +65,7 @@ pipeline {
             }
         }
 
-        stage('Start development database') {
+        stage('Start database') {
             steps {
                 echo 'Starting development database...'
                 script {
@@ -219,7 +228,6 @@ pipeline {
     post {
         always {
             echo 'Cleaning up...'
-            sh 'pnpm run -F @cirrodrive/database stop'
             cleanWs(deleteDirs: true)
         }
     }
