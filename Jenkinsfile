@@ -81,7 +81,7 @@ pipeline {
 
                     writeFile file: './apps/database/.env', text: envFileContent
                 }
-                sh 'pnpm run db:dev'
+                sh 'pnpm run db:start'
                 sh 'socat TCP-LISTEN:3307,fork TCP:docker:3307 &'
             }
         }
@@ -210,7 +210,7 @@ pipeline {
 
                         // 도커 컴포즈 실행
                         sh """
-                            ssh -o StrictHostKeyChecking=no "${SSH_CREDS_USR}@${EC2_PRIVATE_IP}" <<EOF
+                            ssh -o StrictHostKeyChecking=no "${SSH_CREDS_USR}@${EC2_PUBLIC_IP}" <<EOF
                             export CIRRODRIVE_HOME="${CIRRODRIVE_HOME}"
                             export MARIADB_ROOT_PASSWORD="${MARIADB_ROOT_PASSWORD}"
                             export MARIADB_USER="${MARIADB_USER}"
@@ -228,6 +228,7 @@ pipeline {
     post {
         always {
             echo 'Cleaning up...'
+            sh 'pnpm run db:stop'
             cleanWs(deleteDirs: true)
         }
     }
