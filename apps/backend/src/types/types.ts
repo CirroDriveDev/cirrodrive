@@ -1,4 +1,4 @@
-import { type Session, type User } from "@prisma/client";
+import type { User, Session } from "@cirrodrive/database";
 
 declare module "express" {
   interface Request {

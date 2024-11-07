@@ -1,8 +1,8 @@
 import { initTRPC, TRPCError } from "@trpc/server";
 import type { CreateExpressContextOptions } from "@trpc/server/adapters/express";
 import { z } from "zod";
-import { type Session, type User } from "@prisma/client";
 import { SuperJSON } from "superjson";
+import type { Session, User } from "@cirrodrive/database";
 import { AuthService } from "@/services/authService.ts";
 import { container } from "@/loaders/inversify.ts";
 

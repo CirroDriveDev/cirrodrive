@@ -1,5 +1,5 @@
 import { injectable, inject } from "inversify";
-import { Prisma, User } from "@prisma/client";
+import type { Prisma, User } from "@cirrodrive/database";
 import { hash } from "@node-rs/argon2";
 import type { Logger } from "pino";
 import { Symbols } from "@/types/symbols.ts";
