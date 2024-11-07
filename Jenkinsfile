@@ -115,6 +115,12 @@ pipeline {
         }
 
         stage('Build') {
+            when {
+                anyOf {
+                    branch MAIN
+                    branch DEVELOP
+                }
+            }
             steps {
                 script {
                     if (env.BRANCH_NAME == MAIN) {
@@ -134,12 +140,12 @@ pipeline {
         }
 
         stage('Build Docker image') {
-            // when {
-            //     anyOf {
-            //         branch MAIN
-            //         branch DEVELOP
-            //     }
-            // }
+            when {
+                anyOf {
+                    branch MAIN
+                    branch DEVELOP
+                }
+            }
             steps {
                 echo 'Building Docker image...'
                 sh 'pnpm run docker:build'
@@ -147,12 +153,12 @@ pipeline {
         }
 
         stage('Deploy') {
-            // when {
-            //     anyOf {
-            //         branch MAIN
-            //         branch DEVELOP
-            //     }
-            // }
+            when {
+                anyOf {
+                    branch MAIN
+                    branch DEVELOP
+                }
+            }
             environment {
                 SSH_CREDS = credentials('EC2_SSH_CREDENTIAL_ID')
                 DEPLOY_PATH = '/home/ec2-user/cirrodrive/deploy'
