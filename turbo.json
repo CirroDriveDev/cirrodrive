@@ -8,7 +8,9 @@
     "DEV",
     "SSR",
     "NODE_ENV",
-    "VITE_PORT"
+    "VITE_PORT",
+    "VITE_API_SERVER_URL",
+    "VITE_API_SERVER_PORT"
   ],
   "tasks": {
     "topo": {
@@ -18,7 +20,56 @@
       "dependsOn": ["^build"],
       "outputs": [".cache/tsbuildinfo.json", "dist/**"]
     },
+    "build:dev": {
+      "dependsOn": ["^build:dev"],
+      "outputs": [".cache/tsbuildinfo.json", "dist/**"]
+    },
+    "@cirrodrive/database#build": {
+      "env": ["DATABASE_URL"],
+      "outputs": ["dist/**"]
+    },
+    "@cirrodrive/database#build:dev": {
+      "env": ["DATABASE_URL"],
+      "outputs": ["dist/**"]
+    },
+    "@cirrodrive/database#dev": {
+      "cache": false,
+      "persistent": false
+    },
+    "@cirrodrive/database#healthcheck": {
+      "dependsOn": ["@cirrodrive/database#dev"],
+      "cache": false
+    },
+    "@cirrodrive/database#db:push": {
+      "dependsOn": ["@cirrodrive/database#healthcheck"],
+      "cache": false
+    },
     "dev": {
+      "dependsOn": ["@cirrodrive/database#db:push"],
+      "cache": false,
+      "persistent": true
+    },
+    "@cirrodrive/database#dev:stop": {
+      "cache": false
+    },
+    "start": {
+      "dependsOn": ["@cirrodrive/database#db:push"],
+      "cache": false,
+      "persistent": true
+    },
+    "stop": {
+      "cache": false
+    },
+    "clean": {
+      "cache": false
+    },
+    "//#clean": {
+      "cache": false
+    },
+    "db:generate": {
+      "outputs": ["dist/**"]
+    },
+    "db:studio": {
       "cache": false,
       "persistent": true
     },
@@ -35,24 +86,7 @@
       "outputs": [".cache/tsbuildinfo.json"]
     },
     "test": {
-      "dependsOn": ["^test"]
-    },
-    "clean": {
-      "cache": false
-    },
-    "//#clean": {
-      "cache": false
-    },
-    "prisma:db:push": {
-      "cache": false,
-      "interactive": true
-    },
-    "prisma:studio": {
-      "cache": false,
-      "persistent": true
-    },
-    "prisma:generate": {
-      "dependsOn": ["^prisma:generate"]
+      "dependsOn": ["@cirrodrive/database#db:push", "^test"]
     },
     "ui-add": {
       "cache": false,

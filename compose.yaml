@@ -1,0 +1,84 @@
+name: cirrodrive
+services:
+  frontend:
+    image: cirrodrive-frontend:latest
+    build:
+      context: .
+      dockerfile: apps/frontend/Dockerfile
+    container_name: frontend
+    ports:
+      - "80:80"
+    restart: always
+    environment:
+      - TZ=Asia/Seoul
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "10"
+
+  frontend-dev:
+    image: cirrodrive-frontend:latest
+    container_name: frontend-dev
+    ports:
+      - 5000:80
+    restart: always
+    environment:
+      - TZ=Asia/Seoul
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "10"
+
+  backend:
+    image: cirrodrive-backend:latest
+    build:
+      context: .
+      dockerfile: apps/backend/Dockerfile
+    container_name: backend
+    ports:
+      - "8000:8000"
+    restart: always
+    depends_on:
+      database:
+        condition: service_healthy
+        restart: true
+    volumes:
+      - ${CIRRODRIVE_HOME}/cirrodrive-app-data:/cirrodrive/apps/backend/data
+    environment:
+      - DATABASE_URL=${DATABASE_URL}
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "10"
+
+  backend-dev:
+    image: cirrodrive-backend:latest
+    container_name: backend-dev
+    ports:
+      - "3000:8000"
+    restart: always
+    depends_on:
+      database:
+        condition: service_healthy
+        restart: true
+    volumes:
+      - cirrodrive-app-data:/cirrodrive/apps/backend/data
+    environment:
+      - DATABASE_URL=${DATABASE_URL}
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "10"
+
+  database:
+    extends:
+      file: ./apps/database/compose.yaml
+      service: database
+
+volumes:
+  cirrodrive-app-data:
+    external: false
