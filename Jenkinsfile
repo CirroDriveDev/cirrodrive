@@ -146,24 +146,6 @@ pipeline {
             }
         }
 
-        stage('Save Docker image') {
-            // when {
-            //     anyOf {
-            //         branch MAIN
-            //         branch DEVELOP
-            //     }
-            // }
-            steps {
-                echo 'Saving Docker image...'
-                sh 'docker save -o ./cirrodrive-frontend.tar \
-                    cirrodrive-frontend:latest'
-                sh 'docker save -o ./cirrodrive-backend.tar \
-                    cirrodrive-backend:latest'
-                sh 'docker save -o ./cirrodrive-database.tar \
-                    cirrodrive-database:latest'
-            }
-        }
-
         stage('Deploy') {
             // when {
             //     anyOf {
