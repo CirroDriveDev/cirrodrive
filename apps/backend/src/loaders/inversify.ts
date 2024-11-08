@@ -17,6 +17,8 @@ container.bind(Symbols.DayJS).toConstantValue(dayjs);
 
 container.bind(Symbols.UserModel).toConstantValue(prisma.user);
 container.bind(Symbols.SessionModel).toConstantValue(prisma.session);
+container.bind(Symbols.CodeModel).toConstantValue(prisma.code);
+container.bind(Symbols.FileModel).toConstantValue(prisma.file);
 
 container.bind(UserService).toSelf();
 container.bind(AuthService).toSelf();

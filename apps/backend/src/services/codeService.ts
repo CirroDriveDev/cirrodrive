@@ -1,33 +1,76 @@
-// src/services/codeService.ts
-import { prisma } from "@/loaders/prisma.ts";
+import { injectable, inject } from "inversify";
+import type { Code, Prisma } from "@cirrodrive/database";
+import type { Logger } from "pino";
+import { Symbols } from "@/types/symbols.ts";
 import { generateCode } from "@/utils/generateCode.ts";
 
-export const codeService = {
-  // 코드 생성 메서드
-  async createCode(fileId: number) {
-    if (!fileId || typeof fileId !== "number") {
-      throw new Error("유효한 파일 ID가 필요합니다.");
-    }
+/**
+ * 코드 서비스입니다.
+ */
+@injectable()
+export class CodeService {
+  constructor(
+    @inject(Symbols.Logger) private logger: Logger,
+    @inject(Symbols.CodeModel) private codeModel: Prisma.CodeDelegate,
+  ) {
+    this.logger = logger.child({ serviceName: "CodeService" });
+  }
 
-    const codeString = generateCode(8);
-    const expiresAt = new Date(Date.now() + 24 * 60 * 60 * 1000);
-
-    const newCode = await prisma.code.create({
-      data: {
-        code_string: codeString,
-        file_id: fileId,
-        expires_at: expiresAt,
-      },
-    });
-
-    return newCode.code_string;
-  },
-
-  // 코드 삭제 메서드
-  async deleteCode(code: string) {
+  /**
+   * 새로운 코드를 생성합니다.
+   *
+   * @param fileId - 파일 ID입니다.
+   * @returns 생성된 코드입니다.
+   * @throws 코드 생성 중 오류가 발생한 경우.
+   */
+  public async createCode(fileId: number): Promise<Code> {
     try {
-      await prisma.code.delete({
-        where: { code_string: code },
+      this.logger.info(
+        {
+          methodName: "createCode",
+          fileId,
+        },
+        "코드 생성 시작",
+      );
+
+      const codeString = generateCode(8);
+      const expiresAt = new Date(Date.now() + 24 * 60 * 60 * 1000);
+
+      const code = await this.codeModel.create({
+        data: {
+          codeString,
+          fileId,
+          expiresAt,
+        },
+      });
+
+      return code;
+    } catch (error) {
+      if (error instanceof Error) {
+        this.logger.error(error.message);
+      }
+      throw error;
+    }
+  }
+
+  /**
+   * 코드를 삭제합니다.
+   *
+   * @param codeString - 삭제할 코드 문자열입니다.
+   * @throws 코드 삭제 중 오류가 발생한 경우.
+   */
+  public async deleteCode(codeString: string): Promise<void> {
+    try {
+      this.logger.info(
+        {
+          methodName: "deleteCode",
+          codeString,
+        },
+        "코드 삭제 시작",
+      );
+
+      await this.codeModel.delete({
+        where: { codeString },
       });
     } catch (error) {
       if (
@@ -36,26 +79,55 @@ export const codeService = {
       ) {
         throw new Error("코드를 찾을 수 없습니다.");
       }
+      if (error instanceof Error) {
+        this.logger.error(error.message);
+      }
       throw error;
     }
-  },
+  }
 
-  // 코드로 파일 메타데이터 조회 메서드
-  async getCodeMetadata(code: string) {
-    const codeData = await prisma.code.findUnique({
-      where: { code_string: code },
-      include: { file: true },
-    });
+  /**
+   * 코드로 파일 메타데이터를 조회합니다.
+   *
+   * @param codeString - 조회할 코드 문자열입니다.
+   * @returns 파일 메타데이터입니다.
+   * @throws 코드 조회 중 오류가 발생한 경우.
+   */
+  public async getCodeMetadata(codeString: string): Promise<{
+    fileId: number;
+    fileName: string;
+    fileSize: number;
+    fileExtension: string;
+  }> {
+    try {
+      this.logger.info(
+        {
+          methodName: "getCodeMetadata",
+          codeString,
+        },
+        "코드 메타데이터 조회 시작",
+      );
 
-    if (!codeData) {
-      throw new Error("유효하지 않은 코드입니다.");
+      const code = await this.codeModel.findUnique({
+        where: { codeString },
+        include: { file: true },
+      });
+
+      if (!code) {
+        throw new Error("유효하지 않은 코드입니다.");
+      }
+
+      return {
+        fileId: code.file.id,
+        fileName: code.file.name,
+        fileSize: code.file.size,
+        fileExtension: code.file.extension,
+      };
+    } catch (error) {
+      if (error instanceof Error) {
+        this.logger.error(error.message);
+      }
+      throw error;
     }
-
-    return {
-      fileId: codeData.file.id,
-      fileName: codeData.file.name,
-      fileSize: codeData.file.size,
-      fileExtension: codeData.file.extension,
-    };
-  },
-};
+  }
+}
