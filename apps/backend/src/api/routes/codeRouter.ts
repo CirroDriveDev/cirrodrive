@@ -1,106 +1,62 @@
-// src/api/routes/codeRouter.ts
-import {
-  Router,
-  type Request,
-  type Response,
-  type NextFunction,
-} from "express";
-import { prisma } from "@/loaders/prisma.ts";
-import { generateCode } from "@/utils/generateCode.ts";
+import { z } from "zod"; // zod 임포트
+import { TRPCError } from "@trpc/server"; // TRPCError 임포트
+import { router, procedure } from "@/loaders/trpc.ts"; // tRPC 설정 임포트
+import { container } from "@/loaders/inversify.ts";
+import { CodeService } from "@/services/codeService.ts";
 
-interface GenerateCodeRequest {
-  fileId: number; // fileId는 number 타입이어야 합니다.
-}
+const codeService = container.get(CodeService);
 
-export const CodeRouter = (): Router => {
-  const router = Router();
-
+export const codeRouter = router({
   // 코드 생성
-  router.post(
-    "/",
-    async (
-      req: Request<unknown, unknown, GenerateCodeRequest>,
-      res: Response,
-      next: NextFunction,
-    ) => {
-      try {
-        const { fileId } = req.body;
+  create: procedure
+    .input(z.object({ fileId: z.number() }))
+    .output(z.object({ codeString: z.string() }))
+    .mutation(async ({ input }) => {
+      const { fileId } = input;
 
-        if (!fileId || typeof fileId !== "number") {
-          return res
-            .status(400)
-            .json({ error: "유효한 파일 ID가 필요합니다." });
-        }
+      const code = await codeService.createCode(fileId);
 
-        const codeString = generateCode(8);
-        const expiresAt = new Date(Date.now() + 24 * 60 * 60 * 1000);
-
-        const newCode = await prisma.code.create({
-          data: {
-            code_string: codeString,
-            file_id: fileId,
-            expires_at: expiresAt,
-          },
-        });
-
-        res.status(201).json({ code: newCode.code_string });
-      } catch (error) {
-        next(error); // 에러를 다음 미들웨어로 전달
-      }
-    },
-  );
+      return { codeString: code.codeString };
+    }),
 
   // 코드 삭제
-  router.delete(
-    "/:code",
-    async (req: Request, res: Response, next: NextFunction) => {
+  delete: procedure
+    .input(z.object({ codeString: z.string() }))
+    .mutation(async ({ input }) => {
+      const { codeString } = input;
+
       try {
-        const { code } = req.params;
-
-        await prisma.code.delete({
-          where: { code_string: code },
-        });
-
-        res.status(204).send();
-      } catch (error) {
+        await codeService.deleteCode(codeString);
+      } catch (error: unknown) {
         if (
           error instanceof Error &&
           error.message.includes("Record to delete does not exist.")
         ) {
-          return res.status(404).json({ error: "코드를 찾을 수 없습니다." });
+          throw new TRPCError({
+            code: "NOT_FOUND",
+            message: "코드를 찾을 수 없습니다.",
+          });
         }
-        next(error);
+        throw error;
       }
-    },
-  );
+    }),
 
   // 코드로 파일 메타데이터 조회
-  router.get(
-    "/:code/metadata",
-    async (req: Request, res: Response, next: NextFunction) => {
-      try {
-        const { code } = req.params;
+  getFileMetadataByCode: procedure
+    .input(z.object({ codeString: z.string() }))
+    .output(
+      z.object({
+        fileId: z.number(),
+        fileName: z.string(),
+        fileSize: z.number(),
+        fileExtension: z.string(),
+      }),
+    )
+    .query(async ({ input }) => {
+      const { codeString } = input;
 
-        const codeData = await prisma.code.findUnique({
-          where: { code_string: code },
-          include: { file: true },
-        });
+      const metadata = await codeService.getCodeMetadata(codeString);
 
-        if (!codeData) {
-          return res.status(404).json({ error: "유효하지 않은 코드입니다." });
-        }
-
-        res.status(200).json({
-          fileId: codeData.file.id,
-          fileName: codeData.file.name,
-          fileSize: codeData.file.size,
-          fileExtension: codeData.file.extension,
-        });
-      } catch (error) {
-        next(error);
-      }
-    },
-  );
-
-  return router;
-};
+      return metadata;
+    }),
+});
