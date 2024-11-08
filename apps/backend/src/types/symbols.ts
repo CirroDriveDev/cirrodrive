@@ -3,4 +3,6 @@ export const Symbols = {
   DayJS: Symbol.for("DayJS"),
   UserModel: Symbol.for("UserModel"),
   SessionModel: Symbol.for("SessionModel"),
+  CodeModel: Symbol.for("CodeModel"),
+  FileModel: Symbol.for("FileModel"),
 };

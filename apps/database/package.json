@@ -20,7 +20,7 @@
     "db:migrate:dev": "prisma migrate dev --create-only --name init",
     "db:migrate:deploy": "prisma migrate deploy",
     "db:studio": "prisma studio",
-    "db:push": "prisma db push",
+    "db:push": "prisma db push --accept-data-loss",
     "db:seed": "prisma db seed"
   },
   "dependencies": {

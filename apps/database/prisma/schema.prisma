@@ -39,24 +39,24 @@ model Session {
 }
 
 model File {
-  id         Int       @id @default(autoincrement())
-  owner      Int?
-  folder_id  Int
-  name       String
-  extension  String
-  size       Int
-  saved_path String
-  created_at DateTime  @default(now())
-  updated_at DateTime  @updatedAt
-  trashed_at DateTime?
-  md5_hash   String
-  codes      Code[]    @relation("FileCodes") // Code 모델과의 관계
+  id        Int       @id @default(autoincrement())
+  owner     Int?
+  folderId  Int
+  name      String
+  extension String
+  size      Int
+  savedPath String
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  trashedAt DateTime?
+  hash      String
+  codes     Code[]    @relation("FileCodes") // Code 모델과의 관계
 }
 
 model Code {
-  id          Int      @id @default(autoincrement())
-  code_string String   @unique
-  file_id     Int
-  expires_at  DateTime
-  file        File     @relation("FileCodes", fields: [file_id], references: [id]) // File 모델과의 관계
+  id         Int      @id @default(autoincrement())
+  codeString String   @unique
+  fileId     Int
+  expiresAt  DateTime
+  file       File     @relation("FileCodes", fields: [fileId], references: [id]) // File 모델과의 관계
 }

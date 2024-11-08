@@ -51,13 +51,13 @@ export const FileRouter = (): Router => {
       const newFile = await prisma.file.create({
         data: {
           name: filename,
-          saved_path: path,
+          savedPath: path,
           size: req.file.size,
           extension: filename.split(".").pop() ?? "",
-          created_at: new Date(),
-          updated_at: new Date(),
-          folder_id: folderId,
-          md5_hash: md5Hash,
+          createdAt: new Date(),
+          updatedAt: new Date(),
+          folderId,
+          hash: md5Hash,
         },
       });
 
@@ -70,26 +70,26 @@ export const FileRouter = (): Router => {
     const code = req.query.code as string;
 
     const codeData = await prisma.code.findUnique({
-      where: { code_string: code },
+      where: { codeString: code },
     });
 
     if (!codeData) {
       return res.status(404).json({ error: "유효하지 않은 코드입니다." });
     }
 
-    if (new Date() > codeData.expires_at) {
+    if (new Date() > codeData.expiresAt) {
       return res.status(410).json({ error: "코드가 만료되었습니다." });
     }
 
     const file = await prisma.file.findUnique({
-      where: { id: codeData.file_id },
+      where: { id: codeData.fileId },
     });
 
     if (!file) {
       return res.status(404).json({ error: "파일을 찾을 수 없습니다." });
     }
 
-    res.download(file.saved_path, file.name);
+    res.download(file.savedPath, file.name);
   });
 
   return router;

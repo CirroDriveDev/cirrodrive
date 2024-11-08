@@ -1,3 +1,4 @@
+/* groovylint-disable DuplicateStringLiteral, LineLength */
 def createDatabaseUrl(String user, String password, String host, String port, String database) {
     return "mysql://${user}:${password}@${host}:${port}/${database}"
 }
