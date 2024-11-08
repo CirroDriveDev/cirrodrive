@@ -5,6 +5,7 @@ import { Symbols } from "@/types/symbols.ts";
 import { prisma } from "@/loaders/prisma.ts";
 import { UserService } from "@/services/userService.ts";
 import { AuthService } from "@/services/authService.ts";
+import { CodeService } from "@/services/codeService.ts";
 
 const inversifyLogger = logger.child({ prefix: "Inversify" });
 
@@ -22,5 +23,6 @@ container.bind(Symbols.FileModel).toConstantValue(prisma.file);
 
 container.bind(UserService).toSelf();
 container.bind(AuthService).toSelf();
+container.bind(CodeService).toSelf();
 
 inversifyLogger.info("Inversify loaded successfully");
