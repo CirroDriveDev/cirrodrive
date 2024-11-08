@@ -5,6 +5,7 @@
   "type": "module",
   "scripts": {
     "build": "tsc -b && vite build",
+    "build:dev": "tsc -b && vite build --mode development",
     "clean": "git clean -xdf .cache .turbo dist node_modules",
     "dev": "vite",
     "format": "prettier --check . --ignore-path ../../.gitignore",

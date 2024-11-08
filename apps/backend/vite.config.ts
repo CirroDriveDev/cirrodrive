@@ -12,11 +12,20 @@ export default defineConfig({
     setupFiles: "./vitestSetup.ts",
     fileParallelism: false,
   },
+  optimizeDeps: {
+    include: ["@cirrodrive/database"],
+  },
   build: {
     target: "esnext",
     rollupOptions: {
-      input: "src/main.ts",
+      input: "src/server.ts",
     },
+    commonjsOptions: {
+      include: ["@cirrodrive/database", /node_modules/],
+    },
+  },
+  ssr: {
+    external: ["@cirrodrive/database"],
   },
   resolve: {
     alias: {

@@ -1,5 +1,5 @@
 import "dayjs/locale/ko.js";
-import dayjs, { locale, extend } from "dayjs";
+import dayjs from "dayjs";
 import timezone from "dayjs/plugin/timezone";
 import utc from "dayjs/plugin/utc";
 import { logger as baseLogger } from "@/loaders/logger.ts";
@@ -7,9 +7,9 @@ import { logger as baseLogger } from "@/loaders/logger.ts";
 const logger = baseLogger.child({ prefix: "dayjs" });
 logger.info("Loading Dayjs...");
 
-locale("ko");
-extend(utc);
-extend(timezone);
+dayjs.locale("ko");
+dayjs.extend(utc);
+dayjs.extend(timezone);
 
 dayjs.tz.setDefault("Asia/Seoul");
 

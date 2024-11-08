@@ -10,6 +10,7 @@
     "resolveJsonModule": true,
     "moduleDetection": "force",
     "isolatedModules": true,
+    "removeComments": true,
 
     /** Keep TSC performant in monorepos */
     "incremental": true,
