@@ -1,8 +1,9 @@
-import { File as FileIcon } from "lucide-react";
 import axios from "axios";
 import { useState } from "react";
-import { Link } from "react-router-dom";
 import { WorkspaceLayout } from "@/widgets/WorkspaceLayout/ui/WorkspaceLayout.tsx";
+import { Button } from "@/shared/ui/Button.tsx";
+import Modal from "@/pages/upload/Modal";
+import Popup from "@/pages/upload/ui/Popup";
 
 interface UploadResponse {
   fileId: number;
@@ -79,42 +80,42 @@ export function UploadPage(): JSX.Element {
   return (
     <WorkspaceLayout>
       <div className="w-full">
-        <div className="mt-3 flex flex-row text-gray-300">
-          <div className="ml-20 h-[30px] w-[100px] text-center align-middle">
-            Name
-          </div>
-          <div className="ml-[500px] h-[30px] w-[100px] text-center align-middle">
-            Size
-          </div>
-          <div className="ml-[200px] h-[30px] w-[100px] text-center align-middle">
-            Actions
-          </div>
-        </div>
-        <div className="flex h-[520px] items-center justify-center">
-          <div className="bg-gray-50">
-            <FileIcon size={60} color="gray" />
-          </div>
-        </div>
         <form
           method="post"
           encType="multipart/form-data"
           // eslint-disable-next-line @typescript-eslint/no-misused-promises -- handleSubmit is a promise
           onSubmit={handleSubmit}
         >
-          <div className="flex justify-between bg-gray-400">
-            <div className="w-[90px] bg-gray-300">
-              <Link to="/code" className="ms-6">
-                코드
-              </Link>
-            </div>
-            <div>{selectedFile?.name}</div>
-            <div>{uploadedCode}</div>
-            <button type="submit" className="w-[100px] bg-gray-300">
-              업로드
-            </button>
+          <div className="flex h-[400px] justify-center">
+            <input
+              type="file"
+              className="place-self-end"
+              onChange={handleFileChange}
+            />
           </div>
-          <div className="place-self-center">
-            <input type="file" className="mt-20" onChange={handleFileChange} />
+
+          <div className="flex h-[150px] items-end">
+            <div className="ml-60 mr-[300px]">
+              <select className="ml-40 h-[40px] w-[100px] rounded-lg bg-blue-50 text-center font-bold shadow-xl">
+                <option value="1">1일</option>
+                <option value="2">2일</option>
+                <option value="3">3일</option>
+                <option value="4">4일</option>
+                <option value="5">5일</option>
+                <option value="6">6일</option>
+                <option value="7">7일</option>
+              </select>
+            </div>
+            <Button type="submit" className="shadow-xl">
+              <Popup />
+            </Button>
+          </div>
+
+          <div className="">
+            <div>파일 이름: {selectedFile?.name}</div>
+            <div>코드 : {uploadedCode}</div>
+            <div>유효 기간 : </div>
+            <Modal />
           </div>
         </form>
       </div>
