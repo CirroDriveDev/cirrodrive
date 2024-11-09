@@ -29,6 +29,7 @@ model User {
   createdAt       DateTime    @default(now())
   updatedAt       DateTime    @updatedAt
   sessions        Session[]
+  Folder          Folder[]
 }
 
 model Session {
@@ -59,4 +60,20 @@ model Code {
   fileId     Int
   expiresAt  DateTime
   file       File     @relation("FileCodes", fields: [fileId], references: [id]) // File 모델과의 관계
+}
+
+model Folder {
+  id        Int      @id @default(autoincrement())
+  userId    Int
+  name      String
+  parentId  Int? // nullable이므로 @default(NULL)을 생략
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // 관계 정의
+  user     User     @relation(fields: [userId], references: [id])
+  parent   Folder?  @relation("FolderToFolder", fields: [parentId], references: [id])
+  children Folder[] @relation("FolderToFolder")
+
+  @@index([userId])
 }

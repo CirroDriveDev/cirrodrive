@@ -5,4 +5,5 @@ export const Symbols = {
   SessionModel: Symbol.for("SessionModel"),
   CodeModel: Symbol.for("CodeModel"),
   FileModel: Symbol.for("FileModel"),
+  FolderModel: Symbol("FolderModel"),
 };
