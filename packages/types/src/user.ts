@@ -16,6 +16,13 @@ export const userSchema = z.object({
   updatedAt: z.date(),
 });
 
+export const otherUserSchema = userSchema.pick({
+  id: true,
+  username: true,
+  email: true,
+  profileImageUrl: true,
+});
+
 export const usernameSchema = userSchema.shape.username;
 
 export const inputUserDataSchema = userSchema.pick({
@@ -28,7 +35,8 @@ export const outputUserDataSchema = userSchema.omit({
   password: true,
 });
 
-export type UserDTO = z.infer<typeof userSchema>;
+export type User = z.infer<typeof userSchema>;
+export type OtherUser = z.infer<typeof otherUserSchema>;
 export type Username = z.infer<typeof usernameSchema>;
 export type InputUserData = z.infer<typeof inputUserDataSchema>;
 export type OutputUserData = z.infer<typeof outputUserDataSchema>;
