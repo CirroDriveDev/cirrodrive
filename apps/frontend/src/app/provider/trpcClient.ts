@@ -11,6 +11,12 @@ export const trpcClient = trpc.createClient({
     httpBatchLink({
       url: `${VITE_TRPC_SERVER_URL}:${VITE_TRPC_SERVER_PORT}${TRPC_PATH}`,
       transformer: SuperJSON,
+      fetch(url, options) {
+        return fetch(url, {
+          ...options,
+          credentials: "include",
+        });
+      },
     }),
   ],
 });

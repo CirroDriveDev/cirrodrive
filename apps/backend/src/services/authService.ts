@@ -24,7 +24,7 @@ export class AuthService {
     this.logger = logger.child({ prefix: "AuthService" });
   }
 
-  public static SESSION_TOKEN_COOKIE_NAME = "session" as const;
+  public static SESSION_TOKEN_COOKIE_NAME = "auth_session" as const;
 
   /**
    * 사용자를 로그인합니다.
@@ -157,12 +157,19 @@ export class AuthService {
    * @returns 생성된 세션
    */
   private async createSession(token: string, userId: number): Promise<Session> {
+    this.logger.info({ methodName: "createSession" }, "세션 생성 중");
     const sessionId = this.encodeToken(token);
     const session: Session = {
       id: sessionId,
       userId,
       expiresAt: new Date(Date.now() + 1000 * 60 * 60 * 24 * 1), // 1 days
     };
+
+    this.logger.info(
+      { methodName: "createSession", session },
+      "세션 생성 완료",
+    );
+
     await this.sessionModel.create({
       data: session,
     });

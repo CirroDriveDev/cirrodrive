@@ -20,6 +20,7 @@
   },
   "dependencies": {
     "@cirrodrive/database": "workspace:^",
+    "@cirrodrive/types": "workspace:*",
     "@node-rs/argon2": "^2.0.0",
     "@oslojs/crypto": "^1.0.1",
     "@oslojs/encoding": "^1.1.0",
@@ -48,7 +49,6 @@
   "devDependencies": {
     "@cirrodrive/eslint-config": "workspace:^",
     "@cirrodrive/tsconfig": "workspace:^",
-    "@cirrodrive/types": "workspace:*",
     "@faker-js/faker": "^8.4.1",
     "@trpc/client": "catalog:",
     "@trpc/react-query": "catalog:",

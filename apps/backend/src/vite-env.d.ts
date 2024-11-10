@@ -3,6 +3,7 @@
 interface ImportMetaEnv {
   readonly VITE_APP_TITLE: string;
   readonly VITE_PORT: string;
+  readonly VITE_FRONTEND_URL: string;
 }
 
 interface ImportMeta {

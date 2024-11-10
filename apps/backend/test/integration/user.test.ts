@@ -27,7 +27,7 @@ describe("User", () => {
   test("create", async () => {
     const input = {
       username: "testuser",
-      password: "testpassword",
+      password: "testTEST1234!",
       email: "test@example.com",
     };
 
@@ -49,7 +49,7 @@ describe("User", () => {
   test("login", async () => {
     const input = {
       username: "testuser",
-      password: "testpassword",
+      password: "testTEST1234!",
       email: "test@example.com",
     };
 

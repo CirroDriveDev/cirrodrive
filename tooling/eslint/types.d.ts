@@ -1,6 +1,6 @@
 /**
- * Since the ecosystem hasn't fully migrated to ESLint's new FlatConfig system yet,
- * we "need" to type some of the plugins manually :(
+ * Since the ecosystem hasn't fully migrated to ESLint's new FlatConfig system
+ * yet, we "need" to type some of the plugins manually :(
  */
 
 declare module "eslint-plugin-import" {

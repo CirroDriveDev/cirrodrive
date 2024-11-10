@@ -1,4 +1,6 @@
-/** @type {import("typescript-eslint").ConfigWithExtends} */
+/**
+ * @type {import("typescript-eslint").ConfigWithExtends}
+ */
 export default {
   rules: {
     /**
@@ -20,14 +22,15 @@ export default {
      */
     "no-promise-executor-return": "error",
     /**
-     * Disallow template literal placeholder syntax in regular strings, as
-     * these are likely errors.
+     * Disallow template literal placeholder syntax in regular strings, as these
+     * are likely errors.
      *
-     * 🚫 Not fixable - https://eslint.org/docs/rules/no-template-curly-in-string
+     * 🚫 Not fixable -
+     * https://eslint.org/docs/rules/no-template-curly-in-string
      */
     "no-template-curly-in-string": "error",
     /**
-     *  Disallow loops with a body that allows only one iteration.
+     * Disallow loops with a body that allows only one iteration.
      *
      * 🚫 Not fixable - https://eslint.org/docs/rules/no-unreachable-loop
      */
