@@ -128,14 +128,14 @@ pipeline {
                         echo 'Building in production...'
                         env.VITE_PORT = '8000'
                         env.VITE_API_SERVER_PORT = "${VITE_PORT}"
-                        VITE_FRONTEND_URL = credentials('EC2_EXTERNAL_URL_ID')
+                        env.VITE_FRONTEND_URL = "${VITE_API_SERVER_URL}"
                         sh 'pnpm run build'
                     } else {
                         echo 'Building in development...'
                         env.NODE_ENV = 'development'
                         env.VITE_PORT = '3000'
                         env.VITE_API_SERVER_PORT = "${VITE_PORT}"
-                        VITE_FRONTEND_URL = "${VITE_API_SERVER_URL}:5000"
+                        env.VITE_FRONTEND_URL = "${VITE_API_SERVER_URL}:5000"
                         sh 'pnpm run build:dev'
                     }
                 }
