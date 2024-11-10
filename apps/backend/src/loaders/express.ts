@@ -29,7 +29,6 @@ export const expressLoader = (): Express => {
         `http://${import.meta.env.VITE_EC2_PUBLIC_URL}`,
         `http://${import.meta.env.VITE_EC2_PUBLIC_URL}:${import.meta.env.VITE_CLIENT_PORT}`,
       ],
-      credentials: true,
     }),
   );
   app.use(json());
