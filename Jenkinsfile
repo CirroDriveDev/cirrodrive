@@ -36,8 +36,13 @@ pipeline {
                 script {
                     if (env.BRANCH_NAME == MAIN) {
                         env.MARIADB_DATABASE = 'cirrodrive_prod'
+                        env.VITE_CLIENT_PORT = '80'
+                        env.VITE_SERVER_PORT = '8000'
                     } else {
                         env.MARIADB_DATABASE = 'cirrodrive_dev'
+                        env.NODE_ENV = 'development'
+                        env.VITE_CLIENT_PORT = '5000'
+                        env.VITE_SERVER_PORT = '3000'
                     }
                     env.DATABASE_URL = createDatabaseUrl(
                         env.MARIADB_USER,
@@ -126,14 +131,9 @@ pipeline {
                 script {
                     if (env.BRANCH_NAME == MAIN) {
                         echo 'Building in production...'
-                        env.VITE_CLIENT_PORT = '80'
-                        env.VITE_SERVER_PORT = '8000'
                         sh 'pnpm run build'
                     } else {
                         echo 'Building in development...'
-                        env.NODE_ENV = 'development'
-                        env.VITE_CLIENT_PORT = '5000'
-                        env.VITE_SERVER_PORT = '3000'
                         sh 'pnpm run build:dev'
                     }
                 }
