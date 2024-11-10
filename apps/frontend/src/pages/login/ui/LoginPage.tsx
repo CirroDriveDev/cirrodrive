@@ -1,69 +1,76 @@
-import { useState } from "react";
-import { Link } from "react-router-dom";
-import { Header } from "@/widgets/WorkspaceLayout/ui/Header.tsx";
-import { Button } from "@/shared/ui/Button.tsx";
+import { Link, useNavigate } from "react-router-dom";
+import { Button } from "@/shared/components/shadcn/Button.tsx";
+import { useLogin } from "@/pages/login/api/useLogin.ts";
+import { FormInputField } from "@/shared/components/FormInputField.tsx";
+import { Layout } from "@/shared/ui/layout/Layout.tsx";
+import { Header } from "@/shared/ui/layout/Header.tsx";
 
 export function LoginPage(): JSX.Element {
-  const [formValues, setFormValues] = useState({
-    id: "",
-    password: "",
+  const navigate = useNavigate();
+  const {
+    input,
+    validationError,
+    submissionError,
+    handleInputChange,
+    handleFormSubmit,
+  } = useLogin({
+    onSuccess: () => {
+      navigate("/home");
+    },
+    retry: 0,
   });
-
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>): void => {
-    const { name, value } = e.target;
-    setFormValues((prevValues) => ({
-      ...prevValues,
-      [name]: value,
-    }));
-  };
-
-  const handleLogin = (e: React.FormEvent): void => {
-    e.preventDefault();
-  };
+  const { username, password } = input;
 
   return (
-    <div className="grid min-h-screen grid-rows-[70px_minmax(200px,_1fr)]">
-      <div className="row-start-1 row-end-2 flex">
-        <Header />
-      </div>
-      <section className="flex flex-grow items-center justify-center">
-        <div className="w-full max-w-md">
-          <span className="text-xl font-bold">로그인</span>
-          <form onSubmit={handleLogin}>
-            <ul>
-              <li className="mb-4">
-                <input
-                  type="text"
-                  name="id"
-                  value={formValues.id}
-                  onChange={handleChange}
-                  placeholder="아이디"
-                  className="mt-2 w-full rounded-md border border-gray-300 px-3 py-2"
-                />
-              </li>
-              <li className="mb-4">
-                <input
-                  type="password"
-                  name="password"
-                  value={formValues.password}
-                  onChange={handleChange}
-                  placeholder="비밀번호"
-                  className="w-full rounded-md border border-gray-300 px-3 py-2"
-                />
-              </li>
-            </ul>
-            <span className="text-l">계정이 없으신가요?</span>
-            <Link to="/signup">
-              <span className="text-l text-blue-600"> 새로 만드세요.</span>
-            </Link>
-            <div className="mt-6 flex justify-center text-white">
-              <Button variant="default" type="submit">
+    <Layout header={<Header />}>
+      <div className="flex flex-grow items-center justify-center">
+        <section className="flex w-96 flex-col items-center justify-center space-y-4">
+          <h2 className="text-2xl font-bold">로그인</h2>
+          <form
+            className="flex w-full flex-col items-center justify-center space-y-4"
+            onSubmit={handleFormSubmit}
+          >
+            <FormInputField
+              displayName="아이디"
+              type="text"
+              name="username"
+              value={username}
+              onChange={handleInputChange}
+              errorMessage={validationError?.username?._errors[0]}
+            />
+            <FormInputField
+              displayName="비밀번호"
+              type="password"
+              name="password"
+              value={password}
+              onChange={handleInputChange}
+              errorMessage={validationError?.password?._errors[0]}
+            />
+
+            {submissionError ?
+              <div className="h-8">
+                <p className="text-destructive">{submissionError}</p>
+              </div>
+            : null}
+
+            <div className="flex w-full justify-center">
+              <Button
+                variant="default"
+                className="w-full text-white"
+                type="submit"
+              >
                 로그인
               </Button>
             </div>
+            <div className="flex space-x-2">
+              <span className="text-l">계정이 없으신가요?</span>
+              <Link to="/register">
+                <span className="text-l text-primary">회원가입</span>
+              </Link>
+            </div>
           </form>
-        </div>
-      </section>
-    </div>
+        </section>
+      </div>
+    </Layout>
   );
 }

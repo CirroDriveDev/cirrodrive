@@ -2,7 +2,9 @@ import { File as FileIcon } from "lucide-react";
 import axios from "axios";
 import { useState } from "react";
 import { Link } from "react-router-dom";
-import { WorkspaceLayout } from "@/widgets/WorkspaceLayout/ui/WorkspaceLayout.tsx";
+import { SidebarLayout } from "@/shared/ui/SidebarLayout/SidebarLayout.tsx";
+import { Header } from "@/shared/ui/layout/Header.tsx";
+import { Sidebar } from "@/shared/ui/SidebarLayout/Sidebar.tsx";
 
 interface UploadResponse {
   fileId: number;
@@ -77,7 +79,8 @@ export function UploadPage(): JSX.Element {
   };
 
   return (
-    <WorkspaceLayout>
+    // TODO: 반응형 UI 구현
+    <SidebarLayout header={<Header />} sidebar={<Sidebar />}>
       <div className="w-full">
         <div className="mt-3 flex flex-row text-gray-300">
           <div className="ml-20 h-[30px] w-[100px] text-center align-middle">
@@ -118,6 +121,6 @@ export function UploadPage(): JSX.Element {
           </div>
         </form>
       </div>
-    </WorkspaceLayout>
+    </SidebarLayout>
   );
 }

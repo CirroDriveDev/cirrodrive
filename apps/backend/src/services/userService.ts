@@ -154,7 +154,9 @@ export class UserService {
    * 사용자를 수정합니다.
    *
    * @param id - 사용자 ID
-   * @param userData - 수정할 사용자 데이터
+   * @param username - 사용자 이름
+   * @param password - 비밀번호
+   * @param email - 이메일
    * @returns 수정된 사용자
    */
   public async update(
@@ -216,6 +218,64 @@ export class UserService {
       });
 
       return user;
+    } catch (e) {
+      if (e instanceof Error) {
+        this.logger.error(e.message);
+      }
+      throw e;
+    }
+  }
+
+  /**
+   * 사용자 이름이 이미 존재하는지 확인합니다.
+   *
+   * @param username - 사용자 이름
+   * @returns 사용자 이름이 이미 존재하는지 여부
+   */
+  public async existsByUsername(username: string): Promise<boolean> {
+    try {
+      this.logger.info(
+        {
+          methodName: "existsByUsername",
+          username,
+        },
+        "사용자 이름 중복 확인 시작",
+      );
+
+      const user = await this.userModel.findUnique({
+        where: { username },
+      });
+
+      return user !== null;
+    } catch (e) {
+      if (e instanceof Error) {
+        this.logger.error(e.message);
+      }
+      throw e;
+    }
+  }
+
+  /**
+   * 이메일이 이미 존재하는지 확인합니다.
+   *
+   * @param email - 이메일
+   * @returns 이메일이 이미 존재하는지 여부
+   */
+  public async existsByEmail(email: string): Promise<boolean> {
+    try {
+      this.logger.info(
+        {
+          methodName: "existsByEmail",
+          email,
+        },
+        "이메일 중복 확인 시작",
+      );
+
+      const user = await this.userModel.findUnique({
+        where: { email },
+      });
+
+      return user !== null;
     } catch (e) {
       if (e instanceof Error) {
         this.logger.error(e.message);

@@ -1,6 +1,8 @@
 import unicorn from "eslint-plugin-unicorn";
 
-/** @type {import("typescript-eslint").ConfigWithExtends} */
+/**
+ * @type {import("typescript-eslint").ConfigWithExtends}
+ */
 export default {
   plugins: {
     unicorn,
@@ -9,7 +11,8 @@ export default {
     /**
      * Require consistent filename case for all linted files.
      *
-     * 🚫 Not fixable - https://github.com/sindresorhus/eslint-plugin-unicorn/blob/main/docs/rules/filename-case.md
+     * 🚫 Not fixable -
+     * https://github.com/sindresorhus/eslint-plugin-unicorn/blob/main/docs/rules/filename-case.md
      */
     "unicorn/filename-case": [
       "error",
@@ -18,9 +21,11 @@ export default {
       },
     ],
     /**
-     * Require using the `node:` protocol when importing Node.js built-in modules.
+     * Require using the `node:` protocol when importing Node.js built-in
+     * modules.
      *
-     * 🔧 Fixable - https://github.com/sindresorhus/eslint-plugin-unicorn/blob/main/docs/rules/prefer-node-protocol.md
+     * 🔧 Fixable -
+     * https://github.com/sindresorhus/eslint-plugin-unicorn/blob/main/docs/rules/prefer-node-protocol.md
      */
     "unicorn/prefer-node-protocol": "warn",
   },

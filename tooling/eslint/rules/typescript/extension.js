@@ -4,7 +4,9 @@ import variablesConfig from "../variables.js";
 const noUnusedVarsConfig =
   variablesConfig.rules ? variablesConfig.rules["no-unused-vars"] : undefined;
 
-/** @type {import("typescript-eslint").ConfigWithExtends} */
+/**
+ * @type {import("typescript-eslint").ConfigWithExtends}
+ */
 export default {
   rules: {
     /**
@@ -35,7 +37,8 @@ export default {
     /**
      * Disallow unnecessary constructors.
      *
-     * 🚫 Not fixable - https://typescript-eslint.io/rules/no-useless-constructor/
+     * 🚫 Not fixable -
+     * https://typescript-eslint.io/rules/no-useless-constructor/
      */
     "@typescript-eslint/no-useless-constructor": "error",
   },
