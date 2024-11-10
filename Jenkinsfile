@@ -197,6 +197,8 @@ pipeline {
                             export MARIADB_HOST="${MARIADB_HOST}"
                             export MARIADB_PORT="${MARIADB_PORT}"
                             export DATABASE_URL="${DATABASE_URL}"
+                            export VITE_CLIENT_PORT="${VITE_CLIENT_PORT}"
+                            export VITE_SERVER_PORT="${VITE_SERVER_PORT}"
                             docker-compose -f ${DEPLOY_PATH}/compose.yaml up -d --remove-orphans --renew-anon-volumes ${FRONTEND_CONTAINER_NAME} ${BACKEND_CONTAINER_NAME} ${DATABASE_CONTAINER_NAME}
                             """
                     }
