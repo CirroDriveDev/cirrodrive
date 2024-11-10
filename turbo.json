@@ -73,6 +73,9 @@
       "cache": false,
       "persistent": true
     },
+    "db:reset": {
+      "cache": false
+    },
     "format": {
       "outputs": [".cache/.prettiercache"],
       "outputLogs": "new-only"

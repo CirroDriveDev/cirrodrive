@@ -1,13 +1,14 @@
 import { Link } from "react-router-dom";
-import { Button } from "@/shared/ui/Button.tsx";
-import { DefaultLayout } from "@/widgets/DefaultLayout/DefaultLayout.tsx";
+import { Button } from "@/shared/components/shadcn/Button.tsx";
+import { Layout } from "@/shared/ui/layout/Layout.tsx";
 import { LandingContainer } from "@/pages/landing/ui/LandingContainer.tsx";
-import { Fileupload } from "@/widgets/WorkspaceLayout/ui/Fileupload.tsx";
-import { Upload } from "@/widgets/WorkspaceLayout/ui/Upload.tsx";
+import { Fileupload } from "@/pages/landing/ui/FileUploadImage.tsx";
+import { Upload } from "@/pages/landing/ui/UploadImage.tsx";
+import { Header } from "@/shared/ui/layout/Header.tsx";
 
 export function LandingPage(): JSX.Element {
   return (
-    <DefaultLayout>
+    <Layout header={<Header />}>
       <LandingContainer>
         <div className="flex flex-col items-end justify-center">
           <div className="flex flex-col justify-center">
@@ -52,6 +53,6 @@ export function LandingPage(): JSX.Element {
           </div>
         </div>
       </LandingContainer>
-    </DefaultLayout>
+    </Layout>
   );
 }

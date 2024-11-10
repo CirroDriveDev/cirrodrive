@@ -287,6 +287,9 @@ importers:
       http-status-codes:
         specifier: ^2.3.0
         version: 2.3.0
+      immer:
+        specifier: ^10.1.1
+        version: 10.1.1
       lucide-react:
         specifier: ^0.439.0
         version: 0.439.0(react@18.3.1)
@@ -307,7 +310,7 @@ importers:
         version: 3.23.8
       zustand:
         specifier: ^4.5.4
-        version: 4.5.5(@types/react@18.3.12)(react@18.3.1)
+        version: 4.5.5(@types/react@18.3.12)(immer@10.1.1)(react@18.3.1)
     devDependencies:
       '@cirrodrive/backend':
         specifier: workspace:^
@@ -1739,8 +1742,8 @@ packages:
     resolution: {integrity: sha512-mUnk8rPJBI9loFDZ+YzPGdeniYK+FTmRD1TMCz7ev2SNIozyKKpnGgsxO34u6Z4z/t0ITuu7voi/AshfsGsgFg==}
     engines: {node: '>=14.0.0'}
 
-  '@rollup/wasm-node@4.24.4':
-    resolution: {integrity: sha512-WKJUdPcM8YAYujafY95+2EapqU3F/nwfBkXh9AfkBvWBwFhsvNJABA86Br6graRH2vRE4FBsiqjFvFWOtEO6wg==}
+  '@rollup/wasm-node@4.25.0':
+    resolution: {integrity: sha512-Brhz6gK/43E9lpMkbcfg06hRHctpMkbmy1JzOU2JWub3teujTNqou1xWTQgt9CRu15WGTt78t7p7rNxGIBZv+g==}
     engines: {node: '>=18.0.0', npm: '>=8.0.0'}
     hasBin: true
 
@@ -3193,6 +3196,9 @@ packages:
   ignore@5.3.2:
     resolution: {integrity: sha512-hsBTNUqQTDwkWtcdYI2i06Y/nUBEsNEDJKjWdigLvegy8kDuJAS8uRlpkkcQpyEXL0Z/pjDy5HBmMjRCJ2gq+g==}
     engines: {node: '>= 4'}
+
+  immer@10.1.1:
+    resolution: {integrity: sha512-s2MPrmjovJcoMaHtx6K11Ra7oD05NT97w1IC5zpMkT6Atjr7H8LjaDd81iIxUYpMKSRRNMJE703M1Fhr/TctHw==}
 
   import-fresh@3.3.0:
     resolution: {integrity: sha512-veYYhQa+D1QBKznvhUHxb8faxlrwUnxseDAbAp457E0wLNio2bOSKnjYDhMj+YiAq61xrMGhQk9iXVk5FzgQMw==}
@@ -6280,7 +6286,7 @@ snapshots:
 
   '@remix-run/router@1.20.0': {}
 
-  '@rollup/wasm-node@4.24.4':
+  '@rollup/wasm-node@4.25.0':
     dependencies:
       '@types/estree': 1.0.6
     optionalDependencies:
@@ -7937,6 +7943,8 @@ snapshots:
   ieee754@1.2.1: {}
 
   ignore@5.3.2: {}
+
+  immer@10.1.1: {}
 
   import-fresh@3.3.0:
     dependencies:
@@ -9720,7 +9728,7 @@ snapshots:
     dependencies:
       esbuild: 0.21.5
       postcss: 8.4.47
-      rollup: '@rollup/wasm-node@4.24.4'
+      rollup: '@rollup/wasm-node@4.25.0'
     optionalDependencies:
       '@types/node': 20.17.1
       fsevents: 2.3.3
@@ -9871,9 +9879,10 @@ snapshots:
 
   zod@3.23.8: {}
 
-  zustand@4.5.5(@types/react@18.3.12)(react@18.3.1):
+  zustand@4.5.5(@types/react@18.3.12)(immer@10.1.1)(react@18.3.1):
     dependencies:
       use-sync-external-store: 1.2.2(react@18.3.1)
     optionalDependencies:
       '@types/react': 18.3.12
+      immer: 10.1.1
       react: 18.3.1
