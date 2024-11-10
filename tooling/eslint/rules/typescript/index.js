@@ -1,4 +1,6 @@
-/** @type {import("typescript-eslint").ConfigWithExtends} */
+/**
+ * @type {import("typescript-eslint").ConfigWithExtends}
+ */
 export default {
   rules: {
     /**
@@ -26,7 +28,8 @@ export default {
     /**
      * Require explicit return types on functions and class methods.
      *
-     * 🚫 Not fixable - https://typescript-eslint.io/rules/explicit-function-return-type/
+     * 🚫 Not fixable -
+     * https://typescript-eslint.io/rules/explicit-function-return-type/
      */
     "@typescript-eslint/explicit-function-return-type": [
       "warn",
@@ -65,9 +68,11 @@ export default {
       },
     ],
     /**
-     * Disallow members of unions and intersections that do nothing or override type information.
+     * Disallow members of unions and intersections that do nothing or override
+     * type information.
      *
-     * 🚫 Not fixable - https://typescript-eslint.io/rules/no-redundant-type-constituents/
+     * 🚫 Not fixable -
+     * https://typescript-eslint.io/rules/no-redundant-type-constituents/
      */
     "@typescript-eslint/no-redundant-type-constituents": "warn",
     /**
@@ -85,7 +90,8 @@ export default {
     /**
      * Require Array#sort calls to provide a compare function.
      *
-     * 🚫 Not fixable - https://typescript-eslint.io/rules/require-array-sort-compare/
+     * 🚫 Not fixable -
+     * https://typescript-eslint.io/rules/require-array-sort-compare/
      */
     "@typescript-eslint/require-array-sort-compare": [
       "error",
@@ -96,7 +102,8 @@ export default {
      *
      * This ensures cases are considered when items are later added to a union.
      *
-     * 🚫 Not fixable - https://typescript-eslint.io/rules/switch-exhaustiveness-check/
+     * 🚫 Not fixable -
+     * https://typescript-eslint.io/rules/switch-exhaustiveness-check/
      */
     "@typescript-eslint/switch-exhaustiveness-check": "error",
   },

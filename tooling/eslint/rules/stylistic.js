@@ -1,4 +1,6 @@
-/** @type {import("typescript-eslint").ConfigWithExtends} */
+/**
+ * @type {import("typescript-eslint").ConfigWithExtends}
+ */
 export default {
   rules: {
     /**
@@ -27,8 +29,8 @@ export default {
      */
     "new-cap": ["error", { capIsNew: false }],
     /**
-     * Disallow the omission of parentheses when invoking a constructor with
-     * no arguments.
+     * Disallow the omission of parentheses when invoking a constructor with no
+     * arguments.
      *
      * 🔧 Fixable - https://eslint.org/docs/rules/new-parens
      */
