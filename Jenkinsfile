@@ -26,7 +26,7 @@ pipeline {
         MARIADB_PORT = '3307'
 
         // API 서버
-        VITE_API_SERVER_URL = credentials('EC2_EXTERNAL_URL_ID')
+        VITE_EC2_PUBLIC_URL = "${EC2_PUBLIC_URL}"
     }
 
     stages {
@@ -36,8 +36,13 @@ pipeline {
                 script {
                     if (env.BRANCH_NAME == MAIN) {
                         env.MARIADB_DATABASE = 'cirrodrive_prod'
+                        env.VITE_CLIENT_PORT = '80'
+                        env.VITE_SERVER_PORT = '8000'
                     } else {
                         env.MARIADB_DATABASE = 'cirrodrive_dev'
+                        env.NODE_ENV = 'development'
+                        env.VITE_CLIENT_PORT = '5000'
+                        env.VITE_SERVER_PORT = '3000'
                     }
                     env.DATABASE_URL = createDatabaseUrl(
                         env.MARIADB_USER,
@@ -126,16 +131,9 @@ pipeline {
                 script {
                     if (env.BRANCH_NAME == MAIN) {
                         echo 'Building in production...'
-                        env.VITE_PORT = '8000'
-                        env.VITE_API_SERVER_PORT = "${VITE_PORT}"
-                        VITE_FRONTEND_URL = credentials('EC2_EXTERNAL_URL_ID')
                         sh 'pnpm run build'
                     } else {
                         echo 'Building in development...'
-                        env.NODE_ENV = 'development'
-                        env.VITE_PORT = '3000'
-                        env.VITE_API_SERVER_PORT = "${VITE_PORT}"
-                        VITE_FRONTEND_URL = "${VITE_API_SERVER_URL}:5000"
                         sh 'pnpm run build:dev'
                     }
                 }
@@ -199,6 +197,8 @@ pipeline {
                             export MARIADB_HOST="${MARIADB_HOST}"
                             export MARIADB_PORT="${MARIADB_PORT}"
                             export DATABASE_URL="${DATABASE_URL}"
+                            export VITE_CLIENT_PORT="${VITE_CLIENT_PORT}"
+                            export VITE_SERVER_PORT="${VITE_SERVER_PORT}"
                             docker-compose -f ${DEPLOY_PATH}/compose.yaml up -d --remove-orphans --renew-anon-volumes ${FRONTEND_CONTAINER_NAME} ${BACKEND_CONTAINER_NAME} ${DATABASE_CONTAINER_NAME}
                             """
                     }

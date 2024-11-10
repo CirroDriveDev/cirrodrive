@@ -16,8 +16,10 @@ function load(): express.Application {
 }
 
 function startServer(app: express.Application): void {
-  server = app.listen(import.meta.env.VITE_PORT, () => {
-    logger.info(`Server listening on port: ${import.meta.env.VITE_PORT}`);
+  server = app.listen(import.meta.env.VITE_SERVER_PORT, () => {
+    logger.info(
+      `Server listening on port: ${import.meta.env.VITE_SERVER_PORT}`,
+    );
     logger.info(`Currently running on ${import.meta.env.MODE} mode.`);
   });
 
