@@ -75,7 +75,6 @@ export const useRegister = (opts?: UseRegisterOptions): UseRegister => {
   const mutation = trpc.user.create.useMutation({
     ...opts,
     onSuccess: (data, variable, context) => {
-      setUser(data);
       opts?.onSuccess?.(data, variable, context);
     },
     onError: (error, variable, context) => {

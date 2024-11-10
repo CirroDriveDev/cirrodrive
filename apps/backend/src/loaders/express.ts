@@ -25,8 +25,10 @@ export const expressLoader = (): Express => {
 
   app.use(
     cors({
-      origin: import.meta.env.VITE_FRONTEND_URL,
-      credentials: true,
+      origin: [
+        `http://${import.meta.env.VITE_EC2_PUBLIC_URL}`,
+        `http://${import.meta.env.VITE_EC2_PUBLIC_URL}:${import.meta.env.VITE_CLIENT_PORT}`,
+      ],
     }),
   );
   app.use(json());
