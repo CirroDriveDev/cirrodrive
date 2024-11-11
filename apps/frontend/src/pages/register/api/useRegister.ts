@@ -58,8 +58,6 @@ interface UseRegister {
 }
 
 export const useRegister = (opts?: UseRegisterOptions): UseRegister => {
-  const { setUser } = useBoundStore();
-
   const [input, setInput] = useState<Input>({
     username: "",
     password: "",
