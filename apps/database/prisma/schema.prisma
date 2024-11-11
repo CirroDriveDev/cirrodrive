@@ -29,6 +29,7 @@ model User {
   createdAt       DateTime    @default(now())
   updatedAt       DateTime    @updatedAt
   sessions        Session[]
+  drives          Drive[] // User - Drive 관계 (1:N)
   Folder          Folder[]
 }
 
@@ -39,10 +40,24 @@ model Session {
   user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
+model Drive {
+  id        Int      @id @default(autoincrement())
+  userId    Int
+  totalSize Int // 드라이브 총 용량
+  usedSize  Int      @default(0)
+  files     File[] // Drive - File 관계 (1:N)
+  folders   Folder[] // Drive - Folder 관계 (1:N)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+}
+
 model File {
   id        Int       @id @default(autoincrement())
-  owner     Int?
-  folderId  Int
+  driveId   Int // Drive - File 관계를 위한 드라이브 ID
+  folderId  Int? // Folder - File 관계를 위한 폴더 ID (루트 폴더일 경우 nullable)
   name      String
   extension String
   size      Int
@@ -52,6 +67,10 @@ model File {
   trashedAt DateTime?
   hash      String
   codes     Code[]    @relation("FileCodes") // Code 모델과의 관계
+  drive     Drive     @relation(fields: [driveId], references: [id], onDelete: Cascade)
+  folder    Folder?   @relation(fields: [folderId], references: [id], onDelete: SetNull)
+
+  @@index([driveId, folderId])
 }
 
 model Code {
@@ -59,21 +78,22 @@ model Code {
   codeString String   @unique
   fileId     Int
   expiresAt  DateTime
-  file       File     @relation("FileCodes", fields: [fileId], references: [id]) // File 모델과의 관계
+  file       File     @relation("FileCodes", fields: [fileId], references: [id])
 }
 
 model Folder {
   id        Int      @id @default(autoincrement())
-  userId    Int
+  driveId   Int // Drive - Folder 관계를 위한 드라이브 ID
+  parentId  Int? // Folder - Folder 관계 (부모 폴더 ID, 루트 폴더일 경우 nullable)
   name      String
-  parentId  Int? // nullable이므로 @default(NULL)을 생략
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+  drive     Drive    @relation(fields: [driveId], references: [id], onDelete: Cascade)
+  parent    Folder?  @relation("FolderToFolder", fields: [parentId], references: [id])
+  children  Folder[] @relation("FolderToFolder")
+  files     File[] // Folder - File 관계 (1:N)
+  User      User?    @relation(fields: [userId], references: [id])
+  userId    Int?
 
-  // 관계 정의
-  user     User     @relation(fields: [userId], references: [id])
-  parent   Folder?  @relation("FolderToFolder", fields: [parentId], references: [id])
-  children Folder[] @relation("FolderToFolder")
-
-  @@index([userId])
+  @@index([driveId, parentId])
 }
