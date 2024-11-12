@@ -29,8 +29,8 @@ model User {
   createdAt       DateTime    @default(now())
   updatedAt       DateTime    @updatedAt
   sessions        Session[]
-  drives          Drive[] // User - Drive 관계 (1:N)
-  folders         Folder[] // User - Folder 관계 (1:N)
+  drives          Drive[]
+  folders         Folder[]
 }
 
 model Session {
@@ -43,10 +43,10 @@ model Session {
 model Drive {
   id        Int      @id @default(autoincrement())
   userId    Int
-  totalSize Int // 드라이브 총 용량
+  totalSize Int
   usedSize  Int      @default(0)
-  files     File[] // Drive - File 관계 (1:N)
-  folders   Folder[] // Drive - Folder 관계 (1:N)
+  files     File[]
+  folders   Folder[]
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
   user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
@@ -56,8 +56,8 @@ model Drive {
 
 model File {
   id        Int       @id @default(autoincrement())
-  driveId   Int // Drive - File 관계를 위한 드라이브 ID
-  folderId  Int? // Folder - File 관계를 위한 폴더 ID (루트 폴더일 경우 nullable)
+  driveId   Int
+  folderId  Int?
   name      String
   extension String
   size      Int
@@ -66,7 +66,7 @@ model File {
   updatedAt DateTime  @updatedAt
   trashedAt DateTime?
   hash      String
-  codes     Code[]    @relation("FileCodes") // Code 모델과의 관계
+  codes     Code[]    @relation("FileCodes")
   drive     Drive     @relation(fields: [driveId], references: [id], onDelete: Cascade)
   folder    Folder?   @relation(fields: [folderId], references: [id], onDelete: SetNull)
 
@@ -83,16 +83,16 @@ model Code {
 
 model Folder {
   id        Int      @id @default(autoincrement())
-  driveId   Int // Drive - Folder 관계를 위한 드라이브 ID
-  parentId  Int? // Folder - Folder 관계 (부모 폴더 ID, 루트 폴더일 경우 nullable)
+  driveId   Int
+  parentId  Int?
   name      String
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
   drive     Drive    @relation(fields: [driveId], references: [id], onDelete: Cascade)
   parent    Folder?  @relation("FolderToFolder", fields: [parentId], references: [id])
   children  Folder[] @relation("FolderToFolder")
-  files     File[] // Folder - File 관계 (1:N)
-  user      User?    @relation(fields: [userId], references: [id], onDelete: SetNull) // Optional 관계 설정
+  files     File[]
+  user      User?    @relation(fields: [userId], references: [id], onDelete: SetNull)
   userId    Int?
 
   @@index([driveId, parentId])
