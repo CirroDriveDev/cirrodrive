@@ -14,16 +14,18 @@ export const folderRouter = router({
         id: z.number(),
         name: z.string(),
         parentId: z.number().nullable().optional(),
+        driveId: z.number(), // driveId 추가
       }),
     )
     .mutation(async ({ input }) => {
-      const { id, name, parentId } = input;
+      const { id, name, parentId, driveId } = input; // driveId 가져오기
       const finalParentId = parentId ?? null;
 
       const newFolder = await folderService.createFolder(
         id,
         name,
         finalParentId,
+        driveId, // driveId 전달
       );
 
       return {

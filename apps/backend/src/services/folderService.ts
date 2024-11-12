@@ -21,6 +21,7 @@ export class FolderService {
    * @param userId - 폴더를 생성할 회원의 ID입니다.
    * @param name - 생성할 폴더의 이름입니다.
    * @param parentId - 부모 폴더의 ID입니다 (최상위 폴더일 경우 null).
+   * @param driveId - 드라이브의 ID입니다.
    * @returns 생성된 폴더 정보입니다.
    * @throws 폴더 생성 중 오류가 발생한 경우.
    */
@@ -28,6 +29,7 @@ export class FolderService {
     userId: number,
     name: string,
     parentId: number | null,
+    driveId: number, // driveId 추가
   ): Promise<Folder> {
     try {
       this.logger.info(
@@ -36,6 +38,7 @@ export class FolderService {
           userId,
           name,
           parentId,
+          driveId,
         },
         "폴더 생성 시작",
       );
@@ -45,6 +48,7 @@ export class FolderService {
           userId,
           name,
           parentId,
+          driveId, // driveId 포함
         },
       });
 
