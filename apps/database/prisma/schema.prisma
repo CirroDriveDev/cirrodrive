@@ -30,7 +30,7 @@ model User {
   updatedAt       DateTime    @updatedAt
   sessions        Session[]
   drives          Drive[] // User - Drive 관계 (1:N)
-  Folder          Folder[]
+  folders         Folder[] // User - Folder 관계 (1:N)
 }
 
 model Session {
@@ -92,7 +92,7 @@ model Folder {
   parent    Folder?  @relation("FolderToFolder", fields: [parentId], references: [id])
   children  Folder[] @relation("FolderToFolder")
   files     File[] // Folder - File 관계 (1:N)
-  User      User?    @relation(fields: [userId], references: [id])
+  user      User?    @relation(fields: [userId], references: [id], onDelete: SetNull) // Optional 관계 설정
   userId    Int?
 
   @@index([driveId, parentId])
