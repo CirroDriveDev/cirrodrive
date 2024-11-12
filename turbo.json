@@ -8,9 +8,9 @@
     "DEV",
     "SSR",
     "NODE_ENV",
-    "VITE_PORT",
-    "VITE_API_SERVER_URL",
-    "VITE_API_SERVER_PORT"
+    "VITE_EC2_PUBLIC_URL",
+    "VITE_CLIENT_PORT",
+    "VITE_SERVER_PORT"
   ],
   "tasks": {
     "topo": {
@@ -72,6 +72,9 @@
     "db:studio": {
       "cache": false,
       "persistent": true
+    },
+    "db:reset": {
+      "cache": false
     },
     "format": {
       "outputs": [".cache/.prettiercache"],

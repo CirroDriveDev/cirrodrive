@@ -1,8 +1,8 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import axios from "axios";
-import { Header } from "@/widgets/WorkspaceLayout/ui/Header.tsx";
-import { Button } from "@/shared/ui/Button.tsx";
+import { Header } from "@/shared/ui/layout/Header.tsx";
+import { Button } from "@/shared/components/shadcn/Button.tsx";
 
 export function DownloadPage(): JSX.Element {
   const [code, setCode] = useState<string>("");

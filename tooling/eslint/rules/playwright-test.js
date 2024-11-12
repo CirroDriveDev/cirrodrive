@@ -1,5 +1,7 @@
 // Source: https://github.com/playwright-community/eslint-plugin-playwright/blob/v1.5.1/src/index.ts#L101-L129
-/** @type {import("eslint").Linter.RulesRecord} */
+/**
+ * @type {import("eslint").Linter.RulesRecord}
+ */
 const recommended = {
   "no-empty-pattern": "off",
   "playwright/expect-expect": "warn",
@@ -27,20 +29,24 @@ const recommended = {
   "playwright/valid-expect-in-promise": "error",
   "playwright/valid-title": "error",
 };
-/** @type {import("typescript-eslint").ConfigWithExtends} */
+/**
+ * @type {import("typescript-eslint").ConfigWithExtends}
+ */
 export default {
   rules: {
     ...recommended,
     /**
      * Require lowercase test names.
      *
-     * 🔧 Fixable - https://github.com/playwright-community/eslint-plugin-playwright/blob/main/docs/rules/prefer-lowercase-title.md
+     * 🔧 Fixable -
+     * https://github.com/playwright-community/eslint-plugin-playwright/blob/main/docs/rules/prefer-lowercase-title.md
      */
     "playwright/prefer-lowercase-title": "warn",
     /**
      * Require using `toHaveLength` over explicitly checking lengths.
      *
-     * 🔧 Fixable - https://github.com/playwright-community/eslint-plugin-playwright/blob/main/docs/rules/prefer-lowercase-title.md
+     * 🔧 Fixable -
+     * https://github.com/playwright-community/eslint-plugin-playwright/blob/main/docs/rules/prefer-lowercase-title.md
      */
     "playwright/prefer-to-have-length": "warn",
   },

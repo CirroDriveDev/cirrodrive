@@ -1,1 +1,1 @@
-export type { AppRouter } from "@/api/appRouter.ts";
+export type { AppRouter, RouterInput, RouterOutput } from "@/api/appRouter.ts";

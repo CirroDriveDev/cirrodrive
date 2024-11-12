@@ -23,7 +23,14 @@ export const TRPC_PATH = "/trpc";
 export const expressLoader = (): Express => {
   const app = express();
 
-  app.use(cors());
+  app.use(
+    cors({
+      origin: [
+        `http://${import.meta.env.VITE_EC2_PUBLIC_URL}`,
+        `http://${import.meta.env.VITE_EC2_PUBLIC_URL}:${import.meta.env.VITE_CLIENT_PORT}`,
+      ],
+    }),
+  );
   app.use(json());
   app.use(urlencoded({ extended: true }));
   app.use(cookieParser());

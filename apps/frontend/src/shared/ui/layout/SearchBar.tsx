@@ -1,6 +1,6 @@
 import { Search } from "lucide-react";
 import { useState } from "react";
-import { useTheme } from "@/shared/components/ThemeProvider.tsx";
+import { useTheme } from "@/shared/components/shadcn/ThemeProvider.tsx";
 
 export function SearchBar(): JSX.Element {
   const { theme } = useTheme();

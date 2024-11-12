@@ -1,4 +1,6 @@
-/** @type {import("typescript-eslint").ConfigWithExtends} */
+/**
+ * @type {import("typescript-eslint").ConfigWithExtends}
+ */
 export default {
   rules: {
     /**
@@ -92,7 +94,8 @@ export default {
      */
     "no-floating-decimal": "error",
     /**
-     * Make people convert types explicitly e.g. `Boolean(foo)` instead of `!!foo`.
+     * Make people convert types explicitly e.g. `Boolean(foo)` instead of
+     * `!!foo`.
      *
      * 🔧 Partially Fixable - https://eslint.org/docs/rules/no-implicit-coercion
      */
@@ -208,7 +211,8 @@ export default {
     /**
      * Require using Error objects as Promise rejection reasons.
      *
-     * 🚫 Not fixable - https://eslint.org/docs/rules/prefer-promise-reject-errors
+     * 🚫 Not fixable -
+     * https://eslint.org/docs/rules/prefer-promise-reject-errors
      */
     "prefer-promise-reject-errors": ["error", { allowEmptyReject: true }],
     /**

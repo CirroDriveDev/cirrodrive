@@ -1,7 +1,7 @@
 import { Link } from "react-router-dom";
-import { Button } from "@/shared/ui/Button.tsx";
+import { Button } from "@/shared/components/shadcn/Button.tsx";
 
-export function SideBar(): JSX.Element {
+export function Sidebar(): JSX.Element {
   return (
     <aside className="flex flex-grow bg-secondary">
       <nav className="flex flex-grow flex-col space-y-4 p-4">
