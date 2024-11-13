@@ -1,6 +1,6 @@
 import { supertestFetchFactory } from "test/supertestLink.ts";
 import { createTRPCClient, httpLink } from "@trpc/client";
-import { SuperJSON } from "superjson";
+// import { SuperJSON } from "superjson";
 import type { AppRouter } from "@/api/appRouter.ts";
 import { expressLoader, TRPC_PATH } from "@/loaders/express.ts";
 import { prisma } from "@/loaders/prisma.ts";
@@ -18,7 +18,7 @@ describe("User", () => {
         httpLink({
           url: TRPC_PATH,
           fetch: supertestFetch,
-          transformer: SuperJSON,
+          // transformer: SuperJSON,
         }),
       ],
     });
