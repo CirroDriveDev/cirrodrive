@@ -1,7 +1,5 @@
 import "express-async-errors";
 import express, {
-  json,
-  urlencoded,
   type Request,
   type Response,
   type NextFunction,
@@ -25,14 +23,13 @@ export const expressLoader = (): Express => {
 
   app.use(
     cors({
+      credentials: true,
       origin: [
         `http://${import.meta.env.VITE_EC2_PUBLIC_URL}`,
         `http://${import.meta.env.VITE_EC2_PUBLIC_URL}:${import.meta.env.VITE_CLIENT_PORT}`,
       ],
     }),
   );
-  app.use(json());
-  app.use(urlencoded({ extended: true }));
   app.use(cookieParser());
   app.use(loggerMiddleware);
 
