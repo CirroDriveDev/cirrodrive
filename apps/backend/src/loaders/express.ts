@@ -1,7 +1,5 @@
 import "express-async-errors";
 import express, {
-  json,
-  urlencoded,
   type Request,
   type Response,
   type NextFunction,
@@ -32,8 +30,6 @@ export const expressLoader = (): Express => {
       ],
     }),
   );
-  app.use(json());
-  app.use(urlencoded({ extended: true }));
   app.use(cookieParser());
   app.use(loggerMiddleware);
 
