@@ -38,7 +38,7 @@ model Session {
   user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
-model File {
+model FileMetadata {
   id        Int       @id @default(autoincrement())
   owner     Int?
   folderId  Int
@@ -54,9 +54,9 @@ model File {
 }
 
 model Code {
-  id         Int      @id @default(autoincrement())
-  codeString String   @unique
+  id         Int          @id @default(autoincrement())
+  codeString String       @unique
   fileId     Int
   expiresAt  DateTime
-  file       File     @relation("FileCodes", fields: [fileId], references: [id]) // File 모델과의 관계
+  file       FileMetadata @relation("FileCodes", fields: [fileId], references: [id]) // File 모델과의 관계
 }

@@ -1,78 +1,42 @@
-import { useState } from "react";
-import { Link } from "react-router-dom";
-import axios from "axios";
 import { Header } from "@/shared/ui/layout/Header.tsx";
 import { Button } from "@/shared/components/shadcn/Button.tsx";
+import { useDownload } from "@/pages/download/api/useDownload.ts";
+import { Layout } from "@/shared/ui/layout/Layout.tsx";
+import { LoadingSpinner } from "@/shared/components/LoadingSpinner.tsx";
 
 export function DownloadPage(): JSX.Element {
-  const [code, setCode] = useState<string>("");
-
-  const baseUrl =
-    "http://ec2-3-38-95-198.ap-northeast-2.compute.amazonaws.com:3000/api/v1";
-
-  // 코드 입력 핸들러
-  const handleInputChange = (
-    event: React.ChangeEvent<HTMLInputElement>,
-  ): void => {
-    setCode(event.target.value);
-  };
-
-  // 파일 다운로드 핸들러
-  const handleDownload = async (): Promise<void> => {
-    if (!code) {
-      return;
-    }
-
-    const response = await axios.get<Blob | MediaSource>(
-      `${baseUrl}/files/download?code=${code}`,
-      {
-        responseType: "blob", // 파일 데이터 수신을 위한 설정
-      },
-    );
-
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment -- TODO: fix this
-    const { fileName } = (await axios.get(`${baseUrl}/codes/${code}/metadata`))
-      .data;
-
-    // 파일 다운로드 처리
-    const url = window.URL.createObjectURL(response.data);
-    const a = document.createElement("a");
-    a.href = url;
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment -- TODO: fix this
-    a.download = fileName; // 필요한 경우 파일명 설정
-    document.body.appendChild(a);
-    a.click();
-    a.remove();
-    window.URL.revokeObjectURL(url);
-  };
+  const { codeString, query, handleInputChange, handleDownload } =
+    useDownload();
 
   return (
-    <div className="grid min-h-screen grid-rows-[70px_minmax(200px,_1fr)]">
-      <div className="row-start-1 row-end-2 flex">
-        <Header />
-      </div>
-      <section className="flex flex-grow items-center justify-center">
-        <div className="w-full max-w-md">
-          <span className="text-xl font-bold">코드를 입력하시오.</span>
+    <Layout header={<Header />}>
+      <div className="flex flex-grow items-center justify-center">
+        <section className="flex w-96 flex-col items-center justify-center space-y-4">
+          <h2 className="text-2xl font-bold">다운로드</h2>
           <input
             type="text"
-            name="code"
-            placeholder="Code"
+            value={codeString}
             onChange={handleInputChange}
             className="mb-1 mt-2 w-full rounded-md border border-gray-300 px-3 py-2"
+            placeholder="Enter code"
           />
-          <span className="text-l">코드가 없으신가요?</span>
-          <Link to="/upload">
-            <span className="text-l text-blue-600"> 새로운 코드 발급.</span>
-          </Link>
-          <div className="mt-6 flex justify-center">
-            {/* eslint-disable-next-line @typescript-eslint/no-misused-promises -- TODO: fix this */}
+          <div className="flex w-full flex-col justify-center">
+            {query.error ?
+              <div className="h-8">
+                <p className="text-red-500">{query.error.message}</p>
+              </div>
+            : null}
             <Button variant="default" type="button" onClick={handleDownload}>
-              OK
+              다운로드
             </Button>
+            <div className="mt-4 flex h-8 w-full justify-center">
+              {query.isFetching ?
+                <LoadingSpinner />
+              : null}
+            </div>
           </div>
-        </div>
-      </section>
-    </div>
+        </section>
+      </div>
+    </Layout>
   );
 }

@@ -1,20 +1,24 @@
-import { httpBatchLink } from "@trpc/client";
-import { SuperJSON } from "superjson";
-import { trpc } from "@/shared/api/trpc.ts";
-
-const TRPC_PATH = "/trpc";
+import {
+  httpBatchLink,
+  httpLink,
+  isNonJsonSerializable,
+  splitLink,
+} from "@trpc/client";
+import { trpc, TRPC_URL } from "@/shared/api/trpc.ts";
+// import { transformer } from "@cirrodrive/tranformer";
 
 export const trpcClient = trpc.createClient({
   links: [
-    httpBatchLink({
-      url: `http://${import.meta.env.VITE_EC2_PUBLIC_URL}:${import.meta.env.VITE_SERVER_PORT}${TRPC_PATH}`,
-      transformer: SuperJSON,
-      fetch(url, options) {
-        return fetch(url, {
-          ...options,
-          credentials: "include",
-        });
-      },
+    splitLink({
+      condition: (op) => isNonJsonSerializable(op.input),
+      true: httpLink({
+        url: TRPC_URL,
+        // transformer,
+      }),
+      false: httpBatchLink({
+        url: TRPC_URL,
+        // transformer,
+      }),
     }),
   ],
 });
