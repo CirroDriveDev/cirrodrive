@@ -14,10 +14,22 @@ export const trpcClient = trpc.createClient({
       true: httpLink({
         url: TRPC_URL,
         // transformer,
+        fetch(url, options) {
+          return fetch(url, {
+            ...options,
+            credentials: "include",
+          });
+        },
       }),
       false: httpBatchLink({
         url: TRPC_URL,
         // transformer,
+        fetch(url, options) {
+          return fetch(url, {
+            ...options,
+            credentials: "include",
+          });
+        },
       }),
     }),
   ],
