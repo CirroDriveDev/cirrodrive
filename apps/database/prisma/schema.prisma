@@ -53,14 +53,14 @@ model FileMetadata {
   trashedAt DateTime?
   hash      String
 
-  folderId Int?
-  folder   Folder? @relation(fields: [folderId], references: [id], onDelete: SetNull)
   ownerId  Int?
   owner    User?   @relation(fields: [ownerId], references: [id])
+  parentFolderId Int?
+  parentFolder   Folder? @relation(fields: [parentFolderId], references: [id], onDelete: SetNull)
 
   codes Code[] @relation("FileCodes")
 
-  @@index([folderId])
+  @@index([parentFolderId])
 }
 
 model Code {
@@ -78,13 +78,13 @@ model Folder {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  parentId Int?
-  parent   Folder? @relation("FolderToFolder", fields: [parentId], references: [id])
   ownerId  Int?
   owner    User?   @relation(fields: [ownerId], references: [id], onDelete: SetNull)
+  parentFolderId Int?
+  parentFolder   Folder? @relation(name: "ParentToSubFolder", fields: [parentFolderId], references: [id])
 
-  children Folder[]       @relation("FolderToFolder")
   files    FileMetadata[]
+  subFolders Folder[]       @relation(name: "ParentToSubFolder")
 
-  @@index([parentId])
+  @@index([parentFolderId])
 }
