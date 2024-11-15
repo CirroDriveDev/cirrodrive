@@ -58,7 +58,7 @@ model FileMetadata {
   parentFolderId Int?
   parentFolder   Folder? @relation(fields: [parentFolderId], references: [id], onDelete: SetNull)
 
-  codes Code[] @relation("FileCodes")
+  codes Code[]
 
   @@index([parentFolderId])
 }
@@ -69,7 +69,7 @@ model Code {
   expiresAt  DateTime
 
   fileId Int
-  file   FileMetadata @relation("FileCodes", fields: [fileId], references: [id])
+  file   FileMetadata @relation(fields: [fileId], references: [id])
 }
 
 model Folder {
