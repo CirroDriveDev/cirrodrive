@@ -18,37 +18,34 @@ export class FolderService {
   /**
    * 새로운 폴더를 생성합니다.
    *
-   * @param userId - 폴더를 생성할 회원의 ID입니다.
+   * @param ownerId - 폴더를 생성할 회원의 ID입니다.
    * @param name - 생성할 폴더의 이름입니다.
-   * @param parentId - 부모 폴더의 ID입니다 (최상위 폴더일 경우 null).
+   * @param parentFolderId - 부모 폴더의 ID입니다 (최상위 폴더일 경우 null).
    * @param driveId - 드라이브의 ID입니다.
    * @returns 생성된 폴더 정보입니다.
    * @throws 폴더 생성 중 오류가 발생한 경우.
    */
   public async createFolder(
-    userId: number,
+    ownerId: number,
     name: string,
-    parentId: number | null,
-    driveId: number, // driveId 추가
+    parentFolderId?: number,
   ): Promise<Folder> {
     try {
       this.logger.info(
         {
           methodName: "createFolder",
-          userId,
+          ownerId,
           name,
-          parentId,
-          driveId,
+          parentId: parentFolderId,
         },
         "폴더 생성 시작",
       );
 
       const folder = await this.folderModel.create({
         data: {
-          userId,
+          ownerId,
           name,
-          parentId,
-          driveId, // driveId 포함
+          parentFolderId,
         },
       });
 
@@ -64,29 +61,29 @@ export class FolderService {
   /**
    * 사용자의 폴더 목록을 조회합니다.
    *
-   * @param userId - 폴더를 조회할 회원의 ID입니다.
-   * @param parentId - 특정 부모 폴더 아래의 폴더 목록을 조회할 경우 부모 폴더의 ID입니다.
+   * @param ownerId - 폴더를 조회할 회원의 ID입니다.
+   * @param parentFolderId - 특정 부모 폴더 아래의 폴더 목록을 조회할 경우 부모 폴더의 ID입니다.
    * @returns 폴더 목록입니다.
    * @throws 폴더 조회 중 오류가 발생한 경우.
    */
   public async getFoldersByUserId(
-    userId: number,
-    parentId: number | null,
+    ownerId: number,
+    parentFolderId?: number,
   ): Promise<Folder[]> {
     try {
       this.logger.info(
         {
           methodName: "getFoldersByUserId",
-          userId,
-          parentId,
+          ownerId,
+          parentFolderId,
         },
         "폴더 목록 조회 시작",
       );
 
       const folders = await this.folderModel.findMany({
         where: {
-          userId,
-          parentId,
+          ownerId,
+          parentFolderId,
         },
         orderBy: {
           createdAt: "asc",
@@ -105,20 +102,20 @@ export class FolderService {
   /**
    * 특정 폴더를 조회합니다.
    *
-   * @param userId - 회원의 ID입니다.
+   * @param ownerId - 회원의 ID입니다.
    * @param folderId - 조회할 폴더의 ID입니다.
    * @returns 폴더 정보입니다.
    * @throws 폴더 조회 중 오류가 발생한 경우.
    */
   public async getFolderById(
-    userId: number,
+    ownerId: number,
     folderId: number,
   ): Promise<Folder | null> {
     try {
       this.logger.info(
         {
           methodName: "getFolderById",
-          userId,
+          ownerId,
           folderId,
         },
         "폴더 조회 시작",
@@ -127,7 +124,7 @@ export class FolderService {
       const folder = await this.folderModel.findFirst({
         where: {
           id: folderId,
-          userId,
+          ownerId,
         },
       });
 
@@ -147,16 +144,16 @@ export class FolderService {
   /**
    * 폴더를 삭제합니다.
    *
-   * @param userId - 회원의 ID입니다.
+   * @param ownerId - 회원의 ID입니다.
    * @param folderId - 삭제할 폴더의 ID입니다.
    * @throws 폴더 삭제 중 오류가 발생한 경우.
    */
-  public async deleteFolder(userId: number, folderId: number): Promise<void> {
+  public async deleteFolder(ownerId: number, folderId: number): Promise<void> {
     try {
       this.logger.info(
         {
           methodName: "deleteFolder",
-          userId,
+          ownerId,
           folderId,
         },
         "폴더 삭제 시작",
@@ -165,7 +162,7 @@ export class FolderService {
       await this.folderModel.deleteMany({
         where: {
           id: folderId,
-          userId,
+          ownerId,
         },
       });
     } catch (error) {
