@@ -29,8 +29,8 @@ model User {
   createdAt       DateTime    @default(now())
   updatedAt       DateTime    @updatedAt
   sessions        Session[]
-  drives          Drive[]
   folders         Folder[]
+  files           FileMetadata[]
 }
 
 model Session {
@@ -40,24 +40,9 @@ model Session {
   user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
-model Drive {
-  id        Int            @id @default(autoincrement())
-  userId    Int
-  totalSize Int
-  usedSize  Int            @default(0)
-  files     FileMetadata[]
-  folders   Folder[]
-  createdAt DateTime       @default(now())
-  updatedAt DateTime       @updatedAt
-  user      User           @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  @@index([userId])
-}
-
 model FileMetadata {
   id Int @id @default(autoincrement())
 
-  driveId   Int
   folderId  Int?
   name      String
   extension String
@@ -68,10 +53,11 @@ model FileMetadata {
   trashedAt DateTime?
   hash      String
   codes     Code[]    @relation("FileCodes")
-  drive     Drive     @relation(fields: [driveId], references: [id], onDelete: Cascade)
   folder    Folder?   @relation(fields: [folderId], references: [id], onDelete: SetNull)
+  ownerId   Int?
+  owner     User?     @relation(fields: [ownerId], references: [id])
 
-  @@index([driveId, folderId])
+  @@index([folderId])
 }
 
 model Code {
@@ -84,17 +70,15 @@ model Code {
 
 model Folder {
   id        Int            @id @default(autoincrement())
-  driveId   Int
   parentId  Int?
   name      String
   createdAt DateTime       @default(now())
   updatedAt DateTime       @updatedAt
-  drive     Drive          @relation(fields: [driveId], references: [id], onDelete: Cascade)
   parent    Folder?        @relation("FolderToFolder", fields: [parentId], references: [id])
   children  Folder[]       @relation("FolderToFolder")
   files     FileMetadata[]
-  user      User?          @relation(fields: [userId], references: [id], onDelete: SetNull)
-  userId    Int?
+  owner     User?          @relation(fields: [ownerId], references: [id], onDelete: SetNull)
+  ownerId   Int?
 
-  @@index([driveId, parentId])
+  @@index([parentId])
 }
