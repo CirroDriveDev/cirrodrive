@@ -13,19 +13,17 @@ export const folderRouter = router({
       z.object({
         id: z.number(),
         name: z.string(),
-        parentId: z.number().nullable().optional(),
+        parentFolderId: z.number().optional(),
         driveId: z.number(), // driveId 추가
       }),
     )
     .mutation(async ({ input }) => {
-      const { id, name, parentId, driveId } = input; // driveId 가져오기
-      const finalParentId = parentId ?? null;
+      const { id, name, parentFolderId } = input; // driveId 가져오기
 
       const newFolder = await folderService.createFolder(
         id,
         name,
-        finalParentId,
-        driveId, // driveId 전달
+        parentFolderId,
       );
 
       return {
@@ -39,19 +37,21 @@ export const folderRouter = router({
     .input(
       z.object({
         id: z.number(),
-        parentId: z.number().nullable().optional(),
+        parentFolderId: z.number().optional(),
       }),
     )
     .query(async ({ input }) => {
-      const { id, parentId } = input;
-      const finalParentId = parentId ?? null;
+      const { id, parentFolderId } = input;
 
-      const folders = await folderService.getFoldersByUserId(id, finalParentId);
+      const folders = await folderService.getFoldersByUserId(
+        id,
+        parentFolderId,
+      );
 
       return folders.map((folder) => ({
         folderId: folder.id,
         name: folder.name,
-        parentId: folder.parentId,
+        parentId: folder.parentFolderId,
         createdAt: folder.createdAt,
       }));
     }),
@@ -78,7 +78,7 @@ export const folderRouter = router({
       return {
         folderId: folder.id,
         name: folder.name,
-        parentId: folder.parentId,
+        parentId: folder.parentFolderId,
         createdAt: folder.createdAt,
       };
     }),
