@@ -41,21 +41,21 @@ model Session {
 }
 
 model Drive {
-  id        Int      @id @default(autoincrement())
+  id        Int            @id @default(autoincrement())
   userId    Int
   totalSize Int
-  usedSize  Int      @default(0)
-  files     File[]
+  usedSize  Int            @default(0)
+  files     FileMetadata[]
   folders   Folder[]
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt DateTime       @default(now())
+  updatedAt DateTime       @updatedAt
+  user      User           @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@index([userId])
 }
 
-model File {
-  id        Int       @id @default(autoincrement())
+model FileMetadata {
+  id Int @id @default(autoincrement())
 
   driveId   Int
   folderId  Int?
@@ -72,29 +72,28 @@ model File {
   folder    Folder?   @relation(fields: [folderId], references: [id], onDelete: SetNull)
 
   @@index([driveId, folderId])
-
 }
 
 model Code {
-  id         Int      @id @default(autoincrement())
-  codeString String   @unique
+  id         Int          @id @default(autoincrement())
+  codeString String       @unique
   fileId     Int
   expiresAt  DateTime
-  file       File     @relation("FileCodes", fields: [fileId], references: [id])
+  file       FileMetadata @relation("FileCodes", fields: [fileId], references: [id])
 }
 
 model Folder {
-  id        Int      @id @default(autoincrement())
+  id        Int            @id @default(autoincrement())
   driveId   Int
   parentId  Int?
   name      String
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  drive     Drive    @relation(fields: [driveId], references: [id], onDelete: Cascade)
-  parent    Folder?  @relation("FolderToFolder", fields: [parentId], references: [id])
-  children  Folder[] @relation("FolderToFolder")
-  files     File[]
-  user      User?    @relation(fields: [userId], references: [id], onDelete: SetNull)
+  createdAt DateTime       @default(now())
+  updatedAt DateTime       @updatedAt
+  drive     Drive          @relation(fields: [driveId], references: [id], onDelete: Cascade)
+  parent    Folder?        @relation("FolderToFolder", fields: [parentId], references: [id])
+  children  Folder[]       @relation("FolderToFolder")
+  files     FileMetadata[]
+  user      User?          @relation(fields: [userId], references: [id], onDelete: SetNull)
   userId    Int?
 
   @@index([driveId, parentId])
