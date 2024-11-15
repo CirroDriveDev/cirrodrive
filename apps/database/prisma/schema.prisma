@@ -19,31 +19,31 @@ enum PricingPlan {
 }
 
 model User {
-  id              Int            @id @default(autoincrement())
-  username        String         @unique
+  id              Int         @id @default(autoincrement())
+  username        String      @unique
   hashedPassword  String
-  email           String         @unique
-  pricingPlan     PricingPlan    @default(free)
-  usedStorage     Int            @default(0)
-  profileImageUrl String?        @unique
-  createdAt       DateTime       @default(now())
-  updatedAt       DateTime       @updatedAt
-  sessions        Session[]
-  folders         Folder[]
-  files           FileMetadata[]
+  email           String      @unique
+  pricingPlan     PricingPlan @default(free)
+  usedStorage     Int         @default(0)
+  profileImageUrl String?     @unique
+  createdAt       DateTime    @default(now())
+  updatedAt       DateTime    @updatedAt
+
+  sessions Session[]
+  folders  Folder[]
+  files    FileMetadata[]
 }
 
 model Session {
   id        String   @id
-  userId    Int
   expiresAt DateTime
-  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  userId Int
+  user   User @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
 model FileMetadata {
-  id Int @id @default(autoincrement())
-
-  folderId  Int?
+  id        Int       @id @default(autoincrement())
   name      String
   extension String
   size      Int
@@ -52,33 +52,39 @@ model FileMetadata {
   updatedAt DateTime  @updatedAt
   trashedAt DateTime?
   hash      String
-  codes     Code[]    @relation("FileCodes")
-  folder    Folder?   @relation(fields: [folderId], references: [id], onDelete: SetNull)
-  ownerId   Int?
-  owner     User?     @relation(fields: [ownerId], references: [id])
+
+  folderId Int?
+  folder   Folder? @relation(fields: [folderId], references: [id], onDelete: SetNull)
+  ownerId  Int?
+  owner    User?   @relation(fields: [ownerId], references: [id])
+
+  codes Code[] @relation("FileCodes")
 
   @@index([folderId])
 }
 
 model Code {
-  id         Int          @id @default(autoincrement())
-  codeString String       @unique
-  fileId     Int
+  id         Int      @id @default(autoincrement())
+  codeString String   @unique
   expiresAt  DateTime
-  file       FileMetadata @relation("FileCodes", fields: [fileId], references: [id])
+
+  fileId Int
+  file   FileMetadata @relation("FileCodes", fields: [fileId], references: [id])
 }
 
 model Folder {
-  id        Int            @id @default(autoincrement())
-  parentId  Int?
+  id        Int      @id @default(autoincrement())
   name      String
-  createdAt DateTime       @default(now())
-  updatedAt DateTime       @updatedAt
-  parent    Folder?        @relation("FolderToFolder", fields: [parentId], references: [id])
-  children  Folder[]       @relation("FolderToFolder")
-  files     FileMetadata[]
-  owner     User?          @relation(fields: [ownerId], references: [id], onDelete: SetNull)
-  ownerId   Int?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  parentId Int?
+  parent   Folder? @relation("FolderToFolder", fields: [parentId], references: [id])
+  ownerId  Int?
+  owner    User?   @relation(fields: [ownerId], references: [id], onDelete: SetNull)
+
+  children Folder[]       @relation("FolderToFolder")
+  files    FileMetadata[]
 
   @@index([parentId])
 }
