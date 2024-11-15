@@ -1,9 +1,9 @@
-import { File as FileIcon } from "lucide-react";
-import { Link } from "react-router-dom";
 import { Header } from "@/shared/ui/layout/Header.tsx";
 import { Layout } from "@/shared/ui/layout/Layout.tsx";
 import { useUpload } from "@/pages/upload/api/useUpload.ts";
 import { LoadingSpinner } from "@/shared/components/LoadingSpinner.tsx";
+import { Sidebar } from "@/shared/ui/SidebarLayout/Sidebar.tsx";
+import { Button } from "@/shared/components/shadcn/Button.tsx";
 
 export function UploadPage(): JSX.Element {
   const { selectedFile, code, mutation, handleFileChange, handleFormSubmit } =
@@ -12,58 +12,69 @@ export function UploadPage(): JSX.Element {
   return (
     // TODO: 반응형 UI 구현
     <Layout header={<Header />}>
+      <Sidebar />
       <div className="w-full">
-        <div className="mt-3 flex flex-row text-gray-300">
-          <div className="ml-20 h-[30px] w-[100px] text-center align-middle">
-            Name
-          </div>
-          <div className="ml-[500px] h-[30px] w-[100px] text-center align-middle">
-            Size
-          </div>
-          <div className="ml-[200px] h-[30px] w-[100px] text-center align-middle">
-            Actions
-          </div>
-        </div>
-        <div className="flex h-[520px] items-center justify-center">
-          <div className="bg-gray-50">
-            <FileIcon size={60} color="gray" />
-          </div>
-        </div>
         <form method="post" onSubmit={handleFormSubmit}>
-          <div className="flex justify-between bg-gray-400">
-            <div className="w-[90px] bg-gray-300">
-              <Link to="/code" className="ms-6">
-                코드
-              </Link>
+          <div className="h-96 place-content-end">
+            <div className="place-self-center">
+              <input
+                type="file"
+                name="file"
+                className="mt-20"
+                onChange={handleFileChange}
+              />
             </div>
-            <div>{selectedFile?.name}</div>
-            <button type="submit" className="w-[100px] bg-gray-300">
-              업로드
-            </button>
           </div>
-          <div className="flex justify-center">
+
+          <div className="mt-24 flex justify-between">
+            <select className="ml-[400px] h-[40px] w-[100px] rounded-lg bg-blue-50 text-center font-bold shadow-xl">
+              <option className="text-gray-400" value="1">
+                1일
+              </option>
+              <option className="text-gray-400" value="2">
+                2일
+              </option>
+              <option className="text-gray-400" value="3">
+                3일
+              </option>
+              <option className="text-gray-400" value="4">
+                4일
+              </option>
+              <option className="text-gray-400" value="5">
+                5일
+              </option>
+              <option className="text-gray-400" value="6">
+                6일
+              </option>
+              <option className="text-gray-400" value="7">
+                7일
+              </option>
+            </select>
+
+            <Button
+              type="submit"
+              className="mr-[500px] h-10 w-[80px] rounded-lg bg-blue-600 font-bold text-white shadow-xl"
+            >
+              업로드
+            </Button>
+          </div>
+
+          <div className="">
+            <div>파일이름 :{selectedFile?.name}</div>
             {code ?
               <>코드: {code}</>
             : null}
           </div>
-          <div className="mt-4 flex h-8 w-full justify-center">
+          <div className="flex h-8 w-full justify-center">
             {mutation.isPending ?
               <LoadingSpinner />
             : null}
           </div>
           {mutation.error ?
             <div className="h-8">
-              <p className="text-red-500">{mutation.error.message}</p>
+              <p className="text-red-500">오류 :{mutation.error.message}</p>
             </div>
           : null}
-          <div className="place-self-center">
-            <input
-              type="file"
-              name="file"
-              className="mt-20"
-              onChange={handleFileChange}
-            />
-          </div>
         </form>
       </div>
     </Layout>
