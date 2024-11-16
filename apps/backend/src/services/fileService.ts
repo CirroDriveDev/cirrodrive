@@ -317,12 +317,12 @@ export class FileService {
       // 3. 파일 메타데이터를 데이터베이스에 저장
       const fileMetadata = await this.fileMetadataModel.create({
         data: {
-          owner: userId,
-          folderId: folderId ?? 0, // 폴더 ID 기본값 0
+          owner: userId ? { connect: { id: userId } } : undefined, // owner 연결
+          parentFolder: folderId ? { connect: { id: folderId } } : undefined, // parentFolder 연결
           name: savedName,
           extension: path.extname(file.name),
           size: file.size,
-          hash: "", // 해시값이 필요하면 추가
+          hash: "", // 해시값 (필요시 추가)
           savedPath: filePath,
         },
       });
@@ -356,8 +356,8 @@ export class FileService {
       const updatedMetadata = await this.fileMetadataModel.update({
         where: { id: fileId },
         data: {
-          owner: userId,
-          folderId: folderId ?? 0, // 폴더 ID 기본값
+          owner: userId ? { connect: { id: userId } } : undefined, // owner 업데이트
+          parentFolder: folderId ? { connect: { id: folderId } } : undefined, // parentFolder 업데이트
         },
       });
 
