@@ -28,6 +28,7 @@ export class FileService {
    *
    * @param file - 저장할 파일입니다.
    * @param userId - 사용자의 ID입니다.
+   * @param folderId - 선택적인 폴더 ID
    * @returns 저장된 파일의 경로와 이름입니다.
    * @throws 파일 저장 중 오류가 발생한 경우.
    */
@@ -264,5 +265,80 @@ export class FileService {
       path: filePath,
       name: savedName,
     };
+  }
+  private async writeFileToUserDisk(
+    file: File,
+    userDir: string, // 사용자 디렉토리
+  ): Promise<{ path: string; name: string }> {
+    const uploadDate = Date.now();
+    const savedName = `${uploadDate}-${file.name}`;
+    const filePath = path.resolve(`${userDir}/${savedName}`);
+
+    this.logger.info(
+      { methodName: "writeFileToUserDisk", fileName: file.name, filePath },
+      "회원 파일 저장 시작",
+    );
+
+    const fileBuffer = await file
+      .arrayBuffer()
+      .then((buffer) => Buffer.from(buffer));
+    fs.writeFileSync(filePath, fileBuffer.toString("base64"), "base64");
+
+    this.logger.info(
+      { methodName: "writeFileToUserDisk", fileName: file.name, filePath },
+      "회원 파일 저장 완료",
+    );
+
+    return {
+      path: filePath,
+      name: savedName,
+    };
+  }
+
+  public async saveFileToUserDrive(
+    userId: number,
+    file: File,
+    folderId?: number, // 선택적 폴더 ID
+  ): Promise<FileMetadata> {
+    try {
+      this.logger.info(
+        { methodName: "saveFileToUserDrive", userId, fileName: file.name },
+        "회원 파일 저장 시작",
+      );
+
+      // 사용자의 디렉토리 경로 설정
+      const userDir = path.resolve(`${this.rootDir}/data/users/${userId}`);
+      if (!fs.existsSync(userDir)) {
+        fs.mkdirSync(userDir, { recursive: true });
+      }
+
+      // 파일을 해당 사용자 디렉토리에 저장
+      const { path: filePath } = await this.writeFileToUserDisk(file, userDir);
+
+      // 파일 메타데이터를 데이터베이스에 저장
+      const fileMetadata = await this.fileMetadataModel.create({
+        data: {
+          owner: userId,
+          folderId: folderId ?? 0, // 폴더 ID가 제공되지 않으면 기본값 0
+          name: file.name,
+          extension: path.extname(file.name),
+          size: file.size,
+          hash: "", // 해시를 계산할 수 있으면 계산하여 저장
+          savedPath: filePath,
+        },
+      });
+
+      this.logger.info(
+        { methodName: "saveFileToUserDrive", fileMetadataId: fileMetadata.id },
+        "회원 파일 메타데이터 저장 완료",
+      );
+
+      return fileMetadata;
+    } catch (error) {
+      if (error instanceof Error) {
+        this.logger.error(error.message);
+      }
+      throw error;
+    }
   }
 }

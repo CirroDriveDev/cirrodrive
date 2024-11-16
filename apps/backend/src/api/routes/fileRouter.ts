@@ -6,9 +6,11 @@ import { logger } from "@/loaders/logger.ts";
 import { container } from "@/loaders/inversify.ts";
 import { FileService } from "@/services/fileService.ts";
 import { CodeService } from "@/services/codeService.ts";
+import { UserService } from "@/services/userService.ts";
 
 const fileService = container.get<FileService>(FileService);
 const codeService = container.get<CodeService>(CodeService);
+const userService = container.get<UserService>(UserService);
 
 export const fileRouter = router({
   uploadPublic: procedure
@@ -88,58 +90,63 @@ export const fileRouter = router({
         throw error;
       }
     }),
-  uploadFile: procedure
+  uploadFileToUserDrive: procedure
     .input(
-      zfd.formData({
-        file: zfd.file(),
+      z.object({
+        userId: z.number(), // 사용자 ID
+        file: zfd.file(), // 업로드할 파일
+        folderId: z.number().optional(), // 폴더 ID (선택적)
       }),
     )
     .output(
       z.object({
-        message: z.string(),
-        fileId: z.number(),
+        fileId: z.number(), // 업로드된 파일 ID
+        userId: z.number(), // 파일을 업로드한 사용자 ID
       }),
     )
-    .use(async ({ ctx, next }) => {
-      // ctx.user가 null이면 UNAUTHORIZED 에러 발생
-      if (!ctx.user?.id) {
+    .mutation(async ({ input, ctx }) => {
+      const { userId, file, folderId } = input;
+      logger.info({ requestId: ctx.req.id, userId }, "파일 업로드 요청 시작");
+
+      // 1. 사용자 인증 확인
+      let user;
+      try {
+        user = await userService.get(userId); // 회원 확인
+        if (!user) {
+          throw new TRPCError({
+            code: "NOT_FOUND",
+            message: "사용자를 찾을 수 없습니다.",
+          });
+        }
+      } catch (error) {
+        logger.error({ requestId: ctx.req.id, error }, "사용자 인증 실패");
         throw new TRPCError({
           code: "UNAUTHORIZED",
-          message: "회원만 파일을 업로드할 수 있습니다.",
+          message: "사용자가 인증되지 않았습니다.",
         });
       }
-      return next();
-    })
-    .mutation(async ({ input, ctx }) => {
-      const userId = ctx.user.id; // 이제 ctx.user가 null이 아닙니다.
 
-      logger.info(
-        { requestId: ctx.req.id, userId },
-        "회원 파일 업로드 요청 시작",
-      );
-
+      // 2. 파일 저장 처리 (회원 개인 저장공간)
+      let metadata;
       try {
-        const metadata = await fileService.saveFile(input.file, userId);
-
-        logger.info(
-          { requestId: ctx.req.id, userId, fileId: metadata.id },
-          "파일 업로드 성공",
+        metadata = await fileService.saveFileToUserDrive(
+          userId,
+          file,
+          folderId,
         );
-
-        return {
-          message: "파일 업로드 성공",
-          fileId: metadata.id,
-        };
       } catch (error) {
-        logger.error(
-          { requestId: ctx.req.id, error },
-          "파일 업로드 중 오류 발생",
-        );
-
+        logger.error({ requestId: ctx.req.id, error }, "파일 업로드 실패");
         throw new TRPCError({
           code: "INTERNAL_SERVER_ERROR",
           message: "파일 업로드 중 오류가 발생했습니다.",
         });
       }
+
+      logger.info({ requestId: ctx.req.id }, "파일 업로드 성공");
+
+      return {
+        fileId: metadata.id,
+        userId,
+      };
     }),
 });
