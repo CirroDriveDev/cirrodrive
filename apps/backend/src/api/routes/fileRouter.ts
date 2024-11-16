@@ -90,7 +90,7 @@ export const fileRouter = router({
         throw error;
       }
     }),
-  uploadFileToUserDrive: procedure
+  upload: procedure
     .input(
       z.object({
         userId: z.number(), // 사용자 ID
@@ -106,7 +106,10 @@ export const fileRouter = router({
     )
     .mutation(async ({ input, ctx }) => {
       const { userId, file, folderId } = input;
-      logger.info({ requestId: ctx.req.id, userId }, "파일 업로드 요청 시작");
+      logger.info(
+        { requestId: ctx.req.id, userId },
+        "회원 파일 업로드 요청 시작",
+      );
 
       // 1. 사용자 인증 확인
       let user;
@@ -126,7 +129,7 @@ export const fileRouter = router({
         });
       }
 
-      // 2. 파일 저장 처리 (회원 개인 저장공간)
+      // 2. 파일 저장 및 사용자 드라이브 연결
       let metadata;
       try {
         metadata = await fileService.saveFileToUserDrive(
@@ -142,7 +145,7 @@ export const fileRouter = router({
         });
       }
 
-      logger.info({ requestId: ctx.req.id }, "파일 업로드 성공");
+      logger.info({ requestId: ctx.req.id }, "회원 파일 업로드 성공");
 
       return {
         fileId: metadata.id,

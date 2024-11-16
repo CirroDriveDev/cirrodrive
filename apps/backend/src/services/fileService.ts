@@ -303,42 +303,81 @@ export class FileService {
     try {
       this.logger.info(
         { methodName: "saveFileToUserDrive", userId, fileName: file.name },
-        "회원 파일 저장 시작",
+        "회원 파일 저장 및 연결 시작",
       );
 
-      // 사용자의 디렉토리 경로 설정
+      // 1. 사용자의 디렉토리 경로 설정
       const userDir = path.resolve(`${this.rootDir}/data/users/${userId}`);
       if (!fs.existsSync(userDir)) {
         fs.mkdirSync(userDir, { recursive: true });
       }
 
-      // 파일을 해당 사용자 디렉토리에 저장
-      const { path: filePath } = await this.writeFileToUserDisk(file, userDir);
+      // 2. 파일 저장
+      const { path: filePath, name: savedName } =
+        await this.writeFileToUserDisk(file, userDir);
 
-      // 파일 메타데이터를 데이터베이스에 저장
+      // 3. 파일 메타데이터를 데이터베이스에 저장
       const fileMetadata = await this.fileMetadataModel.create({
         data: {
           owner: userId,
-          folderId: folderId ?? 0, // 폴더 ID가 제공되지 않으면 기본값 0
-          name: file.name,
+          folderId: folderId ?? 0, // 폴더 ID 기본값 0
+          name: savedName,
           extension: path.extname(file.name),
           size: file.size,
-          hash: "", // 해시를 계산할 수 있으면 계산하여 저장
+          hash: "", // 해시값이 필요하면 추가
           savedPath: filePath,
         },
       });
 
       this.logger.info(
         { methodName: "saveFileToUserDrive", fileMetadataId: fileMetadata.id },
-        "회원 파일 메타데이터 저장 완료",
+        "회원 파일 저장 및 메타데이터 생성 완료",
       );
 
       return fileMetadata;
     } catch (error) {
-      if (error instanceof Error) {
-        this.logger.error(error.message);
-      }
-      throw error;
+      this.logger.error(
+        { methodName: "saveFileToUserDrive", error },
+        "회원 파일 저장 및 연결 중 오류 발생",
+      );
+      throw new Error("회원 파일 저장 및 연결 중 오류가 발생했습니다.");
+    }
+  }
+  public async linkFileToUserDrive(
+    fileId: number,
+    userId: number,
+    folderId?: number,
+  ): Promise<FileMetadata> {
+    try {
+      this.logger.info(
+        { methodName: "linkFileToUserDrive", fileId, userId, folderId },
+        "파일 드라이브 연결 시작",
+      );
+
+      // 파일 메타데이터 업데이트
+      const updatedMetadata = await this.fileMetadataModel.update({
+        where: { id: fileId },
+        data: {
+          owner: userId,
+          folderId: folderId ?? 0, // 폴더 ID 기본값
+        },
+      });
+
+      this.logger.info(
+        {
+          methodName: "linkFileToUserDrive",
+          updatedMetadataId: updatedMetadata.id,
+        },
+        "파일 드라이브 연결 완료",
+      );
+
+      return updatedMetadata;
+    } catch (error) {
+      this.logger.error(
+        { methodName: "linkFileToUserDrive", error },
+        "파일 드라이브 연결 중 오류 발생",
+      );
+      throw new Error("파일 드라이브 연결 중 오류가 발생했습니다.");
     }
   }
 }
