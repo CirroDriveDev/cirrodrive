@@ -27,12 +27,11 @@ export class FileService {
    * 파일을 디스크에 저장하고 메타데이터를 데이터베이스에 저장합니다.
    *
    * @param file - 저장할 파일입니다.
-   * @param userId - 사용자의 ID입니다.
-   * @param folderId - 선택적인 폴더 ID
+   * @param ownerId - 사용자의 ID입니다.
    * @returns 저장된 파일의 경로와 이름입니다.
    * @throws 파일 저장 중 오류가 발생한 경우.
    */
-  public async saveFile(file: File, userId?: number): Promise<FileMetadata> {
+  public async saveFile(file: File, ownerId?: number): Promise<FileMetadata> {
     try {
       this.logger.info(
         {
@@ -47,8 +46,7 @@ export class FileService {
       // 파일 메타데이터를 데이터베이스에 저장
       const fileMetadata = await this.fileMetadataModel.create({
         data: {
-          owner: userId,
-          folderId: 0,
+          ownerId,
           name: file.name,
           extension: path.extname(file.name),
           size: file.size,
