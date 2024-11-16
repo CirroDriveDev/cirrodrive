@@ -28,20 +28,22 @@ model User {
   profileImageUrl String?     @unique
   createdAt       DateTime    @default(now())
   updatedAt       DateTime    @updatedAt
-  sessions        Session[]
+
+  sessions Session[]
+  folders  Folder[]
+  files    FileMetadata[]
 }
 
 model Session {
   id        String   @id
-  userId    Int
   expiresAt DateTime
-  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  userId Int
+  user   User @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
 model FileMetadata {
   id        Int       @id @default(autoincrement())
-  owner     Int?
-  folderId  Int
   name      String
   extension String
   size      Int
@@ -50,13 +52,39 @@ model FileMetadata {
   updatedAt DateTime  @updatedAt
   trashedAt DateTime?
   hash      String
-  codes     Code[]    @relation("FileCodes") // Code 모델과의 관계
+
+  parentFolderId Int?
+  parentFolder   Folder? @relation(fields: [parentFolderId], references: [id], onDelete: SetNull)
+  ownerId        Int?
+  owner          User?   @relation(fields: [ownerId], references: [id])
+
+  codes Code[]
+
+  @@index([parentFolderId])
 }
 
 model Code {
-  id         Int          @id @default(autoincrement())
-  codeString String       @unique
-  fileId     Int
+  id         Int      @id @default(autoincrement())
+  codeString String   @unique
   expiresAt  DateTime
-  file       FileMetadata @relation("FileCodes", fields: [fileId], references: [id]) // File 모델과의 관계
+
+  fileId Int
+  file   FileMetadata @relation(fields: [fileId], references: [id])
+}
+
+model Folder {
+  id             Int      @id @default(autoincrement())
+  name           String
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+  
+  parentFolderId Int?
+  parentFolder   Folder?  @relation(name: "ParentToSubFolder", fields: [parentFolderId], references: [id])
+  ownerId        Int?
+  owner          User?    @relation(fields: [ownerId], references: [id], onDelete: SetNull)
+
+  subFolders Folder[]       @relation(name: "ParentToSubFolder")
+  files      FileMetadata[]
+
+  @@index([parentFolderId])
 }
