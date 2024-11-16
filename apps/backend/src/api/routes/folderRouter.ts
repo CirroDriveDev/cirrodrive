@@ -38,7 +38,7 @@ export const folderRouter = router({
     .query(async ({ input }) => {
       const { id, parentFolderId } = input;
 
-      const folders = await folderService.getByUserId(id, parentFolderId);
+      const folders = await folderService.listByUser(id, parentFolderId);
 
       return folders.map((folder) => ({
         folderId: folder.id,

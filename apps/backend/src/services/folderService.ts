@@ -65,7 +65,7 @@ export class FolderService {
    * @returns 폴더 목록입니다.
    * @throws 폴더 조회 중 오류가 발생한 경우.
    */
-  public async getByUserId(
+  public async listByUser(
     ownerId: number,
     parentFolderId?: number,
   ): Promise<Folder[]> {
