@@ -1,3 +1,5 @@
+import { readFileSync } from "node:fs";
+import { resolve } from "node:path";
 import { z } from "zod";
 import { TRPCError } from "@trpc/server";
 import { zfd } from "zod-form-data";
@@ -207,8 +209,13 @@ export const fileRouter = router({
       // 파일 다운로드
       try {
         logger.info({ requestId: ctx.req.id }, "file.download 요청 성공");
-        const fileArrayBuffer = await file.arrayBuffer();
-        const fileString = Buffer.from(fileArrayBuffer).toString("base64");
+
+        // 파일 경로로 파일 읽기
+        const filePath = resolve(file.savedPath); // 경로를 절대경로로 변환
+
+        // 파일을 Buffer로 읽어서 Base64로 인코딩
+        const fileBuffer = readFileSync(filePath); // Buffer로 파일 읽기
+        const fileString = fileBuffer.toString("base64"); // Base64로 변환
 
         return {
           encodedFile: fileString,
