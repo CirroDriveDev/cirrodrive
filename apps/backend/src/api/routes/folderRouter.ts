@@ -14,17 +14,12 @@ export const folderRouter = router({
         id: z.number(),
         name: z.string(),
         parentFolderId: z.number().optional(),
-        driveId: z.number(), // driveId 추가
       }),
     )
     .mutation(async ({ input }) => {
-      const { id, name, parentFolderId } = input; // driveId 가져오기
+      const { id, name, parentFolderId } = input;
 
-      const newFolder = await folderService.createFolder(
-        id,
-        name,
-        parentFolderId,
-      );
+      const newFolder = await folderService.create(id, name, parentFolderId);
 
       return {
         folderId: newFolder.id,
@@ -33,7 +28,7 @@ export const folderRouter = router({
     }),
 
   // 회원의 폴더 목록 조회
-  getUserFolders: procedure
+  listByUser: procedure
     .input(
       z.object({
         id: z.number(),
@@ -43,10 +38,7 @@ export const folderRouter = router({
     .query(async ({ input }) => {
       const { id, parentFolderId } = input;
 
-      const folders = await folderService.getFoldersByUserId(
-        id,
-        parentFolderId,
-      );
+      const folders = await folderService.getByUserId(id, parentFolderId);
 
       return folders.map((folder) => ({
         folderId: folder.id,
@@ -57,7 +49,7 @@ export const folderRouter = router({
     }),
 
   // 특정 폴더 조회
-  getFolder: procedure
+  get: procedure
     .input(
       z.object({
         id: z.number(),
@@ -67,7 +59,7 @@ export const folderRouter = router({
     .query(async ({ input }) => {
       const { id, folderId } = input;
 
-      const folder = await folderService.getFolderById(id, folderId);
+      const folder = await folderService.get(id, folderId);
       if (!folder) {
         throw new TRPCError({
           code: "NOT_FOUND",
@@ -84,7 +76,7 @@ export const folderRouter = router({
     }),
 
   // 폴더 삭제
-  deleteFolder: procedure
+  delete: procedure
     .input(
       z.object({
         id: z.number(),
@@ -95,7 +87,7 @@ export const folderRouter = router({
       const { id, folderId } = input;
 
       try {
-        await folderService.deleteFolder(id, folderId);
+        await folderService.delete(id, folderId);
       } catch (error: unknown) {
         if (
           error instanceof Error &&

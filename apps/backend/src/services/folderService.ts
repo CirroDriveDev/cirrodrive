@@ -21,11 +21,10 @@ export class FolderService {
    * @param ownerId - 폴더를 생성할 회원의 ID입니다.
    * @param name - 생성할 폴더의 이름입니다.
    * @param parentFolderId - 부모 폴더의 ID입니다 (최상위 폴더일 경우 null).
-   * @param driveId - 드라이브의 ID입니다.
    * @returns 생성된 폴더 정보입니다.
    * @throws 폴더 생성 중 오류가 발생한 경우.
    */
-  public async createFolder(
+  public async create(
     ownerId: number,
     name: string,
     parentFolderId?: number,
@@ -66,7 +65,7 @@ export class FolderService {
    * @returns 폴더 목록입니다.
    * @throws 폴더 조회 중 오류가 발생한 경우.
    */
-  public async getFoldersByUserId(
+  public async getByUserId(
     ownerId: number,
     parentFolderId?: number,
   ): Promise<Folder[]> {
@@ -107,10 +106,7 @@ export class FolderService {
    * @returns 폴더 정보입니다.
    * @throws 폴더 조회 중 오류가 발생한 경우.
    */
-  public async getFolderById(
-    ownerId: number,
-    folderId: number,
-  ): Promise<Folder | null> {
+  public async get(ownerId: number, folderId: number): Promise<Folder | null> {
     try {
       this.logger.info(
         {
@@ -148,7 +144,7 @@ export class FolderService {
    * @param folderId - 삭제할 폴더의 ID입니다.
    * @throws 폴더 삭제 중 오류가 발생한 경우.
    */
-  public async deleteFolder(ownerId: number, folderId: number): Promise<void> {
+  public async delete(ownerId: number, folderId: number): Promise<void> {
     try {
       this.logger.info(
         {
