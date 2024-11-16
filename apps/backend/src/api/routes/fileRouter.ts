@@ -88,4 +88,58 @@ export const fileRouter = router({
         throw error;
       }
     }),
+  uploadFile: procedure
+    .input(
+      zfd.formData({
+        file: zfd.file(),
+      }),
+    )
+    .output(
+      z.object({
+        message: z.string(),
+        fileId: z.number(),
+      }),
+    )
+    .use(async ({ ctx, next }) => {
+      // ctx.user가 null이면 UNAUTHORIZED 에러 발생
+      if (!ctx.user?.id) {
+        throw new TRPCError({
+          code: "UNAUTHORIZED",
+          message: "회원만 파일을 업로드할 수 있습니다.",
+        });
+      }
+      return next();
+    })
+    .mutation(async ({ input, ctx }) => {
+      const userId = ctx.user.id; // 이제 ctx.user가 null이 아닙니다.
+
+      logger.info(
+        { requestId: ctx.req.id, userId },
+        "회원 파일 업로드 요청 시작",
+      );
+
+      try {
+        const metadata = await fileService.saveFile(input.file, userId);
+
+        logger.info(
+          { requestId: ctx.req.id, userId, fileId: metadata.id },
+          "파일 업로드 성공",
+        );
+
+        return {
+          message: "파일 업로드 성공",
+          fileId: metadata.id,
+        };
+      } catch (error) {
+        logger.error(
+          { requestId: ctx.req.id, error },
+          "파일 업로드 중 오류 발생",
+        );
+
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: "파일 업로드 중 오류가 발생했습니다.",
+        });
+      }
+    }),
 });
