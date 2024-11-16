@@ -152,4 +152,77 @@ export const fileRouter = router({
         userId,
       };
     }),
+  download: procedure
+    .input(
+      z.object({
+        userId: z.number(), // 사용자 ID
+        fileId: z.number(), // 다운로드할 파일의 ID
+      }),
+    )
+    .output(
+      z.object({
+        encodedFile: z.string(),
+        fileName: z.string(),
+      }),
+    )
+    .mutation(async ({ input, ctx }) => {
+      const { userId, fileId } = input;
+
+      // 회원 인증 확인
+      let user;
+      try {
+        user = await userService.get(userId);
+        if (!user) {
+          throw new TRPCError({
+            code: "NOT_FOUND",
+            message: "사용자를 찾을 수 없습니다.",
+          });
+        }
+      } catch (error) {
+        logger.error({ requestId: ctx.req.id, error }, "사용자 인증 실패");
+        throw new TRPCError({
+          code: "UNAUTHORIZED",
+          message: "사용자가 인증되지 않았습니다.",
+        });
+      }
+
+      // 파일 확인 및 사용자 드라이브에서 파일 찾기
+      let file;
+      try {
+        file = await fileService.getFileByIdAndUser(fileId, userId); // 파일과 해당 사용자가 일치하는지 확인
+        if (!file) {
+          throw new TRPCError({
+            code: "NOT_FOUND",
+            message: "파일을 찾을 수 없습니다.",
+          });
+        }
+      } catch (error) {
+        logger.error({ requestId: ctx.req.id, error }, "파일 다운로드 실패");
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: "파일 다운로드 중 오류가 발생했습니다.",
+        });
+      }
+
+      // 파일 다운로드
+      try {
+        logger.info({ requestId: ctx.req.id }, "file.download 요청 성공");
+        const fileArrayBuffer = await file.arrayBuffer();
+        const fileString = Buffer.from(fileArrayBuffer).toString("base64");
+
+        return {
+          encodedFile: fileString,
+          fileName: file.name,
+        };
+      } catch (error) {
+        logger.error(
+          { requestId: ctx.req.id, error },
+          "파일 다운로드 중 오류 발생",
+        );
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: "파일 다운로드 중 오류가 발생했습니다.",
+        });
+      }
+    }),
 });
