@@ -217,6 +217,45 @@ export class FileService {
     }
   }
 
+  public async moveFile(
+    fileId: number,
+    targetFolderId: number,
+  ): Promise<FileMetadata> {
+    try {
+      this.logger.info(
+        { methodName: "moveFile", fileId, targetFolderId },
+        "파일 이동 시작",
+      );
+
+      // 파일 메타데이터 업데이트
+      const updatedMetadata = await this.fileMetadataModel.update({
+        where: { id: fileId },
+        data: {
+          parentFolder: {
+            connect: {
+              id: targetFolderId,
+            },
+          },
+        },
+      });
+
+      this.logger.info(
+        {
+          methodName: "moveFile",
+          updatedMetadata,
+        },
+        "파일 이동 완료",
+      );
+
+      return updatedMetadata;
+    } catch (error) {
+      this.logger.error(
+        { methodName: "moveFile", error },
+        "파일 이동 중 오류 발생",
+      );
+      throw new Error("파일 이동 중 오류가 발생했습니다.");
+    }
+  }
   /**
    * 파일을 디스크에 저장합니다.
    *

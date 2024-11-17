@@ -1,7 +1,7 @@
 import { z } from "zod";
 import { TRPCError } from "@trpc/server";
 import { zfd } from "zod-form-data";
-import { router, procedure } from "@/loaders/trpc.ts";
+import { router, procedure, authedProcedure } from "@/loaders/trpc.ts";
 import { logger } from "@/loaders/logger.ts";
 import { container } from "@/loaders/inversify.ts";
 import { FileService } from "@/services/fileService.ts";
@@ -87,5 +87,44 @@ export const fileRouter = router({
 
         throw error;
       }
+    }),
+
+  upload: authedProcedure
+    .input(
+      z.object({
+        file: zfd.file(), // 업로드할 파일
+        folderId: z.number().optional(), // 폴더 ID (선택적)
+      }),
+    )
+    .output(
+      z.object({
+        fileId: z.number(), // 업로드된 파일 ID
+      }),
+    )
+    .mutation(async ({ input, ctx }) => {
+      const { file } = input;
+      const { user } = ctx;
+      logger.info({ requestId: ctx.req.id, user }, "파일 업로드 요청 시작");
+
+      let metadata;
+      try {
+        metadata = await fileService.saveFile(file, user.id);
+        // 폴더 ID가 주어진 경우 파일을 해당 폴더로 이동
+        if (input.folderId) {
+          metadata = await fileService.moveFile(metadata.id, input.folderId);
+        }
+      } catch (error) {
+        logger.error({ requestId: ctx.req.id, error }, "파일 업로드 실패");
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: "파일 업로드 중 오류가 발생했습니다.",
+        });
+      }
+
+      logger.info({ requestId: ctx.req.id }, "파일 업로드 성공");
+
+      return {
+        fileId: metadata.id,
+      };
     }),
 });
