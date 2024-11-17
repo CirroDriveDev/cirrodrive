@@ -5,7 +5,6 @@ import type { Prisma, FileMetadata } from "@cirrodrive/database";
 import type { Logger } from "pino";
 import { Symbols } from "@/types/symbols.ts";
 import { CodeService } from "@/services/codeService.ts";
-import { UserService } from "@/services/userService.ts";
 /**
  * 파일 서비스입니다.
  */
@@ -18,7 +17,6 @@ export class FileService {
     @inject(Symbols.FileMetadataModel)
     private fileMetadataModel: Prisma.FileMetadataDelegate,
     @inject(CodeService) private codeService: CodeService,
-    @inject(UserService) private userService: UserService,
   ) {
     this.rootDir = `./`;
     this.logger = logger.child({ serviceName: "FileService" });
@@ -262,7 +260,6 @@ export class FileService {
    *
    * @param file - 저장할 파일입니다.
    * @returns 저장된 파일의 경로와 이름입니다.
-   * @throws 파일 저장 중 오류가 발생한 경우.
    */
   private async writeFileToDisk(
     file: File,
@@ -270,18 +267,14 @@ export class FileService {
     const uploadDate = Date.now();
     const fileDir = path.resolve(`${this.rootDir}/data`);
 
-    // 파일 저장 디렉토리가 없으면 생성
     if (!fs.existsSync(fileDir)) {
       fs.mkdirSync(fileDir, { recursive: true });
     }
+
     const savedName = `${uploadDate}-${file.name}`;
     const filePath = path.resolve(`${fileDir}/${savedName}`);
     this.logger.info(
-      {
-        methodName: "writeFileToDisk",
-        fileName: file.name,
-        filePath,
-      },
+      { methodName: "writeFileToDisk", fileName: file.name, filePath },
       "파일 저장 시작",
     );
 
@@ -291,136 +284,28 @@ export class FileService {
     fs.writeFileSync(filePath, fileBuffer.toString("base64"), "base64");
 
     this.logger.info(
-      {
-        methodName: "writeFileToDisk",
-        fileName: file.name,
-        filePath,
-      },
+      { methodName: "writeFileToDisk", fileName: file.name, filePath },
       "파일 저장 완료",
     );
 
-    return {
-      path: filePath,
-      name: savedName,
-    };
+    return { path: filePath, name: savedName };
   }
-
-  /**
-   * 사용자가 소유한 파일을 다운로드합니다.
-   *
-   * @param userId - 다운로드 요청한 사용자 ID
-   * @param fileId - 다운로드할 파일 ID
-   * @returns 파일 데이터와 파일 이름
-   * @throws 파일을 찾을 수 없거나 다운로드 중 오류 발생 시 예외
-   */
-  public async downloadFileForUser(
-    userId: number,
-    fileId: number,
-  ): Promise<{ encodedFile: string; fileName: string }> {
+  public async getFileMetadata(fileId: number): Promise<FileMetadata | null> {
     try {
-      this.logger.info(
-        { methodName: "downloadFileForUser", userId, fileId },
-        "회원 파일 다운로드 시작",
-      );
-
-      // 1. 사용자 인증 확인 (UserService 사용)
-      const user = await this.userService.get(userId);
-      if (!user) {
-        throw new Error("사용자를 찾을 수 없습니다.");
-      }
-
-      // 2. 파일 조회 (해당 사용자에게 속하는지 확인)
       const fileMetadata = await this.fileMetadataModel.findUnique({
-        where: { id: fileId },
-        include: {
-          owner: true, // 파일 소유자 정보 가져오기
+        where: {
+          id: fileId,
         },
       });
-
-      if (!fileMetadata || !fileMetadata.owner) {
-        throw new Error("파일 소유자를 찾을 수 없습니다.");
-      }
-
-      // 3. 파일 소유자 확인
-      if (fileMetadata.owner.id !== userId) {
-        throw new Error("사용자에게 해당 파일이 없습니다.");
-      }
-
-      // 4. 파일 경로 확인 및 파일 읽기
-      const filePath = fileMetadata.savedPath;
-      if (!fs.existsSync(filePath)) {
-        throw new Error("파일을 찾을 수 없습니다.");
-      }
-
-      // 5. 파일을 base64로 인코딩하여 반환
-      const fileBuffer = fs.readFileSync(filePath);
-      const fileString = Buffer.from(fileBuffer).toString("base64");
-
-      this.logger.info(
-        { methodName: "downloadFileForUser", userId, fileId },
-        "회원 파일 다운로드 완료",
-      );
-
-      return {
-        encodedFile: fileString,
-        fileName: fileMetadata.name,
-      };
-    } catch (error) {
-      this.logger.error(
-        { methodName: "downloadFileForUser", error },
-        "회원 파일 다운로드 중 오류 발생",
-      );
-      throw new Error("파일 다운로드 중 오류가 발생했습니다.");
-    }
-  }
-  /**
-   * 파일을 ID와 사용자 ID를 기준으로 조회합니다.
-   *
-   * @param fileId - 파일 ID
-   * @param userId - 사용자 ID
-   * @returns 조회된 파일 메타데이터
-   */
-  public async getFileByIdAndUser(
-    fileId: number,
-    userId: number,
-  ): Promise<FileMetadata | null> {
-    try {
-      this.logger.info(
-        { methodName: "getFileByIdAndUser", fileId, userId },
-        "파일 조회 시작",
-      );
-
-      // 파일 메타데이터 조회
-      const fileMetadata = await this.fileMetadataModel.findUnique({
-        where: { id: fileId },
-        include: {
-          owner: true, // 파일 소유자 정보 포함
-        },
-      });
-
-      // 파일이 존재하지 않거나, 해당 사용자가 파일 소유자가 아닐 경우
-      if (
-        !fileMetadata ||
-        !fileMetadata.owner ||
-        fileMetadata.owner.id !== userId
-      ) {
-        throw new Error(
-          "해당 파일을 찾을 수 없거나, 사용자가 해당 파일을 소유하지 않습니다.",
-        );
-      }
-
-      this.logger.info(
-        { methodName: "getFileByIdAndUser", fileId, userId },
-        "파일 조회 완료",
-      );
-
       return fileMetadata;
     } catch (error) {
-      this.logger.error(
-        { methodName: "getFileByIdAndUser", error },
-        "파일 조회 중 오류 발생",
-      );
-      throw new Error("파일 조회 중 오류가 발생했습니다.");
+      // error가 Error 객체인지 확인한 후 message를 사용
+      if (error instanceof Error) {
+        this.logger.error(error.message, "파일 메타데이터 조회 오류");
+      } else {
+        this.logger.error("알 수 없는 오류 발생", "파일 메타데이터 조회 오류");
+      }
+      return null;
     }
   }
 }
