@@ -21,6 +21,24 @@ export const codeRouter = router({
     return codes;
   }),
 
+  create: procedure
+    .input(z.object({ fileId: z.number() }))
+    .output(z.object({ codeString: z.string() }))
+    .mutation(async ({ input, ctx }) => {
+      const { fileId } = input;
+
+      if (!ctx.user) {
+        throw new TRPCError({
+          code: "UNAUTHORIZED",
+          message: "사용자가 인증되지 않았습니다.",
+        });
+      }
+
+      // 여기서 추가적으로 파일 ID에 대한 유효성 검사를 할 수도 있습니다.
+      const code = await codeService.createCode(fileId);
+
+      return { codeString: code.codeString };
+    }),
   // 코드 삭제 (아직 구현 안함)
   /*delete: procedure
     .input(z.object({ codeString: z.string() }))
