@@ -7,20 +7,22 @@ import { CodeService } from "@/services/codeService.ts";
 const codeService = container.get(CodeService);
 
 export const codeRouter = router({
-  // 코드 생성
-  create: procedure
-    .input(z.object({ fileId: z.number() }))
-    .output(z.object({ codeString: z.string() }))
-    .mutation(async ({ input }) => {
-      const { fileId } = input;
+  // 사용자가 생성한 코드 목록 조회
+  getCodes: procedure.query(async ({ ctx }) => {
+    if (!ctx.user) {
+      throw new TRPCError({
+        code: "UNAUTHORIZED",
+        message: "사용자가 인증되지 않았습니다.",
+      });
+    }
 
-      const code = await codeService.createCode(fileId);
+    // CodeService의 getCodes 메서드를 호출하여 사용자의 코드 목록을 가져옵니다.
+    const codes = await codeService.getCodes(ctx.user.id);
+    return codes;
+  }),
 
-      return { codeString: code.codeString };
-    }),
-
-  // 코드 삭제
-  delete: procedure
+  // 코드 삭제 (아직 구현 안함)
+  /*delete: procedure
     .input(z.object({ codeString: z.string() }))
     .mutation(async ({ input }) => {
       const { codeString } = input;
@@ -30,7 +32,7 @@ export const codeRouter = router({
       } catch (error: unknown) {
         if (
           error instanceof Error &&
-          error.message.includes("Record to delete does not exist.")
+          error.message.includes("해당 코드가 존재하지 않습니다.")
         ) {
           throw new TRPCError({
             code: "NOT_FOUND",
@@ -40,7 +42,7 @@ export const codeRouter = router({
         throw error;
       }
     }),
-
+*/
   // 코드로 파일 메타데이터 조회
   getFileMetadataByCode: procedure
     .input(z.object({ codeString: z.string() }))
