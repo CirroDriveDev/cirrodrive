@@ -108,11 +108,11 @@ export const fileRouter = router({
 
       let metadata;
       try {
-        metadata = await fileService.saveFileToUserDrive(
-          user.id,
-          file,
-          input.folderId,
-        );
+        metadata = await fileService.saveFile(file, user.id);
+        // 폴더 ID가 주어진 경우 파일을 해당 폴더로 이동
+        if (input.folderId) {
+          metadata = await fileService.moveFile(metadata.id, input.folderId);
+        }
       } catch (error) {
         logger.error({ requestId: ctx.req.id, error }, "파일 업로드 실패");
         throw new TRPCError({
