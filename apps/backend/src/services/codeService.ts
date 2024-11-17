@@ -2,6 +2,7 @@ import { injectable, inject } from "inversify";
 import type { Code, Prisma } from "@cirrodrive/database";
 import type { Logger } from "pino";
 import { Symbols } from "@/types/symbols.ts";
+import { generateCode } from "@/utils/generateCode.ts";
 
 /**
  * 코드 서비스입니다.
@@ -16,29 +17,68 @@ export class CodeService {
   }
 
   /**
-   * 사용자가 생성한 코드 목록을 가져옵니다.
+   * 새로운 코드를 생성합니다.
    *
-   * @param userId - 사용자의 ID
-   * @returns 사용자 코드 목록
+   * @param fileId - 파일 ID입니다.
+   * @returns 생성된 코드입니다.
+   * @throws 코드 생성 중 오류가 발생한 경우.
    */
-  public async getCodes(userId: number): Promise<Code[]> {
+  public async createCode(fileId: number): Promise<Code> {
     try {
       this.logger.info(
-        { methodName: "getCodes", userId },
-        "사용자 코드 목록 조회 시작",
+        {
+          methodName: "createCode",
+          fileId,
+        },
+        "코드 생성 시작",
       );
 
-      const codes = await this.codeModel.findMany({
-        where: {
-          userId, // Code 테이블에서 userId를 조건으로 사용
-        },
-        include: {
-          file: true, // 관련된 file 정보도 함께 포함
+      const codeString = generateCode(8);
+      const expiresAt = new Date(Date.now() + 24 * 60 * 60 * 1000);
+
+      const code = await this.codeModel.create({
+        data: {
+          codeString,
+          fileId,
+          expiresAt,
         },
       });
 
-      return codes;
+      return code;
     } catch (error) {
+      if (error instanceof Error) {
+        this.logger.error(error.message);
+      }
+      throw error;
+    }
+  }
+
+  /**
+   * 코드를 삭제합니다.
+   *
+   * @param codeString - 삭제할 코드 문자열입니다.
+   * @throws 코드 삭제 중 오류가 발생한 경우.
+   */
+  public async deleteCode(codeString: string): Promise<void> {
+    try {
+      this.logger.info(
+        {
+          methodName: "deleteCode",
+          codeString,
+        },
+        "코드 삭제 시작",
+      );
+
+      await this.codeModel.delete({
+        where: { codeString },
+      });
+    } catch (error) {
+      if (
+        error instanceof Error &&
+        error.message.includes("Record to delete does not exist.")
+      ) {
+        throw new Error("코드를 찾을 수 없습니다.");
+      }
       if (error instanceof Error) {
         this.logger.error(error.message);
       }
@@ -83,6 +123,30 @@ export class CodeService {
         fileSize: code.file.size,
         fileExtension: code.file.extension,
       };
+    } catch (error) {
+      if (error instanceof Error) {
+        this.logger.error(error.message);
+      }
+      throw error;
+    }
+  }
+  public async getCodes(userId: number): Promise<Code[]> {
+    try {
+      this.logger.info(
+        { methodName: "getCodes", userId },
+        "사용자 코드 목록 조회 시작",
+      );
+
+      const codes = await this.codeModel.findMany({
+        where: {
+          userId, // 사용자의 ID를 조건으로 코드 목록을 조회
+        },
+        include: {
+          file: true, // 코드에 연결된 파일 정보도 함께 포함
+        },
+      });
+
+      return codes;
     } catch (error) {
       if (error instanceof Error) {
         this.logger.error(error.message);
