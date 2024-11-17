@@ -3,7 +3,7 @@ import { resolve } from "node:path";
 import { z } from "zod";
 import { TRPCError } from "@trpc/server";
 import { zfd } from "zod-form-data";
-import { router, procedure } from "@/loaders/trpc.ts";
+import { router, procedure, authedProcedure } from "@/loaders/trpc.ts";
 import { logger } from "@/loaders/logger.ts";
 import { container } from "@/loaders/inversify.ts";
 import { FileService } from "@/services/fileService.ts";
@@ -92,10 +92,10 @@ export const fileRouter = router({
         throw error;
       }
     }),
-  upload: procedure
+
+  upload: authedProcedure
     .input(
       z.object({
-        userId: z.number(), // 사용자 ID
         file: zfd.file(), // 업로드할 파일
         folderId: z.number().optional(), // 폴더 ID (선택적)
       }),
@@ -103,42 +103,20 @@ export const fileRouter = router({
     .output(
       z.object({
         fileId: z.number(), // 업로드된 파일 ID
-        userId: z.number(), // 파일을 업로드한 사용자 ID
       }),
     )
     .mutation(async ({ input, ctx }) => {
-      const { userId, file, folderId } = input;
-      logger.info(
-        { requestId: ctx.req.id, userId },
-        "회원 파일 업로드 요청 시작",
-      );
+      const { file } = input;
+      const { user } = ctx;
+      logger.info({ requestId: ctx.req.id, user }, "파일 업로드 요청 시작");
 
-      // 1. 사용자 인증 확인
-      let user;
-      try {
-        user = await userService.get(userId); // 회원 확인
-        if (!user) {
-          throw new TRPCError({
-            code: "NOT_FOUND",
-            message: "사용자를 찾을 수 없습니다.",
-          });
-        }
-      } catch (error) {
-        logger.error({ requestId: ctx.req.id, error }, "사용자 인증 실패");
-        throw new TRPCError({
-          code: "UNAUTHORIZED",
-          message: "사용자가 인증되지 않았습니다.",
-        });
-      }
-
-      // 2. 파일 저장 및 사용자 드라이브 연결
       let metadata;
       try {
-        metadata = await fileService.saveFileToUserDrive(
-          userId,
-          file,
-          folderId,
-        );
+        metadata = await fileService.saveFile(file, user.id);
+        // 폴더 ID가 주어진 경우 파일을 해당 폴더로 이동
+        if (input.folderId) {
+          metadata = await fileService.moveFile(metadata.id, input.folderId);
+        }
       } catch (error) {
         logger.error({ requestId: ctx.req.id, error }, "파일 업로드 실패");
         throw new TRPCError({
@@ -147,11 +125,10 @@ export const fileRouter = router({
         });
       }
 
-      logger.info({ requestId: ctx.req.id }, "회원 파일 업로드 성공");
+      logger.info({ requestId: ctx.req.id }, "파일 업로드 성공");
 
       return {
         fileId: metadata.id,
-        userId,
       };
     }),
   download: procedure
