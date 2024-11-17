@@ -18,7 +18,7 @@ export class FileService {
     @inject(Symbols.FileMetadataModel)
     private fileMetadataModel: Prisma.FileMetadataDelegate,
     @inject(CodeService) private codeService: CodeService,
-    @inject(Symbols.UserService) private userService: UserService,
+    @inject(UserService) private userService: UserService,
   ) {
     this.rootDir = `./`;
     this.logger = logger.child({ serviceName: "FileService" });
