@@ -68,10 +68,10 @@ model Code {
   id         Int          @id @default(autoincrement())
   codeString String       @unique
   expiresAt  DateTime
-  userId     Int
   fileId     Int
+  userId     Int? // 변경: nullable로 설정
   file       FileMetadata @relation(fields: [fileId], references: [id])
-  user       User         @relation(fields: [userId], references: [id])
+  user       User?        @relation(fields: [userId], references: [id])
 }
 
 model Folder {
