@@ -130,4 +130,28 @@ export class CodeService {
       throw error;
     }
   }
+  public async getCodes(userId: number): Promise<Code[]> {
+    try {
+      this.logger.info(
+        { methodName: "getCodes", userId },
+        "사용자 코드 목록 조회 시작",
+      );
+
+      const codes = await this.codeModel.findMany({
+        where: {
+          userId, // 사용자의 ID를 조건으로 코드 목록을 조회
+        },
+        include: {
+          file: true, // 코드에 연결된 파일 정보도 함께 포함
+        },
+      });
+
+      return codes;
+    } catch (error) {
+      if (error instanceof Error) {
+        this.logger.error(error.message);
+      }
+      throw error;
+    }
+  }
 }

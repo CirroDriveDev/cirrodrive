@@ -32,6 +32,7 @@ model User {
   sessions Session[]
   folders  Folder[]
   files    FileMetadata[]
+  Code     Code[]
 }
 
 model Session {
@@ -64,24 +65,25 @@ model FileMetadata {
 }
 
 model Code {
-  id         Int      @id @default(autoincrement())
-  codeString String   @unique
+  id         Int          @id @default(autoincrement())
+  codeString String       @unique
   expiresAt  DateTime
-
-  fileId Int
-  file   FileMetadata @relation(fields: [fileId], references: [id])
+  fileId     Int
+  userId     Int? // 변경: nullable로 설정
+  file       FileMetadata @relation(fields: [fileId], references: [id])
+  user       User?        @relation(fields: [userId], references: [id])
 }
 
 model Folder {
-  id             Int      @id @default(autoincrement())
-  name           String
-  createdAt      DateTime @default(now())
-  updatedAt      DateTime @updatedAt
-  
+  id        Int      @id @default(autoincrement())
+  name      String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
   parentFolderId Int?
-  parentFolder   Folder?  @relation(name: "ParentToSubFolder", fields: [parentFolderId], references: [id])
+  parentFolder   Folder? @relation(name: "ParentToSubFolder", fields: [parentFolderId], references: [id])
   ownerId        Int?
-  owner          User?    @relation(fields: [ownerId], references: [id], onDelete: SetNull)
+  owner          User?   @relation(fields: [ownerId], references: [id], onDelete: SetNull)
 
   subFolders Folder[]       @relation(name: "ParentToSubFolder")
   files      FileMetadata[]
