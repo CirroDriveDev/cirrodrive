@@ -16,7 +16,7 @@ export function TreeNode({
 }: {
   node: TreeNode;
   level: number;
-}) {
+}): JSX.Element {
   const [isExpanded, setIsExpanded] = useState(false);
   return (
     <div>
