@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { FolderIcon, MoreVertical } from "lucide-react";
 import ClickButton from "../../../shared/components/shadcn/ClickButton.tsx"; // ClickButton 컴포넌트 임포트
-import { fileData } from "@/pages/content/ui/FileData.tsx"; // Adjust the path if necessary
+import { fileData } from "@/pages/folderContent/ui/FileData.tsx"; // Adjust the path if necessary
 
 interface TreeNode {
   id: number;
