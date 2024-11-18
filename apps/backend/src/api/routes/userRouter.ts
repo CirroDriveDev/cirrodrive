@@ -1,8 +1,4 @@
-import {
-  inputUserDataSchema,
-  outputUserDataSchema,
-  userSchema,
-} from "@cirrodrive/types";
+import { userDTOSchema, userSchema } from "@cirrodrive/schemas";
 import { z } from "zod";
 import { TRPCError } from "@trpc/server";
 import { container } from "@/loaders/inversify.ts";
@@ -14,8 +10,14 @@ const userService = container.get<UserService>(UserService);
 
 export const userRouter = router({
   create: procedure
-    .input(inputUserDataSchema)
-    .output(outputUserDataSchema)
+    .input(
+      userSchema.pick({
+        username: true,
+        password: true,
+        email: true,
+      }),
+    )
+    .output(userDTOSchema)
     .mutation(async ({ input, ctx }) => {
       logger.info({ requestId: ctx.req.id }, "user.create 요청 시작");
       if (ctx.user) {
@@ -62,7 +64,7 @@ export const userRouter = router({
         offset: z.coerce.number().optional().default(0),
       }),
     )
-    .output(z.array(outputUserDataSchema))
+    .output(z.array(userDTOSchema))
     .query(async ({ input, ctx }) => {
       logger.info({ requestId: ctx.req.id }, "user.list 요청 시작");
       try {
@@ -78,14 +80,14 @@ export const userRouter = router({
       }
     }),
 
-  me: authedProcedure.output(outputUserDataSchema).query(({ ctx }) => {
+  me: authedProcedure.output(userDTOSchema).query(({ ctx }) => {
     logger.info({ requestId: ctx.req.id }, "user.me 요청 시작");
     return ctx.user;
   }),
 
   get: procedure
     .input(userSchema.shape.id)
-    .output(outputUserDataSchema)
+    .output(userDTOSchema)
     .query(async ({ input, ctx }) => {
       logger.info({ requestId: ctx.req.id }, "user.get 요청 시작");
       let user = null;
@@ -109,8 +111,14 @@ export const userRouter = router({
     }),
 
   update: authedProcedure
-    .input(inputUserDataSchema)
-    .output(outputUserDataSchema)
+    .input(
+      userSchema.pick({
+        username: true,
+        password: true,
+        email: true,
+      }),
+    )
+    .output(userDTOSchema)
     .mutation(async ({ input, ctx }) => {
       logger.info({ requestId: ctx.req.id }, "user.update 요청 시작");
 
@@ -130,19 +138,17 @@ export const userRouter = router({
       }
     }),
 
-  delete: authedProcedure
-    .output(outputUserDataSchema)
-    .mutation(async ({ ctx }) => {
-      logger.info({ requestId: ctx.req.id }, "user.delete 요청 시작");
+  delete: authedProcedure.output(userDTOSchema).mutation(async ({ ctx }) => {
+    logger.info({ requestId: ctx.req.id }, "user.delete 요청 시작");
 
-      try {
-        const user = await userService.delete(ctx.user.id);
+    try {
+      const user = await userService.delete(ctx.user.id);
 
-        return user;
-      } catch (error) {
-        logger.error({ requestId: ctx.req.id, error }, "user.delete 요청 실패");
+      return user;
+    } catch (error) {
+      logger.error({ requestId: ctx.req.id, error }, "user.delete 요청 실패");
 
-        throw Error("알 수 없는 오류가 발생했습니다.");
-      }
-    }),
+      throw Error("알 수 없는 오류가 발생했습니다.");
+    }
+  }),
 });
