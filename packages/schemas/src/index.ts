@@ -1,3 +1,4 @@
 export * from "./user.ts";
-export * from "./file.ts";
+export * from "./fileMetadata.ts";
 export * from "./code.ts";
+export * from "./folder.ts";
