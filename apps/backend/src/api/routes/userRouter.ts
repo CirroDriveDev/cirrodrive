@@ -1,4 +1,4 @@
-import { UserDTOSchema, userSchema } from "@cirrodrive/schemas";
+import { userDTOSchema, userSchema } from "@cirrodrive/schemas";
 import { z } from "zod";
 import { TRPCError } from "@trpc/server";
 import { container } from "@/loaders/inversify.ts";
@@ -17,7 +17,7 @@ export const userRouter = router({
         email: true,
       }),
     )
-    .output(UserDTOSchema)
+    .output(userDTOSchema)
     .mutation(async ({ input, ctx }) => {
       logger.info({ requestId: ctx.req.id }, "user.create 요청 시작");
       if (ctx.user) {
@@ -64,7 +64,7 @@ export const userRouter = router({
         offset: z.coerce.number().optional().default(0),
       }),
     )
-    .output(z.array(UserDTOSchema))
+    .output(z.array(userDTOSchema))
     .query(async ({ input, ctx }) => {
       logger.info({ requestId: ctx.req.id }, "user.list 요청 시작");
       try {
@@ -80,14 +80,14 @@ export const userRouter = router({
       }
     }),
 
-  me: authedProcedure.output(UserDTOSchema).query(({ ctx }) => {
+  me: authedProcedure.output(userDTOSchema).query(({ ctx }) => {
     logger.info({ requestId: ctx.req.id }, "user.me 요청 시작");
     return ctx.user;
   }),
 
   get: procedure
     .input(userSchema.shape.id)
-    .output(UserDTOSchema)
+    .output(userDTOSchema)
     .query(async ({ input, ctx }) => {
       logger.info({ requestId: ctx.req.id }, "user.get 요청 시작");
       let user = null;
@@ -118,7 +118,7 @@ export const userRouter = router({
         email: true,
       }),
     )
-    .output(UserDTOSchema)
+    .output(userDTOSchema)
     .mutation(async ({ input, ctx }) => {
       logger.info({ requestId: ctx.req.id }, "user.update 요청 시작");
 
@@ -138,7 +138,7 @@ export const userRouter = router({
       }
     }),
 
-  delete: authedProcedure.output(UserDTOSchema).mutation(async ({ ctx }) => {
+  delete: authedProcedure.output(userDTOSchema).mutation(async ({ ctx }) => {
     logger.info({ requestId: ctx.req.id }, "user.delete 요청 시작");
 
     try {

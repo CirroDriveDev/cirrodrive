@@ -1,7 +1,7 @@
 import { supertestFetchFactory } from "test/supertestLink.ts";
 import { createTRPCClient, httpLink } from "@trpc/client";
 // import { SuperJSON } from "superjson";
-import { UserDTOSchema } from "@cirrodrive/schemas";
+import { userDTOSchema } from "@cirrodrive/schemas";
 import type { AppRouter } from "@/api/appRouter.ts";
 import { expressLoader, TRPC_PATH } from "@/loaders/express.ts";
 import { prisma } from "@/loaders/prisma.ts";
@@ -44,7 +44,7 @@ describe("User", () => {
     };
 
     const user = await trpc.user.create.mutate(input);
-    expect(UserDTOSchema.parse(user)).toStrictEqual(expectedUser);
+    expect(userDTOSchema.parse(user)).toStrictEqual(expectedUser);
   });
 
   test("login", async () => {
@@ -71,7 +71,7 @@ describe("User", () => {
       password: input.password,
     });
     await trpc.user.me.query();
-    expect(UserDTOSchema.parse(user)).toStrictEqual(expectedUser);
+    expect(userDTOSchema.parse(user)).toStrictEqual(expectedUser);
   });
 
   test("list", async () => {

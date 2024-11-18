@@ -1,5 +1,5 @@
 import type { StateCreator } from "zustand";
-import type { User } from "@cirrodrive/schemas";
+import type { UserDTO } from "@cirrodrive/schemas";
 
 export interface UserSlice {
   /**
@@ -8,14 +8,14 @@ export interface UserSlice {
    * - 로그인한 경우 사용자 데이터
    * - 로그인하지 않은 경우 `null`
    */
-  user: User | null;
+  user: UserDTO | null;
 
   /**
    * 사용자 정보를 설정
    *
    * @param user - 사용자 데이터
    */
-  setUser: (user: User) => void;
+  setUser: (user: UserDTO) => void;
 
   /**
    * 사용자 정보를 초기화

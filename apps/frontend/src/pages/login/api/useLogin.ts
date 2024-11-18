@@ -3,7 +3,7 @@ import type { AppRouter, RouterInput, RouterOutput } from "@cirrodrive/backend";
 import type { UseTRPCMutationOptions } from "@trpc/react-query/shared";
 import type { TRPCClientErrorLike } from "@trpc/client";
 import { z, type ZodFormattedError } from "zod";
-import { outputUserDataSchema } from "@cirrodrive/schemas";
+import { userDTOSchema } from "@cirrodrive/schemas";
 import { trpc } from "@/shared/api/trpc.ts";
 import { useBoundStore } from "@/shared/store/useBoundStore.ts";
 
@@ -62,7 +62,7 @@ export const useLogin = (opts?: UseLoginOptions): UseLogin => {
   const mutation = trpc.session.login.useMutation({
     ...opts,
     onSuccess: (data, variable, context) => {
-      setUser(outputUserDataSchema.parse(data));
+      setUser(userDTOSchema.parse(data));
       opts?.onSuccess?.(data, variable, context);
     },
     onError: (error, variable, context) => {

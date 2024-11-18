@@ -37,7 +37,7 @@ export const userSchema = z.object({
   updatedAt: z.coerce.date(),
 });
 
-export const UserDTOSchema = userSchema.omit({
+export const userDTOSchema = userSchema.omit({
   password: true,
 });
 
@@ -48,5 +48,5 @@ export const userPublicDTOSchema = userSchema.pick({
   profileImageUrl: true,
 });
 
-export type UserDTO = z.infer<typeof UserDTOSchema>;
+export type UserDTO = z.infer<typeof userDTOSchema>;
 export type UserPublicDTO = z.infer<typeof userPublicDTOSchema>;
