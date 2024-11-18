@@ -1,7 +1,6 @@
-import React, { useState } from "react";
 import { FolderIcon, MoreVertical } from "lucide-react";
-import ClickButton from "@/shared/components/shadcn/ClickButton.tsx";
-import { fileData } from "@/pages/folderContent/ui/FileData.tsx"; // Adjust the path if necessary
+import { useState } from "react";
+import { ClickButton } from "@/shared/components/shadcn/ClickButton.tsx";
 
 interface TreeNode {
   id: number;
@@ -11,7 +10,13 @@ interface TreeNode {
   level?: number; // level 속성을 선택적(optional)으로 변경
 }
 
-function TreeNode({ node, level = 0 }: { node: TreeNode; level: number }) {
+export function TreeNode({
+  node,
+  level = 0,
+}: {
+  node: TreeNode;
+  level: number;
+}) {
   const [isExpanded, setIsExpanded] = useState(false);
   return (
     <div>
@@ -39,19 +44,6 @@ function TreeNode({ node, level = 0 }: { node: TreeNode; level: number }) {
           ))}
         </div>
       : null}
-    </div>
-  );
-}
-
-// 1.  FIleData.tsx에서 폴더 데이터 개체를 가져옵니다
-
-// 2. 가져온 폴더 데이터를 루트 노드로 사용합니다.
-export default function TreeView({ data }: { data: TreeNode }) {
-  const rootNode = fileData;
-
-  return (
-    <div>
-      <TreeNode node={rootNode} level={0} />
     </div>
   );
 }

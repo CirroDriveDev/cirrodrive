@@ -6,12 +6,10 @@ interface ClickButtonProps {
   children: React.ReactNode;
 }
 
-function ClickButton({ onClick, children }: ClickButtonProps) {
+export function ClickButton({ onClick, children }: ClickButtonProps) {
   return (
     <button type="button" onClick={onClick}>
       {children}
     </button>
   );
 }
-
-export default ClickButton;
