@@ -1,4 +1,4 @@
-import { outputUserDataSchema } from "@cirrodrive/types";
+import { userDTOSchema } from "@cirrodrive/schemas";
 import { TRPCError } from "@trpc/server";
 import { z } from "zod";
 import { container } from "@/loaders/inversify.ts";
@@ -21,7 +21,7 @@ export const sessionRouter = router({
         },
       ),
     )
-    .output(outputUserDataSchema)
+    .output(userDTOSchema)
     .mutation(async ({ input, ctx }) => {
       logger.info({ requestId: ctx.req.id }, "login 요청 시작");
 

@@ -37,27 +37,16 @@ export const userSchema = z.object({
   updatedAt: z.coerce.date(),
 });
 
-export const otherUserSchema = userSchema.pick({
+export const userDTOSchema = userSchema.omit({
+  password: true,
+});
+
+export const userPublicDTOSchema = userSchema.pick({
   id: true,
   username: true,
   email: true,
   profileImageUrl: true,
 });
 
-export const usernameSchema = userSchema.shape.username;
-
-export const inputUserDataSchema = userSchema.pick({
-  username: true,
-  password: true,
-  email: true,
-});
-
-export const outputUserDataSchema = userSchema.omit({
-  password: true,
-});
-
-export type User = z.infer<typeof outputUserDataSchema>;
-export type OtherUser = z.infer<typeof otherUserSchema>;
-export type Username = z.infer<typeof usernameSchema>;
-export type InputUserData = z.infer<typeof inputUserDataSchema>;
-export type OutputUserData = z.infer<typeof outputUserDataSchema>;
+export type UserDTO = z.infer<typeof userDTOSchema>;
+export type UserPublicDTO = z.infer<typeof userPublicDTOSchema>;

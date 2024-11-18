@@ -1,5 +1,5 @@
 {
-  "name": "@cirrodrive/types",
+  "name": "@cirrodrive/schemas",
   "version": "0.0.0",
   "private": true,
   "type": "module",
