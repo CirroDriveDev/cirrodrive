@@ -8,6 +8,11 @@ import { UploadPage } from "@/pages/upload/ui/UploadPage.tsx";
 import { DownloadPage } from "@/pages/download/ui/DownloadPage.tsx";
 import { CodePage } from "@/pages/upload/ui/CodePage.tsx";
 import { useBoundStore } from "@/shared/store/useBoundStore.ts";
+import { MyInfo } from "@/pages/myinfo/ui/MyInfo.tsx";
+import { MyInfoModify } from "@/pages/myinfomodify/ui/MyInfoModify.tsx";
+import { EmailModify } from "@/pages/myinfomodify/ui/EmailModify.tsx";
+import { IdModify } from "@/pages/myinfomodify/ui/IdModify.tsx";
+import { PwModify } from "@/pages/myinfomodify/ui/PwModify.tsx";
 
 function RedirectAuthedUserToHome({
   children,
@@ -71,6 +76,26 @@ const routeTree: RouteObject[] = [
   {
     path: "/code",
     element: <CodePage />,
+  },
+  {
+    path: "/myinfo",
+    element: <MyInfo />,
+  },
+  {
+    path: "/myinfomodify",
+    element: <MyInfoModify />,
+  },
+  {
+    path: "/idmodify",
+    element: <IdModify />,
+  },
+  {
+    path: "/pwmodify",
+    element: <PwModify />,
+  },
+  {
+    path: "/emailmodify",
+    element: <EmailModify />,
   },
 ];
 
