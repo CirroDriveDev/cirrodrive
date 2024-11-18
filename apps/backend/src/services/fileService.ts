@@ -5,7 +5,6 @@ import type { Prisma, FileMetadata } from "@cirrodrive/database";
 import type { Logger } from "pino";
 import { Symbols } from "@/types/symbols.ts";
 import { CodeService } from "@/services/codeService.ts";
-
 /**
  * 파일 서비스입니다.
  */
@@ -261,7 +260,6 @@ export class FileService {
    *
    * @param file - 저장할 파일입니다.
    * @returns 저장된 파일의 경로와 이름입니다.
-   * @throws 파일 저장 중 오류가 발생한 경우.
    */
   private async writeFileToDisk(
     file: File,
@@ -269,18 +267,14 @@ export class FileService {
     const uploadDate = Date.now();
     const fileDir = path.resolve(`${this.rootDir}/data`);
 
-    // 파일 저장 디렉토리가 없으면 생성
     if (!fs.existsSync(fileDir)) {
       fs.mkdirSync(fileDir, { recursive: true });
     }
+
     const savedName = `${uploadDate}-${file.name}`;
     const filePath = path.resolve(`${fileDir}/${savedName}`);
     this.logger.info(
-      {
-        methodName: "writeFileToDisk",
-        fileName: file.name,
-        filePath,
-      },
+      { methodName: "writeFileToDisk", fileName: file.name, filePath },
       "파일 저장 시작",
     );
 
@@ -290,17 +284,28 @@ export class FileService {
     fs.writeFileSync(filePath, fileBuffer.toString("base64"), "base64");
 
     this.logger.info(
-      {
-        methodName: "writeFileToDisk",
-        fileName: file.name,
-        filePath,
-      },
+      { methodName: "writeFileToDisk", fileName: file.name, filePath },
       "파일 저장 완료",
     );
 
-    return {
-      path: filePath,
-      name: savedName,
-    };
+    return { path: filePath, name: savedName };
+  }
+  public async getFileMetadata(fileId: number): Promise<FileMetadata | null> {
+    try {
+      const fileMetadata = await this.fileMetadataModel.findUnique({
+        where: {
+          id: fileId,
+        },
+      });
+      return fileMetadata;
+    } catch (error) {
+      // error가 Error 객체인지 확인한 후 message를 사용
+      if (error instanceof Error) {
+        this.logger.error(error.message, "파일 메타데이터 조회 오류");
+      } else {
+        this.logger.error("알 수 없는 오류 발생", "파일 메타데이터 조회 오류");
+      }
+      return null;
+    }
   }
 }

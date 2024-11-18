@@ -1,3 +1,5 @@
+import { readFileSync } from "node:fs"; // fs 모듈
+import { resolve } from "node:path"; // path 모듈
 import { z } from "zod";
 import { TRPCError } from "@trpc/server";
 import { zfd } from "zod-form-data";
@@ -126,5 +128,60 @@ export const fileRouter = router({
       return {
         fileId: metadata.id,
       };
+    }),
+  download: authedProcedure
+    .input(
+      z.object({
+        fileId: z.number(), // 다운로드할 파일의 ID
+      }),
+    )
+    .output(
+      z.object({
+        encodedFile: z.string(),
+        fileName: z.string(),
+      }),
+    )
+    .mutation(async ({ input, ctx }) => {
+      const { fileId } = input;
+      const { id: userId } = ctx.user; // 인증된 사용자의 ID
+
+      try {
+        // 파일 메타데이터 조회 (ownerId, codeString 포함)
+        const fileMetadata = await fileService.getFileMetadata(fileId);
+
+        if (!fileMetadata) {
+          throw new TRPCError({
+            code: "NOT_FOUND",
+            message: "파일을 찾을 수 없습니다.",
+          });
+        }
+
+        // 파일 소유자 검증 (로그인한 사용자와 일치해야만 다운로드 가능)
+        if (fileMetadata.ownerId !== userId) {
+          throw new TRPCError({
+            code: "FORBIDDEN",
+            message: "파일에 접근할 권한이 없습니다.",
+          });
+        }
+
+        // 파일 경로로 파일 읽기
+        const filePath = resolve(fileMetadata.savedPath); // 경로를 절대경로로 변환
+        const fileBuffer = readFileSync(filePath); // Buffer로 파일 읽기
+        const encodedFile = fileBuffer.toString("base64"); // Base64로 변환
+
+        return {
+          encodedFile,
+          fileName: fileMetadata.name, // 파일 이름
+        };
+      } catch (error) {
+        logger.error(
+          { requestId: ctx.req.id, error, fileId, userId },
+          "파일 다운로드 중 오류 발생",
+        );
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: "파일 다운로드 중 오류가 발생했습니다.",
+        });
+      }
     }),
 });
