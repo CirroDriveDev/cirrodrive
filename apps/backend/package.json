@@ -20,7 +20,7 @@
   },
   "dependencies": {
     "@cirrodrive/database": "workspace:^",
-    "@cirrodrive/types": "workspace:*",
+    "@cirrodrive/schemas": "workspace:*",
     "@node-rs/argon2": "^2.0.0",
     "@oslojs/crypto": "^1.0.1",
     "@oslojs/encoding": "^1.1.0",

@@ -2,7 +2,7 @@ import {
   inputUserDataSchema,
   outputUserDataSchema,
   userSchema,
-} from "@cirrodrive/types";
+} from "@cirrodrive/schemas";
 import { z } from "zod";
 import { TRPCError } from "@trpc/server";
 import { container } from "@/loaders/inversify.ts";

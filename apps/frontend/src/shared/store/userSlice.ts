@@ -1,5 +1,5 @@
 import type { StateCreator } from "zustand";
-import type { User } from "@cirrodrive/types";
+import type { User } from "@cirrodrive/schemas";
 
 export interface UserSlice {
   /**

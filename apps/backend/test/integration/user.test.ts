@@ -1,7 +1,7 @@
 import { supertestFetchFactory } from "test/supertestLink.ts";
 import { createTRPCClient, httpLink } from "@trpc/client";
 // import { SuperJSON } from "superjson";
-import { outputUserDataSchema } from "@cirrodrive/types";
+import { outputUserDataSchema } from "@cirrodrive/schemas";
 import type { AppRouter } from "@/api/appRouter.ts";
 import { expressLoader, TRPC_PATH } from "@/loaders/express.ts";
 import { prisma } from "@/loaders/prisma.ts";

@@ -1,4 +1,4 @@
-import { outputUserDataSchema } from "@cirrodrive/types";
+import { outputUserDataSchema } from "@cirrodrive/schemas";
 import { TRPCError } from "@trpc/server";
 import { z } from "zod";
 import { container } from "@/loaders/inversify.ts";

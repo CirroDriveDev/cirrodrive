@@ -2,7 +2,7 @@ import { useState } from "react";
 import type { RouterOutput, RouterInput, AppRouter } from "@cirrodrive/backend";
 import type { TRPCClientErrorLike } from "@trpc/client";
 import type { UseTRPCMutationOptions } from "@trpc/react-query/shared";
-import { userSchema } from "@cirrodrive/types";
+import { userSchema } from "@cirrodrive/schemas";
 import { z, type ZodFormattedError } from "zod";
 import { trpc } from "@/shared/api/trpc.ts";
 
