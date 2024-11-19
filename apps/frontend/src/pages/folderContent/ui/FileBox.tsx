@@ -1,6 +1,6 @@
-import React from "react";
-import { getFiles } from "@/pages/content/ui/file";
+import type React from "react";
 import { FolderClosed, File, Image, MoreVertical } from "lucide-react";
+import { getFiles } from "@/pages/folderContent/ui/file.tsx";
 
 const FileBox: React.FC = () => {
   const files = getFiles(); // 파일 이름과 사이즈, 타입 읽기
