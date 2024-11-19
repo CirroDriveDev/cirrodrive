@@ -127,6 +127,49 @@ export class FileService {
   }
 
   /**
+   * 부모 폴더 ID로 파일 메타데이터 목록 조회
+   *
+   * @param parentFolderId - 부모 폴더의 ID입니다.
+   * @returns 파일 메타데이터 목록입니다.
+   * @throws 파일 조회 중 오류가 발생한 경우.
+   */
+  public async listFileMetadataByParentFolder(
+    parentFolderId: number,
+  ): Promise<FileMetadata[]> {
+    try {
+      this.logger.info(
+        {
+          methodName: "listFileMetadataByParentFolder",
+          parentFolderId,
+        },
+        "파일 목록 조회 시작",
+      );
+
+      const files = await this.fileMetadataModel.findMany({
+        where: {
+          parentFolderId,
+        },
+      });
+
+      this.logger.info(
+        {
+          methodName: "listFileMetadataByParentFolder",
+          parentFolderId,
+          files,
+        },
+        "파일 목록 조회 완료",
+      );
+
+      return files;
+    } catch (error) {
+      if (error instanceof Error) {
+        this.logger.error(error.message);
+      }
+      throw error;
+    }
+  }
+
+  /**
    * 코드로 파일 다운로드
    *
    * @param codeString - 다운로드할 파일의 코드입니다.
