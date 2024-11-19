@@ -3,6 +3,7 @@ import { resolve } from "node:path"; // path 모듈
 import { z } from "zod";
 import { TRPCError } from "@trpc/server";
 import { zfd } from "zod-form-data";
+import { fileMetadataDTOSchema } from "@cirrodrive/schemas";
 import { router, procedure, authedProcedure } from "@/loaders/trpc.ts";
 import { logger } from "@/loaders/logger.ts";
 import { container } from "@/loaders/inversify.ts";
@@ -89,6 +90,22 @@ export const fileRouter = router({
 
         throw error;
       }
+    }),
+
+  listByParentFolder: authedProcedure
+    .input(
+      z.object({
+        folderId: z.number(),
+      }),
+    )
+    .output(fileMetadataDTOSchema.array())
+    .query(async ({ input }) => {
+      const { folderId } = input;
+
+      const fileMetadataList =
+        await fileService.listFileMetadataByParentFolder(folderId);
+
+      return fileMetadataList;
     }),
 
   upload: authedProcedure
