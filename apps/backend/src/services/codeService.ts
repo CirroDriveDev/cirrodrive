@@ -34,17 +34,9 @@ export class CodeService {
       );
 
       // 파일 존재 여부 확인
-      const file = await this.fileService.getFileById(fileId); // 파일 서비스에서 파일을 가져옴
-      if (!file) {
-        throw new TRPCError({
-          code: "NOT_FOUND",
-          message: "파일을 찾을 수 없습니다.",
-        });
-      }
-
       const codeString = generateCode(8);
       const expirationDate =
-        expiresAt || new Date(Date.now() + 24 * 60 * 60 * 1000); // 기본 만료 시간 24시간 후
+        expiresAt ?? new Date(Date.now() + 24 * 60 * 60 * 1000); // 기본 만료 시간 24시간 후
 
       const code = await this.codeModel.create({
         data: {
