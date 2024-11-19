@@ -12,7 +12,7 @@ export const folderSchema = z.object({
   ownerId: z.coerce.number().optional(),
 });
 
-export const FolderDTOSchema = folderSchema;
+export const folderDTOSchema = folderSchema;
 
 export const folderPublicDTOSchema = folderSchema.pick({
   id: true,
@@ -22,5 +22,5 @@ export const folderPublicDTOSchema = folderSchema.pick({
   parentFolderId: true,
 });
 
-export type FolderDTO = z.infer<typeof FolderDTOSchema>;
+export type FolderDTO = z.infer<typeof folderDTOSchema>;
 export type FolderPublicDTO = z.infer<typeof folderPublicDTOSchema>;
