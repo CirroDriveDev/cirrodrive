@@ -1,5 +1,5 @@
 import { type FileDTO } from "@cirrodrive/schemas";
-import { FolderClosed, File, Image, MoreVertical } from "lucide-react";
+import { File, Image, MoreVertical } from "lucide-react";
 
 interface FileItemProps {
   file: FileDTO;
@@ -28,15 +28,13 @@ export function FileItem({ file, onClick }: FileItemProps): JSX.Element {
     switch (type) {
       case "image":
         return <Image size="50" />;
-      case "text":
-        return <File size="50" />;
       default:
-        return <FolderClosed size="50" />;
+        return <File size="50" />;
     }
   };
 
   return (
-    <div className="flex h-16 items-center justify-between border-b border-gray-200">
+    <div className="flex h-16 w-[1350px] items-center justify-between border-b border-gray-200">
       <div className="ml-10">{getIcon(inferFileType(file.name))}</div>
       <div className="">{file.name}</div>
       <div className="">{file.size}</div>

@@ -1,7 +1,8 @@
-import { type FileDTO } from "@cirrodrive/schemas";
+import { type FileDTO, type FolderDTO } from "@cirrodrive/schemas";
 import { Header } from "@/shared/ui/layout/Header.tsx";
 import { Sidebar } from "@/shared/ui/SidebarLayout/Sidebar.tsx";
 import { FileList } from "@/pages/folderContent/ui/FileList.tsx";
+import { FolderList } from "@/pages/folderContent/ui/FolderList.tsx";
 import { SidebarLayout } from "@/shared/ui/SidebarLayout/SidebarLayout.tsx";
 
 export function FolderContentPage(): JSX.Element {
@@ -40,10 +41,28 @@ export function FolderContentPage(): JSX.Element {
       ownerId: null,
     },
   ];
-
+  const exampleFolders: FolderDTO[] = [
+    {
+      id: 4,
+      name: "example",
+      createdAt: new Date(),
+      updatedAt: new Date(),
+      parentFolderId: null,
+      ownerId: null,
+    },
+    {
+      id: 5,
+      name: "example",
+      createdAt: new Date(),
+      updatedAt: new Date(),
+      parentFolderId: null,
+      ownerId: null,
+    },
+  ];
   return (
     <SidebarLayout header={<Header />} sidebar={<Sidebar />}>
       <div>
+        <FolderList folders={exampleFolders} />
         <FileList files={exampleFiles} />
       </div>
     </SidebarLayout>
