@@ -8,8 +8,8 @@ export const folderSchema = z.object({
     .max(64, { message: "폴더 이름은 64자 이하로 입력해주세요." }),
   createdAt: z.coerce.date(),
   updatedAt: z.coerce.date(),
-  parentFolderId: z.coerce.number().optional(),
-  ownerId: z.coerce.number().optional(),
+  parentFolderId: z.coerce.number().nullable(),
+  ownerId: z.coerce.number().nullable(),
 });
 
 export const folderDTOSchema = folderSchema;
