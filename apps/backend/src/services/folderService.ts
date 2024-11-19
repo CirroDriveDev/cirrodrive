@@ -99,6 +99,40 @@ export class FolderService {
   }
 
   /**
+   * 폴더의 하위 폴더 목록을 조회합니다.
+   *
+   * @param parentFolderId - 폴더의 ID입니다.
+   * @returns 폴더의 하위 폴더 목록입니다.
+   */
+  public async listByParentFolder(parentFolderId: number): Promise<Folder[]> {
+    try {
+      this.logger.info(
+        {
+          methodName: "getFoldersByFolderId",
+          parentFolderId,
+        },
+        "폴더의 하위 폴더 목록 조회 시작",
+      );
+
+      const folders = await this.folderModel.findMany({
+        where: {
+          parentFolderId,
+        },
+        orderBy: {
+          name: "asc",
+        },
+      });
+
+      return folders;
+    } catch (error) {
+      if (error instanceof Error) {
+        this.logger.error(error.message);
+      }
+      throw error;
+    }
+  }
+
+  /**
    * 특정 폴더를 조회합니다.
    *
    * @param ownerId - 회원의 ID입니다.
