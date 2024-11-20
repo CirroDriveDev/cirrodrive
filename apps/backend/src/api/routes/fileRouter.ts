@@ -201,6 +201,53 @@ export const fileRouter = router({
         });
       }
     }),
+  trash: authedProcedure
+    .input(
+      z.object({
+        fileId: z.number(), // 휴지통으로 옮길 파일의 ID
+      }),
+    )
+    .output(
+      z.object({
+        success: z.boolean(),
+      }),
+    )
+    .mutation(async ({ input, ctx }) => {
+      const { fileId } = input;
+      const { id: userId } = ctx.user; // 인증된 사용자의 ID
+
+      try {
+        // 파일 메타데이터 조회
+        const fileMetadata = await fileService.getFileMetadata(fileId);
+
+        if (!fileMetadata) {
+          throw new TRPCError({
+            code: "NOT_FOUND",
+            message: "파일을 찾을 수 없습니다.",
+          });
+        }
+
+        // 파일 소유자 검증 (로그인한 사용자와 일치해야만 파일을 휴지통으로 이동 가능)
+        if (fileMetadata.ownerId !== userId) {
+          throw new TRPCError({
+            code: "FORBIDDEN",
+            message: "파일에 접근할 권한이 없습니다.",
+          });
+        }
+
+        // 파일을 휴지통으로 이동
+        await fileService.moveToTrash(fileId);
+
+        return { success: true };
+      } catch (error) {
+        logger.error(
+          { requestId: ctx.req.id, error, fileId, userId },
+          "파일 휴지통 이동 중 오류 발생",
+        );
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: "파일을 휴지통으로 이동하는 중 오류가 발생했습니다.",
+
   updateFileName: authedProcedure
     .input(
       z.object({
