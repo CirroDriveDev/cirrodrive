@@ -10,6 +10,11 @@ async function main() {
       username: "testuser1",
       email: "testuser1@example.com",
       hashedPassword: await hash("testTEST1234!"),
+      rootFolder: {
+        create: {
+          name: "root",
+        },
+      },
     },
   });
 
@@ -20,6 +25,11 @@ async function main() {
       username: "testuser2",
       email: "testuser2@example.com",
       hashedPassword: await hash("testTEST1234!"),
+      rootFolder: {
+        create: {
+          name: "root",
+        },
+      },
     },
   });
 

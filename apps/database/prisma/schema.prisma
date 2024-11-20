@@ -29,6 +29,9 @@ model User {
   createdAt       DateTime    @default(now())
   updatedAt       DateTime    @updatedAt
 
+  rootFolderId Int    @unique
+  rootFolder   Folder @relation(name: "RootFolder", fields: [rootFolderId], references: [id], onDelete: Cascade)
+
   sessions Session[]
   folders  Folder[]
   files    FileMetadata[]
@@ -85,8 +88,9 @@ model Folder {
   ownerId        Int?
   owner          User?   @relation(fields: [ownerId], references: [id], onDelete: SetNull)
 
-  subFolders Folder[]       @relation(name: "ParentToSubFolder")
-  files      FileMetadata[]
+  subFolders     Folder[]       @relation(name: "ParentToSubFolder")
+  files          FileMetadata[]
+  UserRootFolder User?          @relation(name: "RootFolder")
 
   @@index([parentFolderId])
 }
