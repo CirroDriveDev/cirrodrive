@@ -7,6 +7,8 @@ import { SidebarLayout } from "@/shared/ui/SidebarLayout/SidebarLayout.tsx";
 import { useBoundStore } from "@/shared/store/useBoundStore.ts";
 import { useFolder } from "@/shared/api/useFolder.ts";
 import { LoadingSpinner } from "@/shared/components/LoadingSpinner.tsx";
+import { Button } from "@/shared/components/shadcn/Button.tsx";
+import { useFileUpload } from "@/pages/upload/api/useFileupload.ts";
 
 export function HomePage(): JSX.Element {
   const navigate = useNavigate();
@@ -15,11 +17,19 @@ export function HomePage(): JSX.Element {
     navigate("/login");
   }
 
-  const { data, isLoading } = useFolder(user?.rootFolderId ?? -1);
+  const { data, isLoading, query } = useFolder(user?.rootFolderId ?? -1);
+  const { handleFileSelect } = useFileUpload(user?.rootFolderId ?? -1, {
+    onSuccess: () => {
+      void query.refetch();
+    },
+  });
 
   return (
     <SidebarLayout header={<Header />} sidebar={<Sidebar />}>
       <div className="flex w-full flex-grow flex-col items-center">
+        <div className="flex w-full p-4">
+          <Button onClick={handleFileSelect}>업로드</Button>
+        </div>
         <div className="flex w-full px-4">
           {isLoading || !data ?
             <LoadingSpinner />

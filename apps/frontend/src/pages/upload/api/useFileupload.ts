@@ -12,7 +12,7 @@ type UseFileUploadOptions = UseTRPCMutationOptions<
 
 interface UseFileUpload {
   uploadError: string | undefined;
-  isUploading: boolean;
+  isPending: boolean;
 
   /**
    * 파일 선택 이벤트를 처리하는 함수
@@ -20,9 +20,11 @@ interface UseFileUpload {
   handleFileSelect: () => void;
 }
 
-export const useFileUpload = (opts?: UseFileUploadOptions): UseFileUpload => {
+export const useFileUpload = (
+  folderId: number,
+  opts?: UseFileUploadOptions,
+): UseFileUpload => {
   const [uploadError, setUploadError] = useState<string>();
-  const [isUploading, setIsUploading] = useState(false);
 
   const mutation = trpc.file.upload.useMutation({
     ...opts,
@@ -43,16 +45,11 @@ export const useFileUpload = (opts?: UseFileUploadOptions): UseFileUpload => {
       const target = e.target as HTMLInputElement;
       const file = target.files?.[0];
       if (file) {
-        const payload = {
-          file,
-          folderId: 123, // 필요한 경우 설정
-        };
-        setIsUploading(true);
-        mutation.mutate(payload, {
-          onSettled: () => {
-            setIsUploading(false);
-          },
-        });
+        const formData = new FormData();
+        formData.append("file", file);
+        formData.append("folderId", folderId.toString());
+
+        mutation.mutate(formData);
       }
     };
     fileInput.click();
@@ -60,7 +57,7 @@ export const useFileUpload = (opts?: UseFileUploadOptions): UseFileUpload => {
 
   return {
     uploadError,
-    isUploading,
+    isPending: mutation.isPending,
     handleFileSelect,
   };
 };
