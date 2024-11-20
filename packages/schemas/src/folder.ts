@@ -1,6 +1,7 @@
 import { z } from "zod";
+import { fileMetadataDTOSchema } from "./fileMetadata.ts";
 
-export const folderSchema = z.object({
+export const subFolderDTOSchema = z.object({
   id: z.coerce.number(),
   name: z
     .string()
@@ -12,15 +13,10 @@ export const folderSchema = z.object({
   ownerId: z.coerce.number().nullable(),
 });
 
-export const folderDTOSchema = folderSchema;
-
-export const folderPublicDTOSchema = folderSchema.pick({
-  id: true,
-  name: true,
-  createdAt: true,
-  updatedAt: true,
-  parentFolderId: true,
+export const folderDTOSchema = subFolderDTOSchema.extend({
+  subFolders: subFolderDTOSchema.array(),
+  files: z.array(fileMetadataDTOSchema),
 });
 
+export type SubFolderDTO = z.infer<typeof subFolderDTOSchema>;
 export type FolderDTO = z.infer<typeof folderDTOSchema>;
-export type FolderPublicDTO = z.infer<typeof folderPublicDTOSchema>;

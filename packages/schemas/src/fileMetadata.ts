@@ -31,5 +31,5 @@ export const fileMetadataPublicDTOSchema = fileMetadataSchema.pick({
   updatedAt: true,
 });
 
-export type FileDTO = z.infer<typeof fileMetadataDTOSchema>;
-export type FilePublicDTO = z.infer<typeof fileMetadataPublicDTOSchema>;
+export type FileMetadataDTO = z.infer<typeof fileMetadataDTOSchema>;
+export type FileMetadataPublicDTO = z.infer<typeof fileMetadataPublicDTOSchema>;
