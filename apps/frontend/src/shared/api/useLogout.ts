@@ -40,6 +40,9 @@ export const useLogout = (opts?: UseLogoutOptions): UseLogout => {
   });
 
   const logout = (): void => {
+    // 로그아웃 요청이 성공하든 실패하든 사용자 정보를 초기화
+    clearUser();
+
     mutation.mutate();
   };
 
