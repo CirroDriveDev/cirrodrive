@@ -247,6 +247,9 @@ export const fileRouter = router({
         throw new TRPCError({
           code: "INTERNAL_SERVER_ERROR",
           message: "파일을 휴지통으로 이동하는 중 오류가 발생했습니다.",
+        });
+      }
+    }),
 
   updateFileName: authedProcedure
     .input(
