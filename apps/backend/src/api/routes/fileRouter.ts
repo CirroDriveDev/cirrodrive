@@ -158,7 +158,7 @@ export const fileRouter = router({
         fileName: z.string(),
       }),
     )
-    .mutation(async ({ input, ctx }) => {
+    .query(async ({ input, ctx }) => {
       const { fileId } = input;
       const { id: userId } = ctx.user; // 인증된 사용자의 ID
 
