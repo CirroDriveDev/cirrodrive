@@ -351,4 +351,43 @@ export class FileService {
       return null;
     }
   }
+  /**
+   * 파일을 휴지통으로 이동합니다.
+   *
+   * @param fileId - 휴지통으로 이동할 파일의 ID입니다.
+   * @returns 업데이트된 파일 메타데이터입니다.
+   * @throws 파일 이동 중 오류가 발생한 경우.
+   */
+  public async moveToTrash(fileId: number): Promise<FileMetadata> {
+    try {
+      this.logger.info(
+        { methodName: "moveToTrash", fileId },
+        "파일 휴지통 이동 시작",
+      );
+
+      // 파일 메타데이터 업데이트
+      const updatedMetadata = await this.fileMetadataModel.update({
+        where: { id: fileId },
+        data: {
+          trashedAt: new Date(), // 'trashedAt' 필드를 현재 시간으로 업데이트
+        },
+      });
+
+      this.logger.info(
+        {
+          methodName: "moveToTrash",
+          updatedMetadata,
+        },
+        "파일 휴지통 이동 완료",
+      );
+
+      return updatedMetadata;
+    } catch (error) {
+      this.logger.error(
+        { methodName: "moveToTrash", error },
+        "파일 휴지통 이동 중 오류 발생",
+      );
+      throw new Error("파일을 휴지통으로 이동하는 중 오류가 발생했습니다.");
+    }
+  }
 }
