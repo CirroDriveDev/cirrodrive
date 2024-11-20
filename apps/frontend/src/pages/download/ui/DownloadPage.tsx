@@ -1,12 +1,12 @@
 import { Header } from "@/shared/ui/layout/Header.tsx";
 import { Button } from "@/shared/components/shadcn/Button.tsx";
-import { useDownload } from "@/pages/download/api/useDownload.ts";
+import { useDownloadByCode } from "@/pages/download/api/useDownloadByCode.ts";
 import { Layout } from "@/shared/ui/layout/Layout.tsx";
 import { LoadingSpinner } from "@/shared/components/LoadingSpinner.tsx";
 
 export function DownloadPage(): JSX.Element {
   const { codeString, query, handleInputChange, handleDownload } =
-    useDownload();
+    useDownloadByCode();
 
   return (
     <Layout header={<Header />}>
