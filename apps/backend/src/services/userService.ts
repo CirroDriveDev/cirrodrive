@@ -3,7 +3,6 @@ import type { Prisma, User } from "@cirrodrive/database";
 import { hash } from "@node-rs/argon2";
 import type { Logger } from "pino";
 import { Symbols } from "@/types/symbols.ts";
-import { FolderService } from "@/services/folderService.ts";
 
 /**
  * 사용자 서비스입니다.
@@ -13,7 +12,6 @@ export class UserService {
   constructor(
     @inject(Symbols.Logger) private logger: Logger,
     @inject(Symbols.UserModel) private userModel: Prisma.UserDelegate,
-    @inject(FolderService) private folderService: FolderService,
   ) {
     this.logger = logger.child({ serviceName: "UserService" });
   }
@@ -49,11 +47,13 @@ export class UserService {
           username,
           email,
           hashedPassword,
+          rootFolder: {
+            create: {
+              name: "root",
+            },
+          },
         },
       });
-
-      // 사용자의 루트 폴더 생성
-      await this.folderService.create(user.id, "root");
 
       return user;
     } catch (error) {
