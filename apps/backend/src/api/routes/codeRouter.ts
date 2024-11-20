@@ -39,11 +39,18 @@ export const codeRouter = router({
 
       return { codeString: code.codeString };
     }),
-  // 코드 삭제 (아직 구현 안함)
-  /*delete: procedure
+  // 코드 삭제
+  delete: procedure
     .input(z.object({ codeString: z.string() }))
-    .mutation(async ({ input }) => {
+    .mutation(async ({ input, ctx }) => {
       const { codeString } = input;
+
+      if (!ctx.user) {
+        throw new TRPCError({
+          code: "UNAUTHORIZED",
+          message: "사용자가 인증되지 않았습니다.",
+        });
+      }
 
       try {
         await codeService.deleteCode(codeString);
@@ -60,7 +67,7 @@ export const codeRouter = router({
         throw error;
       }
     }),
-*/
+
   // 코드로 파일 메타데이터 조회
   getFileMetadataByCode: procedure
     .input(z.object({ codeString: z.string() }))
