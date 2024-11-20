@@ -33,6 +33,7 @@ export const userSchema = z.object({
   pricingPlan: z.enum(["free", "basic", "premium"]),
   usedStorage: z.coerce.number(),
   profileImageUrl: z.string().url().nullable(),
+  rootFolderId: z.coerce.number(),
   createdAt: z.coerce.date(),
   updatedAt: z.coerce.date(),
 });

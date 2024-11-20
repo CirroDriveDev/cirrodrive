@@ -1,11 +1,11 @@
-import { type FileDTO, type FolderDTO } from "@cirrodrive/schemas";
+import { type SubFolderDTO, type FileMetadataDTO } from "@cirrodrive/schemas";
 import { FolderContentItem } from "@/features/folderContent/ui/FolderContentItem.tsx";
 import { type FolderContent } from "@/features/folderContent/types/folderContent.ts";
 import { parseContent } from "@/features/folderContent/lib/parseContent.ts";
 
 interface FolderContentListProps {
-  folders: FolderDTO[];
-  files: FileDTO[];
+  folders: SubFolderDTO[];
+  files: FileMetadataDTO[];
 }
 
 export function FolderContentList({
