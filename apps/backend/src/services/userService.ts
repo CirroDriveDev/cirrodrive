@@ -12,6 +12,7 @@ export class UserService {
   constructor(
     @inject(Symbols.Logger) private logger: Logger,
     @inject(Symbols.UserModel) private userModel: Prisma.UserDelegate,
+    @inject(Symbols.FolderModel) private folderModel: Prisma.FolderDelegate,
   ) {
     this.logger = logger.child({ serviceName: "UserService" });
   }
@@ -50,6 +51,19 @@ export class UserService {
           rootFolder: {
             create: {
               name: "root",
+            },
+          },
+        },
+      });
+
+      await this.folderModel.update({
+        where: {
+          id: user.rootFolderId,
+        },
+        data: {
+          owner: {
+            connect: {
+              id: user.id,
             },
           },
         },
