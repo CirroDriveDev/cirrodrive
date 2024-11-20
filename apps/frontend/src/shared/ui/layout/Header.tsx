@@ -19,18 +19,18 @@ export function Header(): JSX.Element {
       </div>
       <div className="flex flex-grow items-center justify-end p-4">
         <SearchBar />
-        <Button variant="ghost" className="ml-auto mr-1">
-          <Link to="/upload">업로드</Link>
-        </Button>
-        <Button variant="ghost" className="mr-1">
-          <Link to="/download">다운로드</Link>
-        </Button>
-        <span className="mr-1 text-xl">|</span>
         {user ?
           <Button variant="ghost" className="mr-1" onClick={logout}>
             로그아웃
           </Button>
         : <>
+            <Button variant="ghost" className="ml-auto mr-1">
+              <Link to="/upload">업로드</Link>
+            </Button>
+            <Button variant="ghost" className="mr-1">
+              <Link to="/download">다운로드</Link>
+            </Button>
+            <span className="mr-1 text-xl">|</span>
             <Button variant="ghost" className="mr-1">
               <Link to="/login">로그인</Link>
             </Button>

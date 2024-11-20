@@ -1,6 +1,7 @@
 import { z } from "zod"; // zod 임포트
 import { TRPCError } from "@trpc/server"; // TRPCError 임포트
-import { router, procedure } from "@/loaders/trpc.ts"; // tRPC 설정 임포트
+import { folderDTOSchema, type FolderDTO } from "@cirrodrive/schemas";
+import { router, procedure, authedProcedure } from "@/loaders/trpc.ts"; // tRPC 설정 임포트
 import { container } from "@/loaders/inversify.ts";
 import { FolderService } from "@/services/folderService.ts";
 
@@ -25,6 +26,30 @@ export const folderRouter = router({
         folderId: newFolder.id,
         name: newFolder.name,
       };
+    }),
+
+  listByParentFolder: authedProcedure
+    .input(
+      z.object({
+        folderId: z.number(),
+      }),
+    )
+    .output(folderDTOSchema.array())
+    .query(async ({ input }) => {
+      const { folderId } = input;
+
+      const folders = await folderService.listByParentFolder(folderId);
+
+      const folderDTOs: FolderDTO[] = folders.map((folder) => ({
+        id: folder.id,
+        name: folder.name,
+        createdAt: folder.createdAt,
+        updatedAt: folder.updatedAt,
+        parentFolderId: folder.parentFolderId,
+        ownerId: folder.ownerId,
+      }));
+
+      return folderDTOs;
     }),
 
   // 회원의 폴더 목록 조회
