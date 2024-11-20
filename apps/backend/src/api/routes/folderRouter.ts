@@ -1,6 +1,6 @@
 import { z } from "zod"; // zod 임포트
 import { TRPCError } from "@trpc/server"; // TRPCError 임포트
-import { folderDTOSchema } from "@cirrodrive/schemas";
+import { folderDTOSchema, subFolderDTOSchema } from "@cirrodrive/schemas";
 import { router, procedure, authedProcedure } from "@/loaders/trpc.ts"; // tRPC 설정 임포트
 import { container } from "@/loaders/inversify.ts";
 import { FolderService } from "@/services/folderService.ts";
@@ -9,23 +9,24 @@ const folderService = container.get(FolderService);
 
 export const folderRouter = router({
   // 새로운 폴더 생성
-  create: procedure
+  create: authedProcedure
     .input(
       z.object({
-        id: z.number(),
         name: z.string(),
         parentFolderId: z.number().optional(),
       }),
     )
-    .mutation(async ({ input }) => {
-      const { id, name, parentFolderId } = input;
+    .output(subFolderDTOSchema)
+    .mutation(async ({ input, ctx }) => {
+      const { name, parentFolderId } = input;
 
-      const newFolder = await folderService.create(id, name, parentFolderId);
+      const newFolder = await folderService.create(
+        ctx.user.id,
+        name,
+        parentFolderId,
+      );
 
-      return {
-        folderId: newFolder.id,
-        name: newFolder.name,
-      };
+      return newFolder;
     }),
 
   listByParentFolder: authedProcedure
