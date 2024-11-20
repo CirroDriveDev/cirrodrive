@@ -110,9 +110,9 @@ export const fileRouter = router({
 
   upload: authedProcedure
     .input(
-      z.object({
+      zfd.formData({
         file: zfd.file(), // 업로드할 파일
-        folderId: z.number().optional(), // 폴더 ID (선택적)
+        folderId: zfd.text().optional(), // 폴더 ID (선택적)
       }),
     )
     .output(
@@ -121,16 +121,28 @@ export const fileRouter = router({
       }),
     )
     .mutation(async ({ input, ctx }) => {
-      const { file } = input;
+      const { file, folderId } = input;
       const { user } = ctx;
       logger.info({ requestId: ctx.req.id, user }, "파일 업로드 요청 시작");
 
       let metadata;
       try {
-        metadata = await fileService.saveFile(file, user.id);
+        let count = 1;
+        let newFile = file;
+        while (await fileService.sameNameExists(newFile.name, user.id)) {
+          newFile = new File(
+            [file],
+            `${file.name.slice(0, file.name.lastIndexOf("."))} (${count})${file.name.slice(
+              file.name.lastIndexOf("."),
+            )}`,
+          );
+          count++;
+        }
+
+        metadata = await fileService.saveFile(newFile, user.id);
         // 폴더 ID가 주어진 경우 파일을 해당 폴더로 이동
-        if (input.folderId) {
-          metadata = await fileService.moveFile(metadata.id, input.folderId);
+        if (folderId) {
+          metadata = await fileService.moveFile(metadata.id, Number(folderId));
         }
       } catch (error) {
         logger.error({ requestId: ctx.req.id, error }, "파일 업로드 실패");

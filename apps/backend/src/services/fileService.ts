@@ -262,6 +262,52 @@ export class FileService {
     }
   }
 
+  /**
+   * 동일한 이름의 파일이 존재하는지 확인합니다.
+   *
+   * @param name - 확인할 파일 이름입니다.
+   * @param parentFolderId - 부모 폴더의 ID입니다.
+   * @returns 동일한 이름의 파일 존재 여부입니다.
+   */
+  public async sameNameExists(
+    name: string,
+    parentFolderId: number,
+  ): Promise<boolean> {
+    try {
+      this.logger.info(
+        {
+          methodName: "sameNameExists",
+          name,
+          parentFolderId,
+        },
+        "동일한 이름의 파일 존재 여부 확인 시작",
+      );
+
+      const fileMetadata = await this.fileMetadataModel.findFirst({
+        where: {
+          name,
+          parentFolderId,
+        },
+      });
+
+      this.logger.info(
+        {
+          methodName: "sameNameExists",
+          name,
+          parentFolderId,
+        },
+        "동일한 이름의 파일 존재 여부 확인 완료",
+      );
+
+      return Boolean(fileMetadata);
+    } catch (error) {
+      if (error instanceof Error) {
+        this.logger.error(error.message);
+      }
+      return false;
+    }
+  }
+
   public async moveFile(
     fileId: number,
     targetFolderId: number,
