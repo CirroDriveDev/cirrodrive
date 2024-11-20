@@ -354,7 +354,7 @@ export class FileService {
       return null;
     }
   }
-  
+
   /**
    * 파일을 휴지통으로 이동합니다.
    *
@@ -393,7 +393,8 @@ export class FileService {
       );
       throw new Error("파일을 휴지통으로 이동하는 중 오류가 발생했습니다.");
     }
-    
+  }
+
   async updateFileName(fileId: number, newName: string): Promise<FileMetadata> {
     // 파일 이름만 변경 (폴더 변경 필요 없음)
     return await this.prisma.fileMetadata.update({
