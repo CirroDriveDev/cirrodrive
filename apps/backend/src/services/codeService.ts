@@ -72,15 +72,18 @@ export class CodeService {
       await this.codeModel.delete({
         where: { codeString },
       });
-    } catch (error) {
+    } catch (error: unknown) {
       if (
         error instanceof Error &&
         error.message.includes("Record to delete does not exist.")
       ) {
-        throw new Error("코드를 찾을 수 없습니다.");
+        throw new Error("해당 코드가 존재하지 않습니다.");
       }
       if (error instanceof Error) {
-        this.logger.error(error.message);
+        this.logger.error(
+          { methodName: "deleteCode", codeString, error: error.message },
+          "코드 삭제 중 오류 발생",
+        );
       }
       throw error;
     }

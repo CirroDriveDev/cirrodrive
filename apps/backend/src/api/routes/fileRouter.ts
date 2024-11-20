@@ -247,6 +247,30 @@ export const fileRouter = router({
         throw new TRPCError({
           code: "INTERNAL_SERVER_ERROR",
           message: "파일을 휴지통으로 이동하는 중 오류가 발생했습니다.",
+
+  updateFileName: authedProcedure
+    .input(
+      z.object({
+        fileId: z.number(), // 수정할 파일 ID
+        name: z.string(), // 새로운 파일 이름
+      }),
+    )
+    .mutation(async ({ input, ctx }) => {
+      const { fileId, name } = input;
+
+      try {
+        // 파일 이름 수정
+        await fileService.updateFileName(fileId, name);
+
+        return { success: true }; // 수정 성공 응답
+      } catch (error) {
+        logger.error(
+          { requestId: ctx.req.id, error, fileId },
+          "파일 이름 수정 중 오류 발생",
+        );
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: "파일 이름 수정 중 오류가 발생했습니다.",
         });
       }
     }),
