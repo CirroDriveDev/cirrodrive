@@ -3,6 +3,7 @@ import path from "node:path";
 import { injectable, inject } from "inversify";
 import type { Prisma, FileMetadata } from "@cirrodrive/database";
 import type { Logger } from "pino";
+import { PrismaClient } from "@cirrodrive/database";
 import { Symbols } from "@/types/symbols.ts";
 import { CodeService } from "@/services/codeService.ts";
 /**
@@ -11,6 +12,7 @@ import { CodeService } from "@/services/codeService.ts";
 @injectable()
 export class FileService {
   private rootDir: string;
+  private prisma: PrismaClient;
 
   constructor(
     @inject(Symbols.Logger) private logger: Logger,
@@ -18,6 +20,7 @@ export class FileService {
     private fileMetadataModel: Prisma.FileMetadataDelegate,
     @inject(CodeService) private codeService: CodeService,
   ) {
+    this.prisma = new PrismaClient();
     this.rootDir = `./`;
     this.logger = logger.child({ serviceName: "FileService" });
   }
@@ -118,6 +121,49 @@ export class FileService {
       );
 
       return file;
+    } catch (error) {
+      if (error instanceof Error) {
+        this.logger.error(error.message);
+      }
+      throw error;
+    }
+  }
+
+  /**
+   * 부모 폴더 ID로 파일 메타데이터 목록 조회
+   *
+   * @param parentFolderId - 부모 폴더의 ID입니다.
+   * @returns 파일 메타데이터 목록입니다.
+   * @throws 파일 조회 중 오류가 발생한 경우.
+   */
+  public async listFileMetadataByParentFolder(
+    parentFolderId: number,
+  ): Promise<FileMetadata[]> {
+    try {
+      this.logger.info(
+        {
+          methodName: "listFileMetadataByParentFolder",
+          parentFolderId,
+        },
+        "파일 목록 조회 시작",
+      );
+
+      const files = await this.fileMetadataModel.findMany({
+        where: {
+          parentFolderId,
+        },
+      });
+
+      this.logger.info(
+        {
+          methodName: "listFileMetadataByParentFolder",
+          parentFolderId,
+          files,
+        },
+        "파일 목록 조회 완료",
+      );
+
+      return files;
     } catch (error) {
       if (error instanceof Error) {
         this.logger.error(error.message);
@@ -307,5 +353,53 @@ export class FileService {
       }
       return null;
     }
+  }
+
+  /**
+   * 파일을 휴지통으로 이동합니다.
+   *
+   * @param fileId - 휴지통으로 이동할 파일의 ID입니다.
+   * @returns 업데이트된 파일 메타데이터입니다.
+   * @throws 파일 이동 중 오류가 발생한 경우.
+   */
+  public async moveToTrash(fileId: number): Promise<FileMetadata> {
+    try {
+      this.logger.info(
+        { methodName: "moveToTrash", fileId },
+        "파일 휴지통 이동 시작",
+      );
+
+      // 파일 메타데이터 업데이트
+      const updatedMetadata = await this.fileMetadataModel.update({
+        where: { id: fileId },
+        data: {
+          trashedAt: new Date(), // 'trashedAt' 필드를 현재 시간으로 업데이트
+        },
+      });
+
+      this.logger.info(
+        {
+          methodName: "moveToTrash",
+          updatedMetadata,
+        },
+        "파일 휴지통 이동 완료",
+      );
+
+      return updatedMetadata;
+    } catch (error) {
+      this.logger.error(
+        { methodName: "moveToTrash", error },
+        "파일 휴지통 이동 중 오류 발생",
+      );
+      throw new Error("파일을 휴지통으로 이동하는 중 오류가 발생했습니다.");
+    }
+  }
+
+  async updateFileName(fileId: number, newName: string): Promise<FileMetadata> {
+    // 파일 이름만 변경 (폴더 변경 필요 없음)
+    return await this.prisma.fileMetadata.update({
+      where: { id: fileId },
+      data: { name: newName },
+    });
   }
 }

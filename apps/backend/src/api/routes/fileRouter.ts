@@ -3,6 +3,7 @@ import { resolve } from "node:path"; // path 모듈
 import { z } from "zod";
 import { TRPCError } from "@trpc/server";
 import { zfd } from "zod-form-data";
+import { fileMetadataDTOSchema } from "@cirrodrive/schemas";
 import { router, procedure, authedProcedure } from "@/loaders/trpc.ts";
 import { logger } from "@/loaders/logger.ts";
 import { container } from "@/loaders/inversify.ts";
@@ -91,6 +92,22 @@ export const fileRouter = router({
       }
     }),
 
+  listByParentFolder: authedProcedure
+    .input(
+      z.object({
+        folderId: z.number(),
+      }),
+    )
+    .output(fileMetadataDTOSchema.array())
+    .query(async ({ input }) => {
+      const { folderId } = input;
+
+      const fileMetadataList =
+        await fileService.listFileMetadataByParentFolder(folderId);
+
+      return fileMetadataList;
+    }),
+
   upload: authedProcedure
     .input(
       z.object({
@@ -141,7 +158,7 @@ export const fileRouter = router({
         fileName: z.string(),
       }),
     )
-    .mutation(async ({ input, ctx }) => {
+    .query(async ({ input, ctx }) => {
       const { fileId } = input;
       const { id: userId } = ctx.user; // 인증된 사용자의 ID
 
@@ -181,6 +198,82 @@ export const fileRouter = router({
         throw new TRPCError({
           code: "INTERNAL_SERVER_ERROR",
           message: "파일 다운로드 중 오류가 발생했습니다.",
+        });
+      }
+    }),
+  trash: authedProcedure
+    .input(
+      z.object({
+        fileId: z.number(), // 휴지통으로 옮길 파일의 ID
+      }),
+    )
+    .output(
+      z.object({
+        success: z.boolean(),
+      }),
+    )
+    .mutation(async ({ input, ctx }) => {
+      const { fileId } = input;
+      const { id: userId } = ctx.user; // 인증된 사용자의 ID
+
+      try {
+        // 파일 메타데이터 조회
+        const fileMetadata = await fileService.getFileMetadata(fileId);
+
+        if (!fileMetadata) {
+          throw new TRPCError({
+            code: "NOT_FOUND",
+            message: "파일을 찾을 수 없습니다.",
+          });
+        }
+
+        // 파일 소유자 검증 (로그인한 사용자와 일치해야만 파일을 휴지통으로 이동 가능)
+        if (fileMetadata.ownerId !== userId) {
+          throw new TRPCError({
+            code: "FORBIDDEN",
+            message: "파일에 접근할 권한이 없습니다.",
+          });
+        }
+
+        // 파일을 휴지통으로 이동
+        await fileService.moveToTrash(fileId);
+
+        return { success: true };
+      } catch (error) {
+        logger.error(
+          { requestId: ctx.req.id, error, fileId, userId },
+          "파일 휴지통 이동 중 오류 발생",
+        );
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: "파일을 휴지통으로 이동하는 중 오류가 발생했습니다.",
+        });
+      }
+    }),
+
+  updateFileName: authedProcedure
+    .input(
+      z.object({
+        fileId: z.number(), // 수정할 파일 ID
+        name: z.string(), // 새로운 파일 이름
+      }),
+    )
+    .mutation(async ({ input, ctx }) => {
+      const { fileId, name } = input;
+
+      try {
+        // 파일 이름 수정
+        await fileService.updateFileName(fileId, name);
+
+        return { success: true }; // 수정 성공 응답
+      } catch (error) {
+        logger.error(
+          { requestId: ctx.req.id, error, fileId },
+          "파일 이름 수정 중 오류 발생",
+        );
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: "파일 이름 수정 중 오류가 발생했습니다.",
         });
       }
     }),

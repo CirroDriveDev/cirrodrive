@@ -17,7 +17,7 @@ export const fileMetadataSchema = z.object({
   ownerId: z.coerce.number().nullable(),
 });
 
-export const FileMetadataDTOSchema = fileMetadataSchema.omit({
+export const fileMetadataDTOSchema = fileMetadataSchema.omit({
   hash: true,
   savedPath: true,
 });
@@ -31,5 +31,5 @@ export const fileMetadataPublicDTOSchema = fileMetadataSchema.pick({
   updatedAt: true,
 });
 
-export type FileDTO = z.infer<typeof FileMetadataDTOSchema>;
-export type FilePublicDTO = z.infer<typeof fileMetadataPublicDTOSchema>;
+export type FileMetadataDTO = z.infer<typeof fileMetadataDTOSchema>;
+export type FileMetadataPublicDTO = z.infer<typeof fileMetadataPublicDTOSchema>;
