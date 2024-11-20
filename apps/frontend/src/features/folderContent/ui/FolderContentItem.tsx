@@ -1,15 +1,24 @@
-import { MoreVertical } from "lucide-react";
+import { DownloadIcon, MoreVertical } from "lucide-react";
 import { useRef } from "react";
 import { formatSize } from "@/features/folderContent/lib/formatSize.ts";
 import { type FolderContent } from "@/features/folderContent/types/folderContent.ts";
 import { FolderContentIcon } from "@/features/folderContent/ui/FolderContentIcon.tsx";
 import { useContainerDimensions } from "@/shared/hooks/useContainerDimensions.ts";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuGroup,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/shared/components/shadcn/DropdownMenu.tsx";
+import { useDownload } from "@/pages/home/api/useDownload.ts";
 
 type FolderContentItemProps = FolderContent & {
   onDoubleClick?: () => void;
 };
 
 export function FolderContentItem({
+  id,
   name,
   type,
   updatedAt,
@@ -23,6 +32,7 @@ export function FolderContentItem({
   const { width } = useContainerDimensions(nameRef);
   const truncatedName =
     name.length > width / 8 - 4 ? `${name.slice(0, width / 8 - 4)}...` : name;
+  const { handleDownload } = useDownload(id);
 
   return (
     <div
@@ -41,9 +51,23 @@ export function FolderContentItem({
       <div className="w-52 text-nowrap">{displayUpdatedAt}</div>
       <div className="w-16">{displaySize}</div>
       <div className="flex w-8 items-center justify-center">
-        <button type="button">
-          <MoreVertical />
-        </button>
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <button type="button">
+              <MoreVertical />
+            </button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent className="w-56">
+            <DropdownMenuGroup>
+              {type !== "folder" && (
+                <DropdownMenuItem onClick={handleDownload}>
+                  <DownloadIcon />
+                  <span>다운로드</span>
+                </DropdownMenuItem>
+              )}
+            </DropdownMenuGroup>
+          </DropdownMenuContent>
+        </DropdownMenu>
       </div>
     </div>
   );
