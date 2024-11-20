@@ -16,6 +16,16 @@ async function main() {
         },
       },
     },
+    include: {
+      rootFolder: true,
+    },
+  });
+
+  const testuser1RootFolder = await prisma.folder.update({
+    where: { id: testuser1.rootFolderId },
+    data: {
+      ownerId: testuser1.id,
+    },
   });
 
   const testuser2 = await prisma.user.upsert({
@@ -31,9 +41,24 @@ async function main() {
         },
       },
     },
+    include: {
+      rootFolder: true,
+    },
   });
 
-  console.log({ testuser1, testuser2 });
+  const testuser2RootFolder = await prisma.folder.update({
+    where: { id: testuser2.rootFolderId },
+    data: {
+      ownerId: testuser2.id,
+    },
+  });
+
+  console.log({
+    testuser1,
+    testuser1RootFolder,
+    testuser2,
+    testuser2RootFolder,
+  });
 }
 
 main()

@@ -1,6 +1,6 @@
 import { z } from "zod"; // zod 임포트
 import { TRPCError } from "@trpc/server"; // TRPCError 임포트
-import { folderDTOSchema, type FolderDTO } from "@cirrodrive/schemas";
+import { folderDTOSchema } from "@cirrodrive/schemas";
 import { router, procedure, authedProcedure } from "@/loaders/trpc.ts"; // tRPC 설정 임포트
 import { container } from "@/loaders/inversify.ts";
 import { FolderService } from "@/services/folderService.ts";
@@ -40,16 +40,7 @@ export const folderRouter = router({
 
       const folders = await folderService.listByParentFolder(folderId);
 
-      const folderDTOs: FolderDTO[] = folders.map((folder) => ({
-        id: folder.id,
-        name: folder.name,
-        createdAt: folder.createdAt,
-        updatedAt: folder.updatedAt,
-        parentFolderId: folder.parentFolderId,
-        ownerId: folder.ownerId,
-      }));
-
-      return folderDTOs;
+      return folders;
     }),
 
   // 회원의 폴더 목록 조회
@@ -74,17 +65,32 @@ export const folderRouter = router({
     }),
 
   // 특정 폴더 조회
-  get: procedure
+  get: authedProcedure
     .input(
       z.object({
-        id: z.number(),
         folderId: z.number(),
       }),
     )
-    .query(async ({ input }) => {
-      const { id, folderId } = input;
+    .output(folderDTOSchema)
+    .query(async ({ input, ctx }) => {
+      const { folderId } = input;
 
-      const folder = await folderService.get(id, folderId);
+      const { user } = ctx;
+
+      if (
+        !(await folderService.isOwner({
+          userId: user.id,
+          folderId,
+        }))
+      ) {
+        throw new TRPCError({
+          code: "FORBIDDEN",
+          message: "폴더에 접근할 권한이 없습니다.",
+        });
+      }
+
+      const folder = await folderService.get(folderId);
+
       if (!folder) {
         throw new TRPCError({
           code: "NOT_FOUND",
@@ -92,12 +98,7 @@ export const folderRouter = router({
         });
       }
 
-      return {
-        folderId: folder.id,
-        name: folder.name,
-        parentId: folder.parentFolderId,
-        createdAt: folder.createdAt,
-      };
+      return folder;
     }),
 
   // 폴더 삭제
