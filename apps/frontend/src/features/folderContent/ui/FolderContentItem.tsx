@@ -1,4 +1,4 @@
-import { DownloadIcon, MoreVertical } from "lucide-react";
+import { DownloadIcon, MoreVertical, Trash2 } from "lucide-react";
 import { useRef } from "react";
 import { formatSize } from "@/features/folderContent/lib/formatSize.ts";
 import { type FolderContent } from "@/features/folderContent/types/folderContent.ts";
@@ -12,6 +12,7 @@ import {
   DropdownMenuTrigger,
 } from "@/shared/components/shadcn/DropdownMenu.tsx";
 import { useDownload } from "@/pages/home/api/useDownload.ts";
+import { useTrash } from "@/pages/home/api/useTrash.ts";
 
 type FolderContentItemProps = FolderContent & {
   onDoubleClick?: () => void;
@@ -33,6 +34,7 @@ export function FolderContentItem({
   const truncatedName =
     name.length > width / 8 - 4 ? `${name.slice(0, width / 8 - 4)}...` : name;
   const { handleDownload } = useDownload(id);
+  const { handleTrash } = useTrash(id);
 
   return (
     <div
@@ -63,6 +65,14 @@ export function FolderContentItem({
                 <DropdownMenuItem onClick={handleDownload}>
                   <DownloadIcon />
                   <span>다운로드</span>
+                </DropdownMenuItem>
+              )}
+            </DropdownMenuGroup>
+            <DropdownMenuGroup>
+              {type !== "folder" && (
+                <DropdownMenuItem onClick={handleTrash}>
+                  <Trash2 />
+                  <span>휴지통</span>
                 </DropdownMenuItem>
               )}
             </DropdownMenuGroup>
