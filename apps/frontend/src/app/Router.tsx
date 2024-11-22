@@ -8,6 +8,7 @@ import { UploadPage } from "@/pages/upload/ui/UploadPage.tsx";
 import { DownloadPage } from "@/pages/download/ui/DownloadPage.tsx";
 import { CodePage } from "@/pages/upload/ui/CodePage.tsx";
 import { useBoundStore } from "@/shared/store/useBoundStore.ts";
+import { TrashPage } from "@/pages/Trash/ui/TrashPage.tsx";
 
 function RedirectAuthedUserToHome({
   children,
@@ -71,6 +72,10 @@ const routeTree: RouteObject[] = [
   {
     path: "/code",
     element: <CodePage />,
+  },
+  {
+    path: "/Trash",
+    element: <TrashPage />,
   },
 ];
 
