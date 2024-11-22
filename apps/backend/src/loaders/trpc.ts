@@ -2,6 +2,7 @@ import { initTRPC, TRPCError } from "@trpc/server";
 import type { CreateExpressContextOptions } from "@trpc/server/adapters/express";
 import { z } from "zod";
 import type { Session, User } from "@cirrodrive/database";
+import { SuperJSON } from "superjson";
 import { AuthService } from "@/services/authService.ts";
 import { container } from "@/loaders/inversify.ts";
 
@@ -45,7 +46,7 @@ export const createContext = async ({
 export type Context = Awaited<ReturnType<typeof createContext>>;
 
 const t = initTRPC.context<Context>().create({
-  // transformer,
+  transformer: SuperJSON,
 });
 
 export const router = t.router;
