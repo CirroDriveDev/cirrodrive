@@ -351,4 +351,31 @@ export class FileService {
       return null;
     }
   }
+  public async restoreFromTrash(fileId: number): Promise<void> {
+    try {
+      this.logger.info(
+        { methodName: "restoreFromTrash", fileId },
+        "파일 복원 시작",
+      );
+
+      // 파일 메타데이터 업데이트
+      await this.fileMetadataModel.update({
+        where: { id: fileId },
+        data: {
+          trashedAt: null, // 'trashedAt' 필드를 null로 업데이트하여 복원
+        },
+      });
+
+      this.logger.info(
+        { methodName: "restoreFromTrash", fileId },
+        "파일 복원 완료",
+      );
+    } catch (error) {
+      this.logger.error(
+        { methodName: "restoreFromTrash", error },
+        "파일 복원 중 오류 발생",
+      );
+      throw new Error("파일 복원 중 오류가 발생했습니다.");
+    }
+  }
 }
