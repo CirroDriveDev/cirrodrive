@@ -289,4 +289,61 @@ export const fileRouter = router({
         });
       }
     }),
+  delete: authedProcedure
+    .input(
+      z.object({
+        fileId: z.number(), // 삭제할 파일의 ID
+      }),
+    )
+    .output(
+      z.object({
+        success: z.boolean(), // 삭제 성공 여부
+      }),
+    )
+    .mutation(async ({ input, ctx }) => {
+      const { fileId } = input;
+      const { id: userId } = ctx.user; // 현재 로그인된 사용자 ID
+
+      try {
+        // 파일 메타데이터 조회
+        const fileMetadata = await fileService.getFileMetadata(fileId);
+
+        if (!fileMetadata) {
+          throw new TRPCError({
+            code: "NOT_FOUND",
+            message: "파일을 찾을 수 없습니다.",
+          });
+        }
+
+        // 파일 소유자 검증
+        if (fileMetadata.ownerId !== userId) {
+          throw new TRPCError({
+            code: "FORBIDDEN",
+            message: "이 파일에 대한 삭제 권한이 없습니다.",
+          });
+        }
+
+        // 파일이 휴지통에 있는지 확인
+        if (!fileMetadata.trashedAt) {
+          throw new TRPCError({
+            code: "BAD_REQUEST",
+            message: "휴지통에 있는 파일만 삭제할 수 있습니다.",
+          });
+        }
+
+        // 파일 영구 삭제
+        await fileService.deleteFile(fileId);
+
+        return { success: true };
+      } catch (error) {
+        logger.error(
+          { requestId: ctx.req.id, error, fileId, userId },
+          "휴지통 파일 삭제 중 오류 발생",
+        );
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: "휴지통 파일 삭제 중 오류가 발생했습니다.",
+        });
+      }
+    }),
 });
