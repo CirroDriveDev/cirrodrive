@@ -99,13 +99,17 @@ export const fileRouter = router({
       }),
     )
     .output(fileMetadataDTOSchema.array())
-    .query(async ({ input }) => {
+    .query(async ({ input, ctx }) => {
       const { folderId } = input;
+      const { user } = ctx;
 
       const fileMetadataList =
         await fileService.listFileMetadataByParentFolder(folderId);
 
-      return fileMetadataList;
+      // 로그인한 사용자의 파일 중 휴지통에 있지 않은 파일만 반환
+      return fileMetadataList.filter(
+        (file) => file.ownerId === user.id && !file.trashedAt,
+      );
     }),
 
   upload: authedProcedure
@@ -286,6 +290,74 @@ export const fileRouter = router({
         throw new TRPCError({
           code: "INTERNAL_SERVER_ERROR",
           message: "파일 이름 수정 중 오류가 발생했습니다.",
+        });
+      }
+    }),
+  listTrashedFiles: authedProcedure
+    .input(
+      z.object({
+        folderId: z.number(),
+      }),
+    )
+    .output(fileMetadataDTOSchema.array())
+    .query(async ({ input, ctx }) => {
+      const { folderId } = input;
+      const { user } = ctx;
+
+      const fileMetadataList =
+        await fileService.listFileMetadataByParentFolder(folderId);
+
+      // 로그인한 사용자의 파일 중 휴지통에 있는 파일만 반환
+      return fileMetadataList.filter(
+        (file) => file.ownerId === user.id && file.trashedAt,
+      );
+    }),
+  restoreFromTrash: authedProcedure
+    .input(
+      z.object({
+        fileId: z.number(),
+      }),
+    )
+    .output(
+      z.object({
+        success: z.boolean(),
+      }),
+    )
+    .mutation(async ({ input, ctx }) => {
+      const { fileId } = input;
+      const { user } = ctx;
+
+      try {
+        // 파일 메타데이터 조회
+        const fileMetadata = await fileService.getFileMetadata(fileId);
+
+        if (!fileMetadata) {
+          throw new TRPCError({
+            code: "NOT_FOUND",
+            message: "파일을 찾을 수 없습니다.",
+          });
+        }
+
+        // 파일 소유자 검증
+        if (fileMetadata.ownerId !== user.id) {
+          throw new TRPCError({
+            code: "FORBIDDEN",
+            message: "파일에 접근할 권한이 없습니다.",
+          });
+        }
+
+        // 휴지통에서 파일 복원
+        await fileService.restoreFromTrash(fileId);
+
+        return { success: true };
+      } catch (error) {
+        logger.error(
+          { requestId: ctx.req.id, error, fileId, user: ctx.user },
+          "파일 복원 중 오류 발생",
+        );
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: "파일 복원 중 오류가 발생했습니다.",
         });
       }
     }),
