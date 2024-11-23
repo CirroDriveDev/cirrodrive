@@ -7,6 +7,7 @@ import { LandingPage } from "@/pages/landing/ui/LandingPage.tsx";
 import { UploadByCodePage } from "@/pages/uploadByCode/ui/UploadByCodePage.tsx";
 import { DownloadByCodePage } from "@/pages/downloadByCode/ui/DownloadByCodePage.tsx";
 import { useBoundStore } from "@/shared/store/useBoundStore.ts";
+import { NotFoundPage } from "@/pages/notFound/ui/NotFoundPage.tsx";
 
 function RedirectAuthedUserToHome({
   children,
@@ -66,6 +67,10 @@ const routeTree: RouteObject[] = [
   {
     path: "/download",
     element: <DownloadByCodePage />,
+  },
+  {
+    path: "*",
+    element: <NotFoundPage />,
   },
 ];
 
