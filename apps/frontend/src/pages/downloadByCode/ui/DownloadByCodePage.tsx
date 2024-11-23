@@ -5,7 +5,7 @@ import { Layout } from "@/shared/ui/layout/Layout.tsx";
 import { LoadingSpinner } from "@/shared/components/LoadingSpinner.tsx";
 
 export function DownloadByCodePage(): JSX.Element {
-  const { codeString, query, handleInputChange, handleDownload } =
+  const { codeString, query, handleInputChange, download } =
     useDownloadByCode();
 
   return (
@@ -26,7 +26,7 @@ export function DownloadByCodePage(): JSX.Element {
                 <p className="text-red-500">{query.error.message}</p>
               </div>
             : null}
-            <Button variant="default" type="button" onClick={handleDownload}>
+            <Button variant="default" type="button" onClick={download}>
               다운로드
             </Button>
             <div className="mt-4 flex h-8 w-full justify-center">

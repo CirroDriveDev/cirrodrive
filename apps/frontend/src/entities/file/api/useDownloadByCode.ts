@@ -16,13 +16,14 @@ interface UseDownloadByCode {
   codeString: string;
   query: ReturnType<typeof trpc.file.downloadByCode.useQuery>;
   handleInputChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
-  handleDownload: () => void;
+  download: () => void;
 }
 
 export const useDownloadByCode = (
+  code?: string,
   opts?: UseDownloadByCodeOptions,
 ): UseDownloadByCode => {
-  const [codeString, setCodeString] = useState<string>("");
+  const [codeString, setCodeString] = useState<string>(code ?? "");
   const [isDownloadClicked, setIsDownloadClicked] = useState<boolean>(false);
 
   const query = trpc.file.downloadByCode.useQuery(
@@ -39,7 +40,7 @@ export const useDownloadByCode = (
     setCodeString(e.target.value);
   };
 
-  const handleDownload = (): void => {
+  const download = (): void => {
     if (!codeString || codeString.length === 0 || query.isLoading) {
       return;
     }
@@ -60,6 +61,6 @@ export const useDownloadByCode = (
     codeString,
     query,
     handleInputChange,
-    handleDownload,
+    download,
   };
 };
