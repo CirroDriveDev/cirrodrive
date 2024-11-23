@@ -1,4 +1,4 @@
-import { Activity, MoreVertical } from "lucide-react";
+import { Activity, MoreVertical, Trash2Icon } from "lucide-react";
 import { useRef } from "react";
 import { formatSize } from "@/features/folderContent/lib/formatSize.ts";
 import { type FolderContent } from "@/features/folderContent/types/folderContent.ts";
@@ -11,7 +11,8 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/shared/components/shadcn/DropdownMenu.tsx";
-import { useDownload } from "@/pages/home/api/useDownload.ts";
+import { useRestor } from "@/pages/Trash/api/useRestore.ts";
+import { useDelete } from "@/pages/Trash/api/useDelete.ts";
 
 type FolderContentItemProps = FolderContent & {
   onDoubleClick?: () => void;
@@ -32,7 +33,8 @@ export function FileTrashItem({
   const { width } = useContainerDimensions(nameRef);
   const truncatedName =
     name.length > width / 8 - 4 ? `${name.slice(0, width / 8 - 4)}...` : name;
-  const { handleDownload } = useDownload(id);
+  const { handleTrash } = useRestor(id); // 복원하기
+  const { handleDelete, isMutating } = useDelete(id); // 삭제하기
 
   return (
     <div
@@ -60,9 +62,17 @@ export function FileTrashItem({
           <DropdownMenuContent className="w-56">
             <DropdownMenuGroup>
               {type !== "folder" && (
-                <DropdownMenuItem onClick={handleDownload}>
+                <DropdownMenuItem onClick={handleTrash}>
                   <Activity />
                   <span>복원하기</span>
+                </DropdownMenuItem>
+              )}
+            </DropdownMenuGroup>
+            <DropdownMenuGroup>
+              {type !== "folder" && (
+                <DropdownMenuItem onClick={handleDelete} disabled={isMutating}>
+                  <Trash2Icon />
+                  <span>삭제하기</span>
                 </DropdownMenuItem>
               )}
             </DropdownMenuGroup>
