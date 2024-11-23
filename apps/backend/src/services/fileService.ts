@@ -189,9 +189,9 @@ export class FileService {
         "코드로 파일 조회 시작",
       );
 
-      const { fileId } = await this.codeService.getCodeMetadata(codeString);
+      const { id } = await this.codeService.getCodeMetadata(codeString);
 
-      const file = await this.getFileById(fileId);
+      const file = await this.getFileById(id);
 
       this.logger.info(
         {

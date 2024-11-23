@@ -3,7 +3,10 @@ import { resolve } from "node:path"; // path 모듈
 import { z } from "zod";
 import { TRPCError } from "@trpc/server";
 import { zfd } from "zod-form-data";
-import { fileMetadataDTOSchema } from "@cirrodrive/schemas";
+import {
+  fileMetadataDTOSchema,
+  fileMetadataPublicDTOSchema,
+} from "@cirrodrive/schemas";
 import { router, procedure, authedProcedure } from "@/loaders/trpc.ts";
 import { logger } from "@/loaders/logger.ts";
 import { container } from "@/loaders/inversify.ts";
@@ -90,6 +93,25 @@ export const fileRouter = router({
 
         throw error;
       }
+    }),
+
+  /**
+   * 파일 메타데이터 조회
+   */
+  getByCode: procedure
+    .input(z.object({ code: z.string() }))
+    .output(fileMetadataPublicDTOSchema)
+    .query(async ({ input }) => {
+      const metadata = await codeService.getCodeMetadata(input.code);
+
+      if (!metadata) {
+        throw new TRPCError({
+          code: "NOT_FOUND",
+          message: "코드에 해당하는 파일을 찾을 수 없습니다.",
+        });
+      }
+
+      return metadata;
     }),
 
   listByParentFolder: authedProcedure

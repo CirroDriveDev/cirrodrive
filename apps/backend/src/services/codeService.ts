@@ -1,6 +1,10 @@
 import { injectable, inject } from "inversify";
 import type { Code, Prisma } from "@cirrodrive/database";
 import type { Logger } from "pino";
+import {
+  fileMetadataPublicDTOSchema,
+  type FileMetadataPublicDTO,
+} from "@cirrodrive/schemas";
 import { Symbols } from "@/types/symbols.ts";
 import { generateCode } from "@/utils/generateCode.ts";
 
@@ -98,12 +102,9 @@ export class CodeService {
    * @returns 파일 메타데이터입니다.
    * @throws 코드 조회 중 오류가 발생한 경우.
    */
-  public async getCodeMetadata(codeString: string): Promise<{
-    fileId: number;
-    fileName: string;
-    fileSize: number;
-    fileExtension: string;
-  }> {
+  public async getCodeMetadata(
+    codeString: string,
+  ): Promise<FileMetadataPublicDTO> {
     try {
       this.logger.info(
         {
@@ -122,12 +123,7 @@ export class CodeService {
         throw new Error("유효하지 않은 코드입니다.");
       }
 
-      return {
-        fileId: code.file.id,
-        fileName: code.file.name,
-        fileSize: code.file.size,
-        fileExtension: code.file.extension,
-      };
+      return fileMetadataPublicDTOSchema.parse(code.file);
     } catch (error) {
       if (error instanceof Error) {
         this.logger.error(error.message);
