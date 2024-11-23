@@ -11,7 +11,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/shared/components/shadcn/DropdownMenu.tsx";
-import { useDownload } from "@/pages/home/api/useDownload.ts";
+import { useDownload } from "@/entities/file/api/useDownload.ts";
 
 type FolderContentItemProps = FolderContent & {
   onDoubleClick?: () => void;

@@ -4,9 +4,8 @@ import { HomePage } from "@/pages/home/ui/HomePage.tsx";
 import { LoginPage } from "@/pages/login/ui/LoginPage.tsx";
 import { RegisterPage } from "@/pages/register/ui/RegisterPage.tsx";
 import { LandingPage } from "@/pages/landing/ui/LandingPage.tsx";
-import { UploadPage } from "@/pages/upload/ui/UploadPage.tsx";
-import { DownloadPage } from "@/pages/download/ui/DownloadPage.tsx";
-import { CodePage } from "@/pages/upload/ui/CodePage.tsx";
+import { UploadByCodePage } from "@/pages/uploadByCode/ui/UploadByCodePage.tsx";
+import { DownloadByCodePage } from "@/pages/downloadByCode/ui/DownloadByCodePage.tsx";
 import { useBoundStore } from "@/shared/store/useBoundStore.ts";
 
 function RedirectAuthedUserToHome({
@@ -62,15 +61,11 @@ const routeTree: RouteObject[] = [
   },
   {
     path: "/upload",
-    element: <UploadPage />,
+    element: <UploadByCodePage />,
   },
   {
     path: "/download",
-    element: <DownloadPage />,
-  },
-  {
-    path: "/code",
-    element: <CodePage />,
+    element: <DownloadByCodePage />,
   },
 ];
 

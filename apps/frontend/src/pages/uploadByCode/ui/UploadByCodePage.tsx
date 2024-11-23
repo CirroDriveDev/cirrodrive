@@ -2,12 +2,12 @@ import { File as FileIcon } from "lucide-react";
 import { Link } from "react-router-dom";
 import { Header } from "@/shared/ui/layout/Header.tsx";
 import { Layout } from "@/shared/ui/layout/Layout.tsx";
-import { useUpload } from "@/pages/upload/api/useUpload.ts";
+import { useUploadPublic } from "@/entities/file/api/useUploadPublic.ts";
 import { LoadingSpinner } from "@/shared/components/LoadingSpinner.tsx";
 
-export function UploadPage(): JSX.Element {
+export function UploadByCodePage(): JSX.Element {
   const { selectedFile, code, mutation, handleFileChange, handleFormSubmit } =
-    useUpload();
+    useUploadPublic();
 
   return (
     // TODO: 반응형 UI 구현

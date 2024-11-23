@@ -1,10 +1,10 @@
 import { Header } from "@/shared/ui/layout/Header.tsx";
 import { Button } from "@/shared/components/shadcn/Button.tsx";
-import { useDownloadByCode } from "@/pages/download/api/useDownloadByCode.ts";
+import { useDownloadByCode } from "@/entities/file/api/useDownloadByCode.ts";
 import { Layout } from "@/shared/ui/layout/Layout.tsx";
 import { LoadingSpinner } from "@/shared/components/LoadingSpinner.tsx";
 
-export function DownloadPage(): JSX.Element {
+export function DownloadByCodePage(): JSX.Element {
   const { codeString, query, handleInputChange, handleDownload } =
     useDownloadByCode();
 
