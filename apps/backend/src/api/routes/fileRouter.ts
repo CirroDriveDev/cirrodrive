@@ -99,13 +99,17 @@ export const fileRouter = router({
       }),
     )
     .output(fileMetadataDTOSchema.array())
-    .query(async ({ input }) => {
+    .query(async ({ input, ctx }) => {
       const { folderId } = input;
+      const { user } = ctx;
 
       const fileMetadataList =
         await fileService.listFileMetadataByParentFolder(folderId);
 
-      return fileMetadataList;
+      // 로그인한 사용자의 파일 중 휴지통에 있지 않은 파일만 반환
+      return fileMetadataList.filter(
+        (file) => file.ownerId === user.id && !file.trashedAt,
+      );
     }),
 
   upload: authedProcedure
@@ -289,20 +293,40 @@ export const fileRouter = router({
         });
       }
     }),
-  delete: authedProcedure
+
+  listTrashedFiles: authedProcedure
     .input(
       z.object({
-        fileId: z.number(), // 삭제할 파일의 ID
+        folderId: z.number(),
+      }),
+    )
+    .output(fileMetadataDTOSchema.array())
+    .query(async ({ input, ctx }) => {
+      const { folderId } = input;
+      const { user } = ctx;
+
+      const fileMetadataList =
+        await fileService.listFileMetadataByParentFolder(folderId);
+
+      // 로그인한 사용자의 파일 중 휴지통에 있는 파일만 반환
+      return fileMetadataList.filter(
+        (file) => file.ownerId === user.id && file.trashedAt,
+      );
+    }),
+  restoreFromTrash: authedProcedure
+    .input(
+      z.object({
+        fileId: z.number(),
       }),
     )
     .output(
       z.object({
-        success: z.boolean(), // 삭제 성공 여부
+        success: z.boolean(),
       }),
     )
     .mutation(async ({ input, ctx }) => {
       const { fileId } = input;
-      const { id: userId } = ctx.user; // 현재 로그인된 사용자 ID
+      const { id: userId } = ctx.user;
 
       try {
         // 파일 메타데이터 조회
@@ -319,30 +343,72 @@ export const fileRouter = router({
         if (fileMetadata.ownerId !== userId) {
           throw new TRPCError({
             code: "FORBIDDEN",
-            message: "이 파일에 대한 삭제 권한이 없습니다.",
+            message: "파일에 접근할 권한이 없습니다.",
           });
         }
 
-        // 파일이 휴지통에 있는지 확인
-        if (!fileMetadata.trashedAt) {
+        // 파일 복원
+        await fileService.restoreFromTrash(fileId);
+
+        return { success: true };
+      } catch (error) {
+        logger.error(
+          { requestId: ctx.req.id, error, fileId, user: ctx.user },
+          "파일 복원 중 오류 발생",
+        );
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: "파일 복원 중 오류가 발생했습니다.",
+        });
+      }
+    }),
+
+  delete: authedProcedure
+    .input(
+      z.object({
+        fileId: z.number(), // 삭제할 파일의 ID
+      }),
+    )
+    .output(
+      z.object({
+        success: z.boolean(),
+      }),
+    )
+    .mutation(async ({ input, ctx }) => {
+      const { fileId } = input;
+      const { id: userId } = ctx.user;
+
+      try {
+        // 파일 메타데이터 조회
+        const fileMetadata = await fileService.getFileMetadata(fileId);
+
+        if (!fileMetadata) {
           throw new TRPCError({
-            code: "BAD_REQUEST",
-            message: "휴지통에 있는 파일만 삭제할 수 있습니다.",
+            code: "NOT_FOUND",
+            message: "파일을 찾을 수 없습니다.",
           });
         }
 
-        // 파일 영구 삭제
+        // 파일 소유자 검증
+        if (fileMetadata.ownerId !== userId) {
+          throw new TRPCError({
+            code: "FORBIDDEN",
+            message: "파일에 접근할 권한이 없습니다.",
+          });
+        }
+
+        // 파일 삭제
         await fileService.deleteFile(fileId);
 
         return { success: true };
       } catch (error) {
         logger.error(
-          { requestId: ctx.req.id, error, fileId, userId },
-          "휴지통 파일 삭제 중 오류 발생",
+          { requestId: ctx.req.id, error, fileId, user: ctx.user },
+          "파일 삭제 중 오류 발생",
         );
         throw new TRPCError({
           code: "INTERNAL_SERVER_ERROR",
-          message: "휴지통 파일 삭제 중 오류가 발생했습니다.",
+          message: "파일 삭제 중 오류가 발생했습니다.",
         });
       }
     }),
