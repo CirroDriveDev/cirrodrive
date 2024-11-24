@@ -45,7 +45,7 @@ export const folderRouter = router({
     }),
 
   // 회원의 폴더 목록 조회
-  listByUser: procedure
+  listByUser: authedProcedure
     .input(
       z.object({
         id: z.number(),
@@ -55,8 +55,10 @@ export const folderRouter = router({
     .query(async ({ input }) => {
       const { id, parentFolderId } = input;
 
+      // folderService에서 사용자와 부모 폴더에 맞는 폴더 목록을 조회
       const folders = await folderService.listByUser(id, parentFolderId);
 
+      // 반환할 데이터를 folderDTOSchema 형식에 맞게 변환
       return folders.map((folder) => ({
         folderId: folder.id,
         name: folder.name,
