@@ -7,6 +7,7 @@ import { LandingPage } from "@/pages/landing/ui/LandingPage.tsx";
 import { UploadByCodePage } from "@/pages/uploadByCode/ui/UploadByCodePage.tsx";
 import { DownloadByCodePage } from "@/pages/downloadByCode/ui/DownloadByCodePage.tsx";
 import { useBoundStore } from "@/shared/store/useBoundStore.ts";
+import { CodePage } from "@/pages/code/ui/CodePage.tsx";
 import { NotFoundPage } from "@/pages/notFound/ui/NotFoundPage.tsx";
 
 function RedirectAuthedUserToHome({
@@ -67,6 +68,10 @@ const routeTree: RouteObject[] = [
   {
     path: "/download",
     element: <DownloadByCodePage />,
+  },
+  {
+    path: "/c/:code",
+    element: <CodePage />,
   },
   {
     path: "*",

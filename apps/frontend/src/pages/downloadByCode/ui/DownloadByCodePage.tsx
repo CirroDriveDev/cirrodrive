@@ -1,12 +1,32 @@
+import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { Header } from "@/shared/ui/layout/Header.tsx";
 import { Button } from "@/shared/components/shadcn/Button.tsx";
-import { useDownloadByCode } from "@/entities/file/api/useDownloadByCode.ts";
 import { Layout } from "@/shared/ui/layout/Layout.tsx";
-import { LoadingSpinner } from "@/shared/components/LoadingSpinner.tsx";
+import { useGetFileByCode } from "@/entities/file/api/useGetFileByCode.ts";
 
 export function DownloadByCodePage(): JSX.Element {
-  const { codeString, query, handleInputChange, download } =
-    useDownloadByCode();
+  const navigate = useNavigate();
+  const [code, setCode] = useState("");
+  const [errorMessage, setErrorMessage] = useState("");
+  const { error } = useGetFileByCode(code);
+
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>): void => {
+    setErrorMessage("");
+    setCode(e.target.value);
+  };
+
+  const submitCode = (): void => {
+    if (!code) {
+      setErrorMessage("코드를 입력해주세요.");
+      return;
+    }
+    if (error) {
+      setErrorMessage(error.message);
+      return;
+    }
+    navigate(`/c/${code}`);
+  };
 
   return (
     <Layout header={<Header />}>
@@ -15,25 +35,20 @@ export function DownloadByCodePage(): JSX.Element {
           <h2 className="text-2xl font-bold">다운로드</h2>
           <input
             type="text"
-            value={codeString}
+            value={code}
             onChange={handleInputChange}
-            className="mb-1 mt-2 w-full rounded-md border border-gray-300 px-3 py-2"
+            className="mb-1 mt-2 w-full rounded-md border border-gray-300 px-3 py-2 text-black"
             placeholder="Enter code"
           />
           <div className="flex w-full flex-col justify-center">
-            {query.error ?
-              <div className="h-8">
-                <p className="text-red-500">{query.error.message}</p>
-              </div>
-            : null}
-            <Button variant="default" type="button" onClick={download}>
-              다운로드
+            <Button variant="default" type="button" onClick={submitCode}>
+              확인
             </Button>
-            <div className="mt-4 flex h-8 w-full justify-center">
-              {query.isFetching ?
-                <LoadingSpinner />
-              : null}
-            </div>
+          </div>
+          <div className="h-8">
+            {errorMessage ?
+              <p className="text-red-500">{errorMessage}</p>
+            : null}
           </div>
         </section>
       </div>
