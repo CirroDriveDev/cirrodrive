@@ -9,6 +9,11 @@ export function UploadByCodePage(): JSX.Element {
   const { selectedFile, code, mutation, handleFileChange, handleFormSubmit } =
     useUploadPublic();
 
+  const generateLink = (c: string): string => {
+    // 현재 오리진에서 링크를 생성
+    return `${window.location.origin}/c/${c}`;
+  };
+
   return (
     // TODO: 반응형 UI 구현
     <Layout header={<Header />}>
@@ -44,6 +49,11 @@ export function UploadByCodePage(): JSX.Element {
           <div className="flex justify-center">
             {code ?
               <>코드: {code}</>
+            : null}
+          </div>
+          <div className="flex justify-center">
+            {code ?
+              <>링크: {generateLink(code)}</>
             : null}
           </div>
           <div className="mt-4 flex h-8 w-full justify-center">
