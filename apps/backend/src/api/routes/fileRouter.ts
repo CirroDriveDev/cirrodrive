@@ -317,24 +317,16 @@ export const fileRouter = router({
     .input(
       z.object({
         fileId: z.number(),
-
-  delete: authedProcedure
-    .input(
-      z.object({
-        fileId: z.number(), // 삭제할 파일의 ID
-
       }),
     )
     .output(
       z.object({
-
         success: z.boolean(),
-
       }),
     )
     .mutation(async ({ input, ctx }) => {
       const { fileId } = input;
-      const { id: userId } = ctx.user; // 현재 로그인된 사용자 ID
+      const { id: userId } = ctx.user;
 
       try {
         // 파일 메타데이터 조회
@@ -348,29 +340,75 @@ export const fileRouter = router({
         }
 
         // 파일 소유자 검증
-
-        if (fileMetadata.ownerId !== user.id) {
+        if (fileMetadata.ownerId !== userId) {
           throw new TRPCError({
             code: "FORBIDDEN",
             message: "파일에 접근할 권한이 없습니다.",
           });
         }
 
-        // 휴지통에서 파일 복원
+        // 파일 복원
         await fileService.restoreFromTrash(fileId);
-
 
         return { success: true };
       } catch (error) {
         logger.error(
-
           { requestId: ctx.req.id, error, fileId, user: ctx.user },
           "파일 복원 중 오류 발생",
         );
         throw new TRPCError({
           code: "INTERNAL_SERVER_ERROR",
           message: "파일 복원 중 오류가 발생했습니다.",
+        });
+      }
+    }),
 
+  delete: authedProcedure
+    .input(
+      z.object({
+        fileId: z.number(), // 삭제할 파일의 ID
+      }),
+    )
+    .output(
+      z.object({
+        success: z.boolean(),
+      }),
+    )
+    .mutation(async ({ input, ctx }) => {
+      const { fileId } = input;
+      const { id: userId } = ctx.user;
+
+      try {
+        // 파일 메타데이터 조회
+        const fileMetadata = await fileService.getFileMetadata(fileId);
+
+        if (!fileMetadata) {
+          throw new TRPCError({
+            code: "NOT_FOUND",
+            message: "파일을 찾을 수 없습니다.",
+          });
+        }
+
+        // 파일 소유자 검증
+        if (fileMetadata.ownerId !== userId) {
+          throw new TRPCError({
+            code: "FORBIDDEN",
+            message: "파일에 접근할 권한이 없습니다.",
+          });
+        }
+
+        // 파일 삭제
+        await fileService.deleteFile(fileId);
+
+        return { success: true };
+      } catch (error) {
+        logger.error(
+          { requestId: ctx.req.id, error, fileId, user: ctx.user },
+          "파일 삭제 중 오류 발생",
+        );
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: "파일 삭제 중 오류가 발생했습니다.",
         });
       }
     }),
