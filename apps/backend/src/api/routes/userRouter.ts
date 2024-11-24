@@ -60,8 +60,8 @@ export const userRouter = router({
   list: procedure
     .input(
       z.object({
-        limit: z.coerce.number().optional().default(10),
-        offset: z.coerce.number().optional().default(0),
+        limit: z.number().optional().default(10),
+        offset: z.number().optional().default(0),
       }),
     )
     .output(z.array(userDTOSchema))

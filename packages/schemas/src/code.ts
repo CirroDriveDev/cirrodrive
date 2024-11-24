@@ -1,8 +1,8 @@
 import { z } from "zod";
 
 export const codeSchema = z.object({
-  id: z.coerce.number(),
-  fileId: z.coerce.number(),
+  id: z.number(),
+  fileId: z.number(),
   codeString: z.string(),
-  expiresAt: z.coerce.date(),
+  expiresAt: z.date(),
 });

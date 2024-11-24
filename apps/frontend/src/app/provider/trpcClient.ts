@@ -4,8 +4,8 @@ import {
   isNonJsonSerializable,
   splitLink,
 } from "@trpc/client";
+import { SuperJSON } from "superjson";
 import { trpc, TRPC_URL } from "@/shared/api/trpc.ts";
-// import { transformer } from "@cirrodrive/tranformer";
 
 export const trpcClient = trpc.createClient({
   links: [
@@ -13,7 +13,10 @@ export const trpcClient = trpc.createClient({
       condition: (op) => isNonJsonSerializable(op.input),
       true: httpLink({
         url: TRPC_URL,
-        // transformer,
+        transformer: {
+          serialize: (data) => data as unknown,
+          deserialize: SuperJSON.deserialize,
+        },
         fetch(url, options) {
           return fetch(url, {
             ...options,
@@ -23,7 +26,7 @@ export const trpcClient = trpc.createClient({
       }),
       false: httpBatchLink({
         url: TRPC_URL,
-        // transformer,
+        transformer: SuperJSON,
         fetch(url, options) {
           return fetch(url, {
             ...options,

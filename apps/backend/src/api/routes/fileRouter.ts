@@ -293,6 +293,7 @@ export const fileRouter = router({
         });
       }
     }),
+
   listTrashedFiles: authedProcedure
     .input(
       z.object({
@@ -316,16 +317,24 @@ export const fileRouter = router({
     .input(
       z.object({
         fileId: z.number(),
+
+  delete: authedProcedure
+    .input(
+      z.object({
+        fileId: z.number(), // 삭제할 파일의 ID
+
       }),
     )
     .output(
       z.object({
+
         success: z.boolean(),
+
       }),
     )
     .mutation(async ({ input, ctx }) => {
       const { fileId } = input;
-      const { user } = ctx;
+      const { id: userId } = ctx.user; // 현재 로그인된 사용자 ID
 
       try {
         // 파일 메타데이터 조회
@@ -339,6 +348,7 @@ export const fileRouter = router({
         }
 
         // 파일 소유자 검증
+
         if (fileMetadata.ownerId !== user.id) {
           throw new TRPCError({
             code: "FORBIDDEN",
@@ -349,15 +359,18 @@ export const fileRouter = router({
         // 휴지통에서 파일 복원
         await fileService.restoreFromTrash(fileId);
 
+
         return { success: true };
       } catch (error) {
         logger.error(
+
           { requestId: ctx.req.id, error, fileId, user: ctx.user },
           "파일 복원 중 오류 발생",
         );
         throw new TRPCError({
           code: "INTERNAL_SERVER_ERROR",
           message: "파일 복원 중 오류가 발생했습니다.",
+
         });
       }
     }),

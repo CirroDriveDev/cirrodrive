@@ -440,6 +440,27 @@ export class FileService {
       throw new Error("파일을 휴지통으로 이동하는 중 오류가 발생했습니다.");
     }
   }
+  async deleteFile(fileId: number): Promise<void> {
+    const file = await this.prisma.fileMetadata.findUnique({
+      where: { id: fileId },
+    });
+
+    if (!file) {
+      throw new Error("파일이 존재하지 않습니다.");
+    }
+
+    // 파일 삭제
+    if (file.savedPath) {
+      fs.unlinkSync(file.savedPath); // 로컬 스토리지에서 파일 삭제
+    }
+
+    // 데이터베이스에서 파일 메타데이터 삭제
+    await this.prisma.fileMetadata.delete({
+      where: { id: fileId },
+    });
+
+    this.logger.info({ fileId }, "파일이 영구적으로 삭제되었습니다.");
+  }
 
   async updateFileName(fileId: number, newName: string): Promise<FileMetadata> {
     // 파일 이름만 변경 (폴더 변경 필요 없음)
