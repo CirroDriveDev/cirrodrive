@@ -202,19 +202,31 @@ export class FolderService {
         "폴더 삭제 시작",
       );
 
-      await this.folderModel.deleteMany({
-        where: {
-          id: folderId,
-          ownerId,
+      const folder = await this.folderModel.findUnique({
+        where: { id: folderId },
+        include: {
+          files: true,
+          subFolders: true,
         },
       });
-    } catch (error) {
-      if (
-        error instanceof Error &&
-        error.message.includes("Record to delete does not exist.")
-      ) {
+
+      if (!folder) {
         throw new Error("해당 폴더를 찾을 수 없습니다.");
       }
+
+      // 파일이나 하위 폴더가 없으면 바로 삭제
+      if (folder.files.length === 0 && folder.subFolders.length === 0) {
+        await this.folderModel.delete({
+          where: {
+            id: folderId,
+          },
+        });
+        this.logger.info({ folderId, ownerId }, "폴더가 삭제되었습니다.");
+      } else {
+        // 파일이나 하위 폴더가 있으면 moveToTrash 메서드 호출
+        await this.moveToTrash(ownerId, folderId);
+      }
+    } catch (error) {
       if (error instanceof Error) {
         this.logger.error(error.message);
       }
@@ -265,6 +277,52 @@ export class FolderService {
       );
 
       return result;
+    } catch (error) {
+      if (error instanceof Error) {
+        this.logger.error(error.message);
+      }
+      throw error;
+    }
+  }
+  /**
+   * 폴더를 휴지통으로 이동합니다.
+   *
+   * @param ownerId - 회원의 ID입니다.
+   * @param folderId - 휴지통으로 이동할 폴더의 ID입니다.
+   * @throws 휴지통 이동 중 오류가 발생한 경우.
+   */
+  public async moveToTrash(ownerId: number, folderId: number): Promise<void> {
+    try {
+      this.logger.info(
+        {
+          methodName: "moveToTrash",
+          ownerId,
+          folderId,
+        },
+        "휴지통으로 이동 시작",
+      );
+
+      // 폴더의 파일들을 휴지통 처리
+      await this.folderModel.update({
+        where: { id: folderId },
+        data: {
+          files: {
+            updateMany: {
+              where: {
+                parentFolderId: folderId, // 해당 폴더의 파일들을 찾기
+              },
+              data: {
+                trashedAt: new Date(), // trashedAt 필드를 현재 시간으로 설정
+              },
+            },
+          },
+        },
+      });
+
+      this.logger.info(
+        { folderId, ownerId },
+        "폴더의 파일들이 휴지통으로 이동되었습니다.",
+      );
     } catch (error) {
       if (error instanceof Error) {
         this.logger.error(error.message);
