@@ -3,8 +3,8 @@ import type { RouterOutput, AppRouter } from "@cirrodrive/backend";
 import type { TRPCClientErrorLike } from "@trpc/client";
 import type { UseTRPCQueryOptions } from "@trpc/react-query/shared";
 import { trpc } from "@/shared/api/trpc.ts";
-import { parseBase64ToFile } from "@/features/download/lib/parseBase64ToFile.ts";
-import { downloadFile } from "@/features/download/lib/downloadFile.ts";
+import { parseBase64ToFile } from "@/entities/file/lib/parseBase64ToFile.ts";
+import { downloadFile } from "@/entities/file/lib/downloadFile.ts";
 
 type UseDownloadByCodeOptions = UseTRPCQueryOptions<
   RouterOutput["file"]["downloadByCode"],
@@ -16,13 +16,14 @@ interface UseDownloadByCode {
   codeString: string;
   query: ReturnType<typeof trpc.file.downloadByCode.useQuery>;
   handleInputChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
-  handleDownload: () => void;
+  download: () => void;
 }
 
 export const useDownloadByCode = (
+  code?: string,
   opts?: UseDownloadByCodeOptions,
 ): UseDownloadByCode => {
-  const [codeString, setCodeString] = useState<string>("");
+  const [codeString, setCodeString] = useState<string>(code ?? "");
   const [isDownloadClicked, setIsDownloadClicked] = useState<boolean>(false);
 
   const query = trpc.file.downloadByCode.useQuery(
@@ -39,7 +40,7 @@ export const useDownloadByCode = (
     setCodeString(e.target.value);
   };
 
-  const handleDownload = (): void => {
+  const download = (): void => {
     if (!codeString || codeString.length === 0 || query.isLoading) {
       return;
     }
@@ -60,6 +61,6 @@ export const useDownloadByCode = (
     codeString,
     query,
     handleInputChange,
-    handleDownload,
+    download,
   };
 };

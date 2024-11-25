@@ -8,7 +8,7 @@ import { useBoundStore } from "@/shared/store/useBoundStore.ts";
 import { useFolder } from "@/shared/api/useFolder.ts";
 import { LoadingSpinner } from "@/shared/components/LoadingSpinner.tsx";
 import { Button } from "@/shared/components/shadcn/Button.tsx";
-import { useFileUpload } from "@/pages/upload/api/useFileupload.ts";
+import { useUpload } from "@/entities/file/api/useUpload.ts";
 
 export function HomePage(): JSX.Element {
   const navigate = useNavigate();
@@ -18,7 +18,7 @@ export function HomePage(): JSX.Element {
   }
 
   const { data, isLoading, query } = useFolder(user?.rootFolderId ?? -1);
-  const { handleFileSelect } = useFileUpload(user?.rootFolderId ?? -1, {
+  const { handleFileSelect } = useUpload(user?.rootFolderId ?? -1, {
     onSuccess: () => {
       void query.refetch();
     },
