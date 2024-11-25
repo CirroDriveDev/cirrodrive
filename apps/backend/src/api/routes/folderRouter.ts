@@ -1,7 +1,7 @@
 import { z } from "zod"; // zod 임포트
 import { TRPCError } from "@trpc/server"; // TRPCError 임포트
 import { folderDTOSchema, subFolderDTOSchema } from "@cirrodrive/schemas";
-import { router, procedure, authedProcedure } from "@/loaders/trpc.ts"; // tRPC 설정 임포트
+import { router, authedProcedure } from "@/loaders/trpc.ts"; // tRPC 설정 임포트
 import { container } from "@/loaders/inversify.ts";
 import { FolderService } from "@/services/folderService.ts";
 
