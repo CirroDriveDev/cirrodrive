@@ -133,6 +133,7 @@ export const folderRouter = router({
         });
       }
     }),
+  // 폴더 휴지통으로 이동
   trash: authedProcedure
     .input(
       z.object({
@@ -150,7 +151,7 @@ export const folderRouter = router({
 
       try {
         // 폴더 및 하위 파일/폴더를 휴지통으로 이동
-        await folderService.moveFolderToTrash(folderId, userId);
+        await folderService.moveToTrash(folderId, userId);
 
         return { success: true };
       } catch (error) {
@@ -178,7 +179,7 @@ export const folderRouter = router({
 
       try {
         // 폴더 및 하위 파일/폴더를 복원
-        await folderService.restoreFolderFromTrash(folderId, userId);
+        await folderService.restoreFromTrash(folderId, userId);
 
         return { success: true };
       } catch (error) {

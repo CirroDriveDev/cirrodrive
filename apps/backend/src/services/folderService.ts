@@ -2,7 +2,7 @@ import { injectable, inject } from "inversify";
 import type { Prisma, Folder } from "@cirrodrive/database";
 import type { Logger } from "pino";
 import { Symbols } from "@/types/symbols.ts";
-import { prisma } from "@/loaders/prisma.ts";
+import { FileService } from "@/services/fileService.ts";
 /**
  * 폴더 서비스입니다.
  */
@@ -11,6 +11,7 @@ export class FolderService {
   constructor(
     @inject(Symbols.Logger) private logger: Logger,
     @inject(Symbols.FolderModel) private folderModel: Prisma.FolderDelegate,
+    @inject(Symbols.FileService) private fileService: FileService,
   ) {
     this.logger = logger.child({ serviceName: "FolderService" });
   }
@@ -237,128 +238,87 @@ export class FolderService {
   /**
    * 폴더를 휴지통으로 이동합니다.
    *
-   * @param ownerId - 회원의 ID입니다.
-   * @param folderId - 휴지통으로 이동할 폴더의 ID입니다.
-   * @throws 휴지통 이동 중 오류가 발생한 경우.
+   * @param folderId - 휴지통으로 이동할 폴더의 ID
+   * @param userId - 사용자 ID
    */
-  async moveFolderToTrash(folderId: number, userId: number): Promise<void> {
-    const currentDate = new Date();
+  public async moveToTrash(folderId: number, userId: number): Promise<void> {
+    this.logger.info({ folderId, userId }, "폴더 휴지통 이동 시작");
 
-    await prisma.$transaction(async (tx) => {
-      // 폴더 소유자 검증
-      const folder = await tx.folder.findUnique({
-        where: { id: folderId },
-      });
-
-      if (!folder || folder.ownerId !== userId) {
-        throw new Error("해당 폴더에 접근 권한이 없습니다.");
-      }
-
-      // 폴더 내 파일을 휴지통으로 이동
-      await tx.fileMetadata.updateMany({
-        where: { parentFolderId: folderId },
-        data: { trashedAt: currentDate },
-      });
-
-      // 하위 폴더를 재귀적으로 휴지통으로 이동
-      const moveToTrashRecursive = async (id: number): Promise<void> => {
-        await tx.folder.update({
-          where: { id },
-          data: { trashedAt: currentDate },
-        });
-
-        const subFolders = await tx.folder.findMany({
-          where: { parentFolderId: id },
-        });
-
-        for (const subFolder of subFolders) {
-          await moveToTrashRecursive(subFolder.id);
-        }
-      };
-
-      await moveToTrashRecursive(folderId);
+    // 폴더 소유권 확인
+    const folder = await this.folderModel.findUnique({
+      where: { id: folderId },
     });
+    if (!folder || folder.ownerId !== userId) {
+      throw new Error("폴더에 접근 권한이 없습니다.");
+    }
+
+    // 폴더를 휴지통으로 이동
+    await this.folderModel.update({
+      where: { id: folderId },
+      data: { trashedAt: new Date() },
+    });
+
+    // 파일을 휴지통으로 이동
+    await this.fileService.moveToTrash(folderId);
+
+    this.logger.info({ folderId }, "폴더 휴지통 이동 완료");
   }
   /**
-   * 휴지통에서 폴더 복원
+   * 폴더를 복원합니다.
+   *
+   * @param folderId - 복원할 폴더의 ID
+   * @param userId - 사용자 ID
    */
-  async restoreFolderFromTrash(
+  public async restoreFromTrash(
     folderId: number,
     userId: number,
   ): Promise<void> {
-    await prisma.$transaction(async (tx) => {
-      const folder = await tx.folder.findUnique({
-        where: { id: folderId },
-      });
+    this.logger.info({ folderId, userId }, "폴더 복원 시작");
 
-      if (!folder || folder.ownerId !== userId) {
-        throw new Error("해당 폴더에 접근 권한이 없습니다.");
-      }
-
-      // 폴더 및 하위 파일/폴더 복원
-      const restoreRecursive = async (id: number): Promise<void> => {
-        // 폴더 복원
-        await tx.folder.update({
-          where: { id },
-          data: { trashedAt: null },
-        });
-
-        // 해당 폴더 내 파일 복원
-        await tx.fileMetadata.updateMany({
-          where: { parentFolderId: id },
-          data: { trashedAt: null },
-        });
-
-        // 하위 폴더들 찾아서 재귀적으로 복원
-        const subFolders = await tx.folder.findMany({
-          where: { parentFolderId: id },
-        });
-
-        for (const subFolder of subFolders) {
-          await restoreRecursive(subFolder.id);
-        }
-      };
-
-      // 폴더 및 하위 폴더 복원
-      await restoreRecursive(folderId);
+    // 폴더 소유권 확인
+    const folder = await this.folderModel.findUnique({
+      where: { id: folderId },
     });
+    if (!folder || folder.ownerId !== userId) {
+      throw new Error("폴더에 접근 권한이 없습니다.");
+    }
+
+    // 폴더 복원
+    await this.folderModel.update({
+      where: { id: folderId },
+      data: { trashedAt: null },
+    });
+
+    // 파일 복원
+    await this.fileService.restoreFromTrash(folderId);
+
+    this.logger.info({ folderId }, "폴더 복원 완료");
   }
   /**
-   * 휴지통에 있는 폴더 삭제
+   * 폴더를 영구 삭제합니다.
+   *
+   * @param folderId - 삭제할 폴더의 ID
+   * @param userId - 사용자 ID
    */
-  async deleteFolder(folderId: number, userId: number): Promise<void> {
-    await prisma.$transaction(async (tx) => {
-      const folder = await tx.folder.findUnique({
-        where: { id: folderId },
-      });
+  public async deleteFolder(folderId: number, userId: number): Promise<void> {
+    this.logger.info({ folderId, userId }, "폴더 삭제 시작");
 
-      if (!folder || folder.ownerId !== userId) {
-        throw new Error("해당 폴더에 접근 권한이 없습니다.");
-      }
-
-      const deleteRecursive = async (id: number): Promise<void> => {
-        // 해당 폴더 내 파일 삭제
-        await tx.fileMetadata.deleteMany({
-          where: { parentFolderId: id },
-        });
-
-        // 하위 폴더들 찾아서 재귀적으로 삭제
-        const subFolders = await tx.folder.findMany({
-          where: { parentFolderId: id },
-        });
-
-        for (const subFolder of subFolders) {
-          await deleteRecursive(subFolder.id);
-        }
-
-        // 폴더 삭제
-        await tx.folder.delete({
-          where: { id },
-        });
-      };
-
-      // 폴더 및 하위 폴더 삭제
-      await deleteRecursive(folderId);
+    // 폴더 소유권 확인
+    const folder = await this.folderModel.findUnique({
+      where: { id: folderId },
     });
+    if (!folder || folder.ownerId !== userId) {
+      throw new Error("폴더에 접근 권한이 없습니다.");
+    }
+
+    // 파일 영구 삭제
+    await this.fileService.deleteFile(folderId);
+
+    // 폴더 삭제
+    await this.folderModel.delete({
+      where: { id: folderId },
+    });
+
+    this.logger.info({ folderId }, "폴더 삭제 완료");
   }
 }
