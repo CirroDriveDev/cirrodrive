@@ -34,7 +34,7 @@ interface UseUpload {
   handleFormSubmit: (e: React.FormEvent<HTMLFormElement>) => void;
 }
 
-export const useUpload = (opts?: UseUploadOptions): UseUpload => {
+export const useUploadPublic = (opts?: UseUploadOptions): UseUpload => {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [code, setCode] = useState<string>();
   const [submissionError, setSubmissionError] = useState<string>();

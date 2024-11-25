@@ -1,4 +1,4 @@
-import { downloadFileFromUrl } from "@/features/download/lib/downloadFileFromUrl.ts";
+import { downloadFileFromUrl } from "@/entities/file/lib/downloadFileFromUrl.ts";
 
 export const downloadFile = (file: File): void => {
   const url = URL.createObjectURL(file);

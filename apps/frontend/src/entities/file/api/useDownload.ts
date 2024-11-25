@@ -3,8 +3,8 @@ import type { RouterOutput, AppRouter } from "@cirrodrive/backend";
 import type { TRPCClientErrorLike } from "@trpc/client";
 import type { UseTRPCQueryOptions } from "@trpc/react-query/shared";
 import { trpc } from "@/shared/api/trpc.ts";
-import { downloadFile } from "@/features/download/lib/downloadFile.ts";
-import { parseBase64ToFile } from "@/features/download/lib/parseBase64ToFile.ts";
+import { downloadFile } from "@/entities/file/lib/downloadFile.ts";
+import { parseBase64ToFile } from "@/entities/file/lib/parseBase64ToFile.ts";
 
 type UseDownloadOptions = UseTRPCQueryOptions<
   RouterOutput["file"]["download"],
