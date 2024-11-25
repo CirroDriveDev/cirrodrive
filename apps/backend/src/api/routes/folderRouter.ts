@@ -1,7 +1,7 @@
 import { z } from "zod"; // zod 임포트
 import { TRPCError } from "@trpc/server"; // TRPCError 임포트
 import { folderDTOSchema, subFolderDTOSchema } from "@cirrodrive/schemas";
-import { router, procedure, authedProcedure } from "@/loaders/trpc.ts"; // tRPC 설정 임포트
+import { router, authedProcedure } from "@/loaders/trpc.ts"; // tRPC 설정 임포트
 import { container } from "@/loaders/inversify.ts";
 import { FolderService } from "@/services/folderService.ts";
 
@@ -45,7 +45,7 @@ export const folderRouter = router({
     }),
 
   // 회원의 폴더 목록 조회
-  listByUser: procedure
+  listByUser: authedProcedure
     .input(
       z.object({
         id: z.number(),
@@ -55,8 +55,10 @@ export const folderRouter = router({
     .query(async ({ input }) => {
       const { id, parentFolderId } = input;
 
+      // folderService에서 사용자와 부모 폴더에 맞는 폴더 목록을 조회
       const folders = await folderService.listByUser(id, parentFolderId);
 
+      // 반환할 데이터를 folderDTOSchema 형식에 맞게 변환
       return folders.map((folder) => ({
         folderId: folder.id,
         name: folder.name,
@@ -103,18 +105,34 @@ export const folderRouter = router({
     }),
 
   // 폴더 삭제
-  delete: procedure
+  delete: authedProcedure
     .input(
       z.object({
-        id: z.number(),
-        folderId: z.number(),
+        id: z.number(), // 회원의 ID
+        folderId: z.number(), // 삭제할 폴더 ID
       }),
     )
     .mutation(async ({ input }) => {
       const { id, folderId } = input;
 
       try {
-        await folderService.delete(id, folderId);
+        // 폴더 내 파일이나 하위 폴더가 있는지 확인
+        const folder = await folderService.get(folderId);
+
+        if (!folder) {
+          throw new TRPCError({
+            code: "NOT_FOUND",
+            message: "해당 폴더를 찾을 수 없습니다.",
+          });
+        }
+
+        // 폴더에 파일이나 하위 폴더가 없으면 바로 삭제
+        if (folder.files.length === 0 && folder.subFolders.length === 0) {
+          await folderService.delete(id, folderId);
+        } else {
+          // 파일이나 하위 폴더가 있으면 휴지통 처리 (휴지통 로직은 생략)
+          await folderService.moveToTrash(id, folderId);
+        }
       } catch (error: unknown) {
         if (
           error instanceof Error &&

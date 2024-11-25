@@ -2,12 +2,17 @@ import { File as FileIcon } from "lucide-react";
 import { Link } from "react-router-dom";
 import { Header } from "@/shared/ui/layout/Header.tsx";
 import { Layout } from "@/shared/ui/layout/Layout.tsx";
-import { useUpload } from "@/pages/upload/api/useUpload.ts";
+import { useUploadPublic } from "@/entities/file/api/useUploadPublic.ts";
 import { LoadingSpinner } from "@/shared/components/LoadingSpinner.tsx";
 
-export function UploadPage(): JSX.Element {
+export function UploadByCodePage(): JSX.Element {
   const { selectedFile, code, mutation, handleFileChange, handleFormSubmit } =
-    useUpload();
+    useUploadPublic();
+
+  const generateLink = (c: string): string => {
+    // 현재 오리진에서 링크를 생성
+    return `${window.location.origin}/c/${c}`;
+  };
 
   return (
     // TODO: 반응형 UI 구현
@@ -44,6 +49,11 @@ export function UploadPage(): JSX.Element {
           <div className="flex justify-center">
             {code ?
               <>코드: {code}</>
+            : null}
+          </div>
+          <div className="flex justify-center">
+            {code ?
+              <>링크: {generateLink(code)}</>
             : null}
           </div>
           <div className="mt-4 flex h-8 w-full justify-center">

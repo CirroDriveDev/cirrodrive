@@ -20,7 +20,7 @@ interface UseFileUpload {
   handleFileSelect: () => void;
 }
 
-export const useFileUpload = (
+export const useUpload = (
   folderId: number,
   opts?: UseFileUploadOptions,
 ): UseFileUpload => {

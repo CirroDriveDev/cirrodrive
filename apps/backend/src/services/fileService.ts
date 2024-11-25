@@ -189,9 +189,9 @@ export class FileService {
         "코드로 파일 조회 시작",
       );
 
-      const { fileId } = await this.codeService.getCodeMetadata(codeString);
+      const { id } = await this.codeService.getCodeMetadata(codeString);
 
-      const file = await this.getFileById(fileId);
+      const file = await this.getFileById(id);
 
       this.logger.info(
         {
@@ -440,6 +440,27 @@ export class FileService {
       throw new Error("파일을 휴지통으로 이동하는 중 오류가 발생했습니다.");
     }
   }
+  async deleteFile(fileId: number): Promise<void> {
+    const file = await this.prisma.fileMetadata.findUnique({
+      where: { id: fileId },
+    });
+
+    if (!file) {
+      throw new Error("파일이 존재하지 않습니다.");
+    }
+
+    // 파일 삭제
+    if (file.savedPath) {
+      fs.unlinkSync(file.savedPath); // 로컬 스토리지에서 파일 삭제
+    }
+
+    // 데이터베이스에서 파일 메타데이터 삭제
+    await this.prisma.fileMetadata.delete({
+      where: { id: fileId },
+    });
+
+    this.logger.info({ fileId }, "파일이 영구적으로 삭제되었습니다.");
+  }
 
   async updateFileName(fileId: number, newName: string): Promise<FileMetadata> {
     // 파일 이름만 변경 (폴더 변경 필요 없음)
@@ -447,5 +468,32 @@ export class FileService {
       where: { id: fileId },
       data: { name: newName },
     });
+  }
+  public async restoreFromTrash(fileId: number): Promise<void> {
+    try {
+      this.logger.info(
+        { methodName: "restoreFromTrash", fileId },
+        "파일 복원 시작",
+      );
+
+      // 파일 메타데이터 업데이트
+      await this.fileMetadataModel.update({
+        where: { id: fileId },
+        data: {
+          trashedAt: null, // 'trashedAt' 필드를 null로 업데이트하여 복원
+        },
+      });
+
+      this.logger.info(
+        { methodName: "restoreFromTrash", fileId },
+        "파일 복원 완료",
+      );
+    } catch (error) {
+      this.logger.error(
+        { methodName: "restoreFromTrash", error },
+        "파일 복원 중 오류 발생",
+      );
+      throw new Error("파일 복원 중 오류가 발생했습니다.");
+    }
   }
 }
