@@ -11,7 +11,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/shared/components/shadcn/DropdownMenu.tsx";
-import { useRestor } from "@/pages/Trash/api/useRestore.ts";
+import { useRestore } from "@/pages/Trash/api/useRestore.ts";
 import { useFileDelete } from "@/pages/Trash/api/useFileDelete.ts";
 import { useFolderDelete } from "@/pages/Trash/api/useFolderDelete.ts"; // 폴더 삭제 훅 추가
 
@@ -35,7 +35,7 @@ export function FileTrashItem({
   const truncatedName =
     name.length > width / 8 - 4 ? `${name.slice(0, width / 8 - 4)}...` : name;
 
-  const { handleTrash } = useRestor(id); // 복원하기
+  const { handleTrash } = useRestore(id); // 복원하기
   const { handleFileDelete, isMutatingFile } = useFileDelete(id); // 파일 삭제하기
   const { handleFolderDelete, isMutatingFolder } = useFolderDelete(id, id); // 폴더 삭제하기
 

@@ -3,13 +3,13 @@ import { getQueryKey } from "@trpc/react-query"; //다시 불러오기
 import { useQueryClient } from "@tanstack/react-query";
 import { trpc } from "@/shared/api/trpc.ts";
 
-interface UseRestor {
+interface UseRestore {
   handleTrash: () => void; // 복원하기 함수
   isMutating: boolean; // 요청 진행 상태
   success: boolean | null; // 요청 성공 여부
 }
 
-export const useRestor = (fileId: number): UseRestor => {
+export const useRestore = (fileId: number): UseRestore => {
   const queryClient = useQueryClient(); //다시
   const [isMutating, setIsMutating] = useState(false);
   const [success, setSuccess] = useState<boolean | null>(null);
