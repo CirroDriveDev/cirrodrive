@@ -12,15 +12,14 @@ import { CodeService } from "@/services/codeService.ts";
 @injectable()
 export class FileService {
   private rootDir: string;
-  private prisma: PrismaClient;
 
   constructor(
     @inject(Symbols.Logger) private logger: Logger,
     @inject(Symbols.FileMetadataModel)
     private fileMetadataModel: Prisma.FileMetadataDelegate,
     @inject(CodeService) private codeService: CodeService,
+    @inject(Symbols.PrismaClient) private readonly prisma: PrismaClient,
   ) {
-    this.prisma = new PrismaClient();
     this.rootDir = `./`;
     this.logger = logger.child({ serviceName: "FileService" });
   }

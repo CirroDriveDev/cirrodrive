@@ -6,5 +6,6 @@ export const Symbols = {
   CodeModel: Symbol.for("CodeModel"),
   FileMetadataModel: Symbol.for("FileMetadataModel"),
   FolderModel: Symbol.for("FolderModel"),
+  PrismaClient: Symbol("PrismaClient"),
   FileService: Symbol.for("FileService"),
 };
