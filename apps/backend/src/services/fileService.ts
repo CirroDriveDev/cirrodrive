@@ -345,6 +345,77 @@ export class FileService {
     }
   }
   /**
+   * 파일을 복사합니다.
+   *
+   * @param fileId - 복사할 파일의 ID입니다.
+   * @param targetFolderId - 복사할 대상 폴더의 ID입니다.
+   * @returns 복사된 파일 메타데이터입니다.
+   * @throws 파일 복사 중 오류가 발생한 경우.
+   */
+  public async copy(
+    fileId: number,
+    targetFolderId: number,
+  ): Promise<FileMetadata> {
+    try {
+      this.logger.info(
+        { methodName: "copy", fileId, targetFolderId },
+        "파일 복사 시작",
+      );
+
+      // 파일 메타데이터 조회
+      const fileMetadata = await this.fileMetadataModel.findUnique({
+        where: { id: fileId },
+      });
+
+      if (!fileMetadata) {
+        throw new Error("파일 메타데이터를 찾을 수 없습니다.");
+      }
+
+      let count = 1;
+      let copiedName = fileMetadata.name;
+      while (await this.sameNameExists(copiedName, targetFolderId)) {
+        copiedName =
+          `${fileMetadata.name.slice(0, fileMetadata.name.lastIndexOf("."))}` +
+          ` (${count})` +
+          `${fileMetadata.name.slice(fileMetadata.name.lastIndexOf("."))}`;
+        count += 1;
+      }
+
+      // 파일 메타데이터 복사
+      const copiedMetadata = await this.fileMetadataModel.create({
+        data: {
+          name: copiedName,
+          extension: fileMetadata.extension,
+          size: fileMetadata.size,
+          hash: fileMetadata.hash,
+          savedPath: fileMetadata.savedPath,
+          parentFolder: {
+            connect: {
+              id: targetFolderId,
+            },
+          },
+        },
+      });
+
+      this.logger.info(
+        {
+          methodName: "copy",
+          copiedMetadata,
+        },
+        "파일 복사 완료",
+      );
+
+      return copiedMetadata;
+    } catch (error) {
+      this.logger.error(
+        { methodName: "copy", error },
+        "파일 복사 중 오류 발생",
+      );
+      throw new Error("파일 복사 중 오류가 발생했습니다.");
+    }
+  }
+
+  /**
    * 파일을 디스크에 저장합니다.
    *
    * @param file - 저장할 파일입니다.

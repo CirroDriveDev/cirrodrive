@@ -9,6 +9,8 @@ import { Button } from "@/shared/components/shadcn/Button.tsx";
 import { FolderContentIcon } from "@/features/folderContent/ui/FolderContentIcon.tsx";
 import { inferFileType } from "@/features/folderContent/lib/inferFileType.ts";
 import { formatSize } from "@/features/folderContent/lib/formatSize.ts";
+import { useBoundStore } from "@/shared/store/useBoundStore.ts";
+import { useSaveToAccount } from "@/entities/file/api/useSaveToAccount.ts";
 
 interface CodePageParams extends Record<string, string> {
   code: string;
@@ -16,8 +18,10 @@ interface CodePageParams extends Record<string, string> {
 
 export function CodePage(): JSX.Element {
   const { code } = useParams<CodePageParams>();
+  const { user } = useBoundStore();
 
   const { file, error, isLoading } = useGetFileByCode(code ?? "");
+  const { saveToAccount } = useSaveToAccount(code ?? "");
   const { download } = useDownloadByCode(code ?? "");
 
   if (typeof code === "undefined") {
@@ -39,6 +43,11 @@ export function CodePage(): JSX.Element {
             <FolderContentIcon type={inferFileType(file.name)} />
             <div className="">{file.name}</div>
             <div className="">{formatSize(file.size)}</div>
+            {user ?
+              <Button variant="default" type="button" onClick={saveToAccount}>
+                계정에 저장
+              </Button>
+            : null}
             <Button variant="default" type="button" onClick={download}>
               다운로드
             </Button>
