@@ -375,6 +375,77 @@ export class FileService {
   }
 
   /**
+   * 파일을 복사합니다.
+   *
+   * @param fileId - 복사할 파일의 ID입니다.
+   * @param targetFolderId - 복사할 대상 폴더의 ID입니다.
+   * @returns 복사된 파일 메타데이터입니다.
+   * @throws 파일 복사 중 오류가 발생한 경우.
+   */
+  public async copy(
+    fileId: number,
+    targetFolderId: number,
+  ): Promise<FileMetadata> {
+    try {
+      this.logger.info(
+        { methodName: "copy", fileId, targetFolderId },
+        "파일 복사 시작",
+      );
+
+      // 파일 메타데이터 조회
+      const fileMetadata = await this.fileMetadataModel.findUnique({
+        where: { id: fileId },
+      });
+
+      if (!fileMetadata) {
+        throw new Error("파일 메타데이터를 찾을 수 없습니다.");
+      }
+
+      let count = 1;
+      let copiedName = fileMetadata.name;
+      while (await this.sameNameExists(copiedName, targetFolderId)) {
+        copiedName =
+          `${fileMetadata.name.slice(0, fileMetadata.name.lastIndexOf("."))}` +
+          ` (${count})` +
+          `${fileMetadata.name.slice(fileMetadata.name.lastIndexOf("."))}`;
+        count += 1;
+      }
+
+      // 파일 메타데이터 복사
+      const copiedMetadata = await this.fileMetadataModel.create({
+        data: {
+          name: copiedName,
+          extension: fileMetadata.extension,
+          size: fileMetadata.size,
+          hash: fileMetadata.hash,
+          savedPath: fileMetadata.savedPath,
+          parentFolder: {
+            connect: {
+              id: targetFolderId,
+            },
+          },
+        },
+      });
+
+      this.logger.info(
+        {
+          methodName: "copy",
+          copiedMetadata,
+        },
+        "파일 복사 완료",
+      );
+
+      return copiedMetadata;
+    } catch (error) {
+      this.logger.error(
+        { methodName: "copy", error },
+        "파일 복사 중 오류 발생",
+      );
+      throw new Error("파일 복사 중 오류가 발생했습니다.");
+    }
+  }
+
+  /**
    * 파일을 디스크에 저장합니다.
    *
    * @param file - 저장할 파일입니다.
@@ -521,6 +592,103 @@ export class FileService {
         "파일 복원 중 오류 발생",
       );
       throw new Error("파일 복원 중 오류가 발생했습니다.");
+    }
+  }
+  public async moveFolderToTrash(folderId: number): Promise<void> {
+    try {
+      this.logger.info(
+        { methodName: "moveFolderToTrash", folderId },
+        "폴더 휴지통 이동 시작",
+      );
+
+      // 폴더를 휴지통으로 이동
+      await this.fileMetadataModel.updateMany({
+        where: { parentFolderId: folderId },
+        data: { trashedAt: new Date() }, // 폴더에 포함된 모든 파일을 휴지통으로 이동
+      });
+
+      // 폴더 자체를 휴지통으로 이동
+      await this.fileMetadataModel.update({
+        where: { id: folderId },
+        data: { trashedAt: new Date() },
+      });
+
+      this.logger.info(
+        { methodName: "moveFolderToTrash", folderId },
+        "폴더 및 해당 파일들의 휴지통 이동 완료",
+      );
+    } catch (error) {
+      this.logger.error(
+        { methodName: "moveFolderToTrash", error },
+        "폴더 휴지통 이동 중 오류 발생",
+      );
+      throw new Error("폴더를 휴지통으로 이동하는 중 오류가 발생했습니다.");
+    }
+  }
+
+  public async restoreFolderFromTrash(folderId: number): Promise<void> {
+    try {
+      this.logger.info(
+        { methodName: "restoreFolderFromTrash", folderId },
+        "폴더 복원 시작",
+      );
+
+      // 폴더 복원
+      await this.fileMetadataModel.updateMany({
+        where: { parentFolderId: folderId },
+        data: { trashedAt: null }, // 폴더에 포함된 파일들을 복원
+      });
+
+      // 폴더 자체 복원
+      await this.fileMetadataModel.update({
+        where: { id: folderId },
+        data: { trashedAt: null },
+      });
+
+      this.logger.info(
+        { methodName: "restoreFolderFromTrash", folderId },
+        "폴더 및 해당 파일들의 복원 완료",
+      );
+    } catch (error) {
+      this.logger.error(
+        { methodName: "restoreFolderFromTrash", error },
+        "폴더 복원 중 오류 발생",
+      );
+      throw new Error("폴더를 복원하는 중 오류가 발생했습니다.");
+    }
+  }
+
+  public async deleteFolder(folderId: number): Promise<void> {
+    try {
+      this.logger.info(
+        { methodName: "deleteFolder", folderId },
+        "폴더 삭제 시작",
+      );
+
+      // 폴더에 포함된 모든 파일들을 삭제
+      const files = await this.fileMetadataModel.findMany({
+        where: { parentFolderId: folderId },
+      });
+
+      for (const file of files) {
+        await this.deleteFile(file.id); // FileService에서 삭제
+      }
+
+      // 폴더 삭제
+      await this.fileMetadataModel.deleteMany({
+        where: { parentFolderId: folderId },
+      });
+
+      this.logger.info(
+        { methodName: "deleteFolder", folderId },
+        "폴더 및 해당 파일들 삭제 완료",
+      );
+    } catch (error) {
+      this.logger.error(
+        { methodName: "deleteFolder", error },
+        "폴더 삭제 중 오류 발생",
+      );
+      throw new Error("폴더 삭제 중 오류가 발생했습니다.");
     }
   }
 }

@@ -108,42 +108,86 @@ export const folderRouter = router({
   delete: authedProcedure
     .input(
       z.object({
-        id: z.number(), // 회원의 ID
-        folderId: z.number(), // 삭제할 폴더 ID
+        folderId: z.number(), // 삭제할 폴더의 ID
       }),
     )
-    .mutation(async ({ input }) => {
-      const { id, folderId } = input;
+    .output(
+      z.object({
+        success: z.boolean(),
+      }),
+    )
+    .mutation(async ({ input, ctx }) => {
+      const { folderId } = input;
+      const { id: userId } = ctx.user;
 
       try {
-        // 폴더 내 파일이나 하위 폴더가 있는지 확인
-        const folder = await folderService.get(folderId);
+        // 폴더 및 하위 파일/폴더 삭제
+        await folderService.deleteFolder(folderId, userId);
 
-        if (!folder) {
-          throw new TRPCError({
-            code: "NOT_FOUND",
-            message: "해당 폴더를 찾을 수 없습니다.",
-          });
-        }
+        return { success: true };
+      } catch (error) {
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: "폴더를 삭제하는 중 오류가 발생했습니다.",
+          cause: error,
+        });
+      }
+    }),
+  // 폴더 휴지통으로 이동
+  trash: authedProcedure
+    .input(
+      z.object({
+        folderId: z.number(), // 휴지통으로 옮길 폴더의 ID
+      }),
+    )
+    .output(
+      z.object({
+        success: z.boolean(),
+      }),
+    )
+    .mutation(async ({ input, ctx }) => {
+      const { folderId } = input;
+      const { id: userId } = ctx.user;
 
-        // 폴더에 파일이나 하위 폴더가 없으면 바로 삭제
-        if (folder.files.length === 0 && folder.subFolders.length === 0) {
-          await folderService.delete(id, folderId);
-        } else {
-          // 파일이나 하위 폴더가 있으면 휴지통 처리 (휴지통 로직은 생략)
-          await folderService.moveToTrash(id, folderId);
-        }
-      } catch (error: unknown) {
-        if (
-          error instanceof Error &&
-          error.message.includes("Record to delete does not exist.")
-        ) {
-          throw new TRPCError({
-            code: "NOT_FOUND",
-            message: "해당 폴더를 찾을 수 없습니다.",
-          });
-        }
-        throw error;
+      try {
+        // 폴더 및 하위 파일/폴더를 휴지통으로 이동
+        await folderService.moveToTrash(folderId, userId);
+
+        return { success: true };
+      } catch (error) {
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: "폴더를 휴지통으로 이동하는 중 오류가 발생했습니다.",
+          cause: error,
+        });
+      }
+    }),
+  restoreFromTrash: authedProcedure
+    .input(
+      z.object({
+        folderId: z.number(), // 복원할 폴더의 ID
+      }),
+    )
+    .output(
+      z.object({
+        success: z.boolean(),
+      }),
+    )
+    .mutation(async ({ input, ctx }) => {
+      const { folderId } = input;
+      const { id: userId } = ctx.user;
+
+      try {
+        // 폴더 및 하위 파일/폴더를 복원
+        await folderService.restoreFromTrash(folderId, userId);
+
+        return { success: true };
+      } catch (error) {
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: "폴더를 복원하는 중 오류가 발생했습니다.",
+          cause: error,
+        });
       }
     }),
   move: authedProcedure
