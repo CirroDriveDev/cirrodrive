@@ -26,6 +26,8 @@ container.bind(Symbols.FileMetadataModel).toConstantValue(prisma.fileMetadata);
 container.bind(Symbols.FolderModel).toConstantValue(prisma.folder);
 container.bind(Symbols.PrismaClient).toConstantValue(new PrismaClient());
 
+container.bind(Symbols.FileService).to(FileService).inSingletonScope();
+
 container.bind(UserService).toSelf();
 container.bind(AuthService).toSelf();
 container.bind(CodeService).toSelf();
