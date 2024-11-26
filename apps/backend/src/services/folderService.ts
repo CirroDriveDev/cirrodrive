@@ -345,12 +345,7 @@ export class FolderService {
   ): Promise<void> {
     try {
       this.logger.info(
-        {
-          methodName: "moveFolder",
-          ownerId,
-          sourceFolderId,
-          targetFolderId,
-        },
+        { methodName: "moveFolder", ownerId, sourceFolderId, targetFolderId },
         "폴더 이동 시작",
       );
 
@@ -389,9 +384,7 @@ export class FolderService {
       // 폴더 이동 (부모 폴더 변경)
       await this.folderModel.update({
         where: { id: sourceFolderId },
-        data: {
-          parentFolderId: targetFolderId,
-        },
+        data: { parentFolderId: targetFolderId },
       });
 
       // 하위 폴더 이동
@@ -399,9 +392,7 @@ export class FolderService {
         sourceFolder.subFolders.map((subFolder) =>
           this.folderModel.update({
             where: { id: subFolder.id },
-            data: {
-              parentFolderId: targetFolderId,
-            },
+            data: { parentFolderId: targetFolderId },
           }),
         ),
       );
@@ -411,19 +402,13 @@ export class FolderService {
         sourceFolder.files.map((file) =>
           this.folderModel.update({
             where: { id: file.id },
-            data: {
-              parentFolderId: targetFolderId,
-            },
+            data: { parentFolderId: targetFolderId },
           }),
         ),
       );
 
       this.logger.info(
-        {
-          sourceFolderId,
-          targetFolderId,
-          ownerId,
-        },
+        { sourceFolderId, targetFolderId, ownerId },
         "폴더와 파일들이 성공적으로 이동되었습니다.",
       );
     } catch (error) {
