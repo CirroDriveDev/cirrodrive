@@ -561,12 +561,25 @@ export class FileService {
   }
 
   async updateFileName(fileId: number, newName: string): Promise<FileMetadata> {
-    // 파일 이름만 변경 (폴더 변경 필요 없음)
+    // 파일 이름에서 확장자 추출 (점이 있을 경우에만)
+    const lastDotIndex = newName.lastIndexOf(".");
+    if (lastDotIndex === -1) {
+      throw new Error("파일 이름에 확장자가 없습니다.");
+    }
+
+    const nameWithoutExtension = newName.substring(0, lastDotIndex); // 확장자 제외한 이름
+    const extension = newName.substring(lastDotIndex); // 확장자 포함
+
+    // 새 파일 이름을 확장자와 결합하여 정확한 형식으로 업데이트
+    const updatedName = `${nameWithoutExtension}${extension}`;
+
+    // 파일 이름 업데이트
     return await this.fileMetadataModel.update({
       where: { id: fileId },
-      data: { name: newName },
+      data: { name: updatedName },
     });
   }
+
   public async restoreFromTrash(fileId: number): Promise<void> {
     try {
       this.logger.info(
