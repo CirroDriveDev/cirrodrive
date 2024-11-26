@@ -12,7 +12,8 @@ import {
   DropdownMenuTrigger,
 } from "@/shared/components/shadcn/DropdownMenu.tsx";
 import { useRestor } from "@/pages/Trash/api/useRestore.ts";
-import { useDelete } from "@/pages/Trash/api/useDelete.ts";
+import { useFileDelete } from "@/pages/Trash/api/useFileDelete.ts";
+import { useFolderDelete } from "@/pages/Trash/api/useFolderDelete.ts"; // 폴더 삭제 훅 추가
 
 type FolderContentItemProps = FolderContent & {
   onDoubleClick?: () => void;
@@ -33,8 +34,15 @@ export function FileTrashItem({
   const { width } = useContainerDimensions(nameRef);
   const truncatedName =
     name.length > width / 8 - 4 ? `${name.slice(0, width / 8 - 4)}...` : name;
+
   const { handleTrash } = useRestor(id); // 복원하기
-  const { handleDelete, isMutating } = useDelete(id); // 삭제하기
+  const { handleFileDelete, isMutatingFile } = useFileDelete(id); // 파일 삭제하기
+  const { handleFolderDelete, isMutatingFolder } = useFolderDelete(id, id); // 폴더 삭제하기
+
+  const handleDelete =
+    type === "folder" ? handleFolderDelete : handleFileDelete; // 삭제 함수 결정
+  const isMutating = type === "folder" ? isMutatingFolder : isMutatingFile; // 진행 상태 결정
+  const deleteLabel = type === "folder" ? "삭제하기" : "삭제하기"; // 버튼 라벨 결정
 
   return (
     <div
@@ -61,20 +69,16 @@ export function FileTrashItem({
           </DropdownMenuTrigger>
           <DropdownMenuContent className="w-56">
             <DropdownMenuGroup>
-              {type !== "folder" && (
-                <DropdownMenuItem onClick={handleTrash}>
-                  <Activity />
-                  <span>복원하기</span>
-                </DropdownMenuItem>
-              )}
+              <DropdownMenuItem onClick={handleTrash}>
+                <Activity />
+                <span>복원하기</span>
+              </DropdownMenuItem>
             </DropdownMenuGroup>
             <DropdownMenuGroup>
-              {type !== "folder" && (
-                <DropdownMenuItem onClick={handleDelete} disabled={isMutating}>
-                  <Trash2Icon />
-                  <span>삭제하기</span>
-                </DropdownMenuItem>
-              )}
+              <DropdownMenuItem onClick={handleDelete} disabled={isMutating}>
+                <Trash2Icon />
+                <span>{deleteLabel}</span>
+              </DropdownMenuItem>
             </DropdownMenuGroup>
           </DropdownMenuContent>
         </DropdownMenu>
