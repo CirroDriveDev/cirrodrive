@@ -315,6 +315,35 @@ export class FileService {
         "파일 이동 시작",
       );
 
+      // 이동하려는 파일의 메타데이터 조회
+      const file = await this.fileMetadataModel.findUnique({
+        where: { id: fileId },
+      });
+
+      if (!file) {
+        throw new Error("파일을 찾을 수 없습니다.");
+      }
+
+      // 대상 폴더에서 동일한 이름과 확장자를 가진 파일이 있는지 확인
+      const existingFile = await this.fileMetadataModel.findFirst({
+        where: {
+          parentFolderId: targetFolderId,
+          name: file.name,
+          extension: file.extension,
+        },
+      });
+
+      if (existingFile) {
+        // 충돌 처리 (경고 또는 자동 이름 변경)
+        throw new Error(
+          `대상 폴더에 같은 이름(${file.name})과(and) 확장자(${file.extension})를 가진 파일이 이미 존재합니다.`,
+        );
+
+        // 또는 이름 변경 로직 예시
+        // const newName = `${file.name} (1)`; // 이름 뒤에 "(1)" 추가
+        // file.name = newName; // 파일 이름 변경
+      }
+
       // 파일 메타데이터 업데이트
       const updatedMetadata = await this.fileMetadataModel.update({
         where: { id: fileId },
@@ -344,6 +373,7 @@ export class FileService {
       throw new Error("파일 이동 중 오류가 발생했습니다.");
     }
   }
+
   /**
    * 파일을 디스크에 저장합니다.
    *
