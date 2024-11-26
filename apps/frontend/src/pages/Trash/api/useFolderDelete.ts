@@ -9,10 +9,7 @@ interface UseFolderDelete {
   success: boolean | null; // 요청 성공 여부
 }
 
-export const useFolderDelete = (
-  id: number,
-  folderId: number,
-): UseFolderDelete => {
+export const useFolderDelete = (folderId: number): UseFolderDelete => {
   const queryClient = useQueryClient(); //다시
   const [isMutatingFolder, setIsMutatingFolder] = useState(false);
   const [success, setSuccess] = useState<boolean | null>(null);
@@ -37,7 +34,7 @@ export const useFolderDelete = (
 
   const handleFolderDelete = (): void => {
     if (isMutatingFolder) return; // 요청 중 중복 호출 방지
-    mutation.mutate({ id, folderId });
+    mutation.mutate({ folderId });
   };
 
   return {
