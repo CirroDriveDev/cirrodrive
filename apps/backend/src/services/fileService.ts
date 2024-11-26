@@ -3,7 +3,6 @@ import path from "node:path";
 import { injectable, inject } from "inversify";
 import type { Prisma, FileMetadata } from "@cirrodrive/database";
 import type { Logger } from "pino";
-import { PrismaClient } from "@cirrodrive/database";
 import { Symbols } from "@/types/symbols.ts";
 import { CodeService } from "@/services/codeService.ts";
 /**
@@ -18,7 +17,6 @@ export class FileService {
     @inject(Symbols.FileMetadataModel)
     private fileMetadataModel: Prisma.FileMetadataDelegate,
     @inject(CodeService) private codeService: CodeService,
-    @inject(Symbols.PrismaClient) private readonly prisma: PrismaClient,
   ) {
     this.rootDir = `./`;
     this.logger = logger.child({ serviceName: "FileService" });
@@ -440,7 +438,7 @@ export class FileService {
     }
   }
   async deleteFile(fileId: number): Promise<void> {
-    const file = await this.prisma.fileMetadata.findUnique({
+    const file = await this.fileMetadataModel.findUnique({
       where: { id: fileId },
     });
 
@@ -454,7 +452,7 @@ export class FileService {
     }
 
     // 데이터베이스에서 파일 메타데이터 삭제
-    await this.prisma.fileMetadata.delete({
+    await this.fileMetadataModel.delete({
       where: { id: fileId },
     });
 
@@ -463,7 +461,7 @@ export class FileService {
 
   async updateFileName(fileId: number, newName: string): Promise<FileMetadata> {
     // 파일 이름만 변경 (폴더 변경 필요 없음)
-    return await this.prisma.fileMetadata.update({
+    return await this.fileMetadataModel.update({
       where: { id: fileId },
       data: { name: newName },
     });

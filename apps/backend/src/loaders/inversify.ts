@@ -1,5 +1,4 @@
 import { Container } from "inversify";
-import { PrismaClient } from "@cirrodrive/database";
 import { dayjs } from "@/loaders/dayjs.ts";
 import { logger } from "@/loaders/logger.ts";
 import { Symbols } from "@/types/symbols.ts";
@@ -24,9 +23,6 @@ container.bind(Symbols.SessionModel).toConstantValue(prisma.session);
 container.bind(Symbols.CodeModel).toConstantValue(prisma.code);
 container.bind(Symbols.FileMetadataModel).toConstantValue(prisma.fileMetadata);
 container.bind(Symbols.FolderModel).toConstantValue(prisma.folder);
-container.bind(Symbols.PrismaClient).toConstantValue(new PrismaClient());
-
-container.bind(Symbols.FileService).to(FileService).inSingletonScope();
 
 container.bind(UserService).toSelf();
 container.bind(AuthService).toSelf();

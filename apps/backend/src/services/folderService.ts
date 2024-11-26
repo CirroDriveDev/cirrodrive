@@ -11,7 +11,7 @@ export class FolderService {
   constructor(
     @inject(Symbols.Logger) private logger: Logger,
     @inject(Symbols.FolderModel) private folderModel: Prisma.FolderDelegate,
-    @inject(Symbols.FileService) private fileService: FileService,
+    @inject(FileService) private fileService: FileService,
   ) {
     this.logger = logger.child({ serviceName: "FolderService" });
   }
