@@ -7,6 +7,7 @@ import { LandingPage } from "@/pages/landing/ui/LandingPage.tsx";
 import { UploadByCodePage } from "@/pages/uploadByCode/ui/UploadByCodePage.tsx";
 import { DownloadByCodePage } from "@/pages/downloadByCode/ui/DownloadByCodePage.tsx";
 import { useBoundStore } from "@/shared/store/useBoundStore.ts";
+import { TrashPage } from "@/pages/Trash/ui/TrashPage.tsx";
 import { CodePage } from "@/pages/code/ui/CodePage.tsx";
 import { NotFoundPage } from "@/pages/notFound/ui/NotFoundPage.tsx";
 
@@ -72,6 +73,10 @@ const routeTree: RouteObject[] = [
   {
     path: "/c/:code",
     element: <CodePage />,
+  },
+  {
+    path: "/Trash",
+    element: <TrashPage />,
   },
   {
     path: "*",
