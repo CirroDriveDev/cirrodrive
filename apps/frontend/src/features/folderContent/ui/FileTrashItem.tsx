@@ -1,4 +1,4 @@
-import { DownloadIcon, MoreVertical, Trash2 } from "lucide-react";
+import { Activity, MoreVertical, Trash2Icon } from "lucide-react";
 import { useRef } from "react";
 import { formatSize } from "@/features/folderContent/lib/formatSize.ts";
 import { type FolderContent } from "@/features/folderContent/types/folderContent.ts";
@@ -11,14 +11,15 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/shared/components/shadcn/DropdownMenu.tsx";
-import { useTrash } from "@/entities/file/api/useTrash.ts";
-import { useDownload } from "@/entities/file/api/useDownload.ts";
+import { useRestore } from "@/pages/Trash/api/useRestore.ts";
+import { useFileDelete } from "@/pages/Trash/api/useFileDelete.ts";
+import { useFolderDelete } from "@/pages/Trash/api/useFolderDelete.ts"; // 폴더 삭제 훅 추가
 
 type FolderContentItemProps = FolderContent & {
   onDoubleClick?: () => void;
 };
 
-export function FolderContentItem({
+export function FileTrashItem({
   id,
   name,
   type,
@@ -33,8 +34,15 @@ export function FolderContentItem({
   const { width } = useContainerDimensions(nameRef);
   const truncatedName =
     name.length > width / 8 - 4 ? `${name.slice(0, width / 8 - 4)}...` : name;
-  const { handleDownload } = useDownload(id);
-  const { handleTrash } = useTrash(id);
+
+  const { handleTrash } = useRestore(id); // 복원하기
+  const { handleFileDelete, isMutatingFile } = useFileDelete(id); // 파일 삭제하기
+  const { handleFolderDelete, isMutatingFolder } = useFolderDelete(id, id); // 폴더 삭제하기
+
+  const handleDelete =
+    type === "folder" ? handleFolderDelete : handleFileDelete; // 삭제 함수 결정
+  const isMutating = type === "folder" ? isMutatingFolder : isMutatingFile; // 진행 상태 결정
+  const deleteLabel = type === "folder" ? "삭제하기" : "삭제하기"; // 버튼 라벨 결정
 
   return (
     <div
@@ -61,20 +69,16 @@ export function FolderContentItem({
           </DropdownMenuTrigger>
           <DropdownMenuContent className="w-56">
             <DropdownMenuGroup>
-              {type !== "folder" && (
-                <DropdownMenuItem onClick={handleDownload}>
-                  <DownloadIcon />
-                  <span>다운로드</span>
-                </DropdownMenuItem>
-              )}
+              <DropdownMenuItem onClick={handleTrash}>
+                <Activity />
+                <span>복원하기</span>
+              </DropdownMenuItem>
             </DropdownMenuGroup>
             <DropdownMenuGroup>
-              {type !== "folder" && (
-                <DropdownMenuItem onClick={handleTrash}>
-                  <Trash2 />
-                  <span>휴지통</span>
-                </DropdownMenuItem>
-              )}
+              <DropdownMenuItem onClick={handleDelete} disabled={isMutating}>
+                <Trash2Icon />
+                <span>{deleteLabel}</span>
+              </DropdownMenuItem>
             </DropdownMenuGroup>
           </DropdownMenuContent>
         </DropdownMenu>
