@@ -37,7 +37,7 @@ export function FileTrashItem({
 
   const { handleTrash } = useRestore(id); // 복원하기
   const { handleFileDelete, isMutatingFile } = useFileDelete(id); // 파일 삭제하기
-  const { handleFolderDelete, isMutatingFolder } = useFolderDelete(id, id); // 폴더 삭제하기
+  const { handleFolderDelete, isMutatingFolder } = useFolderDelete(id); // 폴더 삭제하기
 
   const handleDelete =
     type === "folder" ? handleFolderDelete : handleFileDelete; // 삭제 함수 결정
