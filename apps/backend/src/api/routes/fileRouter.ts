@@ -434,4 +434,27 @@ export const fileRouter = router({
         });
       }
     }),
+  move: authedProcedure
+    .input(
+      z.object({
+        fileId: z.number(), // 이동할 파일 ID
+        targetFolderId: z.number(), // 이동할 대상 폴더 ID
+      }),
+    )
+    .mutation(async ({ input }) => {
+      const { fileId, targetFolderId } = input;
+
+      try {
+        // 파일 이동 실행
+        const updatedFile = await fileService.moveFile(fileId, targetFolderId);
+
+        return { success: true, updatedFile };
+      } catch (error) {
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: "파일 이동 중 오류가 발생했습니다.",
+          cause: error,
+        });
+      }
+    }),
 });
