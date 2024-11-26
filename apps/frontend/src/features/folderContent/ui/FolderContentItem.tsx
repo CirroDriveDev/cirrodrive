@@ -73,7 +73,7 @@ export function FolderContentItem({
       <div className="flex w-8 items-center justify-center">
         <FolderContentIcon type={type} />
       </div>
-      <div className="flex min-w-32 flex-grow items-center gap-2">
+      <div className="flex min-w-32 flex-grow items-center gap-2" ref={nameRef}>
         {isEditing ?
           <div className="flex items-center gap-2">
             <input
@@ -95,7 +95,7 @@ export function FolderContentItem({
               취소
             </button>
           </div>
-        : <div ref={nameRef} className="truncate">
+        : <div className="truncate">
             {isRenaming ?
               <span className="flex items-center text-sm text-gray-400">
                 <Loader className="mr-2 animate-spin" size={16} />
