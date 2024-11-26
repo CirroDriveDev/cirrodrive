@@ -1,4 +1,4 @@
-import { MoreVertical, Loader, DownloadIcon } from "lucide-react";
+import { MoreVertical, Loader, DownloadIcon, Trash2 } from "lucide-react";
 import { useRef, useState } from "react";
 import { formatSize } from "@/features/folderContent/lib/formatSize.ts";
 import { type FolderContent } from "@/features/folderContent/types/folderContent.ts";
@@ -11,6 +11,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/shared/components/shadcn/DropdownMenu.tsx";
+import { useTrash } from "@/entities/file/api/useTrash.ts";
 import { useDownload } from "@/entities/file/api/useDownload.ts";
 import { useFileRename } from "@/entities/file/api/useFileRename.ts";
 import { RenameButton } from "@/features/folderContent/ui/RenameButton.tsx";
@@ -62,6 +63,7 @@ export function FolderContentItem({
   };
 
   const { handleDownload } = useDownload(id);
+  const { handleTrash } = useTrash(id);
 
   return (
     <div
@@ -128,6 +130,14 @@ export function FolderContentItem({
                 onRename={() => setIsEditing(true)}
                 disabled={isRenaming}
               />
+            </DropdownMenuGroup>
+            <DropdownMenuGroup>
+              {type !== "folder" && (
+                <DropdownMenuItem onClick={handleTrash}>
+                  <Trash2 />
+                  <span>휴지통</span>
+                </DropdownMenuItem>
+              )}
             </DropdownMenuGroup>
           </DropdownMenuContent>
         </DropdownMenu>
