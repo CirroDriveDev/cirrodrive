@@ -239,6 +239,44 @@ export const fileRouter = router({
         });
       }
     }),
+
+  saveToAccount: authedProcedure
+    .input(
+      z.object({
+        code: z.string(),
+        folderId: z.number().optional(),
+      }),
+    )
+    .mutation(async ({ input, ctx }) => {
+      const { code, folderId } = input;
+      const { user } = ctx;
+      try {
+        const fileMetadata = await codeService.getCodeMetadata(code);
+        if (!fileMetadata) {
+          throw new TRPCError({
+            code: "NOT_FOUND",
+            message: "코드에 해당하는 파일을 찾을 수 없습니다.",
+          });
+        }
+
+        const metadata = await fileService.copy(
+          fileMetadata.id,
+          folderId ?? user.rootFolderId,
+        );
+
+        return { fileId: metadata.id };
+      } catch (error) {
+        logger.error(
+          { requestId: ctx.req.id, error, code },
+          "파일 저장 중 오류 발생",
+        );
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: "파일 저장 중 오류가 발생했습니다.",
+        });
+      }
+    }),
+
   trash: authedProcedure
     .input(
       z.object({
