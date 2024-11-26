@@ -146,4 +146,34 @@ export const folderRouter = router({
         throw error;
       }
     }),
+  move: authedProcedure
+    .input(
+      z.object({
+        sourceFolderId: z.number(), // 이동할 폴더 ID
+        targetFolderId: z.number(), // 타겟 폴더 ID
+      }),
+    )
+    .mutation(async ({ input, ctx }) => {
+      const { sourceFolderId, targetFolderId } = input;
+
+      // 폴더 이동 처리
+      try {
+        // 폴더 이동
+        await folderService.moveFolder(
+          ctx.user.id,
+          sourceFolderId,
+          targetFolderId,
+        );
+
+        return { message: "폴더가 성공적으로 이동되었습니다." };
+      } catch (error) {
+        if (error instanceof Error) {
+          throw new TRPCError({
+            code: "INTERNAL_SERVER_ERROR",
+            message: error.message,
+          });
+        }
+        throw error;
+      }
+    }),
 });

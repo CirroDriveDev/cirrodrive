@@ -330,4 +330,107 @@ export class FolderService {
       throw error;
     }
   }
+  /**
+   * 폴더를 다른 폴더로 이동합니다.
+   *
+   * @param ownerId - 폴더를 이동할 회원의 ID입니다.
+   * @param sourceFolderId - 이동할 폴더의 ID입니다.
+   * @param targetFolderId - 이동할 대상 폴더의 ID입니다.
+   * @throws 폴더 이동 중 오류가 발생한 경우.
+   */
+  public async moveFolder(
+    ownerId: number,
+    sourceFolderId: number,
+    targetFolderId: number,
+  ): Promise<void> {
+    try {
+      this.logger.info(
+        {
+          methodName: "moveFolder",
+          ownerId,
+          sourceFolderId,
+          targetFolderId,
+        },
+        "폴더 이동 시작",
+      );
+
+      // 이동할 폴더 조회
+      const sourceFolder = await this.folderModel.findUnique({
+        where: { id: sourceFolderId },
+        include: {
+          subFolders: true,
+          files: true,
+        },
+      });
+
+      if (!sourceFolder) {
+        throw new Error("이동할 폴더를 찾을 수 없습니다.");
+      }
+
+      // 대상 폴더 조회
+      const targetFolder = await this.folderModel.findUnique({
+        where: { id: targetFolderId },
+      });
+
+      if (!targetFolder) {
+        throw new Error("대상 폴더를 찾을 수 없습니다.");
+      }
+
+      // 이동하려는 폴더가 대상 폴더의 하위 폴더가 아닌지 확인
+      if (
+        sourceFolderId === targetFolderId ||
+        sourceFolder.parentFolderId === targetFolderId
+      ) {
+        throw new Error(
+          "폴더는 자신이나 자신의 하위 폴더로 이동할 수 없습니다.",
+        );
+      }
+
+      // 폴더 이동 (부모 폴더 변경)
+      await this.folderModel.update({
+        where: { id: sourceFolderId },
+        data: {
+          parentFolderId: targetFolderId,
+        },
+      });
+
+      // 하위 폴더 이동
+      await Promise.all(
+        sourceFolder.subFolders.map((subFolder) =>
+          this.folderModel.update({
+            where: { id: subFolder.id },
+            data: {
+              parentFolderId: targetFolderId,
+            },
+          }),
+        ),
+      );
+
+      // 파일 이동
+      await Promise.all(
+        sourceFolder.files.map((file) =>
+          this.folderModel.update({
+            where: { id: file.id },
+            data: {
+              parentFolderId: targetFolderId,
+            },
+          }),
+        ),
+      );
+
+      this.logger.info(
+        {
+          sourceFolderId,
+          targetFolderId,
+          ownerId,
+        },
+        "폴더와 파일들이 성공적으로 이동되었습니다.",
+      );
+    } catch (error) {
+      if (error instanceof Error) {
+        this.logger.error(error.message);
+      }
+      throw error;
+    }
+  }
 }
