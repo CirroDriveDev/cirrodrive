@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useUploadPublic } from "@/entities/file/api/useUploadPublic.ts";
 import { Modal } from "@/features/folderContent/ui/Modal.tsx";
 
@@ -8,6 +8,7 @@ export function DragAndDropUpload(): JSX.Element {
 
   const [dragOver, setDragOver] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null); // 추가: 오류 메시지 상태
   const [modalContent, setModalContent] = useState<{
     fileName?: string;
     code?: string;
@@ -45,25 +46,39 @@ export function DragAndDropUpload(): JSX.Element {
   ): void => {
     e.preventDefault();
 
-    // Trigger the file upload process
-    handleFormSubmit(e);
-
-    // Update modal content based on the result
-    if (mutation.error?.message) {
-      setModalContent({
-        error: mutation.error.message,
-      });
-    } else if (code && selectedFile) {
-      setModalContent({
-        fileName: selectedFile.name,
-        code,
-        link: generateLink(code),
-      });
+    if (!selectedFile) {
+      setErrorMessage("파일을 선택하세요."); // 에러 메시지 설정
+      return;
     }
 
-    // Open the modal
+    // 모달 초기화: 업로드 중 상태 설정
+    setModalContent({
+      fileName: selectedFile.name,
+      code: "업로드 중...",
+      link: "업로드 중...",
+    });
     setIsModalOpen(true);
+
+    // 업로드 트리거
+    handleFormSubmit(e);
   };
+
+  // 변화 감지하고 출력
+  useEffect(() => {
+    if (!mutation.isPending) {
+      if (mutation.error?.message) {
+        setModalContent({
+          error: mutation.error.message,
+        });
+      } else if (code && selectedFile) {
+        setModalContent({
+          fileName: selectedFile.name,
+          code,
+          link: generateLink(code),
+        });
+      }
+    }
+  }, [mutation.isPending, code, selectedFile, mutation.error]);
 
   return (
     <div>
@@ -115,6 +130,11 @@ export function DragAndDropUpload(): JSX.Element {
           {mutation.isPending ? "업로드 중..." : "업로드"}
         </button>
       </form>
+
+      {/* 에러 메시지 표시 */}
+      {errorMessage ?
+        <div className="mt-4 text-red-500">{errorMessage}</div>
+      : null}
 
       <Modal isOpen={isModalOpen} closeModal={() => setIsModalOpen(false)}>
         {modalContent.error ?
