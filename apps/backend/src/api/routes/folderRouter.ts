@@ -104,6 +104,42 @@ export const folderRouter = router({
       return folder;
     }),
 
+  // 폴더 이름 변경
+  rename: authedProcedure
+    .input(
+      z.object({
+        folderId: z.number(), // 이름을 변경할 폴더의 ID
+        name: z.string(), // 변경할 이름
+      }),
+    )
+    .mutation(async ({ input, ctx }) => {
+      const { folderId, name } = input;
+      const { user } = ctx;
+
+      try {
+        const folder = await folderService.get(folderId);
+
+        if (user.id !== folder?.ownerId) {
+          throw new TRPCError({
+            code: "FORBIDDEN",
+            message: "폴더 이름을 변경할 권한이 없습니다.",
+          });
+        }
+        const newName = await folderService.generateFolderName(
+          user.id,
+          name,
+          folderId,
+        );
+        await folderService.rename(folderId, newName);
+      } catch (error) {
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: "폴더 이름을 변경하는 중 오류가 발생했습니다.",
+          cause: error,
+        });
+      }
+    }),
+
   // 폴더 삭제
   delete: authedProcedure
     .input(
