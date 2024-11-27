@@ -31,7 +31,6 @@ export const useFolderCreate = (): UseFolderManagement => {
     if (!folderName.trim()) return;
     if (parentFolderId === -1) return;
     folderMutation.mutate({ name: folderName, parentFolderId });
-    setFolderName("");
   };
 
   return {
