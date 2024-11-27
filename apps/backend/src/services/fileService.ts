@@ -170,6 +170,50 @@ export class FileService {
   }
 
   /**
+   * 사용자의 휴지통 파일 목록을 조회합니다.
+   *
+   * @param ownerId - 휴지통 파일을 조회할 회원의 ID입니다.
+   * @returns 휴지통 파일 목록입니다.
+   * @throws 휴지통 파일 조회 중 오류가 발생한 경우.
+   */
+  public async listTrashByUser(ownerId: number): Promise<FileMetadata[]> {
+    try {
+      this.logger.info(
+        {
+          methodName: "listTrashByUser",
+          ownerId,
+        },
+        "휴지통 파일 목록 조회 시작",
+      );
+
+      const files = await this.fileMetadataModel.findMany({
+        where: {
+          ownerId,
+          trashedAt: {
+            not: null,
+          },
+        },
+      });
+
+      this.logger.info(
+        {
+          methodName: "listTrashByUser",
+          ownerId,
+          files,
+        },
+        "휴지통 파일 목록 조회 완료",
+      );
+
+      return files;
+    } catch (error) {
+      if (error instanceof Error) {
+        this.logger.error(error.message);
+      }
+      throw error;
+    }
+  }
+
+  /**
    * 코드로 파일 다운로드
    *
    * @param codeString - 다운로드할 파일의 코드입니다.

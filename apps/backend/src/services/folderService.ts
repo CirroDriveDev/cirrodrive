@@ -1,6 +1,7 @@
 import { injectable, inject } from "inversify";
 import type { Prisma, Folder } from "@cirrodrive/database";
 import type { Logger } from "pino";
+import type { RecursiveEntryDTO } from "@cirrodrive/schemas";
 import { Symbols } from "@/types/symbols.ts";
 import { FileService } from "@/services/fileService.ts";
 /**
@@ -177,6 +178,78 @@ export class FolderService {
       });
 
       return folder;
+    } catch (error) {
+      if (error instanceof Error) {
+        this.logger.error(error.message);
+      }
+      throw error;
+    }
+  }
+
+  /**
+   * 폴더를 재귀적으로 조회합니다.
+   *
+   * @param folderId - 조회할 폴더의 ID입니다.
+   * @returns 폴더 정보입니다.
+   * @throws 폴더 조회 중 오류가 발생한 경우.
+   */
+  public async getRecursively(folderId: number): Promise<RecursiveEntryDTO> {
+    const folder = await this.get(folderId);
+
+    if (!folder) {
+      throw new Error("폴더를 찾을 수 없습니다.");
+    }
+
+    const recursiveEntry: RecursiveEntryDTO = {
+      id: folder.id,
+      name: folder.name,
+      type: "folder",
+      parentFolderId: folder.parentFolderId,
+      createdAt: folder.createdAt,
+      updatedAt: folder.updatedAt,
+      trashedAt: folder.trashedAt,
+      size: null,
+      entries: [],
+    };
+
+    for (const subFolder of folder.subFolders) {
+      const subFolderEntry = await this.getRecursively(subFolder.id);
+      recursiveEntry.entries.push(subFolderEntry);
+    }
+
+    return recursiveEntry;
+  }
+
+  /**
+   * 사용자의 휴지통 폴더 목록을 조회합니다.
+   *
+   * @param ownerId - 휴지통 폴더를 조회할 회원의 ID입니다.
+   * @returns 휴지통 폴더 목록입니다.
+   * @throws 휴지통 폴더 조회 중 오류가 발생한 경우.
+   */
+  public async listTrashByUser(ownerId: number): Promise<Folder[]> {
+    try {
+      this.logger.info(
+        {
+          methodName: "listTrashByUser",
+          ownerId,
+        },
+        "휴지통 폴더 목록 조회 시작",
+      );
+
+      const folders = await this.folderModel.findMany({
+        where: {
+          ownerId,
+          trashedAt: {
+            not: null,
+          },
+        },
+        orderBy: {
+          trashedAt: "asc",
+        },
+      });
+
+      return folders;
     } catch (error) {
       if (error instanceof Error) {
         this.logger.error(error.message);
@@ -402,6 +475,138 @@ export class FolderService {
         { sourceFolderId, targetFolderId, ownerId },
         "폴더와 파일들이 성공적으로 이동되었습니다.",
       );
+    } catch (error) {
+      if (error instanceof Error) {
+        this.logger.error(error.message);
+      }
+      throw error;
+    }
+  }
+
+  /**
+   * 폴더 이름을 변경합니다.
+   *
+   * @param folderId - 이름을 변경할 폴더의 ID입니다.
+   * @param name - 변경할 폴더의 이름입니다.
+   * @throws 폴더 이름 변경 중 오류가 발생한 경우.
+   */
+  public async rename(folderId: number, name: string): Promise<void> {
+    try {
+      this.logger.info({ folderId, name }, "폴더 이름 변경 시작");
+
+      await this.folderModel.update({
+        where: { id: folderId },
+        data: { name },
+      });
+
+      this.logger.info({ folderId, name }, "폴더 이름 변경 완료");
+    } catch (error) {
+      if (error instanceof Error) {
+        this.logger.error(error.message);
+      }
+      throw error;
+    }
+  }
+
+  /**
+   * 동일한 폴더 이름이 존재하는지 확인합니다.
+   *
+   * @param ownerId - 폴더를 생성할 회원의 ID입니다.
+   * @param name - 생성할 폴더의 이름입니다.
+   * @param parentFolderId - 부모 폴더의 ID입니다 (최상위 폴더일 경우 null).
+   * @returns 동일한 이름의 폴더가 존재하는지 여부입니다.
+   */
+  public async existsFolderName(
+    ownerId: number,
+    name: string,
+    parentFolderId?: number,
+  ): Promise<boolean> {
+    try {
+      this.logger.info(
+        {
+          methodName: "existsFolderName",
+          ownerId,
+          name,
+          parentFolderId,
+        },
+        "폴더 이름 중복 확인 시작",
+      );
+
+      const folder = await this.folderModel.findFirst({
+        where: {
+          ownerId,
+          name,
+          parentFolderId,
+        },
+      });
+
+      const result = Boolean(folder);
+
+      this.logger.info(
+        {
+          methodName: "existsFolderName",
+          ownerId,
+          name,
+          parentFolderId,
+          result,
+        },
+        "폴더 이름 중복 확인 결과",
+      );
+
+      return result;
+    } catch (error) {
+      if (error instanceof Error) {
+        this.logger.error(error.message);
+      }
+      throw error;
+    }
+  }
+
+  /**
+   * 적절한 폴더 이름을 생성합니다. 동일한 이름의 폴더가 존재할 경우 이름을 변경합니다.
+   *
+   * @param ownerId - 폴더를 생성할 회원의 ID입니다.
+   * @param name - 생성할 폴더의 이름입니다.
+   * @param parentFolderId - 부모 폴더의 ID입니다 (최상위 폴더일 경우 null).
+   * @returns 생성된 폴더의 이름입니다.
+   */
+  public async generateFolderName(
+    ownerId: number,
+    name: string,
+    parentFolderId: number,
+  ): Promise<string> {
+    try {
+      this.logger.info(
+        {
+          methodName: "generateFolderName",
+          ownerId,
+          name,
+          parentFolderId,
+        },
+        "폴더 이름 생성 시작",
+      );
+
+      let folderName = name;
+      let count = 1;
+
+      // 동일한 이름의 폴더가 존재할 경우 이름 변경
+      while (await this.existsFolderName(ownerId, folderName, parentFolderId)) {
+        folderName = `${name} (${count})`;
+        count += 1;
+      }
+
+      this.logger.info(
+        {
+          methodName: "generateFolderName",
+          ownerId,
+          name,
+          parentFolderId,
+          folderName,
+        },
+        "폴더 이름 생성 완료",
+      );
+
+      return folderName;
     } catch (error) {
       if (error instanceof Error) {
         this.logger.error(error.message);
