@@ -40,15 +40,24 @@ export function FolderContentItem({
     <div
       className="flex w-full cursor-pointer items-center justify-between gap-4 px-4 py-2 hover:bg-gray-200"
       onDoubleClick={onDoubleClick}
+      draggable
+      onDragStart={(e) => {
+        e.dataTransfer.setData(
+          "application/json",
+          JSON.stringify({
+            file: {
+              name,
+              type: type !== "folder" ? type : undefined,
+            },
+          }),
+        );
+      }}
     >
       <div className="flex w-8 items-center justify-center">
         <FolderContentIcon type={type} />
       </div>
       <div className="min-w-32 flex-grow" ref={nameRef}>
-        {
-          /* width가 0이면 렌더링하지 않습니다. */
-          !width ? "" : truncatedName
-        }
+        {!width ? "" : truncatedName}
       </div>
       <div className="w-52 text-nowrap">{displayUpdatedAt}</div>
       <div className="w-16">{displaySize}</div>

@@ -13,7 +13,7 @@ export function Modal({
   if (!isOpen) return null;
 
   return (
-    <div className="fixed bottom-0 right-0 z-50 flex h-[250px] w-[400px] flex-col rounded border shadow">
+    <div className="fixed bottom-0 right-0 z-50 flex h-[250px] w-[400px] flex-col rounded border bg-white shadow">
       <div className="h-10 bg-blue-600">
         <button
           type="button"
@@ -22,7 +22,7 @@ export function Modal({
         >
           <X />
         </button>
-        <div className="mt-2">{children}</div>
+        <div className="mt-10">{children}</div>
       </div>
     </div>
   );
