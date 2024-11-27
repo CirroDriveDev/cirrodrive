@@ -3,7 +3,10 @@ import { resolve } from "node:path"; // path 모듈
 import { z } from "zod";
 import { TRPCError } from "@trpc/server";
 import { zfd } from "zod-form-data";
-import { fileMetadataDTOSchema } from "@cirrodrive/schemas";
+import {
+  fileMetadataDTOSchema,
+  fileMetadataPublicDTOSchema,
+} from "@cirrodrive/schemas";
 import { router, procedure, authedProcedure } from "@/loaders/trpc.ts";
 import { logger } from "@/loaders/logger.ts";
 import { container } from "@/loaders/inversify.ts";
@@ -90,6 +93,25 @@ export const fileRouter = router({
 
         throw error;
       }
+    }),
+
+  /**
+   * 파일 메타데이터 조회
+   */
+  getByCode: procedure
+    .input(z.object({ code: z.string() }))
+    .output(fileMetadataPublicDTOSchema)
+    .query(async ({ input }) => {
+      const metadata = await codeService.getCodeMetadata(input.code);
+
+      if (!metadata) {
+        throw new TRPCError({
+          code: "NOT_FOUND",
+          message: "코드에 해당하는 파일을 찾을 수 없습니다.",
+        });
+      }
+
+      return metadata;
     }),
 
   listByParentFolder: authedProcedure
@@ -217,6 +239,44 @@ export const fileRouter = router({
         });
       }
     }),
+
+  saveToAccount: authedProcedure
+    .input(
+      z.object({
+        code: z.string(),
+        folderId: z.number().optional(),
+      }),
+    )
+    .mutation(async ({ input, ctx }) => {
+      const { code, folderId } = input;
+      const { user } = ctx;
+      try {
+        const fileMetadata = await codeService.getCodeMetadata(code);
+        if (!fileMetadata) {
+          throw new TRPCError({
+            code: "NOT_FOUND",
+            message: "코드에 해당하는 파일을 찾을 수 없습니다.",
+          });
+        }
+
+        const metadata = await fileService.copy(
+          fileMetadata.id,
+          folderId ?? user.rootFolderId,
+        );
+
+        return { fileId: metadata.id };
+      } catch (error) {
+        logger.error(
+          { requestId: ctx.req.id, error, code },
+          "파일 저장 중 오류 발생",
+        );
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: "파일 저장 중 오류가 발생했습니다.",
+        });
+      }
+    }),
+
   trash: authedProcedure
     .input(
       z.object({
@@ -409,6 +469,84 @@ export const fileRouter = router({
         throw new TRPCError({
           code: "INTERNAL_SERVER_ERROR",
           message: "파일 삭제 중 오류가 발생했습니다.",
+        });
+      }
+    }),
+  move: authedProcedure
+    .input(
+      z.object({
+        fileId: z.number(),
+        targetFolderId: z.number(),
+      }),
+    )
+    .mutation(async ({ input }) => {
+      const { fileId, targetFolderId } = input;
+
+      try {
+        // 파일 이동 실행
+        const updatedFile = await fileService.moveFile(fileId, targetFolderId);
+
+        return { success: true, updatedFile };
+      } catch (error) {
+        if (error instanceof Error) {
+          if (
+            error.message.includes(
+              "이미 같은 이름과 확장자의 파일이 존재합니다",
+            )
+          ) {
+            throw new TRPCError({
+              code: "CONFLICT",
+              message: error.message,
+            });
+          }
+        }
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: "파일 이동 중 오류가 발생했습니다.",
+          cause: error,
+        });
+      }
+    }),
+
+  get: authedProcedure
+    .input(
+      z.object({
+        fileId: z.number(), // 조회할 파일 ID
+      }),
+    )
+    .output(fileMetadataDTOSchema) // 메타데이터를 반환하는 스키마
+    .query(async ({ input, ctx }) => {
+      const { fileId } = input;
+      const { user } = ctx;
+
+      try {
+        // 파일 메타데이터 조회
+        const fileMetadata = await fileService.getFileMetadata(fileId);
+
+        if (!fileMetadata) {
+          throw new TRPCError({
+            code: "NOT_FOUND",
+            message: "파일을 찾을 수 없습니다.",
+          });
+        }
+
+        // 파일 소유자 검증 (로그인한 사용자와 일치해야만 접근 가능)
+        if (fileMetadata.ownerId !== user.id) {
+          throw new TRPCError({
+            code: "FORBIDDEN",
+            message: "파일에 접근할 권한이 없습니다.",
+          });
+        }
+
+        return fileMetadata; // 메타데이터 반환
+      } catch (error) {
+        logger.error(
+          { requestId: ctx.req.id, error, fileId, userId: user.id },
+          "파일 메타데이터 조회 중 오류 발생",
+        );
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: "파일 메타데이터 조회 중 오류가 발생했습니다.",
         });
       }
     }),

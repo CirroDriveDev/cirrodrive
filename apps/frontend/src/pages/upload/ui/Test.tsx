@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Header } from "@/shared/ui/layout/Header.tsx";
 import { Layout } from "@/shared/ui/layout/Layout.tsx";
 import { Button } from "@/shared/components/shadcn/Button.tsx";
-import { useFolderManagement } from "@/pages/upload/api/UseFolderManagement.ts";
+import { useFolderManagement } from "@/entities/file/api/useFolderManagement.ts";
 
 export function Test(): JSX.Element {
   const { folders, createFolder } = useFolderManagement();

@@ -44,7 +44,7 @@ export const codeRouter = router({
 
       return { codeString: code.codeString };
     }),
-  
+
   // 코드 삭제
   delete: procedure
     .input(z.object({ codeString: z.string() }))
@@ -72,24 +72,5 @@ export const codeRouter = router({
         }
         throw error;
       }
-    }),
-
-  // 코드로 파일 메타데이터 조회
-  getFileMetadataByCode: procedure
-    .input(z.object({ codeString: z.string() }))
-    .output(
-      z.object({
-        fileId: z.number(),
-        fileName: z.string(),
-        fileSize: z.number(),
-        fileExtension: z.string(),
-      }),
-    )
-    .query(async ({ input }) => {
-      const { codeString } = input;
-
-      const metadata = await codeService.getCodeMetadata(codeString);
-
-      return metadata;
     }),
 });
