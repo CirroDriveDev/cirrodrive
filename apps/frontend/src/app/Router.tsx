@@ -10,6 +10,7 @@ import { useBoundStore } from "@/shared/store/useBoundStore.ts";
 import { TrashPage } from "@/pages/Trash/ui/TrashPage.tsx";
 import { CodePage } from "@/pages/code/ui/CodePage.tsx";
 import { NotFoundPage } from "@/pages/notFound/ui/NotFoundPage.tsx";
+import { FolderPage } from "@/pages/folder/ui/FolderPage.tsx";
 
 function RedirectAuthedUserToHome({
   children,
@@ -73,6 +74,14 @@ const routeTree: RouteObject[] = [
   {
     path: "/c/:code",
     element: <CodePage />,
+  },
+  {
+    path: "/folder/:folderId",
+    element: (
+      <RequireAuth>
+        <FolderPage />
+      </RequireAuth>
+    ),
   },
   {
     path: "/Trash",
