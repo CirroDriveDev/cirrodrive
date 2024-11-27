@@ -507,7 +507,8 @@ export const fileRouter = router({
         });
       }
     }),
-  getMetadata: authedProcedure
+
+  get: authedProcedure
     .input(
       z.object({
         fileId: z.number(), // 조회할 파일 ID
