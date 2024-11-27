@@ -13,7 +13,7 @@ export const folderRouter = router({
     .input(
       z.object({
         name: z.string(),
-        parentFolderId: z.number().optional(),
+        parentFolderId: z.number(),
       }),
     )
     .output(subFolderDTOSchema)
