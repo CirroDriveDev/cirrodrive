@@ -29,8 +29,11 @@ model User {
   createdAt       DateTime    @default(now())
   updatedAt       DateTime    @updatedAt
 
+  rootFolderId Int    @unique
+  rootFolder   Folder @relation(name: "RootFolder", fields: [rootFolderId], references: [id], onDelete: Cascade)
+
   sessions Session[]
-  folders  Folder[]
+  folders  Folder[]       @relation(name: "OwnerToFolder")
   files    FileMetadata[]
   Code     Code[]
 }
@@ -75,18 +78,20 @@ model Code {
 }
 
 model Folder {
-  id        Int      @id @default(autoincrement())
+  id        Int       @id @default(autoincrement())
   name      String
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  createdAt DateTime  @default(now())
+  trashedAt DateTime?
+  updatedAt DateTime  @default(now()) @updatedAt
 
   parentFolderId Int?
   parentFolder   Folder? @relation(name: "ParentToSubFolder", fields: [parentFolderId], references: [id])
   ownerId        Int?
-  owner          User?   @relation(fields: [ownerId], references: [id], onDelete: SetNull)
+  owner          User?   @relation(name: "OwnerToFolder", fields: [ownerId], references: [id], onDelete: SetNull)
 
-  subFolders Folder[]       @relation(name: "ParentToSubFolder")
-  files      FileMetadata[]
+  subFolders     Folder[]       @relation(name: "ParentToSubFolder")
+  files          FileMetadata[]
+  UserRootFolder User?          @relation(name: "RootFolder")
 
   @@index([parentFolderId])
 }

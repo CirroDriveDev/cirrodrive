@@ -3,22 +3,27 @@ import type { RouterOutput, AppRouter } from "@cirrodrive/backend";
 import type { TRPCClientErrorLike } from "@trpc/client";
 import type { UseTRPCQueryOptions } from "@trpc/react-query/shared";
 import { trpc } from "@/shared/api/trpc.ts";
+import { parseBase64ToFile } from "@/entities/file/lib/parseBase64ToFile.ts";
+import { downloadFile } from "@/entities/file/lib/downloadFile.ts";
 
-type UseDownloadOptions = UseTRPCQueryOptions<
+type UseDownloadByCodeOptions = UseTRPCQueryOptions<
   RouterOutput["file"]["downloadByCode"],
   RouterOutput["file"]["downloadByCode"],
   TRPCClientErrorLike<AppRouter>
 >;
 
-interface UseDownload {
+interface UseDownloadByCode {
   codeString: string;
   query: ReturnType<typeof trpc.file.downloadByCode.useQuery>;
   handleInputChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
-  handleDownload: () => void;
+  download: () => void;
 }
 
-export const useDownload = (opts?: UseDownloadOptions): UseDownload => {
-  const [codeString, setCodeString] = useState<string>("");
+export const useDownloadByCode = (
+  code?: string,
+  opts?: UseDownloadByCodeOptions,
+): UseDownloadByCode => {
+  const [codeString, setCodeString] = useState<string>(code ?? "");
   const [isDownloadClicked, setIsDownloadClicked] = useState<boolean>(false);
 
   const query = trpc.file.downloadByCode.useQuery(
@@ -35,7 +40,7 @@ export const useDownload = (opts?: UseDownloadOptions): UseDownload => {
     setCodeString(e.target.value);
   };
 
-  const handleDownload = (): void => {
+  const download = (): void => {
     if (!codeString || codeString.length === 0 || query.isLoading) {
       return;
     }
@@ -56,30 +61,6 @@ export const useDownload = (opts?: UseDownloadOptions): UseDownload => {
     codeString,
     query,
     handleInputChange,
-    handleDownload,
+    download,
   };
-};
-
-const parseBase64ToFile = (base64: string, fileName: string): File => {
-  return new File([Buffer.from(base64, "base64")], fileName);
-};
-
-// 파일 다운로드 함수
-const downloadFile = (file: File): void => {
-  const url = URL.createObjectURL(file);
-  downloadFileFromUrl({
-    url,
-    name: file.name,
-  });
-};
-
-// 파일 다운로드 함수
-const downloadFileFromUrl = (opts: { url: string; name: string }): void => {
-  const a = document.createElement("a");
-  a.href = opts.url;
-  a.download = opts.name;
-  document.body.appendChild(a);
-  a.click();
-  document.body.removeChild(a);
-  URL.revokeObjectURL(opts.url);
 };

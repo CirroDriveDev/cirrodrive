@@ -1,6 +1,10 @@
 import { injectable, inject } from "inversify";
 import type { Code, Prisma } from "@cirrodrive/database";
 import type { Logger } from "pino";
+import {
+  fileMetadataPublicDTOSchema,
+  type FileMetadataPublicDTO,
+} from "@cirrodrive/schemas";
 import { Symbols } from "@/types/symbols.ts";
 import { generateCode } from "@/utils/generateCode.ts";
 
@@ -23,7 +27,7 @@ export class CodeService {
    * @returns 생성된 코드입니다.
    * @throws 코드 생성 중 오류가 발생한 경우.
    */
-  public async createCode(fileId: number): Promise<Code> {
+  public async createCode(fileId: number, expiresAt?: Date): Promise<Code> {
     try {
       this.logger.info(
         {
@@ -33,14 +37,16 @@ export class CodeService {
         "코드 생성 시작",
       );
 
+      // 파일 존재 여부 확인
       const codeString = generateCode(8);
-      const expiresAt = new Date(Date.now() + 24 * 60 * 60 * 1000);
+      const expirationDate =
+        expiresAt ?? new Date(Date.now() + 24 * 60 * 60 * 1000); // 기본 만료 시간 24시간 후
 
       const code = await this.codeModel.create({
         data: {
           codeString,
           fileId,
-          expiresAt,
+          expiresAt: expirationDate,
         },
       });
 
@@ -72,15 +78,18 @@ export class CodeService {
       await this.codeModel.delete({
         where: { codeString },
       });
-    } catch (error) {
+    } catch (error: unknown) {
       if (
         error instanceof Error &&
         error.message.includes("Record to delete does not exist.")
       ) {
-        throw new Error("코드를 찾을 수 없습니다.");
+        throw new Error("해당 코드가 존재하지 않습니다.");
       }
       if (error instanceof Error) {
-        this.logger.error(error.message);
+        this.logger.error(
+          { methodName: "deleteCode", codeString, error: error.message },
+          "코드 삭제 중 오류 발생",
+        );
       }
       throw error;
     }
@@ -93,12 +102,9 @@ export class CodeService {
    * @returns 파일 메타데이터입니다.
    * @throws 코드 조회 중 오류가 발생한 경우.
    */
-  public async getCodeMetadata(codeString: string): Promise<{
-    fileId: number;
-    fileName: string;
-    fileSize: number;
-    fileExtension: string;
-  }> {
+  public async getCodeMetadata(
+    codeString: string,
+  ): Promise<FileMetadataPublicDTO> {
     try {
       this.logger.info(
         {
@@ -117,12 +123,7 @@ export class CodeService {
         throw new Error("유효하지 않은 코드입니다.");
       }
 
-      return {
-        fileId: code.file.id,
-        fileName: code.file.name,
-        fileSize: code.file.size,
-        fileExtension: code.file.extension,
-      };
+      return fileMetadataPublicDTOSchema.parse(code.file);
     } catch (error) {
       if (error instanceof Error) {
         this.logger.error(error.message);

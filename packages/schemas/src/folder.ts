@@ -1,26 +1,22 @@
 import { z } from "zod";
+import { fileMetadataDTOSchema } from "./fileMetadata.ts";
 
-export const folderSchema = z.object({
-  id: z.coerce.number(),
+export const subFolderDTOSchema = z.object({
+  id: z.number(),
   name: z
     .string()
     .min(1, { message: "폴더 이름을 입력해주세요." })
     .max(64, { message: "폴더 이름은 64자 이하로 입력해주세요." }),
-  createdAt: z.coerce.date(),
-  updatedAt: z.coerce.date(),
-  parentFolderId: z.coerce.number().optional(),
-  ownerId: z.coerce.number().optional(),
+  createdAt: z.date(),
+  updatedAt: z.date(),
+  parentFolderId: z.number().nullable(),
+  ownerId: z.number().nullable(),
 });
 
-export const FolderDTOSchema = folderSchema;
-
-export const folderPublicDTOSchema = folderSchema.pick({
-  id: true,
-  name: true,
-  createdAt: true,
-  updatedAt: true,
-  parentFolderId: true,
+export const folderDTOSchema = subFolderDTOSchema.extend({
+  subFolders: subFolderDTOSchema.array(),
+  files: z.array(fileMetadataDTOSchema),
 });
 
-export type FolderDTO = z.infer<typeof FolderDTOSchema>;
-export type FolderPublicDTO = z.infer<typeof folderPublicDTOSchema>;
+export type SubFolderDTO = z.infer<typeof subFolderDTOSchema>;
+export type FolderDTO = z.infer<typeof folderDTOSchema>;

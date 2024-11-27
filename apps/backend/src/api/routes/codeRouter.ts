@@ -22,10 +22,34 @@ export const codeRouter = router({
   }),
 
   create: procedure
-    .input(z.object({ fileId: z.number() }))
-    .output(z.object({ codeString: z.string() }))
+    .input(
+      z.object({
+        fileId: z.number(), // 파일 ID를 입력으로 받음
+        expiresAt: z.date().optional(), // 코드 만료 시간을 선택적으로 받음
+      }),
+    )
+    .output(z.object({ codeString: z.string() })) // 생성된 코드 문자열을 반환
     .mutation(async ({ input, ctx }) => {
-      const { fileId } = input;
+      const { fileId, expiresAt } = input;
+
+      // 사용자가 인증되지 않은 경우 에러를 던짐
+      if (!ctx.user) {
+        throw new TRPCError({
+          code: "UNAUTHORIZED",
+          message: "사용자가 인증되지 않았습니다.",
+        });
+      }
+      // 코드 생성 시 만료 시간이 제공된 경우 처리
+      const code = await codeService.createCode(fileId, expiresAt);
+
+      return { codeString: code.codeString };
+    }),
+
+  // 코드 삭제
+  delete: procedure
+    .input(z.object({ codeString: z.string() }))
+    .mutation(async ({ input, ctx }) => {
+      const { codeString } = input;
 
       if (!ctx.user) {
         throw new TRPCError({
@@ -33,17 +57,6 @@ export const codeRouter = router({
           message: "사용자가 인증되지 않았습니다.",
         });
       }
-
-      // 여기서 추가적으로 파일 ID에 대한 유효성 검사를 할 수도 있습니다.
-      const code = await codeService.createCode(fileId);
-
-      return { codeString: code.codeString };
-    }),
-  // 코드 삭제 (아직 구현 안함)
-  /*delete: procedure
-    .input(z.object({ codeString: z.string() }))
-    .mutation(async ({ input }) => {
-      const { codeString } = input;
 
       try {
         await codeService.deleteCode(codeString);
@@ -59,24 +72,5 @@ export const codeRouter = router({
         }
         throw error;
       }
-    }),
-*/
-  // 코드로 파일 메타데이터 조회
-  getFileMetadataByCode: procedure
-    .input(z.object({ codeString: z.string() }))
-    .output(
-      z.object({
-        fileId: z.number(),
-        fileName: z.string(),
-        fileSize: z.number(),
-        fileExtension: z.string(),
-      }),
-    )
-    .query(async ({ input }) => {
-      const { codeString } = input;
-
-      const metadata = await codeService.getCodeMetadata(codeString);
-
-      return metadata;
     }),
 });
