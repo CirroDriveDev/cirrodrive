@@ -5,6 +5,7 @@ import { codeRouter } from "@/api/routes/codeRouter.ts";
 import { router } from "@/loaders/trpc.ts";
 import { fileRouter } from "@/api/routes/fileRouter.ts";
 import { folderRouter } from "@/api/routes/folderRouter.ts";
+import { entryRouter } from "@/api/routes/entryRouter.ts";
 
 export const appRouter = router({
   user: userRouter,
@@ -12,6 +13,7 @@ export const appRouter = router({
   code: codeRouter,
   file: fileRouter,
   folder: folderRouter,
+  entry: entryRouter,
 });
 
 export type AppRouter = typeof appRouter;

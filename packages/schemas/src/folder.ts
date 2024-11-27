@@ -9,6 +9,7 @@ export const subFolderDTOSchema = z.object({
     .max(64, { message: "폴더 이름은 64자 이하로 입력해주세요." }),
   createdAt: z.date(),
   updatedAt: z.date(),
+  trashedAt: z.date().nullable(),
   parentFolderId: z.number().nullable(),
   ownerId: z.number().nullable(),
 });
