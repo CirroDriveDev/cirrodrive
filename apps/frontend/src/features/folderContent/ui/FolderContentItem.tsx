@@ -83,8 +83,9 @@ export function FolderContentItem({
               onBlur={handleRenameSubmit}
               onKeyDown={handleKeyDown}
               autoFocus
+              onFocus={(e) => e.currentTarget.select()}
               disabled={isRenaming} // 이름 변경 중에는 입력 비활성화
-              className="w-full rounded border px-2 py-1 text-sm"
+              className="rounded border text-sm"
             />
             <button
               type="button"
@@ -114,7 +115,12 @@ export function FolderContentItem({
               <MoreVertical />
             </button>
           </DropdownMenuTrigger>
-          <DropdownMenuContent className="w-56">
+          <DropdownMenuContent
+            className="w-56"
+            onCloseAutoFocus={(e) => {
+              e.preventDefault();
+            }}
+          >
             {/* 첫 번째 그룹: 다운로드 */}
             <DropdownMenuGroup>
               {type !== "folder" && (
@@ -127,7 +133,11 @@ export function FolderContentItem({
             {/* 두 번째 그룹: 이름 변경 */}
             <DropdownMenuGroup>
               <RenameButton
-                onRename={() => setIsEditing(true)}
+                onRename={() => {
+                  setTimeout(() => {
+                    setIsEditing(true);
+                  }, 0);
+                }}
                 disabled={isRenaming}
               />
             </DropdownMenuGroup>
