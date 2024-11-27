@@ -507,4 +507,46 @@ export const fileRouter = router({
         });
       }
     }),
+  getMetadata: authedProcedure
+    .input(
+      z.object({
+        fileId: z.number(), // 조회할 파일 ID
+      }),
+    )
+    .output(fileMetadataDTOSchema) // 메타데이터를 반환하는 스키마
+    .query(async ({ input, ctx }) => {
+      const { fileId } = input;
+      const { user } = ctx;
+
+      try {
+        // 파일 메타데이터 조회
+        const fileMetadata = await fileService.getFileMetadata(fileId);
+
+        if (!fileMetadata) {
+          throw new TRPCError({
+            code: "NOT_FOUND",
+            message: "파일을 찾을 수 없습니다.",
+          });
+        }
+
+        // 파일 소유자 검증 (로그인한 사용자와 일치해야만 접근 가능)
+        if (fileMetadata.ownerId !== user.id) {
+          throw new TRPCError({
+            code: "FORBIDDEN",
+            message: "파일에 접근할 권한이 없습니다.",
+          });
+        }
+
+        return fileMetadata; // 메타데이터 반환
+      } catch (error) {
+        logger.error(
+          { requestId: ctx.req.id, error, fileId, userId: user.id },
+          "파일 메타데이터 조회 중 오류 발생",
+        );
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: "파일 메타데이터 조회 중 오류가 발생했습니다.",
+        });
+      }
+    }),
 });
