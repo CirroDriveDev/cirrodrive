@@ -45,7 +45,7 @@ export function LandingPage(): JSX.Element {
               <Link to="/login">로그인</Link>
             </Button>
             <Button>
-              <Link to="/signup">회원가입</Link>
+              <Link to="/register">회원가입</Link>
             </Button>
           </div>
         </div>
