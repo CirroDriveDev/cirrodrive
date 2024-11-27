@@ -6,9 +6,9 @@ import { LoadingSpinner } from "@/shared/components/LoadingSpinner.tsx";
 import { useGetFileByCode } from "@/entities/file/api/useGetFileByCode.ts";
 import { useDownloadByCode } from "@/entities/file/api/useDownloadByCode.ts";
 import { Button } from "@/shared/components/shadcn/Button.tsx";
-import { FolderContentIcon } from "@/features/folderContent/ui/FolderContentIcon.tsx";
-import { inferFileType } from "@/features/folderContent/lib/inferFileType.ts";
-import { formatSize } from "@/features/folderContent/lib/formatSize.ts";
+import { EntryIcon } from "@/entities/entry/ui/EntryIcon.tsx";
+import { inferFileType } from "@/shared/lib/inferFileType.ts";
+import { formatSize } from "@/entities/entry/lib/formatSize.ts";
 import { useBoundStore } from "@/shared/store/useBoundStore.ts";
 import { useSaveToAccount } from "@/entities/file/api/useSaveToAccount.ts";
 
@@ -40,7 +40,7 @@ export function CodePage(): JSX.Element {
         : null}
         {!isLoading && file ?
           <div className="flex space-x-2">
-            <FolderContentIcon type={inferFileType(file.name)} />
+            <EntryIcon variant={inferFileType(file.name)} />
             <div className="">{file.name}</div>
             <div className="">{formatSize(file.size)}</div>
             {user ?

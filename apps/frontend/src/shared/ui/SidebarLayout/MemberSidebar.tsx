@@ -4,7 +4,7 @@ export function MemberSidebar(): JSX.Element {
   return (
     <aside className="flex flex-grow bg-secondary">
       <nav className="flex flex-grow flex-col space-y-4 p-4">
-        <SidebarItem label="파일" path="/files" />
+        <SidebarItem label="파일" path="/home" />
         {/* 문서 */}
         <SidebarItem label="문서" path="/documents" />
         {/* 사진 */}

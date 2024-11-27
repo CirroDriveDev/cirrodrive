@@ -1,7 +1,8 @@
 import { useState } from "react";
-import { getQueryKey } from "@trpc/react-query"; //다시 불러오기
 import { useQueryClient } from "@tanstack/react-query";
 import { trpc } from "@/shared/api/trpc.ts";
+import { entryListQueryKey } from "@/entities/entry/api/useEntryList.ts";
+import { trashEntryListQueryKey } from "@/entities/entry/api/useTrashEntryList.ts";
 
 interface UseTrash {
   handleTrash: () => void; // 휴지통으로 이동 함수
@@ -13,7 +14,6 @@ export const useTrash = (fileId: number): UseTrash => {
   const queryClient = useQueryClient(); //다시
   const [isMutating, setIsMutating] = useState(false);
   const [success, setSuccess] = useState<boolean | null>(null);
-  const folderGetQueryKey = getQueryKey(trpc.folder.get); //다시
 
   const mutation = trpc.file.trash.useMutation({
     onMutate: () => {
@@ -21,7 +21,8 @@ export const useTrash = (fileId: number): UseTrash => {
       setSuccess(null); // 성공 여부 초기화
     },
     onSuccess: async () => {
-      await queryClient.invalidateQueries({ queryKey: folderGetQueryKey }); //다시
+      await queryClient.invalidateQueries({ queryKey: entryListQueryKey });
+      await queryClient.invalidateQueries({ queryKey: trashEntryListQueryKey });
       setSuccess(true); //요청 성공 시 성공 여부를 true로 설정
     },
     onError: () => {

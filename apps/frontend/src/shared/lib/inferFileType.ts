@@ -1,6 +1,6 @@
-import { type FolderContentType } from "@/features/folderContent/types/folderContent.ts";
+import { type EntryMIMEType } from "@/entities/file/model/entryType.ts";
 
-export const inferFileType = (name: string): FolderContentType => {
+export const inferFileType = (name: string): EntryMIMEType => {
   const extension = name.split(".").pop()?.toLowerCase();
   switch (extension) {
     case "png":
