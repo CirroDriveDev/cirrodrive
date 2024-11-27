@@ -409,4 +409,136 @@ export class FolderService {
       throw error;
     }
   }
+
+  /**
+   * 폴더 이름을 변경합니다.
+   *
+   * @param folderId - 이름을 변경할 폴더의 ID입니다.
+   * @param name - 변경할 폴더의 이름입니다.
+   * @throws 폴더 이름 변경 중 오류가 발생한 경우.
+   */
+  public async rename(folderId: number, name: string): Promise<void> {
+    try {
+      this.logger.info({ folderId, name }, "폴더 이름 변경 시작");
+
+      await this.folderModel.update({
+        where: { id: folderId },
+        data: { name },
+      });
+
+      this.logger.info({ folderId, name }, "폴더 이름 변경 완료");
+    } catch (error) {
+      if (error instanceof Error) {
+        this.logger.error(error.message);
+      }
+      throw error;
+    }
+  }
+
+  /**
+   * 동일한 폴더 이름이 존재하는지 확인합니다.
+   *
+   * @param ownerId - 폴더를 생성할 회원의 ID입니다.
+   * @param name - 생성할 폴더의 이름입니다.
+   * @param parentFolderId - 부모 폴더의 ID입니다 (최상위 폴더일 경우 null).
+   * @returns 동일한 이름의 폴더가 존재하는지 여부입니다.
+   */
+  public async existsFolderName(
+    ownerId: number,
+    name: string,
+    parentFolderId?: number,
+  ): Promise<boolean> {
+    try {
+      this.logger.info(
+        {
+          methodName: "existsFolderName",
+          ownerId,
+          name,
+          parentFolderId,
+        },
+        "폴더 이름 중복 확인 시작",
+      );
+
+      const folder = await this.folderModel.findFirst({
+        where: {
+          ownerId,
+          name,
+          parentFolderId,
+        },
+      });
+
+      const result = Boolean(folder);
+
+      this.logger.info(
+        {
+          methodName: "existsFolderName",
+          ownerId,
+          name,
+          parentFolderId,
+          result,
+        },
+        "폴더 이름 중복 확인 결과",
+      );
+
+      return result;
+    } catch (error) {
+      if (error instanceof Error) {
+        this.logger.error(error.message);
+      }
+      throw error;
+    }
+  }
+
+  /**
+   * 적절한 폴더 이름을 생성합니다. 동일한 이름의 폴더가 존재할 경우 이름을 변경합니다.
+   *
+   * @param ownerId - 폴더를 생성할 회원의 ID입니다.
+   * @param name - 생성할 폴더의 이름입니다.
+   * @param parentFolderId - 부모 폴더의 ID입니다 (최상위 폴더일 경우 null).
+   * @returns 생성된 폴더의 이름입니다.
+   */
+  public async generateFolderName(
+    ownerId: number,
+    name: string,
+    parentFolderId: number,
+  ): Promise<string> {
+    try {
+      this.logger.info(
+        {
+          methodName: "generateFolderName",
+          ownerId,
+          name,
+          parentFolderId,
+        },
+        "폴더 이름 생성 시작",
+      );
+
+      let folderName = name;
+      let count = 1;
+
+      // 동일한 이름의 폴더가 존재할 경우 이름 변경
+      while (await this.existsFolderName(ownerId, folderName, parentFolderId)) {
+        folderName = `${name} (${count})`;
+        count += 1;
+      }
+
+      this.logger.info(
+        {
+          methodName: "generateFolderName",
+          ownerId,
+          name,
+          parentFolderId,
+          folderName,
+        },
+        "폴더 이름 생성 완료",
+      );
+
+      return folderName;
+    } catch (error) {
+      if (error instanceof Error) {
+        this.logger.error(error.message);
+      }
+      throw error;
+    }
+  }
 }
