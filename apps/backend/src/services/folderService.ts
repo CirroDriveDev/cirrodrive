@@ -28,7 +28,7 @@ export class FolderService {
   public async create(
     ownerId: number,
     name: string,
-    parentFolderId?: number,
+    parentFolderId: number,
   ): Promise<Folder> {
     try {
       this.logger.info(
