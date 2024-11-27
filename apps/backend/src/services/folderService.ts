@@ -1,6 +1,7 @@
 import { injectable, inject } from "inversify";
 import type { Prisma, Folder } from "@cirrodrive/database";
 import type { Logger } from "pino";
+import type { RecursiveEntryDTO } from "@cirrodrive/schemas";
 import { Symbols } from "@/types/symbols.ts";
 import { FileService } from "@/services/fileService.ts";
 /**
@@ -177,6 +178,78 @@ export class FolderService {
       });
 
       return folder;
+    } catch (error) {
+      if (error instanceof Error) {
+        this.logger.error(error.message);
+      }
+      throw error;
+    }
+  }
+
+  /**
+   * 폴더를 재귀적으로 조회합니다.
+   *
+   * @param folderId - 조회할 폴더의 ID입니다.
+   * @returns 폴더 정보입니다.
+   * @throws 폴더 조회 중 오류가 발생한 경우.
+   */
+  public async getRecursively(folderId: number): Promise<RecursiveEntryDTO> {
+    const folder = await this.get(folderId);
+
+    if (!folder) {
+      throw new Error("폴더를 찾을 수 없습니다.");
+    }
+
+    const recursiveEntry: RecursiveEntryDTO = {
+      id: folder.id,
+      name: folder.name,
+      type: "folder",
+      parentFolderId: folder.parentFolderId,
+      createdAt: folder.createdAt,
+      updatedAt: folder.updatedAt,
+      trashedAt: folder.trashedAt,
+      size: null,
+      entries: [],
+    };
+
+    for (const subFolder of folder.subFolders) {
+      const subFolderEntry = await this.getRecursively(subFolder.id);
+      recursiveEntry.entries.push(subFolderEntry);
+    }
+
+    return recursiveEntry;
+  }
+
+  /**
+   * 사용자의 휴지통 폴더 목록을 조회합니다.
+   *
+   * @param ownerId - 휴지통 폴더를 조회할 회원의 ID입니다.
+   * @returns 휴지통 폴더 목록입니다.
+   * @throws 휴지통 폴더 조회 중 오류가 발생한 경우.
+   */
+  public async listTrashByUser(ownerId: number): Promise<Folder[]> {
+    try {
+      this.logger.info(
+        {
+          methodName: "listTrashByUser",
+          ownerId,
+        },
+        "휴지통 폴더 목록 조회 시작",
+      );
+
+      const folders = await this.folderModel.findMany({
+        where: {
+          ownerId,
+          trashedAt: {
+            not: null,
+          },
+        },
+        orderBy: {
+          trashedAt: "asc",
+        },
+      });
+
+      return folders;
     } catch (error) {
       if (error instanceof Error) {
         this.logger.error(error.message);

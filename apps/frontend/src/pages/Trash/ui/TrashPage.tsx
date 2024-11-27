@@ -1,12 +1,11 @@
 import { useNavigate } from "react-router-dom";
-import { fileMetadataDTOSchema, subFolderDTOSchema } from "@cirrodrive/schemas";
 import { Header } from "@/shared/ui/layout/Header.tsx";
 import { Sidebar } from "@/shared/ui/SidebarLayout/Sidebar.tsx";
 import { SidebarLayout } from "@/shared/ui/SidebarLayout/SidebarLayout.tsx";
 import { useBoundStore } from "@/shared/store/useBoundStore.ts";
-import { useFolder } from "@/shared/api/useFolder.ts";
 import { LoadingSpinner } from "@/shared/components/LoadingSpinner.tsx";
-import { FolderTrashList } from "@/features/folderContent/ui/FileTrashList.tsx";
+import { EntryList } from "@/entities/entry/ui/EntryList.tsx";
+import { useTrashEntryList } from "@/entities/entry/api/useTrashEntryList.ts";
 
 export function TrashPage(): JSX.Element {
   const navigate = useNavigate();
@@ -14,20 +13,15 @@ export function TrashPage(): JSX.Element {
   if (user === null) {
     navigate("/login");
   }
-
-  const { data, isLoading } = useFolder(user?.rootFolderId ?? -1);
+  const { query: trashEntryListQuery } = useTrashEntryList();
 
   return (
     <SidebarLayout header={<Header />} sidebar={<Sidebar />}>
       <div className="flex w-full flex-grow flex-col items-center">
         <div className="flex w-full px-4">
-          {isLoading || !data ?
+          {trashEntryListQuery.isLoading || !trashEntryListQuery.data ?
             <LoadingSpinner />
-          : <FolderTrashList
-              folders={subFolderDTOSchema.array().parse(data.subFolders)}
-              files={fileMetadataDTOSchema.array().parse(data.files)}
-            />
-          }
+          : <EntryList entries={trashEntryListQuery.data} />}
         </div>
       </div>
     </SidebarLayout>
