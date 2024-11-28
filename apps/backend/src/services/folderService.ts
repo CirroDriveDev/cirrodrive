@@ -42,10 +42,16 @@ export class FolderService {
         "폴더 생성 시작",
       );
 
+      const newName = await this.generateFolderName(
+        ownerId,
+        name,
+        parentFolderId,
+      );
+
       const folder = await this.folderModel.create({
         data: {
           ownerId,
-          name,
+          name: newName,
           parentFolderId,
         },
       });
@@ -643,12 +649,15 @@ export class FolderService {
         "폴더 이름 생성 시작",
       );
 
-      let folderName = name;
+      const originalName =
+        /^(?<originalName>.*?)(?: \(\d+\))?$/.exec(name)?.groups
+          ?.originalName ?? name;
+      let folderName = originalName;
       let count = 1;
 
       // 동일한 이름의 폴더가 존재할 경우 이름 변경
       while (await this.existsFolderName(ownerId, folderName, parentFolderId)) {
-        folderName = `${name} (${count})`;
+        folderName = `${originalName} (${count})`;
         count += 1;
       }
 

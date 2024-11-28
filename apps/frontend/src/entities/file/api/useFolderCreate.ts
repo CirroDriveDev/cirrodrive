@@ -17,9 +17,12 @@ export const useFolderCreate = (): UseFolderManagement => {
   const { user } = useBoundStore();
   const queryClient = useQueryClient();
   const [folderName, setFolderName] = useState("새 폴더");
-  const [parentFolderId, setParentFolderId] = useState(
-    user?.rootFolderId ?? -1,
-  );
+
+  if (user === null) {
+    throw new Error("User must be defined");
+  }
+
+  const [parentFolderId, setParentFolderId] = useState(user.rootFolderId);
 
   const folderMutation = trpc.folder.create.useMutation({
     onSuccess: async () => {
