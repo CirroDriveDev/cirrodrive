@@ -1,4 +1,5 @@
 import { ChevronRight } from "lucide-react";
+import { useEffect } from "react";
 import { EntryList } from "@/entities/entry/ui/EntryList.tsx";
 import { Header } from "@/shared/ui/layout/Header.tsx";
 import { Sidebar } from "@/shared/ui/SidebarLayout/Sidebar.tsx";
@@ -18,12 +19,17 @@ interface FolderViewProps {
 
 export function FolderView({ folderId }: FolderViewProps): JSX.Element {
   const { user } = useBoundStore();
-  const { createFolder } = useFolderCreate();
+  const { createFolder, setParentFolderId } = useFolderCreate();
   const { query: entryListQuery } = useEntryList(folderId);
   const { handleFileSelect } = useUpload(folderId, {
     onSuccess: () => {
       void entryListQuery.refetch();
     },
+  });
+
+  // useEffect에 넣어서 렌더링 이후 실행하지 않으면 무한 루프에 빠집니다.
+  useEffect(() => {
+    setParentFolderId(folderId);
   });
 
   const { query: folderPathQuery } = useFolderPath(folderId);
