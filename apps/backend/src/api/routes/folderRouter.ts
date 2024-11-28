@@ -104,6 +104,29 @@ export const folderRouter = router({
       return folder;
     }),
 
+  // 폴더 경로 조회
+  getPath: authedProcedure
+    .input(
+      z.object({
+        folderId: z.number(),
+      }),
+    )
+    .output(
+      z.array(
+        z.object({
+          folderId: z.number().nullable(),
+          name: z.string(),
+        }),
+      ),
+    )
+    .query(async ({ input }) => {
+      const { folderId } = input;
+
+      const path = await folderService.getPath(folderId);
+
+      return path;
+    }),
+
   // 폴더 이름 변경
   rename: authedProcedure
     .input(
