@@ -1,7 +1,5 @@
 import "express-async-errors";
 import express, {
-  json,
-  urlencoded,
   type Request,
   type Response,
   type NextFunction,
@@ -10,8 +8,11 @@ import express, {
 import cookieParser from "cookie-parser";
 import helmet from "helmet";
 import { StatusCodes } from "http-status-codes";
+import cors from "cors";
 import { loggerMiddleware } from "@/loaders/logger.ts";
-import { BaseRouter } from "@/api/baseRouter.ts";
+import { trpcMiddleware } from "@/loaders/trpcMiddleware.ts";
+
+export const TRPC_PATH = "/trpc";
 
 /**
  * Express application instance.
@@ -19,8 +20,16 @@ import { BaseRouter } from "@/api/baseRouter.ts";
 
 export const expressLoader = (): Express => {
   const app = express();
-  app.use(json());
-  app.use(urlencoded({ extended: true }));
+
+  app.use(
+    cors({
+      credentials: true,
+      origin: [
+        `http://${import.meta.env.VITE_EC2_PUBLIC_URL}`,
+        `http://${import.meta.env.VITE_EC2_PUBLIC_URL}:${import.meta.env.VITE_CLIENT_PORT}`,
+      ],
+    }),
+  );
   app.use(cookieParser());
   app.use(loggerMiddleware);
 
@@ -28,7 +37,7 @@ export const expressLoader = (): Express => {
     app.use(helmet());
   }
 
-  app.use("/api/v1", BaseRouter());
+  app.use(TRPC_PATH, trpcMiddleware);
 
   /**
    * Error handler middleware.

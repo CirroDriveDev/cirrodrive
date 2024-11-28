@@ -1,26 +1,95 @@
-import { createBrowserRouter } from "react-router-dom";
+import { createBrowserRouter, Navigate } from "react-router-dom";
 import type { RouteObject } from "react-router-dom";
 import { HomePage } from "@/pages/home/ui/HomePage.tsx";
 import { LoginPage } from "@/pages/login/ui/LoginPage.tsx";
-import { SignupPage } from "@/pages/signup/ui/SignupPage.tsx";
+import { RegisterPage } from "@/pages/register/ui/RegisterPage.tsx";
 import { LandingPage } from "@/pages/landing/ui/LandingPage.tsx";
+import { UploadByCodePage } from "@/pages/uploadByCode/ui/UploadByCodePage.tsx";
+import { DownloadByCodePage } from "@/pages/downloadByCode/ui/DownloadByCodePage.tsx";
+import { useBoundStore } from "@/shared/store/useBoundStore.ts";
+import { TrashPage } from "@/pages/Trash/ui/TrashPage.tsx";
+import { CodePage } from "@/pages/code/ui/CodePage.tsx";
+import { NotFoundPage } from "@/pages/notFound/ui/NotFoundPage.tsx";
+import { FolderPage } from "@/pages/folder/ui/FolderPage.tsx";
+
+function RedirectAuthedUserToHome({
+  children,
+}: {
+  children: React.ReactNode;
+}): React.ReactNode {
+  const { user } = useBoundStore();
+  return user ? <Navigate to="/home" replace /> : children;
+}
+
+function RequireAuth({
+  children,
+}: {
+  children: React.ReactNode;
+}): React.ReactNode {
+  const { user } = useBoundStore();
+  return user ? children : <Navigate to="/login" replace />;
+}
 
 const routeTree: RouteObject[] = [
   {
     path: "/",
-    element: <LandingPage />,
+    element: (
+      <RedirectAuthedUserToHome>
+        <LandingPage />
+      </RedirectAuthedUserToHome>
+    ),
   },
   {
     path: "/home",
-    element: <HomePage />,
+    element: (
+      <RequireAuth>
+        <HomePage />
+      </RequireAuth>
+    ),
   },
   {
     path: "/login",
-    element: <LoginPage />,
+    element: (
+      <RedirectAuthedUserToHome>
+        <LoginPage />
+      </RedirectAuthedUserToHome>
+    ),
   },
   {
-    path: "/signup",
-    element: <SignupPage />,
+    path: "/register",
+    element: (
+      <RedirectAuthedUserToHome>
+        <RegisterPage />
+      </RedirectAuthedUserToHome>
+    ),
+  },
+  {
+    path: "/upload",
+    element: <UploadByCodePage />,
+  },
+  {
+    path: "/download",
+    element: <DownloadByCodePage />,
+  },
+  {
+    path: "/c/:code",
+    element: <CodePage />,
+  },
+  {
+    path: "/folder/:folderId",
+    element: (
+      <RequireAuth>
+        <FolderPage />
+      </RequireAuth>
+    ),
+  },
+  {
+    path: "/Trash",
+    element: <TrashPage />,
+  },
+  {
+    path: "*",
+    element: <NotFoundPage />,
   },
 ];
 

@@ -1,6 +1,6 @@
 {
   "*.{ts,tsx}": [
-    "prettier --write",
-    "eslint --fix --report-unused-disable-directives --max-warnings 0"
+    "eslint --fix --cache --cache-location .cache/.eslintcache",
+    "prettier --write --ignore-path ../../.gitignore --cache --cache-location .cache/.prettiercache"
   ]
 }

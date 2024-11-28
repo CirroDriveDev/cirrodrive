@@ -1,0 +1,97 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider      = "prisma-client-js"
+  output        = "../dist"
+  binaryTargets = ["native", "windows", "debian-openssl-3.0.x"]
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+enum PricingPlan {
+  free
+  basic
+  premium
+}
+
+model User {
+  id              Int         @id @default(autoincrement())
+  username        String      @unique
+  hashedPassword  String
+  email           String      @unique
+  pricingPlan     PricingPlan @default(free)
+  usedStorage     Int         @default(0)
+  profileImageUrl String?     @unique
+  createdAt       DateTime    @default(now())
+  updatedAt       DateTime    @updatedAt
+
+  rootFolderId Int    @unique
+  rootFolder   Folder @relation(name: "RootFolder", fields: [rootFolderId], references: [id], onDelete: Cascade)
+
+  sessions Session[]
+  folders  Folder[]       @relation(name: "OwnerToFolder")
+  files    FileMetadata[]
+  Code     Code[]
+}
+
+model Session {
+  id        String   @id
+  expiresAt DateTime
+
+  userId Int
+  user   User @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model FileMetadata {
+  id        Int       @id @default(autoincrement())
+  name      String
+  extension String
+  size      Int
+  savedPath String
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  trashedAt DateTime?
+  hash      String
+
+  parentFolderId Int?
+  parentFolder   Folder? @relation(fields: [parentFolderId], references: [id], onDelete: SetNull)
+  ownerId        Int?
+  owner          User?   @relation(fields: [ownerId], references: [id])
+
+  codes Code[]
+
+  @@index([parentFolderId])
+}
+
+model Code {
+  id         Int          @id @default(autoincrement())
+  codeString String       @unique
+  expiresAt  DateTime
+  fileId     Int
+  userId     Int? // 변경: nullable로 설정
+  file       FileMetadata @relation(fields: [fileId], references: [id])
+  user       User?        @relation(fields: [userId], references: [id])
+}
+
+model Folder {
+  id        Int       @id @default(autoincrement())
+  name      String
+  createdAt DateTime  @default(now())
+  trashedAt DateTime?
+  updatedAt DateTime  @default(now()) @updatedAt
+
+  parentFolderId Int?
+  parentFolder   Folder? @relation(name: "ParentToSubFolder", fields: [parentFolderId], references: [id])
+  ownerId        Int?
+  owner          User?   @relation(name: "OwnerToFolder", fields: [ownerId], references: [id], onDelete: SetNull)
+
+  subFolders     Folder[]       @relation(name: "ParentToSubFolder")
+  files          FileMetadata[]
+  UserRootFolder User?          @relation(name: "RootFolder")
+
+  @@index([parentFolderId])
+}

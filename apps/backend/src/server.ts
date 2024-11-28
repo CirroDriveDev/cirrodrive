@@ -3,9 +3,6 @@ import { type Server } from "node:http";
 import type express from "express";
 import { expressLoader } from "@/loaders/express.ts";
 import { logger } from "@/loaders/logger.ts";
-import { prisma } from "@/loaders/prisma.ts";
-
-await prisma.user.findMany();
 
 let server: Server;
 
@@ -19,8 +16,10 @@ function load(): express.Application {
 }
 
 function startServer(app: express.Application): void {
-  server = app.listen(import.meta.env.VITE_PORT, () => {
-    logger.info(`Server listening on port: ${import.meta.env.VITE_PORT}`);
+  server = app.listen(import.meta.env.VITE_SERVER_PORT, () => {
+    logger.info(
+      `Server listening on port: ${import.meta.env.VITE_SERVER_PORT}`,
+    );
     logger.info(`Currently running on ${import.meta.env.MODE} mode.`);
   });
 
@@ -38,8 +37,7 @@ const app = load();
 startServer(app);
 
 /**
- * 개발 모드를 위한 HMR(Hot Module Replacement) 설정
- * 변경 사항이 발생하면 서버를 닫고 다시 시작합니다.
+ * 개발 모드를 위한 HMR(Hot Module Replacement) 설정 변경 사항이 발생하면 서버를 닫고 다시 시작합니다.
  */
 if (import.meta.hot) {
   const closeServer = (): void => {

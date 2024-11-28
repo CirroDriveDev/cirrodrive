@@ -1,11 +1,13 @@
-import { WorkspaceLayout } from "@/widgets/WorkspaceLayout/ui/WorkspaceLayout.tsx";
+import { useNavigate } from "react-router-dom";
+import { useBoundStore } from "@/shared/store/useBoundStore.ts";
+import { FolderView } from "@/widgets/folderView/ui/FolderView.tsx";
 
 export function HomePage(): JSX.Element {
-  return (
-    <WorkspaceLayout>
-      <div className="flex flex-grow items-center justify-center">
-        <div>홈 페이지입니다.</div>
-      </div>
-    </WorkspaceLayout>
-  );
+  const navigate = useNavigate();
+  const { user } = useBoundStore();
+  if (user === null) {
+    navigate("/login");
+  }
+
+  return <FolderView folderId={user!.rootFolderId} />;
 }

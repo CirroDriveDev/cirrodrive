@@ -1,5 +1,9 @@
 export const Symbols = {
   Logger: Symbol.for("Logger"),
-  Lucia: Symbol.for("Lucia"),
   DayJS: Symbol.for("DayJS"),
+  UserModel: Symbol.for("UserModel"),
+  SessionModel: Symbol.for("SessionModel"),
+  CodeModel: Symbol.for("CodeModel"),
+  FileMetadataModel: Symbol.for("FileMetadataModel"),
+  FolderModel: Symbol.for("FolderModel"),
 };

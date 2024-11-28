@@ -1,4 +1,0 @@
-name: cirrodrive
-include:
-  - path: ./apps/frontend/compose.prod.yaml
-  - path: ./apps/backend/compose.prod.yaml
