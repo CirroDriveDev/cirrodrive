@@ -40,7 +40,20 @@ export function EntryItem({ entry }: EntryItemProps): JSX.Element {
 
   const [isEditing, setIsEditing] = useState(false);
   const [newName, setNewName] = useState(name);
-  const { handleRename, isRenaming } = useFileRename(id);
+
+  const { handleRenameFile, handleRenameFolder, isRenaming } = useFileRename(
+    id,
+    type === "folder",
+  );
+
+  // 변수 이름 변경: newName1 -> newNameValue
+  const handleRename = (newNameValue: string): void => {
+    if (type === "folder") {
+      handleRenameFolder(newNameValue); // 폴더 이름 변경
+    } else {
+      handleRenameFile(newNameValue); // 파일 이름 변경
+    }
+  };
 
   const nameRef = useRef<HTMLDivElement>(null);
   const { width } = useContainerDimensions(nameRef);
@@ -49,7 +62,7 @@ export function EntryItem({ entry }: EntryItemProps): JSX.Element {
 
   const handleRenameSubmit = (): void => {
     if (newName !== name) {
-      handleRename(newName);
+      handleRename(newName); // 이름 변경 처리
     }
     setIsEditing(false);
   };
@@ -69,14 +82,14 @@ export function EntryItem({ entry }: EntryItemProps): JSX.Element {
     }
   };
 
-  const { handleFileDelete } = useFileDelete(id); // 파일 삭제하기
-  const { handleFolderDelete } = useFolderDelete(id); // 폴더 삭제하기
+  const { handleFileDelete } = useFileDelete(id);
+  const { handleFolderDelete } = useFolderDelete(id);
 
-  const deleteEntry = type === "folder" ? handleFolderDelete : handleFileDelete; // 삭제 함수 결정
+  const deleteEntry = type === "folder" ? handleFolderDelete : handleFileDelete;
 
   const { handleDownload: downloadEntry } = useDownload(id);
   const { handleTrash } = useTrash(id);
-  const { restore } = useRestore(id); // 복원하기
+  const { restore } = useRestore(id);
 
   const handleDoubleClick = (): void => {
     if (type === "folder") {
@@ -107,14 +120,14 @@ export function EntryItem({ entry }: EntryItemProps): JSX.Element {
               onKeyDown={handleKeyDown}
               autoFocus
               onFocus={(e) => e.currentTarget.select()}
-              disabled={isRenaming} // 이름 변경 중에는 입력 비활성화
+              disabled={isRenaming}
               className="rounded border text-sm"
             />
             <button
               type="button"
               onClick={handleCancel}
               className={`text-sm ${isRenaming ? "text-gray-400" : "text-red-500"}`}
-              disabled={isRenaming} // 이름 변경 중 취소 버튼 비활성화
+              disabled={isRenaming}
             >
               취소
             </button>
@@ -162,10 +175,18 @@ export function EntryItem({ entry }: EntryItemProps): JSX.Element {
                   <Edit2 />
                   <span>이름 변경</span>
                 </DropdownMenuItem>
-                <DropdownMenuItem onClick={handleTrash}>
-                  <Trash2 />
-                  <span>휴지통</span>
-                </DropdownMenuItem>
+                {type === "file" ?
+                  <DropdownMenuItem onClick={() => handleTrash("file")}>
+                    <Trash2 />
+                    <span>휴지통</span>
+                  </DropdownMenuItem>
+                : null}
+                {type === "folder" ?
+                  <DropdownMenuItem onClick={() => handleTrash("folder")}>
+                    <Trash2 />
+                    <span>휴지통</span>
+                  </DropdownMenuItem>
+                : null}
               </DropdownMenuGroup>
             : <DropdownMenuGroup>
                 <DropdownMenuItem onClick={restore}>

@@ -24,19 +24,28 @@ export function Header(): JSX.Element {
             로그아웃
           </Button>
         : <>
-            <Button variant="ghost" className="ml-auto mr-1">
-              <Link to="/upload">업로드</Link>
-            </Button>
-            <Button variant="ghost" className="mr-1">
-              <Link to="/download">다운로드</Link>
-            </Button>
+            <Link to="/upload">
+              <Button variant="ghost" className="ml-auto mr-1">
+                업로드
+              </Button>
+            </Link>
+            <Link to="/download">
+              <Button variant="ghost" className="mr-1">
+                다운로드
+              </Button>
+            </Link>
             <span className="mr-1 text-xl">|</span>
-            <Button variant="ghost" className="mr-1">
-              <Link to="/login">로그인</Link>
-            </Button>
-            <Button variant="ghost" className="mr-1">
-              <Link to="/register">회원가입</Link>
-            </Button>
+            <Link to="/login">
+              <Button variant="ghost" className="mr-1">
+                로그인
+              </Button>
+            </Link>
+
+            <Link to="/register">
+              <Button variant="ghost" className="mr-1">
+                회원가입
+              </Button>
+            </Link>
           </>
         }
         <ModeToggle />

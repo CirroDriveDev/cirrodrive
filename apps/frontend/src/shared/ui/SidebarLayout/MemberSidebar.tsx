@@ -9,12 +9,8 @@ export function MemberSidebar(): JSX.Element {
         <SidebarItem label="문서" path="/documents" />
         {/* 사진 */}
         <SidebarItem label="사진" path="/photos" />
-        {/* 즐겨찾기 */}
-        <SidebarItem label="즐겨찾기" path="/favorites" />
         {/* 최근 파일 */}
         <SidebarItem label="최근 파일" path="/recent" />
-        {/* 공유 파일 */}
-        <SidebarItem label="공유 파일" path="/shared" />
         {/* 휴지통 */}
         <SidebarItem label="휴지통" path="/trash" />
       </nav>
