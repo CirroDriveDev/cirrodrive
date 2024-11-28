@@ -680,4 +680,25 @@ export class FolderService {
       throw error;
     }
   }
+  public async updateFolderName(folderId: number, name: string): Promise<void> {
+    try {
+      this.logger.info(
+        { methodName: "updateFolderName", folderId, name },
+        "폴더 이름 수정 시작",
+      );
+
+      await this.folderModel.update({
+        where: { id: folderId },
+        data: { name },
+      });
+
+      this.logger.info(
+        { methodName: "updateFolderName", folderId, name },
+        "폴더 이름 수정 완료",
+      );
+    } catch (error) {
+      this.logger.error(error, "폴더 이름 수정 중 오류 발생");
+      throw error;
+    }
+  }
 }

@@ -3,6 +3,7 @@ import { TRPCError } from "@trpc/server"; // TRPCError 임포트
 import { folderDTOSchema, subFolderDTOSchema } from "@cirrodrive/schemas";
 import { router, authedProcedure } from "@/loaders/trpc.ts"; // tRPC 설정 임포트
 import { container } from "@/loaders/inversify.ts";
+import { logger } from "@/loaders/logger.ts";
 import { FolderService } from "@/services/folderService.ts";
 
 const folderService = container.get(FolderService);
@@ -277,6 +278,32 @@ export const folderRouter = router({
           });
         }
         throw error;
+      }
+    }),
+  updateFolderName: authedProcedure
+    .input(
+      z.object({
+        folderId: z.number(), // 수정할 폴더 ID
+        name: z.string(), // 새로운 폴더 이름
+      }),
+    )
+    .mutation(async ({ input, ctx }) => {
+      const { folderId, name } = input;
+
+      try {
+        // 폴더 이름 수정
+        await folderService.updateFolderName(folderId, name);
+
+        return { success: true }; // 수정 성공 응답
+      } catch (error) {
+        logger.error(
+          { requestId: ctx.req.id, error, folderId },
+          "폴더 이름 수정 중 오류 발생",
+        );
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: "폴더 이름 수정 중 오류가 발생했습니다.",
+        });
       }
     }),
 });
