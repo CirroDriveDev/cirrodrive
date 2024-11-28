@@ -18,7 +18,7 @@ interface FolderViewProps {
 
 export function FolderView({ folderId }: FolderViewProps): JSX.Element {
   const { user } = useBoundStore();
-  const { createFolder } = useFolderCreate(folderId);
+  const { createFolder } = useFolderCreate();
   const { query: entryListQuery } = useEntryList(folderId);
   const { handleFileSelect } = useUpload(folderId, {
     onSuccess: () => {
