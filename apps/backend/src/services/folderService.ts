@@ -220,6 +220,63 @@ export class FolderService {
     return recursiveEntry;
   }
 
+  public async getPath(folderId: number): Promise<
+    {
+      folderId: number | null;
+      name: string;
+    }[]
+  > {
+    try {
+      this.logger.info(
+        {
+          methodName: "getFolderPath",
+          folderId,
+        },
+        "폴더 경로 조회 시작",
+      );
+
+      const path: {
+        folderId: number;
+        name: string;
+      }[] = [];
+
+      let folder = await this.folderModel.findUnique({
+        where: {
+          id: folderId,
+        },
+      });
+
+      if (!folder) {
+        throw new Error("폴더를 찾을 수 없습니다.");
+      }
+
+      while (folder?.parentFolderId) {
+        path.unshift({
+          folderId: folder.id,
+          name: folder.name,
+        });
+
+        folder = await this.folderModel.findUnique({
+          where: {
+            id: folder.parentFolderId,
+          },
+        });
+      }
+
+      path.unshift({
+        folderId: folder!.id,
+        name: folder!.name,
+      });
+
+      return path;
+    } catch (error) {
+      if (error instanceof Error) {
+        this.logger.error(error.message);
+      }
+      throw error;
+    }
+  }
+
   /**
    * 사용자의 휴지통 폴더 목록을 조회합니다.
    *

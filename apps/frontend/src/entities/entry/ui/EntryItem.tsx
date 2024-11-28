@@ -9,6 +9,7 @@ import {
 } from "lucide-react";
 import { useRef, useState } from "react";
 import type { EntryDTO } from "@cirrodrive/schemas";
+import { useNavigate } from "react-router-dom";
 import { formatSize } from "@/entities/entry/lib/formatSize.ts";
 import { EntryIcon } from "@/entities/entry/ui/EntryIcon.tsx";
 import { useContainerDimensions } from "@/shared/hooks/useContainerDimensions.ts";
@@ -29,14 +30,11 @@ import { useRestore } from "@/pages/Trash/api/useRestore.ts";
 
 interface EntryItemProps {
   entry: EntryDTO;
-  onDoubleClick?: () => void;
 }
 
-export function EntryItem({
-  entry,
-  onDoubleClick,
-}: EntryItemProps): JSX.Element {
+export function EntryItem({ entry }: EntryItemProps): JSX.Element {
   const { id, name, type, size, trashedAt } = entry;
+  const navigate = useNavigate();
   const displayUpdatedAt = entry.updatedAt.toLocaleString();
   const displaySize = size ? formatSize(size) : "-";
 
@@ -80,12 +78,20 @@ export function EntryItem({
   const { handleTrash } = useTrash(id);
   const { restore } = useRestore(id); // 복원하기
 
+  const handleDoubleClick = (): void => {
+    if (type === "folder") {
+      navigate(`/folder/${id}`);
+    } else {
+      downloadEntry();
+    }
+  };
+
   const iconVariant = type === "folder" ? type : inferFileType(name);
 
   return (
     <div
       className="flex w-full cursor-pointer items-center justify-between gap-4 px-4 py-2 hover:bg-gray-200"
-      onDoubleClick={onDoubleClick}
+      onDoubleClick={handleDoubleClick}
     >
       <div className="flex w-8 items-center justify-center">
         <EntryIcon variant={iconVariant} />
@@ -113,7 +119,7 @@ export function EntryItem({
               취소
             </button>
           </div>
-        : <div className="truncate">
+        : <div className="select-none truncate">
             {isRenaming ?
               <span className="flex items-center text-sm text-gray-400">
                 <Loader className="mr-2 animate-spin" size={16} />
