@@ -10,6 +10,7 @@ import { useEntryList } from "@/entities/entry/api/useEntryList.ts";
 import { useFolderPath } from "@/widgets/folderView/api/useFolderPath.ts";
 import { FolderName } from "@/widgets/folderView/ui/FolderName.tsx";
 import { useBoundStore } from "@/shared/store/useBoundStore.ts";
+import { useFolderCreate } from "@/entities/file/api/useFolderCreate.ts";
 
 interface FolderViewProps {
   folderId: number;
@@ -17,6 +18,7 @@ interface FolderViewProps {
 
 export function FolderView({ folderId }: FolderViewProps): JSX.Element {
   const { user } = useBoundStore();
+  const { createFolder } = useFolderCreate(folderId);
   const { query: entryListQuery } = useEntryList(folderId);
   const { handleFileSelect } = useUpload(folderId, {
     onSuccess: () => {
@@ -44,6 +46,7 @@ export function FolderView({ folderId }: FolderViewProps): JSX.Element {
         </div>
         <div className="flex w-full space-x-4 p-4">
           <Button onClick={handleFileSelect}>업로드</Button>
+          <Button onClick={createFolder}>폴더 생성</Button>
         </div>
         <div className="flex w-full px-4">
           {entryListQuery.isLoading || !entryListQuery.data ?
