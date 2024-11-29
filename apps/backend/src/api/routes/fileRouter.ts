@@ -155,7 +155,7 @@ export const fileRouter = router({
       try {
         let count = 1;
         let newFile = file;
-        while (await fileService.sameNameExists(newFile.name, user.id)) {
+        while (await fileService.existsByName(newFile.name, user.id)) {
           newFile = new File(
             [file],
             `${file.name.slice(0, file.name.lastIndexOf("."))} (${count})${file.name.slice(
@@ -339,7 +339,7 @@ export const fileRouter = router({
 
       try {
         // 파일 이름 수정
-        await fileService.updateFileName(fileId, name);
+        await fileService.rename(fileId, name);
 
         return { success: true }; // 수정 성공 응답
       } catch (error) {

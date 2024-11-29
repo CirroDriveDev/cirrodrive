@@ -42,11 +42,7 @@ export class FolderService {
         "폴더 생성 시작",
       );
 
-      const newName = await this.generateFolderName(
-        ownerId,
-        name,
-        parentFolderId,
-      );
+      const newName = await this.generateFolderName(name, parentFolderId);
 
       const folder = await this.folderModel.create({
         data: {
@@ -557,6 +553,30 @@ export class FolderService {
     try {
       this.logger.info({ folderId, name }, "폴더 이름 변경 시작");
 
+      const folder = await this.folderModel.findUnique({
+        where: { id: folderId },
+      });
+
+      if (!folder) {
+        throw new Error("폴더를 찾을 수 없습니다.");
+      }
+
+      if (folder.parentFolderId === null) {
+        throw new Error("최상위 폴더의 이름은 변경할 수 없습니다.");
+      }
+
+      if (folder.trashedAt) {
+        throw new Error("휴지통에 있는 폴더의 이름은 변경할 수 없습니다.");
+      }
+
+      if (name === "") {
+        throw new Error("폴더 이름은 비워둘 수 없습니다.");
+      }
+
+      if (await this.existsFolderName(name, folder.parentFolderId)) {
+        throw new Error("이미 사용중인 폴더 이름입니다.");
+      }
+
       await this.folderModel.update({
         where: { id: folderId },
         data: { name },
@@ -580,7 +600,6 @@ export class FolderService {
    * @returns 동일한 이름의 폴더가 존재하는지 여부입니다.
    */
   public async existsFolderName(
-    ownerId: number,
     name: string,
     parentFolderId?: number,
   ): Promise<boolean> {
@@ -588,7 +607,6 @@ export class FolderService {
       this.logger.info(
         {
           methodName: "existsFolderName",
-          ownerId,
           name,
           parentFolderId,
         },
@@ -597,7 +615,6 @@ export class FolderService {
 
       const folder = await this.folderModel.findFirst({
         where: {
-          ownerId,
           name,
           parentFolderId,
         },
@@ -608,7 +625,6 @@ export class FolderService {
       this.logger.info(
         {
           methodName: "existsFolderName",
-          ownerId,
           name,
           parentFolderId,
           result,
@@ -634,7 +650,6 @@ export class FolderService {
    * @returns 생성된 폴더의 이름입니다.
    */
   public async generateFolderName(
-    ownerId: number,
     name: string,
     parentFolderId: number,
   ): Promise<string> {
@@ -642,7 +657,6 @@ export class FolderService {
       this.logger.info(
         {
           methodName: "generateFolderName",
-          ownerId,
           name,
           parentFolderId,
         },
@@ -656,7 +670,7 @@ export class FolderService {
       let count = 1;
 
       // 동일한 이름의 폴더가 존재할 경우 이름 변경
-      while (await this.existsFolderName(ownerId, folderName, parentFolderId)) {
+      while (await this.existsFolderName(folderName, parentFolderId)) {
         folderName = `${originalName} (${count})`;
         count += 1;
       }
@@ -664,7 +678,6 @@ export class FolderService {
       this.logger.info(
         {
           methodName: "generateFolderName",
-          ownerId,
           name,
           parentFolderId,
           folderName,
