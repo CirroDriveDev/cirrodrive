@@ -550,4 +550,65 @@ export const fileRouter = router({
         });
       }
     }),
+  listByType: authedProcedure
+    .input(
+      z.object({
+        folderId: z.number(), // 조회할 폴더 ID
+        type: z.enum([
+          "image",
+          "document",
+          "archive",
+          "video",
+          "audio",
+          "unknown",
+        ]), // 필터링할 파일 타입
+      }),
+    )
+    .output(fileMetadataDTOSchema.array()) // 결과는 파일 메타데이터 배열
+    .query(async ({ input, ctx }) => {
+      const { folderId, type } = input;
+      const { user } = ctx;
+
+      // 폴더의 파일 메타데이터 가져오기
+      const fileMetadataList =
+        await fileService.listFileMetadataByParentFolder(folderId);
+
+      // 로그인한 사용자의 파일 중 지정한 타입과 일치하는 파일 필터링
+      return fileMetadataList.filter((file) => {
+        const fileExtension = file.name.split(".").pop()?.toLowerCase();
+
+        // 타입 매핑
+        const typeMapping: Record<string, string> = {
+          "png": "image",
+          "jpg": "image",
+          "jpeg": "image",
+          "gif": "image",
+          "svg": "image",
+          "bmp": "image",
+          "webp": "image",
+          "pdf": "document",
+          "doc": "document",
+          "docx": "document",
+          "txt": "document",
+          "ppt": "document",
+          "pptx": "document",
+          "xls": "document",
+          "xlsx": "document",
+          "zip": "archive",
+          "rar": "archive",
+          "7z": "archive",
+          "tar": "archive",
+          "gz": "archive",
+          "mp4": "video",
+          "mkv": "video",
+          "mp3": "audio",
+          "wav": "audio",
+        };
+
+        const fileType =
+          fileExtension ? (typeMapping[fileExtension] ?? "unknown") : "unknown";
+
+        return file.ownerId === user.id && fileType === type && !file.trashedAt;
+      });
+    }),
 });
