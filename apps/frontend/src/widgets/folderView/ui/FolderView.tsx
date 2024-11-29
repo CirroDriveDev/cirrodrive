@@ -1,5 +1,5 @@
 import { ChevronRight } from "lucide-react";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { EntryList } from "@/entities/entry/ui/EntryList.tsx";
 import { Header } from "@/shared/ui/layout/Header.tsx";
 import { Sidebar } from "@/shared/ui/SidebarLayout/Sidebar.tsx";
@@ -15,9 +15,16 @@ import { useFolderCreate } from "@/entities/file/api/useFolderCreate.ts";
 
 interface FolderViewProps {
   folderId: number;
+  type?: "image" | "file" | "folder"; // 문서, 사진 페이지를 위한 타입 추가
 }
 
-export function FolderView({ folderId }: FolderViewProps): JSX.Element {
+const isImageFile = (name: string): boolean => {
+  const imageExtensions = ["jpg", "jpeg", "png", "gif", "bmp", "webp", "svg"];
+  const fileExtension = name.split(".").pop()?.toLowerCase();
+  return fileExtension ? imageExtensions.includes(fileExtension) : false;
+};
+
+export function FolderView({ folderId, type }: FolderViewProps): JSX.Element {
   const { user } = useBoundStore();
   const { createFolder, setParentFolderId } = useFolderCreate();
   const { query: entryListQuery } = useEntryList(folderId);
@@ -26,16 +33,37 @@ export function FolderView({ folderId }: FolderViewProps): JSX.Element {
       void entryListQuery.refetch();
     },
   });
+  const { query: folderPathQuery } = useFolderPath(folderId);
 
+  const [searchTerm, setSearchTerm] = useState(""); // 검색어 추적
   // useEffect에 넣어서 렌더링 이후 실행하지 않으면 무한 루프에 빠집니다.
   useEffect(() => {
     setParentFolderId(folderId);
-  });
+  }, [folderId, setParentFolderId]);
 
-  const { query: folderPathQuery } = useFolderPath(folderId);
+  // 검색어로 필터링
+  const filteredEntries =
+    entryListQuery.data?.filter((entry) => {
+      const matchesSearch = entry.name
+        .toLowerCase()
+        .includes(searchTerm.toLowerCase());
+
+      const matchesType =
+        !type ||
+        (type === "image" && isImageFile(entry.name)) ||
+        (type === "file" &&
+          entry.type === "file" &&
+          !isImageFile(entry.name)) ||
+        (type === "folder" && entry.type === "folder");
+
+      return matchesSearch && matchesType;
+    }) ?? [];
 
   return (
-    <SidebarLayout header={<Header />} sidebar={<Sidebar />}>
+    <SidebarLayout
+      header={<Header />} // Pass handler to Header
+      sidebar={<Sidebar />}
+    >
       <div className="flex w-full flex-grow flex-col items-center">
         <div className="flex h-16 w-full items-center space-x-4 p-4">
           <FolderName folderId={user!.rootFolderId} folderName="내 파일" />
@@ -56,7 +84,7 @@ export function FolderView({ folderId }: FolderViewProps): JSX.Element {
         <div className="flex w-full px-4">
           {entryListQuery.isLoading || !entryListQuery.data ?
             <LoadingSpinner />
-          : <EntryList entries={entryListQuery.data} />}
+          : <EntryList entries={filteredEntries} />}
         </div>
       </div>
     </SidebarLayout>

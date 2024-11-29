@@ -11,6 +11,8 @@ import { CodePage } from "@/pages/code/ui/CodePage.tsx";
 import { NotFoundPage } from "@/pages/notFound/ui/NotFoundPage.tsx";
 import { FolderPage } from "@/pages/folder/ui/FolderPage.tsx";
 import { Modal } from "@/shared/ui/modal/Modal.tsx";
+import { DocumentsPage } from "@/pages/documents/ui/DocumentsPage.tsx";
+import { PhotosPage } from "@/pages/photos/ui/PhotosPage.tsx";
 
 function RedirectAuthedUserToHome({
   children,
@@ -88,6 +90,14 @@ const routeTree: RouteObject[] = [
       {
         path: "/Trash",
         element: <TrashPage />,
+      },
+      {
+        path: "/documents",
+        element: <DocumentsPage />,
+      },
+      {
+        path: "/photos",
+        element: <PhotosPage />,
       },
       {
         path: "*",
