@@ -1,10 +1,127 @@
 import { create } from "zustand";
 import { devtools, persist } from "zustand/middleware";
 import { immer } from "zustand/middleware/immer";
-import { createUserSlice, type UserSlice } from "@/shared/store/userSlice.ts";
+import type { StateCreator } from "zustand";
+import type { UserDTO } from "@cirrodrive/schemas";
+
+// ------------------------------------
+// Store Slice Interfaces
+// ------------------------------------
+
+export interface UserStore {
+  /**
+   * 사용자 정보
+   *
+   * - 로그인한 경우 사용자 데이터
+   * - 로그인하지 않은 경우 `null`
+   */
+  user: UserDTO | null;
+
+  /**
+   * 사용자 정보를 설정
+   *
+   * @param user - 사용자 데이터
+   */
+  setUser: (user: UserDTO) => void;
+
+  /**
+   * 사용자 정보를 초기화
+   */
+  clearUser: () => void;
+}
+
+export interface ModalStore {
+  /**
+   * 모달이 열려있는지 여부
+   */
+  isOpen: boolean;
+
+  /**
+   * 모달 제목
+   */
+  title: string;
+
+  /**
+   * 모달 내용
+   */
+  content: React.ReactNode | null;
+
+  /**
+   * 모달을 열기
+   *
+   * @param content - 모달 내용
+   */
+  openModal: ({
+    title,
+    content,
+  }: {
+    title: string;
+    content: React.ReactNode;
+  }) => void;
+
+  /**
+   * 모달을 닫기
+   */
+  closeModal: () => void;
+}
 
 // 모든 슬라이스를 포함하는 상태 타입
-type StoreState = UserSlice;
+export type StoreState = UserStore & ModalStore;
+
+// ------------------------------------
+// Store Slice Creators
+// ------------------------------------
+
+export const createUserSlice: StateCreator<
+  StoreState,
+  [
+    ["zustand/immer", never],
+    ["zustand/persist", unknown],
+    ["zustand/devtools", never],
+  ],
+  [],
+  UserStore
+> = (set) => ({
+  user: null,
+  setUser: (user) =>
+    set((state) => {
+      state.user = user;
+    }),
+  clearUser: () =>
+    set((state) => {
+      state.user = null;
+    }),
+});
+
+export const createModalSlice: StateCreator<
+  StoreState,
+  [
+    ["zustand/immer", never],
+    ["zustand/persist", unknown],
+    ["zustand/devtools", never],
+  ],
+  [],
+  ModalStore
+> = (set) => ({
+  isOpen: false,
+  content: null,
+  title: "",
+  openModal: ({ title, content }) =>
+    set((state) => {
+      state.isOpen = true;
+      state.title = title;
+      state.content = content;
+    }),
+  closeModal: () =>
+    set((state) => {
+      state.isOpen = false;
+      state.content = null;
+    }),
+});
+
+// ------------------------------------
+// Store Hook
+// ------------------------------------
 
 /**
  * 전역 Store 사용을 위한 Hook
@@ -30,6 +147,7 @@ export const useBoundStore = create<StoreState>()(
       // immer 미들웨어를 사용하여 불변성을 유지하면서 상태를 업데이트
       immer((...opts) => ({
         ...createUserSlice(...opts),
+        ...createModalSlice(...opts),
       })),
       // persist 미들웨어의 옵션
       {
