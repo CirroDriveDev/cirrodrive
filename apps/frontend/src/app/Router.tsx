@@ -13,6 +13,7 @@ import { FolderPage } from "@/pages/folder/ui/FolderPage.tsx";
 import { Modal } from "@/shared/ui/modal/Modal.tsx";
 import { DocumentsPage } from "@/pages/documents/ui/DocumentsPage.tsx";
 import { PhotosPage } from "@/pages/photos/ui/PhotosPage.tsx";
+import { RecentPage } from "@/pages/recant/ui/RecantPage.tsx";
 
 function RedirectAuthedUserToHome({
   children,
@@ -98,6 +99,10 @@ const routeTree: RouteObject[] = [
       {
         path: "/photos",
         element: <PhotosPage />,
+      },
+      {
+        path: "/recent",
+        element: <RecentPage />,
       },
       {
         path: "*",
