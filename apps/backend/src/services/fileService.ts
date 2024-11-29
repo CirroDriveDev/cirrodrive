@@ -310,7 +310,7 @@ export class FileService {
    * @param parentFolderId - 부모 폴더의 ID입니다.
    * @returns 동일한 이름의 파일 존재 여부입니다.
    */
-  public async sameNameExists(
+  public async existsByName(
     name: string,
     parentFolderId: number,
   ): Promise<boolean> {
@@ -445,15 +445,11 @@ export class FileService {
         throw new Error("파일 메타데이터를 찾을 수 없습니다.");
       }
 
-      let count = 1;
-      let copiedName = fileMetadata.name;
-      while (await this.sameNameExists(copiedName, targetFolderId)) {
-        copiedName =
-          `${fileMetadata.name.slice(0, fileMetadata.name.lastIndexOf("."))}` +
-          ` (${count})` +
-          `${fileMetadata.name.slice(fileMetadata.name.lastIndexOf("."))}`;
-        count += 1;
-      }
+      // 파일 이름 생성
+      const copiedName = await this.generateFileName(
+        targetFolderId,
+        fileMetadata.name,
+      );
 
       // 파일 메타데이터 복사
       const copiedMetadata = await this.fileMetadataModel.create({
@@ -604,13 +600,74 @@ export class FileService {
     this.logger.info({ fileId }, "파일이 영구적으로 삭제되었습니다.");
   }
 
-  async updateFileName(fileId: number, newName: string): Promise<FileMetadata> {
-    // 파일 이름만 변경 (폴더 변경 필요 없음)
-    return await this.fileMetadataModel.update({
+  async rename(fileId: number, name: string): Promise<FileMetadata> {
+    const file = await this.fileMetadataModel.findUnique({
       where: { id: fileId },
-      data: { name: newName },
     });
+
+    if (!file) {
+      throw new Error("파일을 찾을 수 없습니다.");
+    }
+
+    if (file.parentFolderId === null) {
+      throw new Error("파일의 부모 폴더가 존재하지 않습니다.");
+    }
+
+    if (file.trashedAt !== null) {
+      throw new Error("휴지통에 있는 파일의 이름은 변경할 수 없습니다.");
+    }
+
+    if (await this.existsByName(name, file.parentFolderId)) {
+      throw new Error("동일한 이름의 파일이 이미 존재합니다.");
+    }
+
+    // 파일 이름 변경
+    const newFile = await this.fileMetadataModel.update({
+      where: { id: fileId },
+      data: { name },
+    });
+
+    return newFile;
   }
+
+  /**
+   * 적절한 파일 이름을 생성합니다.
+   *
+   * @param parentFolderId - 부모 폴더의 ID입니다.
+   * @param name - 원본 파일 이름입니다.
+   * @returns 생성된 파일 이름입니다
+   */
+  public async generateFileName(
+    parentFolderId: number,
+    name: string,
+  ): Promise<string> {
+    this.logger.info(
+      { methodName: "generateFileName", parentFolderId, name },
+      "파일 이름 생성 시작",
+    );
+    const baseName = path.basename(name, path.extname(name));
+    const extension = path.extname(name);
+
+    const originalName =
+      /^(?<originalName>.*?)(?: \(\d+\))?$/.exec(baseName)?.groups
+        ?.originalName ?? baseName;
+
+    let fileName = `${originalName}${extension ? `.${extension}` : ""}`;
+    let count = 1;
+
+    while (await this.existsByName(fileName, parentFolderId)) {
+      fileName = `${originalName} (${count})${extension ? `.${extension}` : ""}`;
+      count += 1;
+    }
+
+    this.logger.info(
+      { methodName: "generateFileName", fileName },
+      "파일 이름 생성 완료",
+    );
+
+    return fileName;
+  }
+
   public async restoreFromTrash(fileId: number): Promise<void> {
     try {
       this.logger.info(
