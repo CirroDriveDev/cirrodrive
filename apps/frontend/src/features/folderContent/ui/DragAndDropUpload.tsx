@@ -1,13 +1,13 @@
 import { useState, useEffect } from "react";
 import { useUploadPublic } from "@/entities/file/api/useUploadPublic.ts";
-import { Modal } from "@/features/folderContent/ui/Modal.tsx";
+import { useBoundStore } from "@/shared/store/useBoundStore.ts";
 
 export function DragAndDropUpload(): JSX.Element {
   const { selectedFile, code, mutation, handleFileChange, handleFormSubmit } =
     useUploadPublic();
 
   const [dragOver, setDragOver] = useState(false);
-  const [isModalOpen, setIsModalOpen] = useState(false);
+  const { openModal } = useBoundStore();
   const [errorMessage, setErrorMessage] = useState<string | null>(null); // 추가: 오류 메시지 상태
   const [modalContent, setModalContent] = useState<{
     fileName?: string;
@@ -57,7 +57,6 @@ export function DragAndDropUpload(): JSX.Element {
       code: "업로드 중...",
       link: "업로드 중...",
     });
-    setIsModalOpen(true);
 
     // 업로드 트리거
     handleFormSubmit(e);
@@ -79,6 +78,36 @@ export function DragAndDropUpload(): JSX.Element {
       }
     }
   }, [mutation.isPending, code, selectedFile, mutation.error]);
+
+  // 모달 출력
+  useEffect(() => {
+    if (modalContent.error) {
+      openModal({
+        title: "업로드 실패",
+        content: <div className="text-red-500">{modalContent.error}</div>,
+      });
+    } else if (modalContent.code) {
+      openModal({
+        title: "업로드 성공",
+        content: (
+          <div className="flex-col text-green-500">
+            <div>파일 이름: {modalContent.fileName}</div>
+            <div>코드: {modalContent.code}</div>
+            <div>
+              링크:{" "}
+              <a
+                href={modalContent.link}
+                className="text-blue-500 hover:underline"
+              >
+                {modalContent.link}
+              </a>
+            </div>
+            <div>만료일 : 1일</div>
+          </div>
+        ),
+      });
+    }
+  }, [modalContent, openModal]);
 
   return (
     <div>
@@ -135,26 +164,6 @@ export function DragAndDropUpload(): JSX.Element {
       {errorMessage ?
         <div className="mt-4 text-red-500">{errorMessage}</div>
       : null}
-
-      <Modal isOpen={isModalOpen} closeModal={() => setIsModalOpen(false)}>
-        {modalContent.error ?
-          <div className="mt-6 text-red-500">오류: {modalContent.error}</div>
-        : <div className="flex-col text-green-500">
-            <div className="mt-6">파일 이름: {modalContent.fileName}</div>
-            <div>코드: {modalContent.code}</div>
-            <div>
-              링크:{" "}
-              <a
-                href={modalContent.link}
-                className="text-blue-500 hover:underline"
-              >
-                {modalContent.link}
-              </a>
-            </div>
-            <div>만료일 : 1일</div>
-          </div>
-        }
-      </Modal>
     </div>
   );
 }
