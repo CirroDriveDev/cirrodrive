@@ -6,9 +6,14 @@ import { Button } from "@/shared/components/shadcn/Button.tsx";
 import { useBoundStore } from "@/shared/store/useBoundStore.ts";
 import { useLogout } from "@/shared/api/useLogout.ts";
 
-export function Header(): JSX.Element {
+interface HeaderProps {
+  onSearch: (searchTerm: string) => void; // 검색어 처리함
+}
+
+export function Header({ onSearch }: HeaderProps): JSX.Element {
   const { user } = useBoundStore();
   const { logout } = useLogout();
+
   return (
     <header className="flex flex-grow bg-primary">
       <div className="flex w-[250px] items-center p-4">
@@ -18,7 +23,7 @@ export function Header(): JSX.Element {
         </Link>
       </div>
       <div className="flex flex-grow items-center justify-end p-4">
-        <SearchBar />
+        <SearchBar onSearch={onSearch} />
         {user ?
           <Button variant="ghost" className="mr-1" onClick={logout}>
             로그아웃
