@@ -42,11 +42,7 @@ export class FolderService {
         "폴더 생성 시작",
       );
 
-      const newName = await this.generateFolderName(
-        ownerId,
-        name,
-        parentFolderId,
-      );
+      const newName = await this.generateFolderName(name, parentFolderId);
 
       const folder = await this.folderModel.create({
         data: {
