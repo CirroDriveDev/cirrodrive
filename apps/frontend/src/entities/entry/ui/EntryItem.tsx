@@ -6,6 +6,7 @@ import {
   Activity,
   Trash2Icon,
   Edit2,
+  MoveIcon,
 } from "lucide-react";
 import { useRef, useState } from "react";
 import type { EntryDTO } from "@cirrodrive/schemas";
@@ -27,6 +28,7 @@ import { inferFileType } from "@/shared/lib/inferFileType.ts";
 import { useFileDelete } from "@/pages/Trash/api/useFileDelete.ts";
 import { useFolderDelete } from "@/pages/Trash/api/useFolderDelete.ts";
 import { useRestore } from "@/pages/Trash/api/useRestore.ts";
+import { useMoveEntry } from "@/entities/entry/hooks/useMoveEntry.tsx";
 
 interface EntryItemProps {
   entry: EntryDTO;
@@ -35,18 +37,11 @@ interface EntryItemProps {
 export function EntryItem({ entry }: EntryItemProps): JSX.Element {
   const { id, name, type, size, trashedAt } = entry;
   const navigate = useNavigate();
-  const displayUpdatedAt = entry.updatedAt.toLocaleString();
-  const displaySize = size ? formatSize(size) : "-";
 
+  // 이름 변경
   const [isEditing, setIsEditing] = useState(false);
   const [newName, setNewName] = useState(name);
   const { handleRename, isRenaming } = useFileRename(id);
-
-  const nameRef = useRef<HTMLDivElement>(null);
-  const { width } = useContainerDimensions(nameRef);
-  const truncatedName =
-    name.length > width / 8 - 4 ? `${name.slice(0, width / 8 - 4)}...` : name;
-
   const handleRenameSubmit = (): void => {
     if (newName !== name) {
       handleRename(newName);
@@ -69,15 +64,34 @@ export function EntryItem({ entry }: EntryItemProps): JSX.Element {
     }
   };
 
-  const { handleFileDelete } = useFileDelete(id); // 파일 삭제하기
-  const { handleFolderDelete } = useFolderDelete(id); // 폴더 삭제하기
+  // 이름 출력
+  const nameRef = useRef<HTMLDivElement>(null);
+  const { width } = useContainerDimensions(nameRef);
+  const truncatedName =
+    name.length > width / 8 - 4 ? `${name.slice(0, width / 8 - 4)}...` : name;
 
-  const deleteEntry = type === "folder" ? handleFolderDelete : handleFileDelete; // 삭제 함수 결정
+  // 정보 출력
+  const displayUpdatedAt = entry.updatedAt.toLocaleString();
+  const displaySize = size ? formatSize(size) : "-";
+  const iconVariant = type === "folder" ? type : inferFileType(name);
 
+  // 다운로드
   const { handleDownload: downloadEntry } = useDownload(id);
+
+  // 이동
+  const { openMoveModal } = useMoveEntry(entry);
+
+  // 휴지통
   const { handleTrash } = useTrash(id);
   const { restore } = useRestore(id); // 복원하기
 
+  // 완전 삭제
+  const { handleFileDelete } = useFileDelete(id);
+  const { handleFolderDelete } = useFolderDelete(id);
+
+  const deleteEntry = type === "folder" ? handleFolderDelete : handleFileDelete;
+
+  // 이벤트 핸들러
   const handleDoubleClick = (): void => {
     if (type === "folder") {
       navigate(`/folder/${id}`);
@@ -85,8 +99,6 @@ export function EntryItem({ entry }: EntryItemProps): JSX.Element {
       downloadEntry();
     }
   };
-
-  const iconVariant = type === "folder" ? type : inferFileType(name);
 
   return (
     <div
@@ -161,6 +173,10 @@ export function EntryItem({ entry }: EntryItemProps): JSX.Element {
                 >
                   <Edit2 />
                   <span>이름 변경</span>
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={openMoveModal}>
+                  <MoveIcon />
+                  <span>이동</span>
                 </DropdownMenuItem>
                 <DropdownMenuItem onClick={handleTrash}>
                   <Trash2 />
