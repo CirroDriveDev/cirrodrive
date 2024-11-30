@@ -1,6 +1,5 @@
 import { createBrowserRouter, Navigate } from "react-router-dom";
 import type { RouteObject } from "react-router-dom";
-import { HomePage } from "@/pages/home/ui/HomePage.tsx";
 import { LoginPage } from "@/pages/login/ui/LoginPage.tsx";
 import { RegisterPage } from "@/pages/register/ui/RegisterPage.tsx";
 import { LandingPage } from "@/pages/landing/ui/LandingPage.tsx";
@@ -18,7 +17,9 @@ function RedirectAuthedUserToHome({
   children: React.ReactNode;
 }): React.ReactNode {
   const { user } = useBoundStore();
-  return user ? <Navigate to="/home" replace /> : children;
+  return user ?
+      <Navigate to={`/folder/${user.rootFolderId}`} replace />
+    : children;
 }
 
 function RequireAuth({
@@ -37,14 +38,6 @@ const routeTree: RouteObject[] = [
       <RedirectAuthedUserToHome>
         <LandingPage />
       </RedirectAuthedUserToHome>
-    ),
-  },
-  {
-    path: "/home",
-    element: (
-      <RequireAuth>
-        <HomePage />
-      </RequireAuth>
     ),
   },
   {

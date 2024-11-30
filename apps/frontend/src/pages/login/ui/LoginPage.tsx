@@ -4,9 +4,11 @@ import { useLogin } from "@/pages/login/api/useLogin.ts";
 import { FormInputField } from "@/shared/components/FormInputField.tsx";
 import { Layout } from "@/shared/ui/layout/Layout.tsx";
 import { Header } from "@/shared/ui/layout/Header.tsx";
+import { useUserStore } from "@/shared/store/useUserStore.ts";
 
 export function LoginPage(): JSX.Element {
   const navigate = useNavigate();
+  const { user } = useUserStore();
   const {
     input,
     validationError,
@@ -15,7 +17,7 @@ export function LoginPage(): JSX.Element {
     handleFormSubmit,
   } = useLogin({
     onSuccess: () => {
-      navigate("/home");
+      navigate(`/folder/${user!.rootFolderId}`);
     },
     retry: 0,
   });

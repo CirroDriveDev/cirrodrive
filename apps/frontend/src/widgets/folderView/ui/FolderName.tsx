@@ -1,5 +1,6 @@
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/shared/components/shadcn/Button.tsx";
+import { useUserStore } from "@/shared/store/useUserStore.ts";
 
 export function FolderName({
   folderId,
@@ -8,11 +9,12 @@ export function FolderName({
   folderId: number | null;
   folderName: string;
 }): JSX.Element {
+  const { user } = useUserStore();
   const navigate = useNavigate();
 
   const navigateToFolder = (): void => {
     if (folderId === null) {
-      navigate("/home");
+      navigate(`/folder/${user!.rootFolderId}`);
     } else {
       navigate(`/folder/${folderId}`);
     }
