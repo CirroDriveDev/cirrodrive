@@ -34,6 +34,7 @@ export const userSchema = z.object({
   usedStorage: z.number(),
   profileImageUrl: z.string().url().nullable(),
   rootFolderId: z.number(),
+  trashFolderId: z.number(),
   createdAt: z.date(),
   updatedAt: z.date(),
 });

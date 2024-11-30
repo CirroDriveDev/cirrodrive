@@ -4,6 +4,7 @@ import type { Logger } from "pino";
 import type { RecursiveEntryDTO } from "@cirrodrive/schemas";
 import { Symbols } from "@/types/symbols.ts";
 import { FileService } from "@/services/fileService.ts";
+import { UserService } from "@/services/userService.ts";
 /**
  * 폴더 서비스입니다.
  */
@@ -11,6 +12,7 @@ import { FileService } from "@/services/fileService.ts";
 export class FolderService {
   constructor(
     @inject(Symbols.Logger) private logger: Logger,
+    @inject(UserService) private userService: UserService,
     @inject(Symbols.FolderModel) private folderModel: Prisma.FolderDelegate,
     @inject(FileService) private fileService: FileService,
   ) {
@@ -405,12 +407,22 @@ export class FolderService {
     folderId: number;
     userId: number;
   }): Promise<void> {
-    this.logger.info({ folderId, userId }, "폴더 휴지통 이동 시작");
+    this.logger.info(
+      { folderId, userId },
+      "폴더와 파일을 휴지통으로 이동 시작",
+    );
+
+    const user = await this.userService.get({ id: userId });
+
+    if (!user) {
+      throw new Error("사용자를 찾을 수 없습니다.");
+    }
 
     // 폴더 소유권 확인
     const folder = await this.folderModel.findUnique({
       where: { id: folderId },
     });
+
     if (!folder || folder.ownerId !== userId) {
       throw new Error("폴더에 접근 권한이 없습니다.");
     }
@@ -418,16 +430,18 @@ export class FolderService {
     // 폴더를 휴지통으로 이동
     await this.folderModel.update({
       where: { id: folderId },
-      data: { trashedAt: new Date() },
+      data: {
+        restoreFolderId: folder.parentFolderId,
+        parentFolderId: user.trashFolderId,
+        trashedAt: new Date(),
+      },
     });
 
-    // 파일을 휴지통으로 이동
-    await this.fileService.moveToTrash({ fileId: folderId });
-
-    this.logger.info({ folderId }, "폴더 휴지통 이동 완료");
+    this.logger.info({ folderId }, "폴더와 파일을 휴지통으로 이동 완료");
   }
+
   /**
-   * 폴더를 복원합니다.
+   * 폴더를 휴지통에서 복원합니다.
    *
    * @param folderId - 복원할 폴더의 ID
    * @param userId - 사용자 ID
@@ -445,21 +459,29 @@ export class FolderService {
     const folder = await this.folderModel.findUnique({
       where: { id: folderId },
     });
+
     if (!folder || folder.ownerId !== userId) {
       throw new Error("폴더에 접근 권한이 없습니다.");
+    }
+
+    // 폴더가 이미 복원된 상태라면 예외 처리
+    if (!folder.trashedAt) {
+      throw new Error("폴더는 이미 복원된 상태입니다.");
     }
 
     // 폴더 복원
     await this.folderModel.update({
       where: { id: folderId },
-      data: { trashedAt: null },
+      data: {
+        trashedAt: null,
+        parentFolderId: folder.restoreFolderId,
+        restoreFolderId: null,
+      }, // trashedAt을 null로 설정하여 복원
     });
 
-    // 파일 복원
-    await this.fileService.restoreFromTrash({ fileId: folderId });
-
-    this.logger.info({ folderId }, "폴더 복원 완료");
+    this.logger.info({ folderId }, "폴더와 파일 복원 완료");
   }
+
   /**
    * 폴더를 영구 삭제합니다.
    *
@@ -478,21 +500,35 @@ export class FolderService {
     // 폴더 소유권 확인
     const folder = await this.folderModel.findUnique({
       where: { id: folderId },
+      include: {
+        // 폴더 내의 파일과 폴더를 모두 조회
+        files: true,
+        subFolders: true,
+      },
     });
+
     if (!folder || folder.ownerId !== userId) {
       throw new Error("폴더에 접근 권한이 없습니다.");
     }
 
-    // 파일 영구 삭제
-    await this.fileService.deleteFile({ fileId: folderId });
+    // 하위 폴더 삭제
+    for (const subFolder of folder.subFolders) {
+      await this.deleteFolder({ folderId: subFolder.id, userId });
+    }
+
+    // 파일 삭제
+    for (const file of folder.files) {
+      await this.fileService.deleteFile({ fileId: file.id });
+    }
 
     // 폴더 삭제
     await this.folderModel.delete({
       where: { id: folderId },
     });
 
-    this.logger.info({ folderId }, "폴더 삭제 완료");
+    this.logger.info({ folderId }, "폴더 및 포함된 파일 삭제 완료");
   }
+
   /**
    * 폴더를 다른 폴더로 이동합니다.
    *
