@@ -27,7 +27,13 @@ export class CodeService {
    * @returns 생성된 코드입니다.
    * @throws 코드 생성 중 오류가 발생한 경우.
    */
-  public async createCode(fileId: number, expiresAt?: Date): Promise<Code> {
+  public async createCode({
+    fileId,
+    expiresAt,
+  }: {
+    fileId: number;
+    expiresAt?: Date;
+  }): Promise<Code> {
     try {
       this.logger.info(
         {
@@ -65,7 +71,11 @@ export class CodeService {
    * @param codeString - 삭제할 코드 문자열입니다.
    * @throws 코드 삭제 중 오류가 발생한 경우.
    */
-  public async deleteCode(codeString: string): Promise<void> {
+  public async deleteCode({
+    codeString,
+  }: {
+    codeString: string;
+  }): Promise<void> {
     try {
       this.logger.info(
         {
@@ -102,9 +112,11 @@ export class CodeService {
    * @returns 파일 메타데이터입니다.
    * @throws 코드 조회 중 오류가 발생한 경우.
    */
-  public async getCodeMetadata(
-    codeString: string,
-  ): Promise<FileMetadataPublicDTO> {
+  public async getCodeMetadata({
+    codeString,
+  }: {
+    codeString: string;
+  }): Promise<FileMetadataPublicDTO> {
     try {
       this.logger.info(
         {
@@ -131,7 +143,8 @@ export class CodeService {
       throw error;
     }
   }
-  public async getCodes(userId: number): Promise<Code[]> {
+
+  public async getCodes({ userId }: { userId: number }): Promise<Code[]> {
     try {
       this.logger.info(
         { methodName: "getCodes", userId },
