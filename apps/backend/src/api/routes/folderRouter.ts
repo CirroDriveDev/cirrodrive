@@ -4,10 +4,8 @@ import { folderDTOSchema, subFolderDTOSchema } from "@cirrodrive/schemas";
 import { router, authedProcedure } from "@/loaders/trpc.ts"; // tRPC 설정 임포트
 import { container } from "@/loaders/inversify.ts";
 import { FolderService } from "@/services/folderService.ts";
-import { FileService } from "@/services/fileService.ts";
 
 const folderService = container.get<FolderService>(FolderService);
-const fileService = container.get<FileService>(FileService);
 
 export const folderRouter = router({
   // 새로운 폴더 생성
@@ -161,35 +159,6 @@ export const folderRouter = router({
       }
     }),
 
-  // 폴더 삭제
-  delete: authedProcedure
-    .input(
-      z.object({
-        folderId: z.number(), // 삭제할 폴더의 ID
-      }),
-    )
-    .output(
-      z.object({
-        success: z.boolean(),
-      }),
-    )
-    .mutation(async ({ input, ctx }) => {
-      const { folderId } = input;
-      const { id: userId } = ctx.user;
-
-      try {
-        // 폴더 및 하위 파일/폴더 삭제
-        await folderService.deleteFolder(folderId, userId);
-
-        return { success: true };
-      } catch (error) {
-        throw new TRPCError({
-          code: "INTERNAL_SERVER_ERROR",
-          message: "폴더를 삭제하는 중 오류가 발생했습니다.",
-          cause: error,
-        });
-      }
-    }),
   // 폴더 휴지통으로 이동
   trash: authedProcedure
     .input(
@@ -204,11 +173,11 @@ export const folderRouter = router({
     )
     .mutation(async ({ input, ctx }) => {
       const { folderId } = input;
-      const { id: userId } = ctx.user; // 사용자 ID를 ctx에서 가져옵니다.
+      const { id: userId } = ctx.user;
 
       try {
-        // 폴더를 휴지통으로 이동
-        await fileService.moveFolderToTrash(folderId, userId); // userId도 전달
+        // 폴더를 휴지통으로 이동 (folderService에서 처리)
+        await folderService.moveFolderToTrash(folderId, userId);
 
         return { success: true };
       } catch (error) {
@@ -220,6 +189,7 @@ export const folderRouter = router({
       }
     }),
 
+  // 폴더 복원
   restoreFromTrash: authedProcedure
     .input(
       z.object({
@@ -236,8 +206,8 @@ export const folderRouter = router({
       const { id: userId } = ctx.user;
 
       try {
-        // 폴더 및 하위 파일/폴더를 복원 (사용자 권한 검증 포함)
-        await fileService.restoreFolderFromTrash(folderId, userId);
+        // 폴더 및 하위 파일/폴더를 복원 (folderService에서 처리)
+        await folderService.restoreFolderFromTrash(folderId, userId);
 
         return { success: true };
       } catch (error) {
