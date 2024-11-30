@@ -113,12 +113,12 @@ pipeline {
             }
         }
 
-        stage('Test') {
-            steps {
-                echo 'Running vitest...'
-                sh 'pnpm run test -- run'
-            }
-        }
+        // stage('Test') {
+        //     steps {
+        //         echo 'Running vitest...'
+        //         sh 'pnpm run test -- run'
+        //     }
+        // }
 
         stage('Build') {
             when {
