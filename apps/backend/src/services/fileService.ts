@@ -30,7 +30,13 @@ export class FileService {
    * @returns 저장된 파일의 경로와 이름입니다.
    * @throws 파일 저장 중 오류가 발생한 경우.
    */
-  public async saveFile(file: File, ownerId?: number): Promise<FileMetadata> {
+  public async saveFile({
+    file,
+    ownerId,
+  }: {
+    file: File;
+    ownerId?: number;
+  }): Promise<FileMetadata> {
     try {
       this.logger.info(
         {
@@ -78,7 +84,7 @@ export class FileService {
    * @returns 다운로드할 파일입니다.
    * @throws 파일 조회 중 오류가 발생한 경우.
    */
-  public async getFileById(fileId: number): Promise<File> {
+  public async getFileById({ fileId }: { fileId: number }): Promise<File> {
     try {
       this.logger.info(
         {
@@ -133,9 +139,11 @@ export class FileService {
    * @returns 파일 메타데이터 목록입니다.
    * @throws 파일 조회 중 오류가 발생한 경우.
    */
-  public async listFileMetadataByParentFolder(
-    parentFolderId: number,
-  ): Promise<FileMetadata[]> {
+  public async listFileMetadataByParentFolder({
+    parentFolderId,
+  }: {
+    parentFolderId: number;
+  }): Promise<FileMetadata[]> {
     try {
       this.logger.info(
         {
@@ -176,7 +184,11 @@ export class FileService {
    * @returns 휴지통 파일 목록입니다.
    * @throws 휴지통 파일 조회 중 오류가 발생한 경우.
    */
-  public async listTrashByUser(ownerId: number): Promise<FileMetadata[]> {
+  public async listTrashByUser({
+    ownerId,
+  }: {
+    ownerId: number;
+  }): Promise<FileMetadata[]> {
     try {
       this.logger.info(
         {
@@ -220,7 +232,11 @@ export class FileService {
    * @returns 다운로드할 파일입니다.
    * @throws 파일 조회 중 오류가 발생한 경우.
    */
-  public async getFileByCode(codeString: string): Promise<File> {
+  public async getFileByCode({
+    codeString,
+  }: {
+    codeString: string;
+  }): Promise<File> {
     try {
       this.logger.info(
         {
@@ -230,9 +246,9 @@ export class FileService {
         "코드로 파일 조회 시작",
       );
 
-      const { id } = await this.codeService.getCodeMetadata(codeString);
+      const { id } = await this.codeService.getCodeMetadata({ codeString });
 
-      const file = await this.getFileById(id);
+      const file = await this.getFileById({ fileId: id });
 
       this.logger.info(
         {
@@ -258,7 +274,7 @@ export class FileService {
    * @returns 파일이 존재하는지 여부입니다.
    * @throws 파일 조회 중 오류가 발생한 경우.
    */
-  public async fileExists(fileId: number): Promise<boolean> {
+  public async fileExists({ fileId }: { fileId: number }): Promise<boolean> {
     try {
       this.logger.info(
         {
@@ -310,10 +326,13 @@ export class FileService {
    * @param parentFolderId - 부모 폴더의 ID입니다.
    * @returns 동일한 이름의 파일 존재 여부입니다.
    */
-  public async existsByName(
-    name: string,
-    parentFolderId: number,
-  ): Promise<boolean> {
+  public async existsByName({
+    name,
+    parentFolderId,
+  }: {
+    name: string;
+    parentFolderId: number;
+  }): Promise<boolean> {
     try {
       this.logger.info(
         {
@@ -349,10 +368,13 @@ export class FileService {
     }
   }
 
-  public async moveFile(
-    fileId: number,
-    targetFolderId: number,
-  ): Promise<FileMetadata> {
+  public async moveFile({
+    fileId,
+    targetFolderId,
+  }: {
+    fileId: number;
+    targetFolderId: number;
+  }): Promise<FileMetadata> {
     try {
       this.logger.info(
         { methodName: "moveFile", fileId, targetFolderId },
@@ -426,10 +448,13 @@ export class FileService {
    * @returns 복사된 파일 메타데이터입니다.
    * @throws 파일 복사 중 오류가 발생한 경우.
    */
-  public async copy(
-    fileId: number,
-    targetFolderId: number,
-  ): Promise<FileMetadata> {
+  public async copy({
+    fileId,
+    targetFolderId,
+  }: {
+    fileId: number;
+    targetFolderId: number;
+  }): Promise<FileMetadata> {
     try {
       this.logger.info(
         { methodName: "copy", fileId, targetFolderId },
@@ -446,10 +471,10 @@ export class FileService {
       }
 
       // 파일 이름 생성
-      const copiedName = await this.generateFileName(
-        targetFolderId,
-        fileMetadata.name,
-      );
+      const copiedName = await this.generateFileName({
+        parentFolderId: targetFolderId,
+        name: fileMetadata.name,
+      });
 
       // 파일 메타데이터 복사
       const copiedMetadata = await this.fileMetadataModel.create({
@@ -520,7 +545,11 @@ export class FileService {
 
     return { path: filePath, name: savedName };
   }
-  public async getFileMetadata(fileId: number): Promise<FileMetadata | null> {
+  public async getFileMetadata({
+    fileId,
+  }: {
+    fileId: number;
+  }): Promise<FileMetadata | null> {
     try {
       const fileMetadata = await this.fileMetadataModel.findUnique({
         where: {
@@ -546,7 +575,11 @@ export class FileService {
    * @returns 업데이트된 파일 메타데이터입니다.
    * @throws 파일 이동 중 오류가 발생한 경우.
    */
-  public async moveToTrash(fileId: number): Promise<FileMetadata> {
+  public async moveToTrash({
+    fileId,
+  }: {
+    fileId: number;
+  }): Promise<FileMetadata> {
     try {
       this.logger.info(
         { methodName: "moveToTrash", fileId },
@@ -578,7 +611,7 @@ export class FileService {
       throw new Error("파일을 휴지통으로 이동하는 중 오류가 발생했습니다.");
     }
   }
-  async deleteFile(fileId: number): Promise<void> {
+  async deleteFile({ fileId }: { fileId: number }): Promise<void> {
     const file = await this.fileMetadataModel.findUnique({
       where: { id: fileId },
     });
@@ -600,7 +633,13 @@ export class FileService {
     this.logger.info({ fileId }, "파일이 영구적으로 삭제되었습니다.");
   }
 
-  async rename(fileId: number, name: string): Promise<FileMetadata> {
+  async rename({
+    fileId,
+    name,
+  }: {
+    fileId: number;
+    name: string;
+  }): Promise<FileMetadata> {
     const file = await this.fileMetadataModel.findUnique({
       where: { id: fileId },
     });
@@ -617,7 +656,9 @@ export class FileService {
       throw new Error("휴지통에 있는 파일의 이름은 변경할 수 없습니다.");
     }
 
-    if (await this.existsByName(name, file.parentFolderId)) {
+    if (
+      await this.existsByName({ name, parentFolderId: file.parentFolderId })
+    ) {
       throw new Error("동일한 이름의 파일이 이미 존재합니다.");
     }
 
@@ -637,10 +678,13 @@ export class FileService {
    * @param name - 원본 파일 이름입니다.
    * @returns 생성된 파일 이름입니다
    */
-  public async generateFileName(
-    parentFolderId: number,
-    name: string,
-  ): Promise<string> {
+  public async generateFileName({
+    parentFolderId,
+    name,
+  }: {
+    parentFolderId: number;
+    name: string;
+  }): Promise<string> {
     this.logger.info(
       { methodName: "generateFileName", parentFolderId, name },
       "파일 이름 생성 시작",
@@ -655,7 +699,7 @@ export class FileService {
     let fileName = `${originalName}${extension ? `.${extension}` : ""}`;
     let count = 1;
 
-    while (await this.existsByName(fileName, parentFolderId)) {
+    while (await this.existsByName({ name: fileName, parentFolderId })) {
       fileName = `${originalName} (${count})${extension ? `.${extension}` : ""}`;
       count += 1;
     }
@@ -668,7 +712,7 @@ export class FileService {
     return fileName;
   }
 
-  public async restoreFromTrash(fileId: number): Promise<void> {
+  public async restoreFromTrash({ fileId }: { fileId: number }): Promise<void> {
     try {
       this.logger.info(
         { methodName: "restoreFromTrash", fileId },
@@ -690,7 +734,7 @@ export class FileService {
     } catch (error) {
       this.logger.error(
         { methodName: "restoreFromTrash", error },
-        "파일 복원 중 오류 발생",
+        "파일 복원 ��� 오류 발생",
       );
       throw new Error("파일 복원 중 오류가 발생했습니다.");
     }
