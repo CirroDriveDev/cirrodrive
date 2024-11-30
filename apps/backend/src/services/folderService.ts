@@ -12,6 +12,7 @@ export class FolderService {
   constructor(
     @inject(Symbols.Logger) private logger: Logger,
     @inject(Symbols.FolderModel) private folderModel: Prisma.FolderDelegate,
+    private fileMetadataModel: Prisma.FileMetadataDelegate,
     @inject(FileService) private fileService: FileService,
   ) {
     this.logger = logger.child({ serviceName: "FolderService" });
@@ -421,10 +422,16 @@ export class FolderService {
       data: { trashedAt: new Date() },
     });
 
-    // 파일을 휴지통으로 이동
-    await this.fileService.moveToTrash({ fileId: folderId });
+    // 폴더에 포함된 파일들을 조회하여 각 파일을 휴지통으로 이동
+    const filesInFolder = await this.fileMetadataModel.findMany({
+      where: { parentFolderId: folderId },
+    });
 
-    this.logger.info({ folderId }, "폴더 휴지통 이동 완료");
+    for (const file of filesInFolder) {
+      await this.fileService.moveToTrash({ fileId: file.id }); // 파일 ID로 이동
+    }
+
+    this.logger.info({ folderId }, "폴더와 파일 휴지통 이동 완료");
   }
   /**
    * 폴더를 복원합니다.
@@ -455,11 +462,18 @@ export class FolderService {
       data: { trashedAt: null },
     });
 
-    // 파일 복원
-    await this.fileService.restoreFromTrash({ fileId: folderId });
+    // 폴더에 포함된 파일들을 조회하여 복원
+    const filesInFolder = await this.fileMetadataModel.findMany({
+      where: { parentFolderId: folderId, trashedAt: { not: null } },
+    });
 
-    this.logger.info({ folderId }, "폴더 복원 완료");
+    for (const file of filesInFolder) {
+      await this.fileService.restoreFromTrash({ fileId: file.id }); // 파일 ID로 복원
+    }
+
+    this.logger.info({ folderId }, "폴더와 파일 복원 완료");
   }
+
   /**
    * 폴더를 영구 삭제합니다.
    *
