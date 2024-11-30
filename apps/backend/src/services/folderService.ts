@@ -406,33 +406,38 @@ export class FolderService {
     folderId: number;
     userId: number;
   }): Promise<void> {
-    this.logger.info({ folderId, userId }, "폴더 휴지통 이동 시작");
+    this.logger.info(
+      { folderId, userId },
+      "폴더와 파일을 휴지통으로 이동 시작",
+    );
 
     // 폴더 소유권 확인
     const folder = await this.folderModel.findUnique({
       where: { id: folderId },
     });
+
     if (!folder || folder.ownerId !== userId) {
       throw new Error("폴더에 접근 권한이 없습니다.");
     }
 
-    // 폴더를 휴지통으로 이동
-    await this.folderModel.update({
-      where: { id: folderId },
-      data: { trashedAt: new Date() },
-    });
-
-    // 폴더에 포함된 파일들을 조회하여 각 파일을 휴지통으로 이동
+    // 폴더 내 파일들을 조회하여 휴지통으로 이동
     const filesInFolder = await this.fileMetadataModel.findMany({
       where: { parentFolderId: folderId },
     });
 
+    // 파일들을 휴지통으로 이동
     for (const file of filesInFolder) {
-      await this.fileService.moveToTrash({ fileId: file.id }); // 파일 ID로 이동
+      await this.fileService.moveToTrash({ fileId: file.id });
     }
 
-    this.logger.info({ folderId }, "폴더와 파일 휴지통 이동 완료");
+    await this.folderModel.update({
+      where: { id: folderId },
+      data: { trashedAt: new Date() }, // 폴더를 휴지통으로 이동
+    });
+
+    this.logger.info({ folderId }, "폴더와 파일을 휴지통으로 이동 완료");
   }
+
   /**
    * 폴더를 복원합니다.
    *
