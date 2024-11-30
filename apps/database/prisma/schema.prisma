@@ -32,6 +32,9 @@ model User {
   rootFolderId Int    @unique
   rootFolder   Folder @relation(name: "RootFolder", fields: [rootFolderId], references: [id], onDelete: Cascade)
 
+  trashFolderId Int    @unique
+  trashFolder   Folder @relation(name: "TrashFolder", fields: [trashFolderId], references: [id], onDelete: Cascade)
+
   sessions Session[]
   folders  Folder[]       @relation(name: "OwnerToFolder")
   files    FileMetadata[]
@@ -89,9 +92,10 @@ model Folder {
   ownerId        Int?
   owner          User?   @relation(name: "OwnerToFolder", fields: [ownerId], references: [id], onDelete: SetNull)
 
-  subFolders     Folder[]       @relation(name: "ParentToSubFolder")
-  files          FileMetadata[]
-  UserRootFolder User?          @relation(name: "RootFolder")
+  subFolders      Folder[]       @relation(name: "ParentToSubFolder")
+  files           FileMetadata[]
+  UserRootFolder  User?          @relation(name: "RootFolder")
+  UserTrashFolder User?          @relation(name: "TrashFolder")
 
   @@index([parentFolderId])
 }

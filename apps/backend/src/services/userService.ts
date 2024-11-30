@@ -57,12 +57,30 @@ export class UserService {
               name: "root",
             },
           },
+          trashFolder: {
+            create: {
+              name: "trash",
+            },
+          },
         },
       });
 
       await this.folderModel.update({
         where: {
           id: user.rootFolderId,
+        },
+        data: {
+          owner: {
+            connect: {
+              id: user.id,
+            },
+          },
+        },
+      });
+
+      await this.folderModel.update({
+        where: {
+          id: user.trashFolderId,
         },
         data: {
           owner: {
