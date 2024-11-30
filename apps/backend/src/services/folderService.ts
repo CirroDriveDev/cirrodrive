@@ -367,65 +367,7 @@ export class FolderService {
       throw error;
     }
   }
-  /**
-   * 폴더를 휴지통으로 이동합니다.
-   *
-   * @param folderId - 휴지통으로 이동할 폴더의 ID
-   * @param userId - 사용자 ID
-   */
-  public async moveToTrash(folderId: number, userId: number): Promise<void> {
-    this.logger.info({ folderId, userId }, "폴더 휴지통 이동 시작");
 
-    // 폴더 소유권 확인
-    const folder = await this.folderModel.findUnique({
-      where: { id: folderId },
-    });
-    if (!folder || folder.ownerId !== userId) {
-      throw new Error("폴더에 접근 권한이 없습니다.");
-    }
-
-    // 폴더를 휴지통으로 이동
-    await this.folderModel.update({
-      where: { id: folderId },
-      data: { trashedAt: new Date() },
-    });
-
-    // 파일을 휴지통으로 이동
-    await this.fileService.moveToTrash(folderId);
-
-    this.logger.info({ folderId }, "폴더 휴지통 이동 완료");
-  }
-  /**
-   * 폴더를 복원합니다.
-   *
-   * @param folderId - 복원할 폴더의 ID
-   * @param userId - 사용자 ID
-   */
-  public async restoreFromTrash(
-    folderId: number,
-    userId: number,
-  ): Promise<void> {
-    this.logger.info({ folderId, userId }, "폴더 복원 시작");
-
-    // 폴더 소유권 확인
-    const folder = await this.folderModel.findUnique({
-      where: { id: folderId },
-    });
-    if (!folder || folder.ownerId !== userId) {
-      throw new Error("폴더에 접근 권한이 없습니다.");
-    }
-
-    // 폴더 복원
-    await this.folderModel.update({
-      where: { id: folderId },
-      data: { trashedAt: null },
-    });
-
-    // 파일 복원
-    await this.fileService.restoreFromTrash(folderId);
-
-    this.logger.info({ folderId }, "폴더 복원 완료");
-  }
   /**
    * 폴더를 영구 삭제합니다.
    *

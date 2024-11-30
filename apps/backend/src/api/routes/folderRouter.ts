@@ -202,12 +202,13 @@ export const folderRouter = router({
         success: z.boolean(),
       }),
     )
-    .mutation(async ({ input }) => {
+    .mutation(async ({ input, ctx }) => {
       const { folderId } = input;
+      const { id: userId } = ctx.user; // 사용자 ID를 ctx에서 가져옵니다.
 
       try {
         // 폴더를 휴지통으로 이동
-        await fileService.moveFolderToTrash(folderId);
+        await fileService.moveFolderToTrash(folderId, userId); // userId도 전달
 
         return { success: true };
       } catch (error) {
@@ -235,8 +236,8 @@ export const folderRouter = router({
       const { id: userId } = ctx.user;
 
       try {
-        // 폴더 및 하위 파일/폴더를 복원
-        await folderService.restoreFromTrash(folderId, userId);
+        // 폴더 및 하위 파일/폴더를 복원 (사용자 권한 검증 포함)
+        await fileService.restoreFolderFromTrash(folderId, userId);
 
         return { success: true };
       } catch (error) {
@@ -247,6 +248,7 @@ export const folderRouter = router({
         });
       }
     }),
+
   move: authedProcedure
     .input(
       z.object({

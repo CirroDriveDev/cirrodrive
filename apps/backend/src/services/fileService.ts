@@ -695,21 +695,37 @@ export class FileService {
       throw new Error("파일 복원 중 오류가 발생했습니다.");
     }
   }
-  public async moveFolderToTrash(folderId: number): Promise<void> {
+  public async moveFolderToTrash(
+    folderId: number,
+    userId: number,
+  ): Promise<void> {
     try {
-      this.logger.info({ folderId }, "폴더 및 파일들 휴지통 이동 시작");
+      this.logger.info({ folderId, userId }, "폴더 및 파일들 휴지통 이동 시작");
+
+      // 폴더 소유권 확인
+      const folder = await this.fileMetadataModel.findUnique({
+        where: { id: folderId },
+      });
+      if (!folder || folder.ownerId !== userId) {
+        throw new Error("이 폴더에 대한 접근 권한이 없습니다.");
+      }
 
       // 폴더에 속한 파일들을 모두 휴지통으로 이동
-      await this.fileMetadataModel.updateMany({
+      const filesUpdated = await this.fileMetadataModel.updateMany({
         where: { parentFolderId: folderId },
-        data: { trashedAt: new Date() }, // 모든 파일을 휴지통으로 이동
+        data: { trashedAt: new Date() },
       });
 
       // 폴더 자체를 휴지통으로 이동
-      await this.fileMetadataModel.update({
+      const folderUpdated = await this.fileMetadataModel.update({
         where: { id: folderId },
         data: { trashedAt: new Date() },
       });
+
+      // 실제로 업데이트된 파일이나 폴더가 없는 경우 처리
+      if (filesUpdated.count === 0 && !folderUpdated) {
+        this.logger.warn({ folderId }, "업데이트된 파일이나 폴더가 없습니다.");
+      }
 
       this.logger.info({ folderId }, "폴더 및 해당 파일들의 휴지통 이동 완료");
     } catch (error) {
@@ -723,23 +739,35 @@ export class FileService {
     }
   }
 
-  public async restoreFolderFromTrash(folderId: number): Promise<void> {
+  public async restoreFolderFromTrash(
+    folderId: number,
+    userId: number,
+  ): Promise<void> {
     try {
       this.logger.info(
-        { methodName: "restoreFolderFromTrash", folderId },
+        { methodName: "restoreFolderFromTrash", folderId, userId },
         "폴더 복원 시작",
       );
 
-      // 폴더 복원
+      // 폴더 소유권 확인
+      const folder = await this.fileMetadataModel.findUnique({
+        where: { id: folderId },
+      });
+
+      if (!folder || folder.ownerId !== userId) {
+        throw new Error("이 폴더에 대한 접근 권한이 없습니다.");
+      }
+
+      // 폴더에 속한 파일들을 복원
       await this.fileMetadataModel.updateMany({
         where: { parentFolderId: folderId },
-        data: { trashedAt: null }, // 폴더에 포함된 파일들을 복원
+        data: { trashedAt: null }, // 폴더에 포함된 모든 파일 복원
       });
 
       // 폴더 자체 복원
       await this.fileMetadataModel.update({
         where: { id: folderId },
-        data: { trashedAt: null },
+        data: { trashedAt: null }, // 폴더 자체 복원
       });
 
       this.logger.info(
