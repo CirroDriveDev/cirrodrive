@@ -54,13 +54,13 @@ export function FolderView({ folderId }: FolderViewProps): JSX.Element {
           <Button onClick={handleFileSelect}>업로드</Button>
           <Button onClick={createFolder}>폴더 생성</Button>
           <DragAndDropUpload
+            type="B"
+            folderId={folderId}
             containerClassName="w-full"
-            directionClassName="flex flex-row h-10 w-full justify-between items-center px-4 space-x-4"
-            fileAreaClassName="h-12 flex items-center justify-center rounded border-2 border-dashed transition flex-grow"
-            fileButtonClassName="cursor-pointer rounded bg-blue-600 px-4 py-2 text-center text-white hover:bg-blue-500 ml-auto"
-            buttonClassName="rounded px-4 py-2 text-white bg-blue-600 hover:bg-blue-500"
-            beforetextClassName="파일 공유"
-            aftertextClassName="파일 공유 ... 중"
+            fileAreaClassName="flex h-10 w-fill items-center justify-center rounded border-2 border-dashed transition"
+            onUploadSuccess={() => {
+              void entryListQuery.refetch();
+            }}
           />
         </div>
         <div className="flex w-full px-4">

@@ -1,135 +1,79 @@
 import { useState, useEffect } from "react";
 import { useUploadPublic } from "@/entities/file/api/useUploadPublic.ts";
+import { useDragUpload } from "@/entities/file/api/useDragUpload.ts";
 import { useBoundStore } from "@/shared/store/useBoundStore.ts";
 
 interface DragAndDropUploadProps {
+  type: "A" | "B"; // A 또는 B 페이지의 동작 구분
+  folderId?: number; // type="B"일 경우 필요한 폴더 ID
+  onUploadSuccess?: () => void; // 업로드 성공 시 호출할 함수 (B 타입용)
   containerClassName?: string;
   directionClassName?: string;
   fileAreaClassName?: string;
-  buttonClassName?: string;
   fileButtonClassName?: string;
+  buttonClassName?: string;
   inputClassName?: string;
-  errorClassName?: string;
-  beforetextClassName?: string;
-  aftertextClassName?: string;
 }
 
 export function DragAndDropUpload({
+  type,
+  folderId,
+  onUploadSuccess,
   containerClassName = "",
-  //col. row 사용하려고 만들었음
   directionClassName = "flex flex-col gap-4",
-  //input창
   fileAreaClassName = "flex h-80 w-96 items-center justify-center rounded border-2 border-dashed transition",
-  //파일 선택 버튼
   fileButtonClassName = "cursor-pointer rounded bg-blue-600 px-4 py-2 text-center text-white hover:bg-blue-500",
-  //전송 버튼
   buttonClassName = "rounded px-4 py-2 text-white",
-  //x
   inputClassName = "hidden",
-  //전송 버튼 텍스트
-  beforetextClassName = "업로드",
-  aftertextClassName = "업로드 . . . 중",
 }: DragAndDropUploadProps): JSX.Element {
+  const [dragOver, setDragOver] = useState(false);
+
+  // A 타입: useUploadPublic 사용
   const { selectedFile, code, mutation, handleFileChange, handleFormSubmit } =
     useUploadPublic();
 
-  const [dragOver, setDragOver] = useState(false);
+  // B 타입: useDragUpload 사용
+  const { isPending, uploadError, handleFileSelect } = useDragUpload(
+    folderId ?? 0,
+    {
+      onSuccess: () => {
+        if (onUploadSuccess) onUploadSuccess(); // 업로드 성공 시 추가 작업 호출
+      },
+    },
+  );
+
   const { openModal } = useBoundStore();
-  const [modalContent, setModalContent] = useState<{
-    fileName?: string;
-    code?: string;
-    link?: string;
-    error?: string;
-  }>({});
 
-  const generateLink = (c: string): string => {
-    return `${window.location.origin}/c/${c}`;
-  };
-
-  const handleDragOver = (e: React.DragEvent<HTMLDivElement>): void => {
-    e.preventDefault();
-    setDragOver(true);
-  };
-
-  const handleDragLeave = (): void => {
-    setDragOver(false);
-  };
-
+  // 드래그 앤 드롭 공통 처리
   const handleDrop = (e: React.DragEvent<HTMLDivElement>): void => {
     e.preventDefault();
     setDragOver(false);
 
-    const droppedData = e.dataTransfer.getData("application/json");
-    if (droppedData) {
-      try {
-        // 드래그된 데이터 타입 정의
-        interface DraggedFileData {
-          file: {
-            name: string;
-            type?: string;
-          };
-        }
+    const files = e.dataTransfer.files;
 
-        // JSON 데이터 파싱
-        const parsedData = JSON.parse(droppedData) as DraggedFileData;
+    if (files?.[0]) {
+      const file = files[0];
 
-        if (
-          parsedData &&
-          typeof parsedData === "object" &&
-          "file" in parsedData &&
-          typeof parsedData.file === "object" &&
-          typeof parsedData.file.name === "string"
-        ) {
-          const { name, type = "application/octet-stream" } = parsedData.file;
-
-          // 가상의 파일 객체 생성
-          const uploadedFile = new File(["Sample file content"], name, {
-            type,
-          });
-
-          // FileList 형태로 변환
-          const dataTransfer = new DataTransfer();
-          dataTransfer.items.add(uploadedFile);
-
-          // 가상의 input 요소 생성 및 이벤트 트리거
-          const fileInput = document.createElement("input");
-          fileInput.type = "file";
-          fileInput.files = dataTransfer.files;
-
-          const customEvent = {
-            target: fileInput,
-          } as unknown as React.ChangeEvent<HTMLInputElement>;
-
-          // 파일 변경 이벤트 호출
-          handleFileChange(customEvent);
-        } else {
-          throw new Error("Invalid data structure");
-        }
-      } catch (error: unknown) {
-        // 오류 처리 및 모달 표시
-        const errorMessage =
-          error instanceof Error ?
-            `드래그된 데이터 처리 오류: ${error.message}`
-          : "드래그된 데이터 처리 중 알 수 없는 오류가 발생했습니다.";
-
-        setModalContent({
-          error: errorMessage,
-        });
-        openModal({
-          title: "오류 발생",
-          content: <div className="text-red-500">{errorMessage}</div>,
-        });
+      if (type === "A") {
+        handleFileChange({
+          target: { files },
+        } as React.ChangeEvent<HTMLInputElement>);
+      } else if (type === "B") {
+        const formData = new FormData();
+        formData.append("file", file);
+        formData.append("folderId", (folderId ?? "").toString());
+        handleFileSelect(formData);
       }
     }
   };
 
+  // A 타입: 업로드 폼 제출 처리
   const handleFormSubmitWithModal = (
     e: React.FormEvent<HTMLFormElement>,
   ): void => {
     e.preventDefault();
 
     if (!selectedFile) {
-      // 파일 미선택 시 모달 표시
       openModal({
         title: "파일 선택 오류",
         content: <div className="text-red-500">파일을 선택하세요.</div>,
@@ -137,110 +81,96 @@ export function DragAndDropUpload({
       return;
     }
 
-    // 모달 초기화: 업로드 중 상태 설정
-    setModalContent({
-      fileName: selectedFile.name,
-      code: aftertextClassName,
-      link: aftertextClassName,
-    });
-
-    // 업로드 트리거
     handleFormSubmit(e);
   };
 
-  // 업로드 완료/실패 시 모달 상태 업데이트
+  // A 타입: 업로드 상태 변화 감지
   useEffect(() => {
-    if (!mutation.isPending) {
+    if (type === "A" && !mutation.isPending) {
       if (mutation.error?.message) {
-        setModalContent({
-          error: mutation.error.message,
+        openModal({
+          title: "업로드 실패",
+          content: <div className="text-red-500">{mutation.error.message}</div>,
         });
       } else if (code && selectedFile) {
-        setModalContent({
-          fileName: selectedFile.name,
-          code,
-          link: generateLink(code),
+        openModal({
+          title: "업로드 성공",
+          content: (
+            <div className="flex flex-col text-green-500">
+              <div>파일 이름: {selectedFile.name}</div>
+              <div>코드: {code}</div>
+              <div>
+                링크:{" "}
+                <a
+                  href={`${window.location.origin}/c/${code}`}
+                  className="text-blue-500 hover:underline"
+                >
+                  {window.location.origin}/c/{code}
+                </a>
+              </div>
+            </div>
+          ),
         });
       }
     }
-  }, [mutation.isPending, code, selectedFile, mutation.error]);
-
-  // 모달 출력
-  useEffect(() => {
-    if (modalContent.error) {
-      openModal({
-        title: "실패",
-        content: <div className="text-red-500">{modalContent.error}</div>,
-      });
-    } else if (modalContent.code) {
-      openModal({
-        title: "성공",
-        content: (
-          <div className="flex-col text-green-500">
-            <div>파일 이름: {modalContent.fileName}</div>
-            <div>코드: {modalContent.code}</div>
-            <div>
-              링크:{" "}
-              <a
-                href={modalContent.link}
-                className="text-blue-500 hover:underline"
-              >
-                {modalContent.link}
-              </a>
-            </div>
-            <div>만료일 : 1일</div>
-          </div>
-        ),
-      });
-    }
-  }, [modalContent, openModal]);
+  }, [type, mutation.isPending, mutation.error, code, selectedFile, openModal]);
 
   return (
     <div className={containerClassName}>
       <form
         method="post"
-        onSubmit={handleFormSubmitWithModal}
+        onSubmit={type === "A" ? handleFormSubmitWithModal : undefined}
         className={directionClassName}
       >
         <div
-          onDragOver={handleDragOver}
-          onDragLeave={handleDragLeave}
+          onDragOver={(e) => {
+            e.preventDefault();
+            setDragOver(true);
+          }}
+          onDragLeave={() => setDragOver(false)}
           onDrop={handleDrop}
           className={`${fileAreaClassName} ${
             dragOver ? "border-blue-500 bg-blue-50" : "border-gray-300 bg-white"
           }`}
         >
-          {selectedFile ?
+          {type === "A" && selectedFile ?
             <p className="text-sm text-gray-600">
               선택된 파일: {selectedFile.name}
             </p>
-          : <p className="text-gray-500">
-              파일을 여기에 드래그하거나 클릭하여 선택하세요.
-            </p>
-          }
+          : <p className="text-gray-500">파일을 여기에 드래그하세요.</p>}
         </div>
 
-        <input
-          type="file"
-          onChange={handleFileChange}
-          className={inputClassName}
-          id="file-upload"
-        />
-        <label htmlFor="file-upload" className={fileButtonClassName}>
-          파일 선택
-        </label>
+        {type === "A" && (
+          <>
+            <input
+              type="file"
+              onChange={handleFileChange}
+              className={inputClassName}
+              id="file-upload"
+            />
+            <label htmlFor="file-upload" className={fileButtonClassName}>
+              파일 선택
+            </label>
+            <button
+              type="submit"
+              className={`${buttonClassName} ${
+                mutation.isPending ?
+                  "cursor-not-allowed bg-gray-500"
+                : "bg-blue-500 hover:bg-blue-600"
+              }`}
+              disabled={mutation.isPending}
+            >
+              {mutation.isPending ? "업로드 중..." : "업로드"}
+            </button>
+          </>
+        )}
 
-        <button
-          type="submit"
-          className={`${buttonClassName} ${
-            mutation.isPending ?
-              "cursor-not-allowed bg-gray-500"
-            : "bg-blue-500 hover:bg-blue-600"
-          }`}
-          disabled={mutation.isPending}
-        >
-          {mutation.isPending ? aftertextClassName : beforetextClassName}
-        </button>
+        {type === "B" && isPending ?
+          <p className="text-blue-500">업로드 중...</p>
+        : null}
+        {type === "B" && uploadError ?
+          <p className="text-red-500">오류: {uploadError}</p>
+        : null}
       </form>
     </div>
   );
