@@ -178,7 +178,7 @@ export const folderRouter = router({
     }),
 
   // 폴더 삭제
-  delete: authedProcedure
+  /* delete: authedProcedure
     .input(
       z.object({
         folderId: z.number(), // 삭제할 폴더의 ID
@@ -208,7 +208,7 @@ export const folderRouter = router({
           cause: error,
         });
       }
-    }),
+    }), */
 
   // 폴더 휴지통으로 이동
   trash: authedProcedure
@@ -229,7 +229,6 @@ export const folderRouter = router({
       try {
         // 폴더를 휴지통으로 이동 (folderService에서 처리)
         await folderService.moveFolderToTrash(folderId, userId);
-
 
         return { success: true };
       } catch (error) {
@@ -260,7 +259,6 @@ export const folderRouter = router({
       try {
         // 폴더 및 하위 파일/폴더를 복원 (folderService에서 처리)
         await folderService.restoreFolderFromTrash(folderId, userId);
-
 
         return { success: true };
       } catch (error) {
