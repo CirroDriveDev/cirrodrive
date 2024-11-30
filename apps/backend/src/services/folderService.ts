@@ -214,13 +214,35 @@ export class FolderService {
    */
   public async getRecursively({
     folderId,
+    trashed = false,
   }: {
     folderId: number;
+    trashed?: boolean;
   }): Promise<RecursiveEntryDTO> {
     const folder = await this.get({ folderId });
 
     if (!folder) {
       throw new Error("폴더를 찾을 수 없습니다.");
+    }
+
+    let isTrashed = trashed;
+
+    if (!isTrashed) {
+      // 이 폴더의 최상위 폴더를 찾습니다.
+      const rootFolderId = (await this.getPath({ folderId }))[0]?.folderId;
+      if (rootFolderId) {
+        const root = await this.folderModel.findUnique({
+          where: {
+            id: rootFolderId,
+          },
+        });
+
+        if (!root) {
+          throw new Error("최상위 폴더를 찾을 수 없습니다.");
+        }
+
+        isTrashed = root.name === "trash";
+      }
     }
 
     const recursiveEntry: RecursiveEntryDTO = {
@@ -230,7 +252,7 @@ export class FolderService {
       parentFolderId: folder.parentFolderId,
       createdAt: folder.createdAt,
       updatedAt: folder.updatedAt,
-      trashedAt: folder.trashedAt,
+      trashedAt: isTrashed ? folder.updatedAt : null,
       size: null,
       entries: [],
     };
@@ -238,6 +260,7 @@ export class FolderService {
     for (const subFolder of folder.subFolders) {
       const subFolderEntry = await this.getRecursively({
         folderId: subFolder.id,
+        trashed: isTrashed,
       });
       recursiveEntry.entries.push(subFolderEntry);
     }
