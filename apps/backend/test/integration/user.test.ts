@@ -39,6 +39,7 @@ describe("User", () => {
       usedStorage: 0,
       profileImageUrl: null,
       rootFolderId: expect.any(Number) as number,
+      trashFolderId: expect.any(Number) as number,
       createdAt: expect.any(Date) as Date,
       updatedAt: expect.any(Date) as Date,
     };
@@ -62,6 +63,7 @@ describe("User", () => {
       usedStorage: 0,
       profileImageUrl: null,
       rootFolderId: expect.any(Number) as number,
+      trashFolderId: expect.any(Number) as number,
       createdAt: expect.any(Date) as Date,
       updatedAt: expect.any(Date) as Date,
     };
