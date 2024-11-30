@@ -1,4 +1,4 @@
-import { EntryTreeNode } from "@/entities/entry/ui/EntryTreeNode .tsx";
+import { EntryTreeNode } from "@/entities/entry/ui/EntryTreeNode.tsx";
 import { useUserStore } from "@/shared/store/useUserStore.ts";
 import { SidebarItem } from "@/shared/ui/SidebarLayout/SidebarItem.tsx";
 import { useEntryGetRecursively } from "@/entities/entry/api/useEntryGetRecursively.ts";

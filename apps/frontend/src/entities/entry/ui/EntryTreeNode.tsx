@@ -12,17 +12,22 @@ import { useUserStore } from "@/shared/store/useUserStore.ts";
 
 interface EntryTreeNodeProps {
   entry: RecursiveEntryDTO;
-  onClick?: (e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => void;
+  onClick?: (
+    e: React.MouseEvent<HTMLButtonElement, MouseEvent>,
+    entry: RecursiveEntryDTO,
+  ) => void;
+  isOpened?: boolean;
 }
 
 export function EntryTreeNode({
   entry,
   onClick,
+  isOpened,
 }: EntryTreeNodeProps): React.ReactNode {
   const { user } = useUserStore();
   const { folderId } = useParams();
   const navigate = useNavigate();
-  const [isOpen, setIsOpen] = useState(false);
+  const [isOpen, setIsOpen] = useState(isOpened ?? false);
 
   const isFolder = entry.type === "folder";
   if (!isFolder) {
@@ -35,12 +40,13 @@ export function EntryTreeNode({
       <Button
         variant={folderId === entry.id.toString() ? "default" : "ghost"}
         className="flex h-max justify-start space-x-2 p-1"
-        onClick={
-          onClick ??
-          (() => {
+        onClick={(e) => {
+          if (onClick) {
+            onClick(e, entry);
+          } else {
             navigate(`/folder/${entry.id}`);
-          })
-        }
+          }
+        }}
       >
         <div
           className="z-10"
@@ -68,7 +74,7 @@ export function EntryTreeNode({
         }}
       >
         {entry.entries.map((subEntry) => (
-          <EntryTreeNode key={subEntry.id} entry={subEntry} />
+          <EntryTreeNode key={subEntry.id} entry={subEntry} onClick={onClick} />
         ))}
       </div>
     </div>

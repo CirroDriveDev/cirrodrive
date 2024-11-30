@@ -6,6 +6,7 @@ import {
   Activity,
   Trash2Icon,
   Edit2,
+  MoveIcon,
 } from "lucide-react";
 import { useRef, useState } from "react";
 import type { EntryDTO } from "@cirrodrive/schemas";
@@ -27,6 +28,7 @@ import { inferFileType } from "@/shared/lib/inferFileType.ts";
 import { useFileDelete } from "@/pages/Trash/api/useFileDelete.ts";
 import { useFolderDelete } from "@/pages/Trash/api/useFolderDelete.ts";
 import { useRestore } from "@/pages/Trash/api/useRestore.ts";
+import { useMoveEntry } from "@/entities/entry/hooks/useMoveEntry.tsx";
 
 interface EntryItemProps {
   entry: EntryDTO;
@@ -75,6 +77,9 @@ export function EntryItem({ entry }: EntryItemProps): JSX.Element {
 
   // 다운로드
   const { handleDownload: downloadEntry } = useDownload(id);
+
+  // 이동
+  const { openMoveModal } = useMoveEntry(entry);
 
   // 휴지통
   const { handleTrash } = useTrash(id);
@@ -168,6 +173,10 @@ export function EntryItem({ entry }: EntryItemProps): JSX.Element {
                 >
                   <Edit2 />
                   <span>이름 변경</span>
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={openMoveModal}>
+                  <MoveIcon />
+                  <span>이동</span>
                 </DropdownMenuItem>
                 <DropdownMenuItem onClick={handleTrash}>
                   <Trash2 />
