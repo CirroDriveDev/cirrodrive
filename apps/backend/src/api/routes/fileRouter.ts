@@ -33,7 +33,9 @@ export const fileRouter = router({
       let metadata;
       let code;
       try {
-        metadata = await fileService.saveFile(input.file);
+        metadata = await fileService.saveFile({
+          file: input.file,
+        });
       } catch (error) {
         logger.error({ requestId: ctx.req.id, error }, "file.upload 요청 실패");
 
@@ -43,7 +45,7 @@ export const fileRouter = router({
         });
       }
       try {
-        code = await codeService.createCode(metadata.id);
+        code = await codeService.createCode({ fileId: metadata.id });
       } catch (error) {
         logger.error({ requestId: ctx.req.id, error }, "file.upload 요청 실패");
 
@@ -76,7 +78,9 @@ export const fileRouter = router({
       logger.info({ requestId: ctx.req.id }, "file.download 요청 시작");
 
       try {
-        const file = await fileService.getFileByCode(input.codeString);
+        const file = await fileService.getFileByCode({
+          codeString: input.codeString,
+        });
 
         logger.info({ requestId: ctx.req.id }, "file.download 요청 성공");
         const fileArrayBuffer = await file.arrayBuffer();
@@ -102,7 +106,9 @@ export const fileRouter = router({
     .input(z.object({ code: z.string() }))
     .output(fileMetadataPublicDTOSchema)
     .query(async ({ input }) => {
-      const metadata = await codeService.getCodeMetadata(input.code);
+      const metadata = await codeService.getCodeMetadata({
+        codeString: input.code,
+      });
 
       if (!metadata) {
         throw new TRPCError({
@@ -125,8 +131,11 @@ export const fileRouter = router({
       const { folderId } = input;
       const { user } = ctx;
 
-      const fileMetadataList =
-        await fileService.listFileMetadataByParentFolder(folderId);
+      const fileMetadataList = await fileService.listFileMetadataByParentFolder(
+        {
+          parentFolderId: folderId,
+        },
+      );
 
       // 로그인한 사용자의 파일 중 휴지통에 있지 않은 파일만 반환
       return fileMetadataList.filter(
@@ -155,7 +164,12 @@ export const fileRouter = router({
       try {
         let count = 1;
         let newFile = file;
-        while (await fileService.existsByName(newFile.name, user.id)) {
+        while (
+          await fileService.existsByName({
+            name: newFile.name,
+            parentFolderId: Number(folderId),
+          })
+        ) {
           newFile = new File(
             [file],
             `${file.name.slice(0, file.name.lastIndexOf("."))} (${count})${file.name.slice(
@@ -165,10 +179,16 @@ export const fileRouter = router({
           count++;
         }
 
-        metadata = await fileService.saveFile(newFile, user.id);
+        metadata = await fileService.saveFile({
+          file: newFile,
+          ownerId: user.id,
+        });
         // 폴더 ID가 주어진 경우 파일을 해당 폴더로 이동
         if (folderId) {
-          metadata = await fileService.moveFile(metadata.id, Number(folderId));
+          metadata = await fileService.moveFile({
+            fileId: metadata.id,
+            targetFolderId: Number(folderId),
+          });
         }
       } catch (error) {
         logger.error({ requestId: ctx.req.id, error }, "파일 업로드 실패");
@@ -202,7 +222,9 @@ export const fileRouter = router({
 
       try {
         // 파일 메타데이터 조회 (ownerId, codeString 포함)
-        const fileMetadata = await fileService.getFileMetadata(fileId);
+        const fileMetadata = await fileService.getFileMetadata({
+          fileId,
+        });
 
         if (!fileMetadata) {
           throw new TRPCError({
@@ -251,7 +273,9 @@ export const fileRouter = router({
       const { code, folderId } = input;
       const { user } = ctx;
       try {
-        const fileMetadata = await codeService.getCodeMetadata(code);
+        const fileMetadata = await codeService.getCodeMetadata({
+          codeString: input.code,
+        });
         if (!fileMetadata) {
           throw new TRPCError({
             code: "NOT_FOUND",
@@ -259,10 +283,10 @@ export const fileRouter = router({
           });
         }
 
-        const metadata = await fileService.copy(
-          fileMetadata.id,
-          folderId ?? user.rootFolderId,
-        );
+        const metadata = await fileService.copy({
+          fileId: fileMetadata.id,
+          targetFolderId: folderId ?? user.rootFolderId,
+        });
 
         return { fileId: metadata.id };
       } catch (error) {
@@ -294,7 +318,9 @@ export const fileRouter = router({
 
       try {
         // 파일 메타데이터 조회
-        const fileMetadata = await fileService.getFileMetadata(fileId);
+        const fileMetadata = await fileService.getFileMetadata({
+          fileId,
+        });
 
         if (!fileMetadata) {
           throw new TRPCError({
@@ -312,7 +338,9 @@ export const fileRouter = router({
         }
 
         // 파일을 휴지통으로 이동
-        await fileService.moveToTrash(fileId);
+        await fileService.moveToTrash({
+          fileId: input.fileId,
+        });
 
         return { success: true };
       } catch (error) {
@@ -339,7 +367,10 @@ export const fileRouter = router({
 
       try {
         // 파일 이름 수정
-        await fileService.rename(fileId, name);
+        await fileService.rename({
+          fileId,
+          name,
+        });
 
         return { success: true }; // 수정 성공 응답
       } catch (error) {
@@ -365,8 +396,11 @@ export const fileRouter = router({
       const { folderId } = input;
       const { user } = ctx;
 
-      const fileMetadataList =
-        await fileService.listFileMetadataByParentFolder(folderId);
+      const fileMetadataList = await fileService.listFileMetadataByParentFolder(
+        {
+          parentFolderId: folderId,
+        },
+      );
 
       // 로그인한 사용자의 파일 중 휴지통에 있는 파일만 반환
       return fileMetadataList.filter(
@@ -389,8 +423,10 @@ export const fileRouter = router({
       const { id: userId } = ctx.user;
 
       try {
-        // 파일 메타데이터 조회
-        const fileMetadata = await fileService.getFileMetadata(fileId);
+        // 파일 ���타데이터 조회
+        const fileMetadata = await fileService.getFileMetadata({
+          fileId,
+        });
 
         if (!fileMetadata) {
           throw new TRPCError({
@@ -408,7 +444,9 @@ export const fileRouter = router({
         }
 
         // 파일 복원
-        await fileService.restoreFromTrash(fileId);
+        await fileService.restoreFromTrash({
+          fileId: input.fileId,
+        });
 
         return { success: true };
       } catch (error) {
@@ -440,7 +478,9 @@ export const fileRouter = router({
 
       try {
         // 파일 메타데이터 조회
-        const fileMetadata = await fileService.getFileMetadata(fileId);
+        const fileMetadata = await fileService.getFileMetadata({
+          fileId,
+        });
 
         if (!fileMetadata) {
           throw new TRPCError({
@@ -458,7 +498,9 @@ export const fileRouter = router({
         }
 
         // 파일 삭제
-        await fileService.deleteFile(fileId);
+        await fileService.deleteFile({
+          fileId: input.fileId,
+        });
 
         return { success: true };
       } catch (error) {
@@ -484,7 +526,10 @@ export const fileRouter = router({
 
       try {
         // 파일 이동 실행
-        const updatedFile = await fileService.moveFile(fileId, targetFolderId);
+        const updatedFile = await fileService.moveFile({
+          fileId,
+          targetFolderId,
+        });
 
         return { success: true, updatedFile };
       } catch (error) {
@@ -521,7 +566,9 @@ export const fileRouter = router({
 
       try {
         // 파일 메타데이터 조회
-        const fileMetadata = await fileService.getFileMetadata(fileId);
+        const fileMetadata = await fileService.getFileMetadata({
+          fileId,
+        });
 
         if (!fileMetadata) {
           throw new TRPCError({

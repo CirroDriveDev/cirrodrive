@@ -26,7 +26,7 @@ export const entryRouter = router({
       const { folderId } = input;
       const { user } = ctx;
 
-      const folder = await folderService.get(folderId);
+      const folder = await folderService.get({ folderId });
 
       if (!folder) {
         throw new TRPCError({
@@ -43,7 +43,7 @@ export const entryRouter = router({
       }
 
       try {
-        const entries = await folderService.getRecursively(folderId);
+        const entries = await folderService.getRecursively({ folderId });
 
         return entries;
       } catch (error) {
@@ -67,7 +67,9 @@ export const entryRouter = router({
       const { parentFolderId } = input;
       const { user } = ctx;
 
-      const parentFolder = await folderService.get(parentFolderId);
+      const parentFolder = await folderService.get({
+        folderId: parentFolderId,
+      });
 
       if (!parentFolder) {
         throw new TRPCError({
@@ -84,9 +86,12 @@ export const entryRouter = router({
       }
 
       try {
-        const folders = await folderService.listByParentFolder(parentFolderId);
-        const files =
-          await fileService.listFileMetadataByParentFolder(parentFolderId);
+        const folders = await folderService.listByParentFolder({
+          parentFolderId,
+        });
+        const files = await fileService.listFileMetadataByParentFolder({
+          parentFolderId,
+        });
 
         const folderEntries: EntryDTO[] = folders
           .filter((folder) => !folder.trashedAt)
@@ -133,8 +138,12 @@ export const entryRouter = router({
       const { user } = ctx;
 
       try {
-        const trashedFolders = await folderService.listTrashByUser(user.id);
-        const trashedFiles = await fileService.listTrashByUser(user.id);
+        const trashedFolders = await folderService.listTrashByUser({
+          ownerId: user.id,
+        });
+        const trashedFiles = await fileService.listTrashByUser({
+          ownerId: user.id,
+        });
 
         const folderEntries: EntryDTO[] = trashedFolders.map((folder) => ({
           id: folder.id,

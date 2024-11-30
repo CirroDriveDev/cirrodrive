@@ -33,10 +33,13 @@ export class AuthService {
    * @param password - 비밀번호
    * @returns 생성된 세션의 토큰
    */
-  public async login(
-    username: string,
-    password: string,
-  ): Promise<{ user: User; session: Session; token: string }> {
+  public async login({
+    username,
+    password,
+  }: {
+    username: string;
+    password: string;
+  }): Promise<{ user: User; session: Session; token: string }> {
     this.logger.info({ methodName: "login" }, "로그인 중");
 
     const user = await this.userModel.findUnique({
@@ -55,7 +58,7 @@ export class AuthService {
 
     const token = this.generateSessionToken();
 
-    const session = await this.createSession(token, user.id);
+    const session = await this.createSession({ token, userId: user.id });
 
     return { user, token, session };
   }
@@ -65,11 +68,11 @@ export class AuthService {
    *
    * @param token - 세션 ID
    */
-  public async logout(token: string): Promise<void> {
+  public async logout({ token }: { token: string }): Promise<void> {
     this.logger.info({ methodName: "logout" }, "로그아웃 중");
     const sessionId = this.encodeToken(token);
 
-    await this.invalidateSession(sessionId);
+    await this.invalidateSession({ sessionId });
   }
 
   /**
@@ -78,9 +81,11 @@ export class AuthService {
    * @param token - 세션 토큰
    * @returns 사용자와 세션
    */
-  public async validateSessionToken(
-    token: string,
-  ): Promise<SessionValidationResult> {
+  public async validateSessionToken({
+    token,
+  }: {
+    token: string;
+  }): Promise<SessionValidationResult> {
     this.logger.info({ methodName: "validateSessionToken" }, "세션 검증 중");
     const sessionId = this.encodeToken(token);
 
@@ -100,7 +105,7 @@ export class AuthService {
     const { user, ...session } = result;
 
     if (Date.now() >= session.expiresAt.getTime()) {
-      await this.invalidateSession(sessionId);
+      await this.invalidateSession({ sessionId });
       return { session: null, user: null };
     }
 
@@ -126,11 +131,15 @@ export class AuthService {
    * @param token - 세션 토큰
    * @param expiresAt - 만료 시각
    */
-  public setSessionTokenCookie(
-    res: Response,
-    token: string,
-    expiresAt: Date,
-  ): void {
+  public setSessionTokenCookie({
+    response: res,
+    token,
+    expiresAt,
+  }: {
+    response: Response;
+    token: string;
+    expiresAt: Date;
+  }): void {
     res.cookie(AuthService.SESSION_TOKEN_COOKIE_NAME, token, {
       httpOnly: true,
       sameSite: "lax",
@@ -145,8 +154,8 @@ export class AuthService {
    *
    * @param response - 응답 객체
    */
-  public clearSessionTokenCookie(response: Response): void {
-    this.setSessionTokenCookie(response, "", new Date(0));
+  public clearSessionTokenCookie({ response }: { response: Response }): void {
+    this.setSessionTokenCookie({ response, token: "", expiresAt: new Date(0) });
   }
 
   /**
@@ -156,7 +165,13 @@ export class AuthService {
    * @param userId - 사용자 ID
    * @returns 생성된 세션
    */
-  private async createSession(token: string, userId: number): Promise<Session> {
+  private async createSession({
+    token,
+    userId,
+  }: {
+    token: string;
+    userId: number;
+  }): Promise<Session> {
     this.logger.info({ methodName: "createSession" }, "세션 생성 중");
     const sessionId = this.encodeToken(token);
     const session: Session = {
@@ -176,7 +191,11 @@ export class AuthService {
     return session;
   }
 
-  private async invalidateSession(sessionId: string): Promise<void> {
+  private async invalidateSession({
+    sessionId,
+  }: {
+    sessionId: string;
+  }): Promise<void> {
     await this.sessionModel.delete({ where: { id: sessionId } });
   }
 

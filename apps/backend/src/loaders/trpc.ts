@@ -28,16 +28,22 @@ export const createContext = async ({
 
   // 세션 토큰이 존재하는 경우 사용자와 세션을 가져옵니다.
   if (success) {
-    const { user, session } = await authService.validateSessionToken(token);
+    const { user, session } = await authService.validateSessionToken({ token });
     ctx.user = user;
     ctx.session = session;
     ctx.sessionToken = token;
 
     // 세션 토큰 쿠키를 갱신합니다.
     if (session) {
-      authService.setSessionTokenCookie(res, token, session.expiresAt);
+      authService.setSessionTokenCookie({
+        response: res,
+        token,
+        expiresAt: session.expiresAt,
+      });
     } else {
-      authService.clearSessionTokenCookie(res);
+      authService.clearSessionTokenCookie({
+        response: res,
+      });
     }
   }
 
