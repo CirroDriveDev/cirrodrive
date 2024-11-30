@@ -440,7 +440,7 @@ export class FolderService {
   }
 
   /**
-   * 폴더를 복원합니다.
+   * 폴더를 휴지통에서 복원합니다.
    *
    * @param folderId - 복원할 폴더의 ID
    * @param userId - 사용자 ID
@@ -458,14 +458,20 @@ export class FolderService {
     const folder = await this.folderModel.findUnique({
       where: { id: folderId },
     });
+
     if (!folder || folder.ownerId !== userId) {
       throw new Error("폴더에 접근 권한이 없습니다.");
+    }
+
+    // 폴더가 이미 복원된 상태라면 예외 처리
+    if (!folder.trashedAt) {
+      throw new Error("폴더는 이미 복원된 상태입니다.");
     }
 
     // 폴더 복원
     await this.folderModel.update({
       where: { id: folderId },
-      data: { trashedAt: null },
+      data: { trashedAt: null }, // trashedAt을 null로 설정하여 복원
     });
 
     // 폴더에 포함된 파일들을 조회하여 복원
@@ -474,7 +480,8 @@ export class FolderService {
     });
 
     for (const file of filesInFolder) {
-      await this.fileService.restoreFromTrash({ fileId: file.id }); // 파일 ID로 복원
+      // 파일 복원은 이미 구현된 fileService 메서드를 사용
+      await this.fileService.restoreFromTrash({ fileId: file.id });
     }
 
     this.logger.info({ folderId }, "폴더와 파일 복원 완료");
