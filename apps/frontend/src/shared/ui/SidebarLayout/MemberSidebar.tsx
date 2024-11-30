@@ -1,10 +1,19 @@
+import { EntryTreeNode } from "@/entities/entry/ui/EntryTreeNode .tsx";
+import { useUserStore } from "@/shared/store/useUserStore.ts";
 import { SidebarItem } from "@/shared/ui/SidebarLayout/SidebarItem.tsx";
+import { useEntryGetRecursively } from "@/entities/entry/api/useEntryGetRecursively.ts";
 
 export function MemberSidebar(): JSX.Element {
+  const { user } = useUserStore();
+  const { query } = useEntryGetRecursively(user!.rootFolderId);
+
   return (
     <aside className="flex flex-grow bg-secondary">
       <nav className="flex flex-grow flex-col space-y-4 p-4">
-        <SidebarItem label="파일" path="/home" />
+        {/* 내 파일 */}
+        {query.data ?
+          <EntryTreeNode entry={query.data} />
+        : null}
         {/* 문서 */}
         <SidebarItem label="문서" path="/documents" />
         {/* 사진 */}
