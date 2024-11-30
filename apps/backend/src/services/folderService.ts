@@ -607,31 +607,27 @@ export class FolderService {
         );
       }
 
-      // 폴더 이동 (부모 폴더 변경)
+      let newName = sourceFolder.name;
+      if (
+        await this.existsFolderName({
+          name: sourceFolder.name,
+          parentFolderId: targetFolderId,
+        })
+      ) {
+        newName = await this.generateFolderName({
+          name: sourceFolder.name,
+          parentFolderId: targetFolderId,
+        });
+      }
+
+      // 폴더 이동
       await this.folderModel.update({
         where: { id: sourceFolderId },
-        data: { parentFolderId: targetFolderId },
+        data: {
+          parentFolderId: targetFolderId,
+          name: newName,
+        },
       });
-
-      // 하위 폴더 이동
-      await Promise.all(
-        sourceFolder.subFolders.map((subFolder) =>
-          this.folderModel.update({
-            where: { id: subFolder.id },
-            data: { parentFolderId: targetFolderId },
-          }),
-        ),
-      );
-
-      // 파일 이동
-      await Promise.all(
-        sourceFolder.files.map((file) =>
-          this.folderModel.update({
-            where: { id: file.id },
-            data: { parentFolderId: targetFolderId },
-          }),
-        ),
-      );
 
       this.logger.info(
         { sourceFolderId, targetFolderId, ownerId },
@@ -782,12 +778,23 @@ export class FolderService {
         },
         "폴더 이름 생성 시작",
       );
+      const regexpResult = /^(?<originalName>.*?)(?: \((?<count>\d+)\))?$/.exec(
+        name,
+      );
 
-      const originalName =
-        /^(?<originalName>.*?)(?: \(\d+\))?$/.exec(name)?.groups
-          ?.originalName ?? name;
-      let folderName = originalName;
+      if (!regexpResult) {
+        throw new Error("폴더 이름을 분석할 수 없습니다.");
+      }
+
+      let originalName = regexpResult.groups?.originalName ?? name;
       let count = 1;
+
+      if (regexpResult.groups?.count) {
+        originalName = name;
+        count = parseInt(regexpResult.groups.count);
+      }
+
+      let folderName = originalName;
 
       // 동일한 이름의 폴더가 존재할 경우 이름 변경
       while (

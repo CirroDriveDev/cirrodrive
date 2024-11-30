@@ -399,15 +399,12 @@ export class FileService {
         },
       });
 
+      let newFileName = file.name;
       if (existingFile) {
-        // 충돌 처리 (경고 또는 자동 이름 변경)
-        throw new Error(
-          `대상 폴더에 같은 이름(${file.name})과(and) 확장자(${file.extension})를 가진 파일이 이미 존재합니다.`,
-        );
-
-        // 또는 이름 변경 로직 예시
-        // const newName = `${file.name} (1)`; // 이름 뒤에 "(1)" 추가
-        // file.name = newName; // 파일 이름 변경
+        newFileName = await this.generateFileName({
+          parentFolderId: targetFolderId,
+          name: file.name,
+        });
       }
 
       // 파일 메타데이터 업데이트
@@ -419,6 +416,7 @@ export class FileService {
               id: targetFolderId,
             },
           },
+          name: newFileName,
         },
       });
 
@@ -691,13 +689,23 @@ export class FileService {
     );
     const baseName = path.basename(name, path.extname(name));
     const extension = path.extname(name);
+    const regexpResult = /^(?<originalName>.*?)(?: \((?<count>\d+)\))?$/.exec(
+      baseName,
+    );
 
-    const originalName =
-      /^(?<originalName>.*?)(?: \(\d+\))?$/.exec(baseName)?.groups
-        ?.originalName ?? baseName;
+    if (!regexpResult) {
+      throw new Error("파일 이름을 분석할 수 없습니다.");
+    }
+
+    let originalName = regexpResult.groups?.originalName ?? baseName;
+    let count = 1;
+
+    if (regexpResult.groups?.count) {
+      originalName = baseName;
+      count = parseInt(regexpResult.groups.count);
+    }
 
     let fileName = `${originalName}${extension ? `.${extension}` : ""}`;
-    let count = 1;
 
     while (await this.existsByName({ name: fileName, parentFolderId })) {
       fileName = `${originalName} (${count})${extension ? `.${extension}` : ""}`;

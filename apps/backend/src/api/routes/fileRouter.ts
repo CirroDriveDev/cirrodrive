@@ -533,18 +533,6 @@ export const fileRouter = router({
 
         return { success: true, updatedFile };
       } catch (error) {
-        if (error instanceof Error) {
-          if (
-            error.message.includes(
-              "이미 같은 이름과 확장자의 파일이 존재합니다",
-            )
-          ) {
-            throw new TRPCError({
-              code: "CONFLICT",
-              message: error.message,
-            });
-          }
-        }
         throw new TRPCError({
           code: "INTERNAL_SERVER_ERROR",
           message: "파일 이동 중 오류가 발생했습니다.",
