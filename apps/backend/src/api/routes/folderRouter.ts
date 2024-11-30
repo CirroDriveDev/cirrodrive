@@ -178,8 +178,8 @@ export const folderRouter = router({
       const { id: userId } = ctx.user;
 
       try {
-        // 폴더 및 하위 파일/폴더 삭제
-        await folderService.deleteFolder(folderId, userId);
+        // 폴더 및 하위 파일/폴더 삭제를 fileService에서 처리
+        await fileService.deleteFolder(folderId, userId);
 
         return { success: true };
       } catch (error) {

@@ -783,12 +783,21 @@ export class FileService {
     }
   }
 
-  public async deleteFolder(folderId: number): Promise<void> {
+  public async deleteFolder(folderId: number, userId: number): Promise<void> {
     try {
       this.logger.info(
-        { methodName: "deleteFolder", folderId },
+        { methodName: "deleteFolder", folderId, userId },
         "폴더 삭제 시작",
       );
+
+      // 폴더 소유권 확인 (userId가 필요)
+      const folder = await this.fileMetadataModel.findUnique({
+        where: { id: folderId },
+      });
+
+      if (!folder || folder.ownerId !== userId) {
+        throw new Error("폴더에 접근 권한이 없습니다.");
+      }
 
       // 폴더에 포함된 모든 파일들을 삭제
       const files = await this.fileMetadataModel.findMany({
@@ -796,7 +805,7 @@ export class FileService {
       });
 
       for (const file of files) {
-        await this.deleteFile(file.id); // FileService에서 삭제
+        await this.deleteFile(file.id); // 파일 삭제 처리
       }
 
       // 폴더 삭제
