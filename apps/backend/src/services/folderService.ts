@@ -24,13 +24,17 @@ export class FolderService {
    * @param name - 생성할 폴더의 이름입니다.
    * @param parentFolderId - 부모 폴더의 ID입니다 (최상위 폴더일 경우 null).
    * @returns 생성된 폴더 정보입니다.
-   * @throws 폴더 생성 중 오류가 발생한 경우.
+   * @throws 폴더 생성 중 오류��� 발생한 경우.
    */
-  public async create(
-    ownerId: number,
-    name: string,
-    parentFolderId: number,
-  ): Promise<Folder> {
+  public async create({
+    ownerId,
+    name,
+    parentFolderId,
+  }: {
+    ownerId: number;
+    name: string;
+    parentFolderId: number;
+  }): Promise<Folder> {
     try {
       this.logger.info(
         {
@@ -42,7 +46,7 @@ export class FolderService {
         "폴더 생성 시작",
       );
 
-      const newName = await this.generateFolderName(name, parentFolderId);
+      const newName = await this.generateFolderName({ name, parentFolderId });
 
       const folder = await this.folderModel.create({
         data: {
@@ -69,10 +73,13 @@ export class FolderService {
    * @returns 폴더 목록입니다.
    * @throws 폴더 조회 중 오류가 발생한 경우.
    */
-  public async listByUser(
-    ownerId: number,
-    parentFolderId?: number,
-  ): Promise<Folder[]> {
+  public async listByUser({
+    ownerId,
+    parentFolderId,
+  }: {
+    ownerId: number;
+    parentFolderId?: number;
+  }): Promise<Folder[]> {
     try {
       this.logger.info(
         {
@@ -108,7 +115,11 @@ export class FolderService {
    * @param parentFolderId - 폴더의 ID입니다.
    * @returns 폴더의 하위 폴더 목록입니다.
    */
-  public async listByParentFolder(parentFolderId: number): Promise<
+  public async listByParentFolder({
+    parentFolderId,
+  }: {
+    parentFolderId: number;
+  }): Promise<
     Prisma.FolderGetPayload<{
       include: {
         subFolders: true;
@@ -154,7 +165,11 @@ export class FolderService {
    * @returns 폴더 정보입니다.
    * @throws 폴더 조회 중 오류가 발생한 경우.
    */
-  public async get(folderId: number): Promise<Prisma.FolderGetPayload<{
+  public async get({
+    folderId,
+  }: {
+    folderId: number;
+  }): Promise<Prisma.FolderGetPayload<{
     include: {
       subFolders: true;
       files: true;
@@ -195,8 +210,12 @@ export class FolderService {
    * @returns 폴더 정보입니다.
    * @throws 폴더 조회 중 오류가 발생한 경우.
    */
-  public async getRecursively(folderId: number): Promise<RecursiveEntryDTO> {
-    const folder = await this.get(folderId);
+  public async getRecursively({
+    folderId,
+  }: {
+    folderId: number;
+  }): Promise<RecursiveEntryDTO> {
+    const folder = await this.get({ folderId });
 
     if (!folder) {
       throw new Error("폴더를 찾을 수 없습니다.");
@@ -215,14 +234,16 @@ export class FolderService {
     };
 
     for (const subFolder of folder.subFolders) {
-      const subFolderEntry = await this.getRecursively(subFolder.id);
+      const subFolderEntry = await this.getRecursively({
+        folderId: subFolder.id,
+      });
       recursiveEntry.entries.push(subFolderEntry);
     }
 
     return recursiveEntry;
   }
 
-  public async getPath(folderId: number): Promise<
+  public async getPath({ folderId }: { folderId: number }): Promise<
     {
       folderId: number | null;
       name: string;
@@ -286,7 +307,11 @@ export class FolderService {
    * @returns 휴지통 폴더 목록입니다.
    * @throws 휴지통 폴더 조회 중 오류가 발생한 경우.
    */
-  public async listTrashByUser(ownerId: number): Promise<Folder[]> {
+  public async listTrashByUser({
+    ownerId,
+  }: {
+    ownerId: number;
+  }): Promise<Folder[]> {
     try {
       this.logger.info(
         {
@@ -373,7 +398,13 @@ export class FolderService {
    * @param folderId - 휴지통으로 이동할 폴더의 ID
    * @param userId - 사용자 ID
    */
-  public async moveToTrash(folderId: number, userId: number): Promise<void> {
+  public async moveToTrash({
+    folderId,
+    userId,
+  }: {
+    folderId: number;
+    userId: number;
+  }): Promise<void> {
     this.logger.info({ folderId, userId }, "폴더 휴지통 이동 시작");
 
     // 폴더 소유권 확인
@@ -391,7 +422,7 @@ export class FolderService {
     });
 
     // 파일을 휴지통으로 이동
-    await this.fileService.moveToTrash(folderId);
+    await this.fileService.moveToTrash({ fileId: folderId });
 
     this.logger.info({ folderId }, "폴더 휴지통 이동 완료");
   }
@@ -401,10 +432,13 @@ export class FolderService {
    * @param folderId - 복원할 폴더의 ID
    * @param userId - 사용자 ID
    */
-  public async restoreFromTrash(
-    folderId: number,
-    userId: number,
-  ): Promise<void> {
+  public async restoreFromTrash({
+    folderId,
+    userId,
+  }: {
+    folderId: number;
+    userId: number;
+  }): Promise<void> {
     this.logger.info({ folderId, userId }, "폴더 복원 시작");
 
     // 폴더 소유권 확인
@@ -422,7 +456,7 @@ export class FolderService {
     });
 
     // 파일 복원
-    await this.fileService.restoreFromTrash(folderId);
+    await this.fileService.restoreFromTrash({ fileId: folderId });
 
     this.logger.info({ folderId }, "폴더 복원 완료");
   }
@@ -432,7 +466,13 @@ export class FolderService {
    * @param folderId - 삭제할 폴더의 ID
    * @param userId - 사용자 ID
    */
-  public async deleteFolder(folderId: number, userId: number): Promise<void> {
+  public async deleteFolder({
+    folderId,
+    userId,
+  }: {
+    folderId: number;
+    userId: number;
+  }): Promise<void> {
     this.logger.info({ folderId, userId }, "폴더 삭제 시작");
 
     // 폴더 소유권 확인
@@ -444,7 +484,7 @@ export class FolderService {
     }
 
     // 파일 영구 삭제
-    await this.fileService.deleteFile(folderId);
+    await this.fileService.deleteFile({ fileId: folderId });
 
     // 폴더 삭제
     await this.folderModel.delete({
@@ -461,11 +501,15 @@ export class FolderService {
    * @param targetFolderId - 이동할 대상 폴더의 ID입니다.
    * @throws 폴더 이동 중 오류가 발생한 경우.
    */
-  public async moveFolder(
-    ownerId: number,
-    sourceFolderId: number,
-    targetFolderId: number,
-  ): Promise<void> {
+  public async moveFolder({
+    ownerId,
+    sourceFolderId,
+    targetFolderId,
+  }: {
+    ownerId: number;
+    sourceFolderId: number;
+    targetFolderId: number;
+  }): Promise<void> {
     try {
       this.logger.info(
         { methodName: "moveFolder", ownerId, sourceFolderId, targetFolderId },
@@ -549,7 +593,13 @@ export class FolderService {
    * @param name - 변경할 폴더의 이름입니다.
    * @throws 폴더 이름 변경 중 오류가 발생한 경우.
    */
-  public async rename(folderId: number, name: string): Promise<void> {
+  public async rename({
+    folderId,
+    name,
+  }: {
+    folderId: number;
+    name: string;
+  }): Promise<void> {
     try {
       this.logger.info({ folderId, name }, "폴더 이름 변경 시작");
 
@@ -573,7 +623,12 @@ export class FolderService {
         throw new Error("폴더 이름은 비워둘 수 없습니다.");
       }
 
-      if (await this.existsFolderName(name, folder.parentFolderId)) {
+      if (
+        await this.existsFolderName({
+          name,
+          parentFolderId: folder.parentFolderId,
+        })
+      ) {
         throw new Error("이미 사용중인 폴더 이름입니다.");
       }
 
@@ -599,10 +654,13 @@ export class FolderService {
    * @param parentFolderId - 부모 폴더의 ID입니다 (최상위 폴더일 경우 null).
    * @returns 동일한 이름의 폴더가 존재하는지 여부입니다.
    */
-  public async existsFolderName(
-    name: string,
-    parentFolderId?: number,
-  ): Promise<boolean> {
+  public async existsFolderName({
+    name,
+    parentFolderId,
+  }: {
+    name: string;
+    parentFolderId?: number;
+  }): Promise<boolean> {
     try {
       this.logger.info(
         {
@@ -649,10 +707,13 @@ export class FolderService {
    * @param parentFolderId - 부모 폴더의 ID입니다 (최상위 폴더일 경우 null).
    * @returns 생성된 폴더의 이름입니다.
    */
-  public async generateFolderName(
-    name: string,
-    parentFolderId: number,
-  ): Promise<string> {
+  public async generateFolderName({
+    name,
+    parentFolderId,
+  }: {
+    name: string;
+    parentFolderId: number;
+  }): Promise<string> {
     try {
       this.logger.info(
         {
@@ -670,7 +731,9 @@ export class FolderService {
       let count = 1;
 
       // 동일한 이름의 폴더가 존재할 경우 이름 변경
-      while (await this.existsFolderName(folderName, parentFolderId)) {
+      while (
+        await this.existsFolderName({ name: folderName, parentFolderId })
+      ) {
         folderName = `${originalName} (${count})`;
         count += 1;
       }
