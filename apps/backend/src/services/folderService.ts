@@ -13,7 +13,7 @@ export class FolderService {
     @inject(Symbols.Logger) private logger: Logger,
     @inject(Symbols.FolderModel) private folderModel: Prisma.FolderDelegate,
     @inject(Symbols.FileMetadataModel)
-    private fileMetadataModel: Prisma.FileMetadataDelegate, // 여기 수정
+    private fileMetadataModel: Prisma.FileMetadataDelegate,
     @inject(FileService) private fileService: FileService,
   ) {
     this.logger = logger.child({ serviceName: "FolderService" });
@@ -510,16 +510,24 @@ export class FolderService {
       throw new Error("폴더에 접근 권한이 없습니다.");
     }
 
-    // 파일 영구 삭제
-    await this.fileService.deleteFile({ fileId: folderId });
+    // 폴더 내 포함된 파일들 조회
+    const filesInFolder = await this.fileMetadataModel.findMany({
+      where: { parentFolderId: folderId },
+    });
+
+    // 파일 삭제
+    for (const file of filesInFolder) {
+      await this.fileService.deleteFile({ fileId: file.id });
+    }
 
     // 폴더 삭제
     await this.folderModel.delete({
       where: { id: folderId },
     });
 
-    this.logger.info({ folderId }, "폴더 삭제 완료");
+    this.logger.info({ folderId }, "폴더 및 포함된 파일 삭제 완료");
   }
+
   /**
    * 폴더를 다른 폴더로 이동합니다.
    *
