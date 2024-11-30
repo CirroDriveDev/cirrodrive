@@ -4,8 +4,10 @@ import { folderDTOSchema, subFolderDTOSchema } from "@cirrodrive/schemas";
 import { router, authedProcedure } from "@/loaders/trpc.ts"; // tRPC 설정 임포트
 import { container } from "@/loaders/inversify.ts";
 import { FolderService } from "@/services/folderService.ts";
+import { FileService } from "@/services/fileService.ts";
 
-const folderService = container.get(FolderService);
+const folderService = container.get<FolderService>(FolderService);
+const fileService = container.get<FileService>(FileService);
 
 export const folderRouter = router({
   // 새로운 폴더 생성
@@ -200,23 +202,23 @@ export const folderRouter = router({
         success: z.boolean(),
       }),
     )
-    .mutation(async ({ input, ctx }) => {
+    .mutation(async ({ input }) => {
       const { folderId } = input;
-      const { id: userId } = ctx.user;
 
       try {
-        // 폴더 및 하위 파일/폴더를 휴지통으로 이동
-        await folderService.moveToTrash(folderId, userId);
+        // 폴더를 휴지통으로 이동
+        await fileService.moveFolderToTrash(folderId);
 
         return { success: true };
       } catch (error) {
         throw new TRPCError({
           code: "INTERNAL_SERVER_ERROR",
-          message: "폴더를 휴지통으로 이동하는 중 오류가 발생했습니다.",
+          message: "폴더 및 파일을 휴지통으로 이동하는 중 오류가 발생했습니다.",
           cause: error,
         });
       }
     }),
+
   restoreFromTrash: authedProcedure
     .input(
       z.object({

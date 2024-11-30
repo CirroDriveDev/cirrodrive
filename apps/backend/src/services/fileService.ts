@@ -697,15 +697,12 @@ export class FileService {
   }
   public async moveFolderToTrash(folderId: number): Promise<void> {
     try {
-      this.logger.info(
-        { methodName: "moveFolderToTrash", folderId },
-        "폴더 휴지통 이동 시작",
-      );
+      this.logger.info({ folderId }, "폴더 및 파일들 휴지통 이동 시작");
 
-      // 폴더를 휴지통으로 이동
+      // 폴더에 속한 파일들을 모두 휴지통으로 이동
       await this.fileMetadataModel.updateMany({
         where: { parentFolderId: folderId },
-        data: { trashedAt: new Date() }, // 폴더에 포함된 모든 파일을 휴지통으로 이동
+        data: { trashedAt: new Date() }, // 모든 파일을 휴지통으로 이동
       });
 
       // 폴더 자체를 휴지통으로 이동
@@ -714,16 +711,15 @@ export class FileService {
         data: { trashedAt: new Date() },
       });
 
-      this.logger.info(
-        { methodName: "moveFolderToTrash", folderId },
-        "폴더 및 해당 파일들의 휴지통 이동 완료",
-      );
+      this.logger.info({ folderId }, "폴더 및 해당 파일들의 휴지통 이동 완료");
     } catch (error) {
       this.logger.error(
-        { methodName: "moveFolderToTrash", error },
-        "폴더 휴지통 이동 중 오류 발생",
+        { folderId, error },
+        "폴더 및 파일들 휴지통 이동 중 오류 발생",
       );
-      throw new Error("폴더를 휴지통으로 이동하는 중 오류가 발생했습니다.");
+      throw new Error(
+        "폴더 및 파일들을 휴지통으로 이동하는 중 오류가 발생했습니다.",
+      );
     }
   }
 
