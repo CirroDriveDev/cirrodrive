@@ -40,14 +40,13 @@ export function FolderView({ folderId }: FolderViewProps): JSX.Element {
         <div className="flex h-16 w-full items-center space-x-4 p-4">
           <FolderName folderId={user!.rootFolderId} folderName="내 파일" />
           {folderPathQuery.data?.slice(1).map((path) => (
-            <>
+            <div
+              className="flex h-16 w-full items-center space-x-4"
+              key={`${path.folderId}:${path.name}`}
+            >
               <ChevronRight />
-              <FolderName
-                folderId={path.folderId}
-                folderName={path.name}
-                key={`${path.folderId}:${path.name}`}
-              />
-            </>
+              <FolderName folderId={path.folderId} folderName={path.name} />
+            </div>
           ))}
         </div>
         <div className="flex w-full space-x-4 p-4">
