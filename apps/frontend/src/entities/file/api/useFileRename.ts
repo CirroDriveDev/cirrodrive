@@ -1,8 +1,6 @@
 import { useState } from "react";
-import { useQueryClient } from "@tanstack/react-query";
 import { trpc } from "@/shared/api/trpc.ts";
-import { entryListQueryKey } from "@/entities/entry/api/useEntryList.ts";
-import { trashEntryListQueryKey } from "@/entities/entry/api/useTrashEntryList.ts";
+import { useEntryUpdatedEvent } from "@/entities/entry/api/useEntryUpdatedEvent.ts";
 
 interface UseFileRename {
   handleRename: (newName: string) => void;
@@ -11,9 +9,9 @@ interface UseFileRename {
 }
 
 export const useFileRename = (fileId: number): UseFileRename => {
-  const queryClient = useQueryClient();
   const [isRenaming, setIsRenaming] = useState(false);
   const [success, setSuccess] = useState<boolean | null>(null);
+  const { entryUpdatedEvent } = useEntryUpdatedEvent();
 
   const mutation = trpc.file.updateFileName.useMutation({
     onMutate: () => {
@@ -21,8 +19,7 @@ export const useFileRename = (fileId: number): UseFileRename => {
       setSuccess(null);
     },
     onSuccess: async () => {
-      await queryClient.invalidateQueries({ queryKey: entryListQueryKey });
-      await queryClient.invalidateQueries({ queryKey: trashEntryListQueryKey });
+      await entryUpdatedEvent();
       setSuccess(true);
     },
     onError: () => {

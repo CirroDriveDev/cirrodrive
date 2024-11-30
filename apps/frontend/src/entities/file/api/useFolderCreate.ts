@@ -1,9 +1,7 @@
 import { useState } from "react";
-import { useQueryClient } from "@tanstack/react-query";
 import { trpc } from "@/shared/api/trpc.ts";
 import { useBoundStore } from "@/shared/store/useBoundStore.ts";
-import { entryListQueryKey } from "@/entities/entry/api/useEntryList.ts";
-import { trashEntryListQueryKey } from "@/entities/entry/api/useTrashEntryList.ts";
+import { useEntryUpdatedEvent } from "@/entities/entry/api/useEntryUpdatedEvent.ts";
 
 interface UseFolderManagement {
   folderName: string;
@@ -15,8 +13,8 @@ interface UseFolderManagement {
 
 export const useFolderCreate = (): UseFolderManagement => {
   const { user } = useBoundStore();
-  const queryClient = useQueryClient();
   const [folderName, setFolderName] = useState("새 폴더");
+  const { entryUpdatedEvent } = useEntryUpdatedEvent();
 
   if (user === null) {
     throw new Error("User must be defined");
@@ -26,8 +24,7 @@ export const useFolderCreate = (): UseFolderManagement => {
 
   const folderMutation = trpc.folder.create.useMutation({
     onSuccess: async () => {
-      await queryClient.invalidateQueries({ queryKey: entryListQueryKey });
-      await queryClient.invalidateQueries({ queryKey: trashEntryListQueryKey });
+      await entryUpdatedEvent();
     },
   });
 
