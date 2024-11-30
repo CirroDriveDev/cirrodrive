@@ -65,8 +65,22 @@ export interface ModalStore {
   closeModal: () => void;
 }
 
+export interface SearchBarStore {
+  /**
+   * 검색어
+   */
+  searchTerm: string;
+
+  /**
+   * 검색어를 설정
+   *
+   * @param term - 검색어
+   */
+  setSearchTerm: (term: string) => void;
+}
+
 // 모든 슬라이스를 포함하는 상태 타입
-export type StoreState = UserStore & ModalStore;
+export type StoreState = UserStore & ModalStore & SearchBarStore;
 
 // ------------------------------------
 // Store Slice Creators
@@ -119,6 +133,23 @@ export const createModalSlice: StateCreator<
     }),
 });
 
+export const createSearchBarSlice: StateCreator<
+  StoreState,
+  [
+    ["zustand/immer", never],
+    ["zustand/persist", unknown],
+    ["zustand/devtools", never],
+  ],
+  [],
+  SearchBarStore
+> = (set) => ({
+  searchTerm: "",
+  setSearchTerm: (term) =>
+    set((state) => {
+      state.searchTerm = term;
+    }),
+});
+
 // ------------------------------------
 // Store Hook
 // ------------------------------------
@@ -148,6 +179,7 @@ export const useBoundStore = create<StoreState>()(
       immer((...opts) => ({
         ...createUserSlice(...opts),
         ...createModalSlice(...opts),
+        ...createSearchBarSlice(...opts),
       })),
       // persist 미들웨어의 옵션
       {

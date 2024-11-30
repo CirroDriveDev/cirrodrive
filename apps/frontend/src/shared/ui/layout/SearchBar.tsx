@@ -1,13 +1,11 @@
 import { Search } from "lucide-react";
 import { useState, type ChangeEvent } from "react";
 import { useTheme } from "@/shared/components/shadcn/ThemeProvider.tsx";
+import { useSearchBarStore } from "@/shared/store/useSearchBarStore.ts";
 
-interface SearchBarProps {
-  onSearch: (searchTerm: string) => void; // 검색어 Prop
-}
-
-export function SearchBar({ onSearch }: SearchBarProps): JSX.Element {
+export function SearchBar(): JSX.Element {
   const { theme } = useTheme();
+  const { searchTerm, setSearchTerm } = useSearchBarStore();
   const foregroundColor = theme === "light" ? "black" : "white";
   const outlineClassList =
     "outline outline-1 outline-ring hover:outline-foreground";
@@ -22,7 +20,7 @@ export function SearchBar({ onSearch }: SearchBarProps): JSX.Element {
   };
 
   const handleInputChange = (event: ChangeEvent<HTMLInputElement>): void => {
-    onSearch(event.target.value); // 받은 입력값을 부모에게 전달
+    setSearchTerm(event.target.value); // 받은 입력값을 부모에게 전달
   };
 
   return (
@@ -34,6 +32,7 @@ export function SearchBar({ onSearch }: SearchBarProps): JSX.Element {
         <input
           type="text"
           placeholder="검색"
+          value={searchTerm}
           className="flex-grow bg-background text-foreground focus:outline-none"
           onFocus={handleFocus}
           onBlur={handleBlur}
