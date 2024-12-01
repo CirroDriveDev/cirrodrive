@@ -16,6 +16,7 @@ import { DocumentsPage } from "@/pages/documents/ui/DocumentsPage.tsx";
 import { PhotosPage } from "@/pages/photos/ui/PhotosPage.tsx";
 import { RecentPage } from "@/pages/recent/ui/RecentPage.tsx";
 import { trpc } from "@/shared/api/trpc.ts";
+import { SearchResultsPage } from "@/pages/SearchResults/ui/SearchResultsPage.tsx";
 
 function RedirectAuthedUserToHome({
   children,
@@ -127,6 +128,10 @@ const routeTree: RouteObject[] = [
       {
         path: "/recent",
         element: <RecentPage />,
+      },
+      {
+        path: "/SearchResults",
+        element: <SearchResultsPage />,
       },
       {
         path: "*",

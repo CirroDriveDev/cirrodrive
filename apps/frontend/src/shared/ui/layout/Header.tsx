@@ -9,6 +9,7 @@ import { useLogout } from "@/shared/api/useLogout.ts";
 export function Header(): JSX.Element {
   const { user } = useBoundStore();
   const { logout } = useLogout();
+
   return (
     <header className="flex flex-grow bg-primary">
       <div className="flex w-[250px] items-center p-4">
