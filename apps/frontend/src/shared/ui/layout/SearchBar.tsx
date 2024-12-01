@@ -27,7 +27,7 @@ export function SearchBar(): JSX.Element {
 
   const handleKeyDown = (event: KeyboardEvent<HTMLInputElement>): void => {
     if (event.key === "Enter" && searchTerm.trim() !== "") {
-      navigate(`/searchresults?q=${encodeURIComponent(searchTerm.trim())}`); // 검색어를 URL에 추가
+      navigate(`/search?q=${encodeURIComponent(searchTerm.trim())}`); // 검색어를 URL에 추가
     }
   };
 
