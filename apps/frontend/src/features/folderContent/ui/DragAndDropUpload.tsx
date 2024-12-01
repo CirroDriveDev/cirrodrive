@@ -115,14 +115,14 @@ export function DragAndDropUpload(): JSX.Element {
       <form
         method="post"
         onSubmit={handleFormSubmitWithModal}
-        className="flex flex-col gap-4"
+        className="</> flex flex-col gap-4 bg-background"
       >
         <div
           onDragOver={handleDragOver}
           onDragLeave={handleDragLeave}
           onDrop={handleDrop}
-          className={`flex h-80 w-96 flex-col items-center justify-center space-y-4 rounded border-2 border-dashed transition ${
-            dragOver ? "border-blue-500 bg-blue-50" : "border-gray-300 bg-white"
+          className={`flex h-80 w-96 flex-col items-center justify-center space-y-4 rounded border-2 border-dashed bg-background text-foreground transition ${
+            dragOver ? "border-blue-500" : "border-gray-300"
           }`}
         >
           <FileIcon className="h-32 w-32 text-blue-500" />
@@ -152,9 +152,9 @@ export function DragAndDropUpload(): JSX.Element {
         <button
           type="submit"
           className={`rounded px-4 py-2 text-white ${
-            mutation.isPending ?
-              "cursor-not-allowed bg-gray-500"
-            : "bg-blue-500 hover:bg-blue-600"
+            mutation.isPending ? "cursor-not-allowed" : (
+              "bg-blue-500 hover:bg-blue-600"
+            )
           }`}
           disabled={mutation.isPending}
         >
