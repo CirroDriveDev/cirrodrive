@@ -9,7 +9,7 @@ export function UploadByCodePage(): JSX.Element {
       <div className="w-full">
         <div className="flex h-[720px] items-center justify-center">
           <div className="bg-gray-50">
-            <DragAndDropUpload type="A" />
+            <DragAndDropUpload />
           </div>
         </div>
       </div>
