@@ -1,6 +1,6 @@
 import { Link, useNavigate } from "react-router-dom";
 import { Button } from "@/shared/components/shadcn/Button.tsx";
-import { useRegister } from "@/pages/register/api/useRegister.ts";
+import { useRegister } from "@/pages/register/api/useRegister.tsx";
 import { FormInputField } from "@/shared/components/FormInputField.tsx";
 import { Layout } from "@/shared/ui/layout/Layout.tsx";
 import { Header } from "@/shared/ui/layout/Header.tsx";

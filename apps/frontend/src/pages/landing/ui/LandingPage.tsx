@@ -17,12 +17,12 @@ export function LandingPage(): JSX.Element {
             가능한 방식을 통해 비회원 파일전송이 가능합니다.
           </div>
           <div className="flex w-4/12 flex-row justify-evenly">
-            <Button className="mr-3">
-              <Link to="/upload">업로드</Link>
-            </Button>
-            <Button>
-              <Link to="/download">다운로드</Link>
-            </Button>
+            <Link to="/upload">
+              <Button className="mr-3">업로드</Button>
+            </Link>
+            <Link to="/download">
+              <Button>다운로드</Button>
+            </Link>
           </div>
         </div>
       </div>
@@ -41,12 +41,12 @@ export function LandingPage(): JSX.Element {
             통해 좀더 프라이빗하게 파일을 관리할 수 있습니다.
           </div>
           <div className="flex w-4/12 flex-row justify-evenly">
-            <Button className="mr-3">
-              <Link to="/login">로그인</Link>
-            </Button>
-            <Button>
-              <Link to="/register">회원가입</Link>
-            </Button>
+            <Link to="/login">
+              <Button className="mr-3">로그인</Button>
+            </Link>
+            <Link to="/register">
+              <Button>회원가입</Button>
+            </Link>
           </div>
         </div>
       </div>

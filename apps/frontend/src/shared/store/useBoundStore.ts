@@ -79,8 +79,27 @@ export interface SearchBarStore {
   setSearchTerm: (term: string) => void;
 }
 
+export interface RenameStore {
+  /**
+   * 폴더 ID
+   */
+  folderId: number | null;
+
+  /**
+   * 폴더 ID를 설정
+   *
+   * @param folderId - 폴더 ID
+   */
+  setFolderId: (folderId: number) => void;
+
+  /**
+   * 폴더 ID를 초기화
+   */
+  clearFolderId: () => void;
+}
+
 // 모든 슬라이스를 포함하는 상태 타입
-export type StoreState = UserStore & ModalStore & SearchBarStore;
+export type StoreState = UserStore & ModalStore & SearchBarStore & RenameStore;
 
 // ------------------------------------
 // Store Slice Creators
@@ -150,6 +169,27 @@ export const createSearchBarSlice: StateCreator<
     }),
 });
 
+export const createRenameSlice: StateCreator<
+  StoreState,
+  [
+    ["zustand/immer", never],
+    ["zustand/persist", unknown],
+    ["zustand/devtools", never],
+  ],
+  [],
+  RenameStore
+> = (set) => ({
+  folderId: 0,
+  setFolderId: (folderId) =>
+    set((state) => {
+      state.folderId = folderId;
+    }),
+  clearFolderId: () =>
+    set((state) => {
+      state.folderId = null;
+    }),
+});
+
 // ------------------------------------
 // Store Hook
 // ------------------------------------
@@ -180,6 +220,7 @@ export const useBoundStore = create<StoreState>()(
         ...createUserSlice(...opts),
         ...createModalSlice(...opts),
         ...createSearchBarSlice(...opts),
+        ...createRenameSlice(...opts),
       })),
       // persist 미들웨어의 옵션
       {

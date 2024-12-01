@@ -1,3 +1,4 @@
+/* eslint-disable unicorn/filename-case -- 리액트 훅 파일명은 camelCase로 작성합니다. */
 import { useState } from "react";
 import type { RouterOutput, RouterInput, AppRouter } from "@cirrodrive/backend";
 import type { TRPCClientErrorLike } from "@trpc/client";
@@ -5,6 +6,7 @@ import type { UseTRPCMutationOptions } from "@trpc/react-query/shared";
 import { userSchema } from "@cirrodrive/schemas";
 import { z, type ZodFormattedError } from "zod";
 import { trpc } from "@/shared/api/trpc.ts";
+import { useModalStore } from "@/shared/store/useModalStore.ts";
 
 const formSchema = z
   .object({
@@ -57,6 +59,7 @@ interface UseRegister {
 }
 
 export const useRegister = (opts?: UseRegisterOptions): UseRegister => {
+  const { openModal } = useModalStore();
   const [input, setInput] = useState<Input>({
     username: "",
     password: "",
@@ -72,6 +75,14 @@ export const useRegister = (opts?: UseRegisterOptions): UseRegister => {
   const mutation = trpc.user.create.useMutation({
     ...opts,
     onSuccess: (data, variable, context) => {
+      openModal({
+        title: "회원가입 성공",
+        content: (
+          <div className="flex items-center justify-center">
+            {data.username}님, Cirrodrive에 가입하신 것을 환영합니다!
+          </div>
+        ),
+      });
       opts?.onSuccess?.(data, variable, context);
     },
     onError: (error, variable, context) => {

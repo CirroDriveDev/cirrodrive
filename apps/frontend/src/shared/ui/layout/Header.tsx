@@ -2,9 +2,9 @@ import { Link } from "react-router-dom";
 import { Logo } from "@/shared/ui/layout/Logo.tsx";
 import { SearchBar } from "@/shared/ui/layout/SearchBar.tsx";
 import { ModeToggle } from "@/shared/components/shadcn/ModeToggle.tsx";
-import { Button } from "@/shared/components/shadcn/Button.tsx";
 import { useBoundStore } from "@/shared/store/useBoundStore.ts";
 import { useLogout } from "@/shared/api/useLogout.ts";
+import { NavButton } from "@/shared/ui/layout/NavButton.tsx";
 
 export function Header(): JSX.Element {
   const { user } = useBoundStore();
@@ -15,42 +15,41 @@ export function Header(): JSX.Element {
       <div className="flex w-[250px] items-center p-4">
         <Link className="flex items-center space-x-2" to="/">
           <Logo />
-          <div className="text-2xl font-bold">CirroDrive</div>
+          <div className="font-orbitron font-700 text-2xl text-white">
+            Cirrodrive
+          </div>
         </Link>
       </div>
-      <div className="flex flex-grow items-center justify-end p-4">
-        <SearchBar />
-        {user ?
-          <Button variant="ghost" className="mr-1" onClick={logout}>
-            로그아웃
-          </Button>
-        : <>
+      {user ?
+        <div className="flex flex-grow items-center justify-between px-4">
+          <SearchBar />
+
+          <div className="flex space-x-4">
+            <NavButton onClick={logout}>로그아웃</NavButton>
+            <ModeToggle />
+          </div>
+        </div>
+      : <div className="flex flex-grow items-center justify-between px-4">
+          <div className="flex space-x-4">
             <Link to="/upload">
-              <Button variant="ghost" className="ml-auto mr-1">
-                업로드
-              </Button>
+              <NavButton>업로드</NavButton>
             </Link>
             <Link to="/download">
-              <Button variant="ghost" className="mr-1">
-                다운로드
-              </Button>
+              <NavButton>다운로드</NavButton>
             </Link>
-            <span className="mr-1 text-xl">|</span>
+          </div>
+          <div className="flex space-x-4">
             <Link to="/login">
-              <Button variant="ghost" className="mr-1">
-                로그인
-              </Button>
+              <NavButton>로그인</NavButton>
             </Link>
 
             <Link to="/register">
-              <Button variant="ghost" className="mr-1">
-                회원가입
-              </Button>
+              <NavButton>회원가입</NavButton>
             </Link>
-          </>
-        }
-        <ModeToggle />
-      </div>
+            <ModeToggle />
+          </div>
+        </div>
+      }
     </header>
   );
 }
