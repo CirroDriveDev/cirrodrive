@@ -39,15 +39,26 @@ export function FolderView({ folderId }: FolderViewProps): JSX.Element {
       <div className="flex w-full flex-grow flex-col items-center">
         <div className="flex h-16 w-full items-center space-x-4 p-4">
           <FolderName folderId={user!.rootFolderId} folderName="내 파일" />
-          {folderPathQuery.data?.slice(1).map((path) => (
-            <div
-              className="flex h-16 w-full items-center space-x-4"
-              key={`${path.folderId}:${path.name}`}
-            >
+          {folderPathQuery.data?.length && folderPathQuery.data.length > 3 ?
+            <div className="flex h-16 items-center space-x-4">
               <ChevronRight />
-              <FolderName folderId={path.folderId} folderName={path.name} />
+              <div className="flex items-center justify-center text-lg font-bold">
+                ···
+              </div>
             </div>
-          ))}
+          : null}
+          {folderPathQuery.data
+            ?.slice(1)
+            .slice(-2, folderPathQuery.data.length)
+            .map((path) => (
+              <div
+                className="flex h-16 items-center space-x-4"
+                key={`${path.folderId}:${path.name}`}
+              >
+                <ChevronRight />
+                <FolderName folderId={path.folderId} folderName={path.name} />
+              </div>
+            ))}
         </div>
         <div className="flex w-full space-x-4 p-4">
           <Button onClick={handleFileSelect}>업로드</Button>

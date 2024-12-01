@@ -184,7 +184,10 @@ export function EntryItem({ entry }: EntryItemProps): JSX.Element {
                   onClick={() => {
                     setTimeout(() => {
                       setIsEditing(true);
-                    }, 0);
+                    }, 100);
+                    setTimeout(() => {
+                      setIsEditing(true);
+                    }, 100);
                   }}
                 >
                   <Edit2 />
