@@ -5,6 +5,7 @@ import type { Prisma, FileMetadata } from "@cirrodrive/database";
 import type { Logger } from "pino";
 import { Symbols } from "@/types/symbols.ts";
 import { CodeService } from "@/services/codeService.ts";
+import { UserService } from "@/services/userService.ts";
 /**
  * 파일 서비스입니다.
  */
@@ -17,6 +18,7 @@ export class FileService {
     @inject(Symbols.FileMetadataModel)
     private fileMetadataModel: Prisma.FileMetadataDelegate,
     @inject(CodeService) private codeService: CodeService,
+    @inject(UserService) private userService: UserService,
   ) {
     this.rootDir = `./`;
     this.logger = logger.child({ serviceName: "FileService" });
@@ -570,13 +572,16 @@ export class FileService {
    * 파일을 휴지통으로 이동합니다.
    *
    * @param fileId - 휴지통으로 이동할 파일의 ID입니다.
+   * @param userid - 파일 소유자의 ID입니다.
    * @returns 업데이트된 파일 메타데이터입니다.
    * @throws 파일 이동 중 오류가 발생한 경우.
    */
   public async moveToTrash({
     fileId,
+    userId,
   }: {
     fileId: number;
+    userId: number;
   }): Promise<FileMetadata> {
     try {
       this.logger.info(
@@ -584,11 +589,27 @@ export class FileService {
         "파일 휴지통 이동 시작",
       );
 
+      const user = await this.userService.get({ id: userId });
+
+      if (!user) {
+        throw new Error("사용자를 찾을 수 없습니다.");
+      }
+
+      const file = await this.fileMetadataModel.findUnique({
+        where: { id: fileId },
+      });
+
+      if (!file) {
+        throw new Error("파일을 찾을 수 없습니다.");
+      }
+
       // 파일 메타데이터 업데이트
       const updatedMetadata = await this.fileMetadataModel.update({
         where: { id: fileId },
         data: {
           trashedAt: new Date(), // 'trashedAt' 필드를 현재 시간으로 업데이트
+          parentFolderId: user.trashFolderId,
+          restoreFolderId: file.parentFolderId,
         },
       });
 
@@ -687,7 +708,16 @@ export class FileService {
       { methodName: "generateFileName", parentFolderId, name },
       "파일 이름 생성 시작",
     );
-    const baseName = path.basename(name, path.extname(name));
+
+    if (!(await this.existsByName({ name, parentFolderId }))) {
+      this.logger.info(
+        { methodName: "generateFileName", name },
+        "파일 이름 생성 완료",
+      );
+      return name;
+    }
+
+    const baseName = path.win32.basename(name, path.extname(name));
     const extension = path.extname(name);
     const regexpResult = /^(?<originalName>.*?)(?: \((?<count>\d+)\))?$/.exec(
       baseName,
@@ -705,10 +735,10 @@ export class FileService {
       count = parseInt(regexpResult.groups.count);
     }
 
-    let fileName = `${originalName}${extension ? `.${extension}` : ""}`;
+    let fileName = `${originalName} (${count})${extension}`;
 
     while (await this.existsByName({ name: fileName, parentFolderId })) {
-      fileName = `${originalName} (${count})${extension ? `.${extension}` : ""}`;
+      fileName = `${originalName} (${count})${extension}`;
       count += 1;
     }
 
@@ -727,11 +757,30 @@ export class FileService {
         "파일 복원 시작",
       );
 
+      const file = await this.fileMetadataModel.findUnique({
+        where: { id: fileId },
+      });
+
+      if (!file) {
+        throw new Error("파일을 찾을 수 없습니다.");
+      }
+
+      if (file.restoreFolderId === null) {
+        throw new Error("파일의 복원 폴더가 존재하지 않습니다.");
+      }
+
+      const newName = await this.generateFileName({
+        parentFolderId: file.restoreFolderId,
+        name: file.name,
+      });
+
       // 파일 메타데이터 업데이트
       await this.fileMetadataModel.update({
         where: { id: fileId },
         data: {
+          name: newName,
           trashedAt: null, // 'trashedAt' 필드를 null로 업데이트하여 복원
+          parentFolderId: file.restoreFolderId,
         },
       });
 
