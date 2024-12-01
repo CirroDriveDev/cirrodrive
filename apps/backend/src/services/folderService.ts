@@ -1,7 +1,7 @@
 import { injectable, inject } from "inversify";
 import type { Prisma, Folder } from "@cirrodrive/database";
 import type { Logger } from "pino";
-import type { RecursiveEntryDTO } from "@cirrodrive/schemas";
+import type { EntryDTO, RecursiveEntryDTO } from "@cirrodrive/schemas";
 import { Symbols } from "@/types/symbols.ts";
 import { FileService } from "@/services/fileService.ts";
 import { UserService } from "@/services/userService.ts";
@@ -214,9 +214,11 @@ export class FolderService {
    */
   public async getRecursively({
     folderId,
+    include = "folder",
     trashed = false,
   }: {
     folderId: number;
+    include?: "entry" | "folder";
     trashed?: boolean;
   }): Promise<RecursiveEntryDTO> {
     const folder = await this.get({ folderId });
@@ -261,11 +263,63 @@ export class FolderService {
       const subFolderEntry = await this.getRecursively({
         folderId: subFolder.id,
         trashed: isTrashed,
+        include,
       });
-      recursiveEntry.entries.push(subFolderEntry);
+      recursiveEntry.entries?.push(subFolderEntry);
+    }
+
+    if (include === "entry") {
+      const fileEntries: EntryDTO[] = folder.files.map((file) => ({
+        id: file.id,
+        name: file.name,
+        type: "file",
+        parentFolderId: file.parentFolderId,
+        createdAt: file.createdAt,
+        updatedAt: file.updatedAt,
+        trashedAt: isTrashed ? file.updatedAt : null,
+        size: file.size,
+      }));
+
+      recursiveEntry.entries?.push(...fileEntries);
     }
 
     return recursiveEntry;
+  }
+
+  public async getAllSubEntries({
+    folderId,
+  }: {
+    folderId: number;
+  }): Promise<EntryDTO[]> {
+    const folder = await this.get({ folderId });
+
+    if (!folder) {
+      throw new Error("폴더를 찾을 수 없습니다.");
+    }
+
+    const entries: EntryDTO[] = [];
+
+    for (const subFolder of folder.subFolders) {
+      const subFolderEntry = await this.getAllSubEntries({
+        folderId: subFolder.id,
+      });
+      entries.push(...subFolderEntry);
+    }
+
+    const fileEntries: EntryDTO[] = folder.files.map((file) => ({
+      id: file.id,
+      name: file.name,
+      type: "file",
+      parentFolderId: file.parentFolderId,
+      createdAt: file.createdAt,
+      updatedAt: file.updatedAt,
+      trashedAt: file.trashedAt,
+      size: file.size,
+    }));
+
+    entries.push(...fileEntries);
+
+    return entries;
   }
 
   public async getPath({ folderId }: { folderId: number }): Promise<

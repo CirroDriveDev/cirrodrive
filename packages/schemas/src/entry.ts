@@ -26,9 +26,9 @@ export type EntryDTO = z.infer<typeof entryDTOSchema>;
 
 export const recursiveEntrySchema: z.ZodType<RecursiveEntryDTO> =
   folderEntrySchema.extend({
-    entries: z.lazy(() => recursiveEntrySchema.array()),
+    entries: z.lazy(() => recursiveEntrySchema.array().optional()),
   });
 
-export type RecursiveEntryDTO = z.infer<typeof folderEntrySchema> & {
-  entries: RecursiveEntryDTO[];
+export type RecursiveEntryDTO = z.infer<typeof entryDTOSchema> & {
+  entries?: RecursiveEntryDTO[];
 };
