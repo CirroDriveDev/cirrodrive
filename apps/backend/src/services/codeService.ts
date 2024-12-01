@@ -106,6 +106,43 @@ export class CodeService {
   }
 
   /**
+   * 파일 ID로 코드를 조회합니다.
+   *
+   * @param fileId - 파일 ID입니다.
+   * @returns 조회된 코드입니다.
+   * @throws 코드 조회 중 오류가 발생한 경우.
+   */
+  public async getCodeByFileId({ fileId }: { fileId: number }): Promise<Code> {
+    try {
+      this.logger.info(
+        {
+          methodName: "getCodeByFileId",
+          fileId,
+        },
+        "파일 ID로 코드 조회 시작",
+      );
+
+      let code = await this.codeModel.findFirst({
+        where: { fileId },
+      });
+
+      if (!code) {
+        code = await this.createCode({
+          fileId,
+          expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
+        });
+      }
+
+      return code;
+    } catch (error) {
+      if (error instanceof Error) {
+        this.logger.error(error.message);
+      }
+      throw error;
+    }
+  }
+
+  /**
    * 코드로 파일 메타데이터를 조회합니다.
    *
    * @param codeString - 조회할 코드 문자열입니다.

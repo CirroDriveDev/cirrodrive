@@ -340,6 +340,7 @@ export const fileRouter = router({
         // 파일을 휴지통으로 이동
         await fileService.moveToTrash({
           fileId: input.fileId,
+          userId,
         });
 
         return { success: true };
