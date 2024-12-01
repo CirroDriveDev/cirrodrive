@@ -1,6 +1,6 @@
 import { z } from "zod"; // zod 임포트
 import { TRPCError } from "@trpc/server"; // TRPCError 임포트
-import { router, procedure } from "@/loaders/trpc.ts"; // tRPC 설정 임포트
+import { router, procedure, authedProcedure } from "@/loaders/trpc.ts"; // tRPC 설정 임포트
 import { container } from "@/loaders/inversify.ts";
 import { CodeService } from "@/services/codeService.ts";
 
@@ -22,6 +22,18 @@ export const codeRouter = router({
     });
     return codes;
   }),
+
+  getByFileId: authedProcedure
+    .input(z.object({ fileId: z.number() }))
+    .query(async ({ input }) => {
+      const { fileId } = input;
+
+      const code = await codeService.getCodeByFileId({
+        fileId,
+      });
+
+      return code;
+    }),
 
   create: procedure
     .input(

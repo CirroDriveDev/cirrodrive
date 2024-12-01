@@ -29,6 +29,7 @@ import { useFileDelete } from "@/pages/Trash/api/useFileDelete.ts";
 import { useFolderDelete } from "@/pages/Trash/api/useFolderDelete.ts";
 import { useRestore } from "@/pages/Trash/api/useRestore.ts";
 import { useMoveEntry } from "@/entities/entry/hooks/useMoveEntry.tsx";
+import { useGetCodeByFileId } from "@/entities/code/api/useCreateCode.tsx";
 
 interface EntryItemProps {
   entry: EntryDTO;
@@ -80,6 +81,9 @@ export function EntryItem({ entry }: EntryItemProps): JSX.Element {
 
   // 이동
   const { openMoveModal } = useMoveEntry(entry);
+
+  // 코드 생성
+  const { get: getCode } = useGetCodeByFileId(type === "file" ? id : null);
 
   // 휴지통
   const { handleTrash } = useTrash(id);
@@ -174,6 +178,12 @@ export function EntryItem({ entry }: EntryItemProps): JSX.Element {
                   <Edit2 />
                   <span>이름 변경</span>
                 </DropdownMenuItem>
+                {type === "file" ?
+                  <DropdownMenuItem onClick={getCode}>
+                    <Activity />
+                    <span>코드 공유하기</span>
+                  </DropdownMenuItem>
+                : null}
                 <DropdownMenuItem onClick={openMoveModal}>
                   <MoveIcon />
                   <span>이동</span>

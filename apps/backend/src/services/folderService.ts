@@ -778,6 +778,20 @@ export class FolderService {
         },
         "폴더 이름 생성 시작",
       );
+
+      if (!(await this.existsFolderName({ name, parentFolderId }))) {
+        this.logger.info(
+          {
+            methodName: "generateFolderName",
+            name,
+            parentFolderId,
+          },
+          "폴더 이름 생성 완료",
+        );
+
+        return name;
+      }
+
       const regexpResult = /^(?<originalName>.*?)(?: \((?<count>\d+)\))?$/.exec(
         name,
       );
@@ -794,7 +808,7 @@ export class FolderService {
         count = parseInt(regexpResult.groups.count);
       }
 
-      let folderName = originalName;
+      let folderName = `${originalName} (${count})`;
 
       // 동일한 이름의 폴더가 존재할 경우 이름 변경
       while (
