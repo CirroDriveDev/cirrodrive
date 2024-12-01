@@ -1,3 +1,4 @@
+import { FileIcon, ImageIcon, HistoryIcon, Trash2Icon } from "lucide-react";
 import { EntryTreeNode } from "@/entities/entry/ui/EntryTreeNode.tsx";
 import { useUserStore } from "@/shared/store/useUserStore.ts";
 import { SidebarItem } from "@/shared/ui/SidebarLayout/SidebarItem.tsx";
@@ -15,13 +16,13 @@ export function MemberSidebar(): JSX.Element {
           <EntryTreeNode entry={query.data} />
         : null}
         {/* 문서 */}
-        <SidebarItem label="문서" path="/documents" />
+        <SidebarItem icon={<FileIcon />} label="문서" path="/documents" />
         {/* 사진 */}
-        <SidebarItem label="사진" path="/photos" />
+        <SidebarItem icon={<ImageIcon />} label="사진" path="/photos" />
         {/* 최근 파일 */}
-        <SidebarItem label="최근 파일" path="/recent" />
+        <SidebarItem icon={<HistoryIcon />} label="최근 파일" path="/recent" />
         {/* 휴지통 */}
-        <SidebarItem label="휴지통" path="/trash" />
+        <SidebarItem icon={<Trash2Icon />} label="휴지통" path="/trash" />
       </nav>
     </aside>
   );
