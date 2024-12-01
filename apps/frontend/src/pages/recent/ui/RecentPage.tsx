@@ -10,5 +10,5 @@ export function RecentPage(): JSX.Element {
   }
 
   // 최근 1시간 이내 수정된 파일만 표시
-  return <FolderView folderId={user!.rootFolderId} recent />;
+  return <FolderView folderId={user!.rootFolderId} />;
 }
