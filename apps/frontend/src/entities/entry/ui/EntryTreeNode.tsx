@@ -73,7 +73,7 @@ export function EntryTreeNode({
           display: isOpen && isFolder ? "block" : "none",
         }}
       >
-        {entry.entries.map((subEntry) => (
+        {entry.entries?.map((subEntry) => (
           <EntryTreeNode key={subEntry.id} entry={subEntry} onClick={onClick} />
         ))}
       </div>
