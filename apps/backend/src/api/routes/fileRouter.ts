@@ -26,6 +26,7 @@ export const fileRouter = router({
     .output(
       z.object({
         code: z.string(),
+        file: fileMetadataDTOSchema,
       }),
     )
     .mutation(async ({ input, ctx }) => {
@@ -59,6 +60,7 @@ export const fileRouter = router({
 
       return {
         code: code.codeString,
+        file: metadata,
       };
     }),
 
