@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { FileIcon } from "lucide-react";
 import { useUploadPublic } from "@/entities/file/api/useUploadPublic.ts";
 import { useBoundStore } from "@/shared/store/useBoundStore.ts";
 
@@ -120,10 +121,11 @@ export function DragAndDropUpload(): JSX.Element {
           onDragOver={handleDragOver}
           onDragLeave={handleDragLeave}
           onDrop={handleDrop}
-          className={`flex h-80 w-96 items-center justify-center rounded border-2 border-dashed transition ${
+          className={`flex h-80 w-96 flex-col items-center justify-center space-y-4 rounded border-2 border-dashed transition ${
             dragOver ? "border-blue-500 bg-blue-50" : "border-gray-300 bg-white"
           }`}
         >
+          <FileIcon className="h-32 w-32 text-blue-500" />
           {selectedFile ?
             <p className="text-sm text-gray-600">
               선택된 파일: {selectedFile.name}
