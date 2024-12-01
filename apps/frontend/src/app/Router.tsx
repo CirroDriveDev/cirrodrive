@@ -114,7 +114,7 @@ const routeTree: RouteObject[] = [
         ),
       },
       {
-        path: "/Trash",
+        path: "/trash",
         element: <TrashPage />,
       },
       {
@@ -130,7 +130,7 @@ const routeTree: RouteObject[] = [
         element: <RecentPage />,
       },
       {
-        path: "/SearchResults",
+        path: "/search",
         element: <SearchResultsPage />,
       },
       {

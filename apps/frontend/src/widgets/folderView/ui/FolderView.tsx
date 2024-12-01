@@ -13,6 +13,7 @@ import { FolderName } from "@/widgets/folderView/ui/FolderName.tsx";
 import { useBoundStore } from "@/shared/store/useBoundStore.ts";
 import { useFolderCreate } from "@/entities/file/api/useFolderCreate.ts";
 import { DragAndDropUploadOverlay } from "@/features/folderContent/ui/DragAndDropUploadOverlay.tsx";
+import { useRenameStore } from "@/shared/store/useRenameStore.ts";
 
 interface FolderViewProps {
   folderId: number;
@@ -20,7 +21,12 @@ interface FolderViewProps {
 
 export function FolderView({ folderId }: FolderViewProps): JSX.Element {
   const { user } = useBoundStore();
-  const { createFolder, setParentFolderId } = useFolderCreate();
+  const { setFolderId } = useRenameStore();
+  const { createFolder, setParentFolderId } = useFolderCreate({
+    onSuccess: (data) => {
+      setFolderId(data.id);
+    },
+  });
   const { query: entryListQuery } = useEntryList(folderId);
   const { handleFileSelect } = useUpload(folderId, {
     onSuccess: () => {

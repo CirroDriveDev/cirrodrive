@@ -1,7 +1,16 @@
 import { useState } from "react";
+import type { AppRouter, RouterInput, RouterOutput } from "@cirrodrive/backend";
+import type { TRPCClientErrorLike } from "@trpc/client";
+import type { UseTRPCMutationOptions } from "@trpc/react-query/shared";
 import { trpc } from "@/shared/api/trpc.ts";
 import { useBoundStore } from "@/shared/store/useBoundStore.ts";
 import { useEntryUpdatedEvent } from "@/entities/entry/api/useEntryUpdatedEvent.ts";
+
+type UseFolderCreateOptions = UseTRPCMutationOptions<
+  RouterInput["folder"]["create"],
+  TRPCClientErrorLike<AppRouter>,
+  RouterOutput["folder"]["create"]
+>;
 
 interface UseFolderManagement {
   folderName: string;
@@ -11,7 +20,9 @@ interface UseFolderManagement {
   createFolder: () => void;
 }
 
-export const useFolderCreate = (): UseFolderManagement => {
+export const useFolderCreate = (
+  opts?: UseFolderCreateOptions,
+): UseFolderManagement => {
   const { user } = useBoundStore();
   const [folderName, setFolderName] = useState("새 폴더");
   const { entryUpdatedEvent } = useEntryUpdatedEvent();
@@ -23,8 +34,10 @@ export const useFolderCreate = (): UseFolderManagement => {
   const [parentFolderId, setParentFolderId] = useState(user.rootFolderId);
 
   const folderMutation = trpc.folder.create.useMutation({
-    onSuccess: async () => {
+    ...opts,
+    onSuccess: async (data, variable, context) => {
       await entryUpdatedEvent();
+      opts?.onSuccess?.(data, variable, context);
     },
   });
 
