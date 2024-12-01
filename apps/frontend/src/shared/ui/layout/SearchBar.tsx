@@ -1,11 +1,13 @@
 import { Search } from "lucide-react";
-import { useState, type ChangeEvent } from "react";
+import { useState, type ChangeEvent, type KeyboardEvent } from "react";
+import { useNavigate } from "react-router-dom";
 import { useTheme } from "@/shared/components/shadcn/ThemeProvider.tsx";
 import { useSearchBarStore } from "@/shared/store/useSearchBarStore.ts";
 
 export function SearchBar(): JSX.Element {
   const { theme } = useTheme();
   const { searchTerm, setSearchTerm } = useSearchBarStore();
+  const navigate = useNavigate();
   const foregroundColor = theme === "light" ? "black" : "white";
   const outlineClassList =
     "outline outline-1 outline-ring hover:outline-foreground";
@@ -23,6 +25,12 @@ export function SearchBar(): JSX.Element {
     setSearchTerm(event.target.value); // 받은 입력값을 부모에게 전달
   };
 
+  const handleKeyDown = (event: KeyboardEvent<HTMLInputElement>): void => {
+    if (event.key === "Enter" && searchTerm.trim() !== "") {
+      navigate(`/searchresults?q=${encodeURIComponent(searchTerm.trim())}`); // 검색어를 URL에 추가
+    }
+  };
+
   return (
     <div
       className={`h-10 max-w-96 flex-grow rounded-md bg-background ${classList}`}
@@ -37,6 +45,7 @@ export function SearchBar(): JSX.Element {
           onFocus={handleFocus}
           onBlur={handleBlur}
           onChange={handleInputChange} // 검색어 보내기
+          onKeyDown={handleKeyDown} // Enter 키 처리
         />
       </label>
     </div>
