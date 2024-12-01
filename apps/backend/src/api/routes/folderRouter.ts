@@ -159,14 +159,10 @@ export const folderRouter = router({
             message: "폴더 이름을 변경할 권한이 없습니다.",
           });
         }
-        const newName = await folderService.generateFolderName({
-          name,
-          parentFolderId: folderId,
-        });
 
         await folderService.rename({
           folderId,
-          name: newName,
+          targetName: name,
         });
       } catch (error) {
         throw new TRPCError({
