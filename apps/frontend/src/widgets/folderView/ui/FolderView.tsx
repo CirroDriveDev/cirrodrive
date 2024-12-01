@@ -53,20 +53,20 @@ export function FolderView({ folderId }: FolderViewProps): JSX.Element {
         <div className="flex w-full space-x-4 p-4">
           <Button onClick={handleFileSelect}>업로드</Button>
           <Button onClick={createFolder}>폴더 생성</Button>
-          <DragAndDropUpload
-            type="B"
-            folderId={folderId}
-            containerClassName="w-full"
-            fileAreaClassName="flex h-10 w-fill items-center justify-center rounded border-2 border-dashed transition"
-            onUploadSuccess={() => {
-              void entryListQuery.refetch();
-            }}
-          />
         </div>
-        <div className="flex w-full px-4">
+        <div className="relative flex w-full px-4">
           {entryListQuery.isLoading || !entryListQuery.data ?
             <LoadingSpinner />
           : <EntryList entries={entryListQuery.data} />}
+
+          <div className="pointer-events-none absolute h-full w-full">
+            <DragAndDropUpload
+              folderId={folderId}
+              onUploadSuccess={() => {
+                void entryListQuery.refetch();
+              }}
+            />
+          </div>
         </div>
       </div>
     </SidebarLayout>
