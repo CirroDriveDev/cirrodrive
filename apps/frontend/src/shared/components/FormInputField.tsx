@@ -25,7 +25,7 @@ export function FormInputField({
         name={name}
         value={value}
         onChange={onChange}
-        className="rounded-md border border-gray-300 bg-background p-2 text-foreground"
+        className="rounded-md border border-gray-300 bg-white p-2 text-background"
       />
       {errorMessage ?
         <div className="h-8">
