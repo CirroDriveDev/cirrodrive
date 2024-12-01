@@ -42,7 +42,19 @@ export function EntryItem({ entry }: EntryItemProps): JSX.Element {
   // 이름 변경
   const [isEditing, setIsEditing] = useState(false);
   const [newName, setNewName] = useState(name);
-  const { handleRename, isRenaming } = useFileRename(id);
+  const { handleRenameFile, handleRenameFolder, isRenaming } = useFileRename(
+    id,
+    type === "folder",
+  );
+
+  // 변수 이름 변경: newName1 -> newNameValue
+  const handleRename = (newNameValue: string): void => {
+    if (type === "folder") {
+      handleRenameFolder(newNameValue); // 폴더 이름 변경
+    } else {
+      handleRenameFile(newNameValue); // 파일 이름 변경
+    }
+  };
   const handleRenameSubmit = (): void => {
     if (newName !== name) {
       handleRename(newName);
