@@ -62,9 +62,9 @@ export const sessionRouter = router({
     authService.clearSessionTokenCookie({ response: ctx.res });
   }),
 
-  validate: authedProcedure.output(z.literal(true)).query(({ ctx }) => {
+  validate: authedProcedure.output(userDTOSchema).query(({ ctx }) => {
     logger.info({ requestId: ctx.req.id }, "validate 요청 시작");
 
-    return true;
+    return ctx.user;
   }),
 });

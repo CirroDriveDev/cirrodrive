@@ -1,5 +1,6 @@
 import { createBrowserRouter, Navigate, Outlet } from "react-router-dom";
 import type { RouteObject } from "react-router-dom";
+import { useEffect } from "react";
 import { LoginPage } from "@/pages/login/ui/LoginPage.tsx";
 import { RegisterPage } from "@/pages/register/ui/RegisterPage.tsx";
 import { LandingPage } from "@/pages/landing/ui/LandingPage.tsx";
@@ -14,6 +15,7 @@ import { Modal } from "@/shared/ui/modal/Modal.tsx";
 import { DocumentsPage } from "@/pages/documents/ui/DocumentsPage.tsx";
 import { PhotosPage } from "@/pages/photos/ui/PhotosPage.tsx";
 import { RecentPage } from "@/pages/recent/ui/RecentPage.tsx";
+import { trpc } from "@/shared/api/trpc.ts";
 
 function RedirectAuthedUserToHome({
   children,
@@ -35,11 +37,33 @@ function RequireAuth({
   return user ? children : <Navigate to="/login" replace />;
 }
 
+function CheckAuth(): React.ReactNode {
+  const { user, setUser, clearUser } = useBoundStore();
+  const query = trpc.session.validate.useQuery(undefined, {
+    enabled: user !== null,
+    refetchOnMount: user !== null,
+    refetchOnReconnect: user !== null,
+    refetchInterval: 1000 * 60 * 5,
+  });
+
+  useEffect(() => {
+    if (query.data) {
+      setUser(query.data);
+    }
+    if (query.error) {
+      clearUser();
+    }
+  }, [query.data, query.error, setUser, clearUser]);
+
+  return null;
+}
+
 const routeTree: RouteObject[] = [
   {
     element: (
       <>
         <Modal />
+        <CheckAuth />
         <Outlet />
       </>
     ),
