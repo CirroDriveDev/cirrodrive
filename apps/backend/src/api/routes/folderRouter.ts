@@ -20,11 +20,11 @@ export const folderRouter = router({
     .mutation(async ({ input, ctx }) => {
       const { name, parentFolderId } = input;
 
-      const newFolder = await folderService.create(
-        ctx.user.id,
+      const newFolder = await folderService.create({
+        ownerId: ctx.user.id,
         name,
         parentFolderId,
-      );
+      });
 
       return newFolder;
     }),
@@ -32,14 +32,16 @@ export const folderRouter = router({
   listByParentFolder: authedProcedure
     .input(
       z.object({
-        folderId: z.number(),
+        parentFolderId: z.number(),
       }),
     )
     .output(folderDTOSchema.array())
     .query(async ({ input }) => {
-      const { folderId } = input;
+      const { parentFolderId } = input;
 
-      const folders = await folderService.listByParentFolder(folderId);
+      const folders = await folderService.listByParentFolder({
+        parentFolderId,
+      });
 
       return folders;
     }),
@@ -48,15 +50,18 @@ export const folderRouter = router({
   listByUser: authedProcedure
     .input(
       z.object({
-        id: z.number(),
+        ownerId: z.number(),
         parentFolderId: z.number().optional(),
       }),
     )
     .query(async ({ input }) => {
-      const { id, parentFolderId } = input;
+      const { ownerId, parentFolderId } = input;
 
       // folderService에서 사용자와 부모 폴더에 맞는 폴더 목록을 조회
-      const folders = await folderService.listByUser(id, parentFolderId);
+      const folders = await folderService.listByUser({
+        ownerId,
+        parentFolderId,
+      });
 
       // 반환할 데이터를 folderDTOSchema 형식에 맞게 변환
       return folders.map((folder) => ({
@@ -83,7 +88,7 @@ export const folderRouter = router({
       if (
         !(await folderService.isOwner({
           userId: user.id,
-          folderId,
+          folderId: input.folderId,
         }))
       ) {
         throw new TRPCError({
@@ -92,7 +97,9 @@ export const folderRouter = router({
         });
       }
 
-      const folder = await folderService.get(folderId);
+      const folder = await folderService.get({
+        folderId,
+      });
 
       if (!folder) {
         throw new TRPCError({
@@ -122,7 +129,9 @@ export const folderRouter = router({
     .query(async ({ input }) => {
       const { folderId } = input;
 
-      const path = await folderService.getPath(folderId);
+      const path = await folderService.getPath({
+        folderId,
+      });
 
       return path;
     }),
@@ -140,7 +149,9 @@ export const folderRouter = router({
       const { user } = ctx;
 
       try {
-        const folder = await folderService.get(folderId);
+        const folder = await folderService.get({
+          folderId,
+        });
 
         if (user.id !== folder?.ownerId) {
           throw new TRPCError({
@@ -148,12 +159,11 @@ export const folderRouter = router({
             message: "폴더 이름을 변경할 권한이 없습니다.",
           });
         }
-        const newName = await folderService.generateFolderName(
-          user.id,
-          name,
+
+        await folderService.rename({
           folderId,
-        );
-        await folderService.rename(folderId, newName);
+          targetName: name,
+        });
       } catch (error) {
         throw new TRPCError({
           code: "INTERNAL_SERVER_ERROR",
@@ -181,7 +191,10 @@ export const folderRouter = router({
 
       try {
         // 폴더 및 하위 파일/폴더 삭제
-        await folderService.deleteFolder(folderId, userId);
+        await folderService.deleteFolder({
+          folderId,
+          userId,
+        });
 
         return { success: true };
       } catch (error) {
@@ -210,7 +223,10 @@ export const folderRouter = router({
 
       try {
         // 폴더 및 하위 파일/폴더를 휴지통으로 이동
-        await folderService.moveToTrash(folderId, userId);
+        await folderService.moveToTrash({
+          folderId,
+          userId,
+        });
 
         return { success: true };
       } catch (error) {
@@ -238,7 +254,10 @@ export const folderRouter = router({
 
       try {
         // 폴더 및 하위 파일/폴더를 복원
-        await folderService.restoreFromTrash(folderId, userId);
+        await folderService.restoreFromTrash({
+          folderId,
+          userId,
+        });
 
         return { success: true };
       } catch (error) {
@@ -262,11 +281,11 @@ export const folderRouter = router({
       // 폴더 이동 처리
       try {
         // 폴더 이동
-        await folderService.moveFolder(
-          ctx.user.id,
+        await folderService.moveFolder({
+          ownerId: ctx.user.id,
           sourceFolderId,
           targetFolderId,
-        );
+        });
 
         return { message: "폴더가 성공적으로 이동되었습니다." };
       } catch (error) {

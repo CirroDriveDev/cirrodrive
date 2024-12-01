@@ -14,7 +14,7 @@ export function EntryList({ entries }: EntryListProps): JSX.Element {
         <div className="w-52">수정 날짜</div>
         <div className="w-16">크기</div>
       </div>
-      <div className="flex w-full flex-col divide-y-[1px] divide-muted-foreground border-y-[1px] border-y-muted-foreground">
+      <div className="flex h-[720px] w-full flex-col divide-y-[1px] divide-muted-foreground overflow-auto border-y-[1px] border-y-muted-foreground">
         {entries.map((entry) => (
           <EntryItem
             key={`${entry.id}:${entry.name}:${entry.type}`}

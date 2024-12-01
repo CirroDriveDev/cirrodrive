@@ -1,8 +1,6 @@
 import { useState } from "react";
-import { useQueryClient } from "@tanstack/react-query";
 import { trpc } from "@/shared/api/trpc.ts";
-import { entryListQueryKey } from "@/entities/entry/api/useEntryList.ts";
-import { trashEntryListQueryKey } from "@/entities/entry/api/useTrashEntryList.ts";
+import { useEntryUpdatedEvent } from "@/entities/entry/api/useEntryUpdatedEvent.ts";
 
 interface UseFileDelete {
   handleFileDelete: () => void; // 삭제하기 함수
@@ -11,7 +9,7 @@ interface UseFileDelete {
 }
 
 export const useFileDelete = (fileId: number): UseFileDelete => {
-  const queryClient = useQueryClient(); //다시
+  const { entryUpdatedEvent } = useEntryUpdatedEvent();
   const [isMutatingFile, setIsMutatingFile] = useState(false);
   const [success, setSuccess] = useState<boolean | null>(null);
 
@@ -21,8 +19,7 @@ export const useFileDelete = (fileId: number): UseFileDelete => {
       setSuccess(null); // 성공 여부 초기화
     },
     onSuccess: async () => {
-      await queryClient.invalidateQueries({ queryKey: entryListQueryKey });
-      await queryClient.invalidateQueries({ queryKey: trashEntryListQueryKey });
+      await entryUpdatedEvent();
       setSuccess(true); // 요청 성공 시 성공 여부를 true로 설정
     },
     onError: () => {

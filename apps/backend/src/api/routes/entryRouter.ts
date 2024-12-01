@@ -14,19 +14,20 @@ const folderService = container.get(FolderService);
 const fileService = container.get(FileService);
 
 export const entryRouter = router({
-  // 폴더 ID로 엔트리 목록 조회
+  // 폴더 ID로 폴더 트리 조회
   getRecursively: authedProcedure
     .input(
       z.object({
         folderId: z.number(),
+        includeFiles: z.boolean().default(false),
       }),
     )
     .output(recursiveEntrySchema)
     .query(async ({ input, ctx }) => {
-      const { folderId } = input;
+      const { folderId, includeFiles } = input;
       const { user } = ctx;
 
-      const folder = await folderService.get(folderId);
+      const folder = await folderService.get({ folderId });
 
       if (!folder) {
         throw new TRPCError({
@@ -43,13 +44,36 @@ export const entryRouter = router({
       }
 
       try {
-        const entries = await folderService.getRecursively(folderId);
+        const entries = await folderService.getRecursively({
+          folderId,
+          include: includeFiles ? "entry" : "folder",
+        });
 
         return entries;
       } catch (error) {
         throw new TRPCError({
           code: "INTERNAL_SERVER_ERROR",
           message: "폴더를 재귀적으로 조회하는 중 오류가 발생했습니다.",
+          cause: error,
+        });
+      }
+    }),
+
+  listByUser: authedProcedure
+    .output(entryDTOSchema.array())
+    .query(async ({ ctx }) => {
+      const { user } = ctx;
+
+      try {
+        const entries = await folderService.getAllSubEntries({
+          folderId: user.rootFolderId,
+        });
+
+        return entries;
+      } catch (error) {
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: "사용자의 엔트리 목록을 조회하는 중 오류가 발생했습니다.",
           cause: error,
         });
       }
@@ -67,7 +91,9 @@ export const entryRouter = router({
       const { parentFolderId } = input;
       const { user } = ctx;
 
-      const parentFolder = await folderService.get(parentFolderId);
+      const parentFolder = await folderService.get({
+        folderId: parentFolderId,
+      });
 
       if (!parentFolder) {
         throw new TRPCError({
@@ -84,9 +110,12 @@ export const entryRouter = router({
       }
 
       try {
-        const folders = await folderService.listByParentFolder(parentFolderId);
-        const files =
-          await fileService.listFileMetadataByParentFolder(parentFolderId);
+        const folders = await folderService.listByParentFolder({
+          parentFolderId,
+        });
+        const files = await fileService.listFileMetadataByParentFolder({
+          parentFolderId,
+        });
 
         const folderEntries: EntryDTO[] = folders
           .filter((folder) => !folder.trashedAt)
@@ -133,8 +162,12 @@ export const entryRouter = router({
       const { user } = ctx;
 
       try {
-        const trashedFolders = await folderService.listTrashByUser(user.id);
-        const trashedFiles = await fileService.listTrashByUser(user.id);
+        const trashedFolders = await folderService.listTrashByUser({
+          ownerId: user.id,
+        });
+        const trashedFiles = await fileService.listTrashByUser({
+          ownerId: user.id,
+        });
 
         const folderEntries: EntryDTO[] = trashedFolders.map((folder) => ({
           id: folder.id,

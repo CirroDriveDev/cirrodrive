@@ -5,6 +5,7 @@ import type { Prisma, FileMetadata } from "@cirrodrive/database";
 import type { Logger } from "pino";
 import { Symbols } from "@/types/symbols.ts";
 import { CodeService } from "@/services/codeService.ts";
+import { UserService } from "@/services/userService.ts";
 /**
  * 파일 서비스입니다.
  */
@@ -17,6 +18,7 @@ export class FileService {
     @inject(Symbols.FileMetadataModel)
     private fileMetadataModel: Prisma.FileMetadataDelegate,
     @inject(CodeService) private codeService: CodeService,
+    @inject(UserService) private userService: UserService,
   ) {
     this.rootDir = `./`;
     this.logger = logger.child({ serviceName: "FileService" });
@@ -30,7 +32,13 @@ export class FileService {
    * @returns 저장된 파일의 경로와 이름입니다.
    * @throws 파일 저장 중 오류가 발생한 경우.
    */
-  public async saveFile(file: File, ownerId?: number): Promise<FileMetadata> {
+  public async saveFile({
+    file,
+    ownerId,
+  }: {
+    file: File;
+    ownerId?: number;
+  }): Promise<FileMetadata> {
     try {
       this.logger.info(
         {
@@ -78,7 +86,7 @@ export class FileService {
    * @returns 다운로드할 파일입니다.
    * @throws 파일 조회 중 오류가 발생한 경우.
    */
-  public async getFileById(fileId: number): Promise<File> {
+  public async getFileById({ fileId }: { fileId: number }): Promise<File> {
     try {
       this.logger.info(
         {
@@ -133,9 +141,11 @@ export class FileService {
    * @returns 파일 메타데이터 목록입니다.
    * @throws 파일 조회 중 오류가 발생한 경우.
    */
-  public async listFileMetadataByParentFolder(
-    parentFolderId: number,
-  ): Promise<FileMetadata[]> {
+  public async listFileMetadataByParentFolder({
+    parentFolderId,
+  }: {
+    parentFolderId: number;
+  }): Promise<FileMetadata[]> {
     try {
       this.logger.info(
         {
@@ -176,7 +186,11 @@ export class FileService {
    * @returns 휴지통 파일 목록입니다.
    * @throws 휴지통 파일 조회 중 오류가 발생한 경우.
    */
-  public async listTrashByUser(ownerId: number): Promise<FileMetadata[]> {
+  public async listTrashByUser({
+    ownerId,
+  }: {
+    ownerId: number;
+  }): Promise<FileMetadata[]> {
     try {
       this.logger.info(
         {
@@ -220,7 +234,11 @@ export class FileService {
    * @returns 다운로드할 파일입니다.
    * @throws 파일 조회 중 오류가 발생한 경우.
    */
-  public async getFileByCode(codeString: string): Promise<File> {
+  public async getFileByCode({
+    codeString,
+  }: {
+    codeString: string;
+  }): Promise<File> {
     try {
       this.logger.info(
         {
@@ -230,9 +248,9 @@ export class FileService {
         "코드로 파일 조회 시작",
       );
 
-      const { id } = await this.codeService.getCodeMetadata(codeString);
+      const { id } = await this.codeService.getCodeMetadata({ codeString });
 
-      const file = await this.getFileById(id);
+      const file = await this.getFileById({ fileId: id });
 
       this.logger.info(
         {
@@ -258,7 +276,7 @@ export class FileService {
    * @returns 파일이 존재하는지 여부입니다.
    * @throws 파일 조회 중 오류가 발생한 경우.
    */
-  public async fileExists(fileId: number): Promise<boolean> {
+  public async fileExists({ fileId }: { fileId: number }): Promise<boolean> {
     try {
       this.logger.info(
         {
@@ -310,10 +328,13 @@ export class FileService {
    * @param parentFolderId - 부모 폴더의 ID입니다.
    * @returns 동일한 이름의 파일 존재 여부입니다.
    */
-  public async sameNameExists(
-    name: string,
-    parentFolderId: number,
-  ): Promise<boolean> {
+  public async existsByName({
+    name,
+    parentFolderId,
+  }: {
+    name: string;
+    parentFolderId: number;
+  }): Promise<boolean> {
     try {
       this.logger.info(
         {
@@ -349,10 +370,13 @@ export class FileService {
     }
   }
 
-  public async moveFile(
-    fileId: number,
-    targetFolderId: number,
-  ): Promise<FileMetadata> {
+  public async moveFile({
+    fileId,
+    targetFolderId,
+  }: {
+    fileId: number;
+    targetFolderId: number;
+  }): Promise<FileMetadata> {
     try {
       this.logger.info(
         { methodName: "moveFile", fileId, targetFolderId },
@@ -377,15 +401,12 @@ export class FileService {
         },
       });
 
+      let newFileName = file.name;
       if (existingFile) {
-        // 충돌 처리 (경고 또는 자동 이름 변경)
-        throw new Error(
-          `대상 폴더에 같은 이름(${file.name})과(and) 확장자(${file.extension})를 가진 파일이 이미 존재합니다.`,
-        );
-
-        // 또는 이름 변경 로직 예시
-        // const newName = `${file.name} (1)`; // 이름 뒤에 "(1)" 추가
-        // file.name = newName; // 파일 이름 변경
+        newFileName = await this.generateFileName({
+          parentFolderId: targetFolderId,
+          name: file.name,
+        });
       }
 
       // 파일 메타데이터 업데이트
@@ -397,6 +418,7 @@ export class FileService {
               id: targetFolderId,
             },
           },
+          name: newFileName,
         },
       });
 
@@ -426,10 +448,13 @@ export class FileService {
    * @returns 복사된 파일 메타데이터입니다.
    * @throws 파일 복사 중 오류가 발생한 경우.
    */
-  public async copy(
-    fileId: number,
-    targetFolderId: number,
-  ): Promise<FileMetadata> {
+  public async copy({
+    fileId,
+    targetFolderId,
+  }: {
+    fileId: number;
+    targetFolderId: number;
+  }): Promise<FileMetadata> {
     try {
       this.logger.info(
         { methodName: "copy", fileId, targetFolderId },
@@ -445,15 +470,11 @@ export class FileService {
         throw new Error("파일 메타데이터를 찾을 수 없습니다.");
       }
 
-      let count = 1;
-      let copiedName = fileMetadata.name;
-      while (await this.sameNameExists(copiedName, targetFolderId)) {
-        copiedName =
-          `${fileMetadata.name.slice(0, fileMetadata.name.lastIndexOf("."))}` +
-          ` (${count})` +
-          `${fileMetadata.name.slice(fileMetadata.name.lastIndexOf("."))}`;
-        count += 1;
-      }
+      // 파일 이름 생성
+      const copiedName = await this.generateFileName({
+        parentFolderId: targetFolderId,
+        name: fileMetadata.name,
+      });
 
       // 파일 메타데이터 복사
       const copiedMetadata = await this.fileMetadataModel.create({
@@ -524,7 +545,11 @@ export class FileService {
 
     return { path: filePath, name: savedName };
   }
-  public async getFileMetadata(fileId: number): Promise<FileMetadata | null> {
+  public async getFileMetadata({
+    fileId,
+  }: {
+    fileId: number;
+  }): Promise<FileMetadata | null> {
     try {
       const fileMetadata = await this.fileMetadataModel.findUnique({
         where: {
@@ -547,21 +572,44 @@ export class FileService {
    * 파일을 휴지통으로 이동합니다.
    *
    * @param fileId - 휴지통으로 이동할 파일의 ID입니다.
+   * @param userid - 파일 소유자의 ID입니다.
    * @returns 업데이트된 파일 메타데이터입니다.
    * @throws 파일 이동 중 오류가 발생한 경우.
    */
-  public async moveToTrash(fileId: number): Promise<FileMetadata> {
+  public async moveToTrash({
+    fileId,
+    userId,
+  }: {
+    fileId: number;
+    userId: number;
+  }): Promise<FileMetadata> {
     try {
       this.logger.info(
         { methodName: "moveToTrash", fileId },
         "파일 휴지통 이동 시작",
       );
 
+      const user = await this.userService.get({ id: userId });
+
+      if (!user) {
+        throw new Error("사용자를 찾을 수 없습니다.");
+      }
+
+      const file = await this.fileMetadataModel.findUnique({
+        where: { id: fileId },
+      });
+
+      if (!file) {
+        throw new Error("파일을 찾을 수 없습니다.");
+      }
+
       // 파일 메타데이터 업데이트
       const updatedMetadata = await this.fileMetadataModel.update({
         where: { id: fileId },
         data: {
           trashedAt: new Date(), // 'trashedAt' 필드를 현재 시간으로 업데이트
+          parentFolderId: user.trashFolderId,
+          restoreFolderId: file.parentFolderId,
         },
       });
 
@@ -582,7 +630,7 @@ export class FileService {
       throw new Error("파일을 휴지통으로 이동하는 중 오류가 발생했습니다.");
     }
   }
-  async deleteFile(fileId: number): Promise<void> {
+  async deleteFile({ fileId }: { fileId: number }): Promise<void> {
     const file = await this.fileMetadataModel.findUnique({
       where: { id: fileId },
     });
@@ -604,25 +652,135 @@ export class FileService {
     this.logger.info({ fileId }, "파일이 영구적으로 삭제되었습니다.");
   }
 
-  async updateFileName(fileId: number, newName: string): Promise<FileMetadata> {
-    // 파일 이름만 변경 (폴더 변경 필요 없음)
-    return await this.fileMetadataModel.update({
+  async rename({
+    fileId,
+    name,
+  }: {
+    fileId: number;
+    name: string;
+  }): Promise<FileMetadata> {
+    const file = await this.fileMetadataModel.findUnique({
       where: { id: fileId },
-      data: { name: newName },
     });
+
+    if (!file) {
+      throw new Error("파일을 찾을 수 없습니다.");
+    }
+
+    if (file.parentFolderId === null) {
+      throw new Error("파일의 부모 폴더가 존재하지 않습니다.");
+    }
+
+    if (file.trashedAt !== null) {
+      throw new Error("휴지통에 있는 파일의 이름은 변경할 수 없습니다.");
+    }
+
+    if (
+      await this.existsByName({ name, parentFolderId: file.parentFolderId })
+    ) {
+      throw new Error("동일한 이름의 파일이 이미 존재합니다.");
+    }
+
+    // 파일 이름 변경
+    const newFile = await this.fileMetadataModel.update({
+      where: { id: fileId },
+      data: { name },
+    });
+
+    return newFile;
   }
-  public async restoreFromTrash(fileId: number): Promise<void> {
+
+  /**
+   * 적절한 파일 이름을 생성합니다.
+   *
+   * @param parentFolderId - 부모 폴더의 ID입니다.
+   * @param name - 원본 파일 이름입니다.
+   * @returns 생성된 파일 이름입니다
+   */
+  public async generateFileName({
+    parentFolderId,
+    name,
+  }: {
+    parentFolderId: number;
+    name: string;
+  }): Promise<string> {
+    this.logger.info(
+      { methodName: "generateFileName", parentFolderId, name },
+      "파일 이름 생성 시작",
+    );
+
+    if (!(await this.existsByName({ name, parentFolderId }))) {
+      this.logger.info(
+        { methodName: "generateFileName", name },
+        "파일 이름 생성 완료",
+      );
+      return name;
+    }
+
+    const baseName = path.win32.basename(name, path.extname(name));
+    const extension = path.extname(name);
+    const regexpResult = /^(?<originalName>.*?)(?: \((?<count>\d+)\))?$/.exec(
+      baseName,
+    );
+
+    if (!regexpResult) {
+      throw new Error("파일 이름을 분석할 수 없습니다.");
+    }
+
+    let originalName = regexpResult.groups?.originalName ?? baseName;
+    let count = 1;
+
+    if (regexpResult.groups?.count) {
+      originalName = baseName;
+      count = parseInt(regexpResult.groups.count);
+    }
+
+    let fileName = `${originalName} (${count})${extension}`;
+
+    while (await this.existsByName({ name: fileName, parentFolderId })) {
+      fileName = `${originalName} (${count})${extension}`;
+      count += 1;
+    }
+
+    this.logger.info(
+      { methodName: "generateFileName", fileName },
+      "파일 이름 생성 완료",
+    );
+
+    return fileName;
+  }
+
+  public async restoreFromTrash({ fileId }: { fileId: number }): Promise<void> {
     try {
       this.logger.info(
         { methodName: "restoreFromTrash", fileId },
         "파일 복원 시작",
       );
 
+      const file = await this.fileMetadataModel.findUnique({
+        where: { id: fileId },
+      });
+
+      if (!file) {
+        throw new Error("파일을 찾을 수 없습니다.");
+      }
+
+      if (file.restoreFolderId === null) {
+        throw new Error("파일의 복원 폴더가 존재하지 않습니다.");
+      }
+
+      const newName = await this.generateFileName({
+        parentFolderId: file.restoreFolderId,
+        name: file.name,
+      });
+
       // 파일 메타데이터 업데이트
       await this.fileMetadataModel.update({
         where: { id: fileId },
         data: {
+          name: newName,
           trashedAt: null, // 'trashedAt' 필드를 null로 업데이트하여 복원
+          parentFolderId: file.restoreFolderId,
         },
       });
 
@@ -633,106 +791,9 @@ export class FileService {
     } catch (error) {
       this.logger.error(
         { methodName: "restoreFromTrash", error },
-        "파일 복원 중 오류 발생",
+        "파일 복원 ��� 오류 발생",
       );
       throw new Error("파일 복원 중 오류가 발생했습니다.");
-    }
-  }
-  public async moveFolderToTrash(folderId: number): Promise<void> {
-    try {
-      this.logger.info(
-        { methodName: "moveFolderToTrash", folderId },
-        "폴더 휴지통 이동 시작",
-      );
-
-      // 폴더를 휴지통으로 이동
-      await this.fileMetadataModel.updateMany({
-        where: { parentFolderId: folderId },
-        data: { trashedAt: new Date() }, // 폴더에 포함된 모든 파일을 휴지통으로 이동
-      });
-
-      // 폴더 자체를 휴지통으로 이동
-      await this.fileMetadataModel.update({
-        where: { id: folderId },
-        data: { trashedAt: new Date() },
-      });
-
-      this.logger.info(
-        { methodName: "moveFolderToTrash", folderId },
-        "폴더 및 해당 파일들의 휴지통 이동 완료",
-      );
-    } catch (error) {
-      this.logger.error(
-        { methodName: "moveFolderToTrash", error },
-        "폴더 휴지통 이동 중 오류 발생",
-      );
-      throw new Error("폴더를 휴지통으로 이동하는 중 오류가 발생했습니다.");
-    }
-  }
-
-  public async restoreFolderFromTrash(folderId: number): Promise<void> {
-    try {
-      this.logger.info(
-        { methodName: "restoreFolderFromTrash", folderId },
-        "폴더 복원 시작",
-      );
-
-      // 폴더 복원
-      await this.fileMetadataModel.updateMany({
-        where: { parentFolderId: folderId },
-        data: { trashedAt: null }, // 폴더에 포함된 파일들을 복원
-      });
-
-      // 폴더 자체 복원
-      await this.fileMetadataModel.update({
-        where: { id: folderId },
-        data: { trashedAt: null },
-      });
-
-      this.logger.info(
-        { methodName: "restoreFolderFromTrash", folderId },
-        "폴더 및 해당 파일들의 복원 완료",
-      );
-    } catch (error) {
-      this.logger.error(
-        { methodName: "restoreFolderFromTrash", error },
-        "폴더 복원 중 오류 발생",
-      );
-      throw new Error("폴더를 복원하는 중 오류가 발생했습니다.");
-    }
-  }
-
-  public async deleteFolder(folderId: number): Promise<void> {
-    try {
-      this.logger.info(
-        { methodName: "deleteFolder", folderId },
-        "폴더 삭제 시작",
-      );
-
-      // 폴더에 포함된 모든 파일들을 삭제
-      const files = await this.fileMetadataModel.findMany({
-        where: { parentFolderId: folderId },
-      });
-
-      for (const file of files) {
-        await this.deleteFile(file.id); // FileService에서 삭제
-      }
-
-      // 폴더 삭제
-      await this.fileMetadataModel.deleteMany({
-        where: { parentFolderId: folderId },
-      });
-
-      this.logger.info(
-        { methodName: "deleteFolder", folderId },
-        "폴더 및 해당 파일들 삭제 완료",
-      );
-    } catch (error) {
-      this.logger.error(
-        { methodName: "deleteFolder", error },
-        "폴더 삭제 중 오류 발생",
-      );
-      throw new Error("폴더 삭제 중 오류가 발생했습니다.");
     }
   }
 }

@@ -26,11 +26,15 @@ export class UserService {
    * @returns 생성된 사용자입니다.
    * @throws 사용자 생성 중 오류가 발생한 경우.
    */
-  public async create(
-    username: string,
-    password: string,
-    email: string,
-  ): Promise<User> {
+  public async create({
+    username,
+    password,
+    email,
+  }: {
+    username: string;
+    password: string;
+    email: string;
+  }): Promise<User> {
     try {
       this.logger.info(
         {
@@ -53,12 +57,30 @@ export class UserService {
               name: "root",
             },
           },
+          trashFolder: {
+            create: {
+              name: "trash",
+            },
+          },
         },
       });
 
       await this.folderModel.update({
         where: {
           id: user.rootFolderId,
+        },
+        data: {
+          owner: {
+            connect: {
+              id: user.id,
+            },
+          },
+        },
+      });
+
+      await this.folderModel.update({
+        where: {
+          id: user.trashFolderId,
         },
         data: {
           owner: {
@@ -86,7 +108,13 @@ export class UserService {
    * @returns 사용자 목록입니다.
    * @throws 사용자 조회 중 오류가 발생한 경우.
    */
-  public async list(limit: number, offset: number): Promise<User[]> {
+  public async list({
+    limit,
+    offset,
+  }: {
+    limit: number;
+    offset: number;
+  }): Promise<User[]> {
     try {
       this.logger.info(
         {
@@ -117,7 +145,7 @@ export class UserService {
    * @param id - 사용자 ID
    * @returns 지정된 ID를 가진 사용자 또는 null
    */
-  public async get(id: number): Promise<User | null> {
+  public async get({ id }: { id: number }): Promise<User | null> {
     try {
       this.logger.info(
         {
@@ -146,7 +174,11 @@ export class UserService {
    * @param username - 사용자 이름
    * @returns 지정된 이름을 가진 사용자 또는 null
    */
-  public async getByUsername(username: string): Promise<User | null> {
+  public async getByUsername({
+    username,
+  }: {
+    username: string;
+  }): Promise<User | null> {
     try {
       this.logger.info(
         {
@@ -178,12 +210,17 @@ export class UserService {
    * @param email - 이메일
    * @returns 수정된 사용자
    */
-  public async update(
-    id: number,
-    username: string,
-    password: string,
-    email: string,
-  ): Promise<User> {
+  public async update({
+    id,
+    username,
+    password,
+    email,
+  }: {
+    id: number;
+    username: string;
+    password: string;
+    email: string;
+  }): Promise<User> {
     try {
       this.logger.info(
         {
@@ -222,7 +259,7 @@ export class UserService {
    * @param id - 사용자 ID
    * @returns 삭제된 사용자
    */
-  public async delete(id: number): Promise<User> {
+  public async delete({ id }: { id: number }): Promise<User> {
     try {
       this.logger.info(
         {
@@ -251,7 +288,11 @@ export class UserService {
    * @param username - 사용자 이름
    * @returns 사용자 이름이 이미 존재하는지 여부
    */
-  public async existsByUsername(username: string): Promise<boolean> {
+  public async existsByUsername({
+    username,
+  }: {
+    username: string;
+  }): Promise<boolean> {
     try {
       this.logger.info(
         {
@@ -280,7 +321,7 @@ export class UserService {
    * @param email - 이메일
    * @returns 이메일이 이미 존재하는지 여부
    */
-  public async existsByEmail(email: string): Promise<boolean> {
+  public async existsByEmail({ email }: { email: string }): Promise<boolean> {
     try {
       this.logger.info(
         {

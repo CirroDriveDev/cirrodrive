@@ -32,13 +32,17 @@ export const sessionRouter = router({
         });
       }
       try {
-        const { user, session, token } = await authService.login(
-          input.username,
-          input.password,
-        );
+        const { user, session, token } = await authService.login({
+          username: input.username,
+          password: input.password,
+        });
 
         logger.info({ requestId: ctx.req.id, session }, "login 요청 성공");
-        authService.setSessionTokenCookie(ctx.res, token, session.expiresAt);
+        authService.setSessionTokenCookie({
+          response: ctx.res,
+          token,
+          expiresAt: session.expiresAt,
+        });
 
         return user;
       } catch (error) {
@@ -54,13 +58,13 @@ export const sessionRouter = router({
   logout: authedProcedure.mutation(async ({ ctx }) => {
     logger.info({ requestId: ctx.req.id }, "logout 요청 시작");
 
-    await authService.logout(ctx.sessionToken);
-    authService.clearSessionTokenCookie(ctx.res);
+    await authService.logout({ token: ctx.sessionToken });
+    authService.clearSessionTokenCookie({ response: ctx.res });
   }),
 
-  validate: authedProcedure.output(z.literal(true)).query(({ ctx }) => {
+  validate: authedProcedure.output(userDTOSchema).query(({ ctx }) => {
     logger.info({ requestId: ctx.req.id }, "validate 요청 시작");
 
-    return true;
+    return ctx.user;
   }),
 });

@@ -4,18 +4,22 @@ import { trpc } from "@/shared/api/trpc.ts";
 import { entryListQueryKey } from "@/entities/entry/api/useEntryList.ts";
 import { trashEntryListQueryKey } from "@/entities/entry/api/useTrashEntryList.ts";
 
+// 파일 및 폴더 이름 변경 Hook의 반환값 인터페이스 정의
 interface UseFileRename {
-  handleRename: (newName: string) => void;
+  handleRenameFile: (newName: string) => void;
+  handleRenameFolder: (newName: string) => void;
   isRenaming: boolean;
   success: boolean | null;
 }
 
-export const useFileRename = (fileId: number): UseFileRename => {
+// useFileRename Hook 정의
+export const useFileRename = (id: number, _p0?: boolean): UseFileRename => {
   const queryClient = useQueryClient();
   const [isRenaming, setIsRenaming] = useState(false);
   const [success, setSuccess] = useState<boolean | null>(null);
 
-  const mutation = trpc.file.updateFileName.useMutation({
+  // 파일 이름 변경 mutation
+  const fileMutation = trpc.file.updateFileName.useMutation({
     onMutate: () => {
       setIsRenaming(true);
       setSuccess(null);
@@ -33,10 +37,41 @@ export const useFileRename = (fileId: number): UseFileRename => {
     },
   });
 
-  const handleRename = (newName: string): void => {
+  // 폴더 이름 변경 mutation
+  const folderMutation = trpc.folder.rename.useMutation({
+    onMutate: () => {
+      setIsRenaming(true);
+      setSuccess(null);
+    },
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({ queryKey: entryListQueryKey });
+      setSuccess(true);
+    },
+    onError: () => {
+      setSuccess(false);
+    },
+    onSettled: () => {
+      setIsRenaming(false);
+    },
+  });
+
+  // 파일 이름 변경 처리 함수
+  const handleRenameFile = (newName: string): void => {
     if (isRenaming) return;
-    mutation.mutate({ fileId, name: newName });
+    fileMutation.mutate({ fileId: id, name: newName });
   };
 
-  return { handleRename, isRenaming, success };
+  // 폴더 이름 변경 처리 함수
+  const handleRenameFolder = (newName: string): void => {
+    if (isRenaming) return;
+    folderMutation.mutate({ folderId: id, name: newName });
+  };
+
+  // Hook 반환 값
+  return {
+    handleRenameFile,
+    handleRenameFolder,
+    isRenaming,
+    success,
+  };
 };

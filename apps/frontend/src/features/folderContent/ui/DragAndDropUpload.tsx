@@ -1,20 +1,42 @@
 import { useState, useEffect } from "react";
+import { FileIcon } from "lucide-react";
 import { useUploadPublic } from "@/entities/file/api/useUploadPublic.ts";
-import { Modal } from "@/features/folderContent/ui/Modal.tsx";
+import { useBoundStore } from "@/shared/store/useBoundStore.ts";
+import { LoadingSpinner } from "@/shared/components/LoadingSpinner.tsx";
 
 export function DragAndDropUpload(): JSX.Element {
-  const { selectedFile, code, mutation, handleFileChange, handleFormSubmit } =
-    useUploadPublic();
+  const { selectedFile, mutation, handleFileChange, upload } = useUploadPublic({
+    onSuccess: (data) => {
+      openModal({
+        title: "업로드 성공",
+        content: (
+          <div className="flex-col text-green-500">
+            <div>파일 이름: {data.file.name}</div>
+            <div>코드: {data.code}</div>
+            <div>
+              링크:{" "}
+              <a
+                href={generateLink(data.code)}
+                className="text-blue-500 hover:underline"
+              >
+                {generateLink(data.code)}
+              </a>
+            </div>
+            <div>만료일 : 1일</div>
+          </div>
+        ),
+      });
+    },
+    onError: (error) => {
+      openModal({
+        title: "업로드 실패",
+        content: <div className="text-red-500">{error.message}</div>,
+      });
+    },
+  });
 
   const [dragOver, setDragOver] = useState(false);
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [errorMessage, setErrorMessage] = useState<string | null>(null); // 추가: 오류 메시지 상태
-  const [modalContent, setModalContent] = useState<{
-    fileName?: string;
-    code?: string;
-    link?: string;
-    error?: string;
-  }>({});
+  const { openModal } = useBoundStore();
 
   const generateLink = (c: string): string => {
     return `${window.location.origin}/c/${c}`;
@@ -41,120 +63,44 @@ export function DragAndDropUpload(): JSX.Element {
     }
   };
 
-  const handleFormSubmitWithModal = (
-    e: React.FormEvent<HTMLFormElement>,
-  ): void => {
-    e.preventDefault();
-
+  useEffect(() => {
     if (!selectedFile) {
-      setErrorMessage("파일을 선택하세요."); // 에러 메시지 설정
       return;
     }
 
-    // 모달 초기화: 업로드 중 상태 설정
-    setModalContent({
-      fileName: selectedFile.name,
-      code: "업로드 중...",
-      link: "업로드 중...",
-    });
-    setIsModalOpen(true);
-
-    // 업로드 트리거
-    handleFormSubmit(e);
-  };
-
-  // 변화 감지하고 출력
-  useEffect(() => {
-    if (!mutation.isPending) {
-      if (mutation.error?.message) {
-        setModalContent({
-          error: mutation.error.message,
-        });
-      } else if (code && selectedFile) {
-        setModalContent({
-          fileName: selectedFile.name,
-          code,
-          link: generateLink(code),
-        });
-      }
-    }
-  }, [mutation.isPending, code, selectedFile, mutation.error]);
+    upload();
+  }, [selectedFile, upload]);
 
   return (
     <div>
-      <form
-        method="post"
-        onSubmit={handleFormSubmitWithModal}
-        className="flex flex-col gap-4"
-      >
-        <div
-          onDragOver={handleDragOver}
-          onDragLeave={handleDragLeave}
-          onDrop={handleDrop}
-          className={`flex h-80 w-96 items-center justify-center rounded border-2 border-dashed transition ${
-            dragOver ? "border-blue-500 bg-blue-50" : "border-gray-300 bg-white"
-          }`}
-        >
-          {selectedFile ?
-            <p className="text-sm text-gray-600">
-              선택된 파일: {selectedFile.name}
-            </p>
-          : <p className="text-gray-500">
-              파일을 여기에 드래그하거나 클릭하여 선택하세요.
-            </p>
-          }
-        </div>
-
+      <form method="post" className="</> flex flex-col gap-4 bg-background">
         <input
           type="file"
           onChange={handleFileChange}
           className="hidden"
           id="file-upload"
         />
-        <label
-          htmlFor="file-upload"
-          className="cursor-pointer rounded bg-blue-500 px-4 py-2 text-center text-white hover:bg-blue-600"
-        >
-          파일 선택
-        </label>
-
-        <button
-          type="submit"
-          className={`rounded px-4 py-2 text-white ${
-            mutation.isPending ?
-              "cursor-not-allowed bg-gray-500"
-            : "bg-blue-500 hover:bg-blue-600"
-          }`}
-          disabled={mutation.isPending}
-        >
-          {mutation.isPending ? "업로드 중..." : "업로드"}
-        </button>
-      </form>
-
-      {/* 에러 메시지 표시 */}
-      {errorMessage ?
-        <div className="mt-4 text-red-500">{errorMessage}</div>
-      : null}
-
-      <Modal isOpen={isModalOpen} closeModal={() => setIsModalOpen(false)}>
-        {modalContent.error ?
-          <div className="mt-6 text-red-500">오류: {modalContent.error}</div>
-        : <div className="flex-col text-green-500">
-            <div className="mt-6">파일 이름: {modalContent.fileName}</div>
-            <div>코드: {modalContent.code}</div>
-            <div>
-              링크:{" "}
-              <a
-                href={modalContent.link}
-                className="text-blue-500 hover:underline"
-              >
-                {modalContent.link}
-              </a>
-            </div>
-            <div>만료일 : 1일</div>
+        <label htmlFor="file-upload">
+          <div
+            onDragOver={handleDragOver}
+            onDragLeave={handleDragLeave}
+            onDrop={handleDrop}
+            className={`flex h-80 w-96 cursor-pointer flex-col items-center justify-center space-y-4 rounded border-2 border-dashed bg-background text-foreground transition hover:bg-accent hover:text-accent-foreground ${
+              dragOver ? "border-blue-500" : "border-gray-300"
+            }`}
+          >
+            {mutation.isPending ?
+              <LoadingSpinner />
+            : <>
+                <FileIcon className="h-32 w-32 text-blue-500" />
+                <p className="text-gray-500">
+                  파일을 여기에 드래그하거나 클릭하여 선택하세요.
+                </p>
+              </>
+            }
           </div>
-        }
-      </Modal>
+        </label>
+      </form>
     </div>
   );
 }

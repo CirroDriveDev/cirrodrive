@@ -27,25 +27,25 @@ export const userRouter = router({
         });
       }
 
-      if (await userService.existsByUsername(input.username)) {
+      if (await userService.existsByUsername({ username: input.username })) {
         throw new TRPCError({
           code: "CONFLICT",
           message: "이미 사용 중인 사용자 이름입니다.",
         });
       }
 
-      if (await userService.existsByEmail(input.email)) {
+      if (await userService.existsByEmail({ email: input.email })) {
         throw new TRPCError({
           code: "CONFLICT",
           message: "이미 사용 중인 이메일 주소입니다.",
         });
       }
       try {
-        const user = await userService.create(
-          input.username,
-          input.password,
-          input.email,
-        );
+        const user = await userService.create({
+          username: input.username,
+          password: input.password,
+          email: input.email,
+        });
 
         logger.info({ requestId: ctx.req.id }, "user.create 요청 성공");
 
@@ -68,7 +68,10 @@ export const userRouter = router({
     .query(async ({ input, ctx }) => {
       logger.info({ requestId: ctx.req.id }, "user.list 요청 시작");
       try {
-        const users = await userService.list(input.limit, input.offset);
+        const users = await userService.list({
+          limit: input.limit,
+          offset: input.offset,
+        });
 
         logger.info({ requestId: ctx.req.id }, "user.list 요청 성공");
 
@@ -93,7 +96,7 @@ export const userRouter = router({
       let user = null;
 
       try {
-        user = await userService.get(input);
+        user = await userService.get({ id: input });
       } catch (error) {
         logger.error({ requestId: ctx.req.id, error }, "user.get 요청 실패");
 
@@ -123,12 +126,12 @@ export const userRouter = router({
       logger.info({ requestId: ctx.req.id }, "user.update 요청 시작");
 
       try {
-        const user = await userService.update(
-          ctx.user.id,
-          input.username,
-          input.password,
-          input.email,
-        );
+        const user = await userService.update({
+          id: ctx.user.id,
+          username: input.username,
+          password: input.password,
+          email: input.email,
+        });
 
         return user;
       } catch (error) {
@@ -142,7 +145,7 @@ export const userRouter = router({
     logger.info({ requestId: ctx.req.id }, "user.delete 요청 시작");
 
     try {
-      const user = await userService.delete(ctx.user.id);
+      const user = await userService.delete({ id: ctx.user.id });
 
       return user;
     } catch (error) {

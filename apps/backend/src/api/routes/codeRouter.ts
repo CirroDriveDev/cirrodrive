@@ -1,6 +1,6 @@
 import { z } from "zod"; // zod 임포트
 import { TRPCError } from "@trpc/server"; // TRPCError 임포트
-import { router, procedure } from "@/loaders/trpc.ts"; // tRPC 설정 임포트
+import { router, procedure, authedProcedure } from "@/loaders/trpc.ts"; // tRPC 설정 임포트
 import { container } from "@/loaders/inversify.ts";
 import { CodeService } from "@/services/codeService.ts";
 
@@ -17,9 +17,23 @@ export const codeRouter = router({
     }
 
     // CodeService의 getCodes 메서드를 호출하여 사용자의 코드 목록을 가져옵니다.
-    const codes = await codeService.getCodes(ctx.user.id);
+    const codes = await codeService.getCodes({
+      userId: ctx.user.id,
+    });
     return codes;
   }),
+
+  getByFileId: authedProcedure
+    .input(z.object({ fileId: z.number() }))
+    .query(async ({ input }) => {
+      const { fileId } = input;
+
+      const code = await codeService.getCodeByFileId({
+        fileId,
+      });
+
+      return code;
+    }),
 
   create: procedure
     .input(
@@ -40,7 +54,10 @@ export const codeRouter = router({
         });
       }
       // 코드 생성 시 만료 시간이 제공된 경우 처리
-      const code = await codeService.createCode(fileId, expiresAt);
+      const code = await codeService.createCode({
+        fileId,
+        expiresAt,
+      });
 
       return { codeString: code.codeString };
     }),
@@ -59,7 +76,9 @@ export const codeRouter = router({
       }
 
       try {
-        await codeService.deleteCode(codeString);
+        await codeService.deleteCode({
+          codeString,
+        });
       } catch (error: unknown) {
         if (
           error instanceof Error &&

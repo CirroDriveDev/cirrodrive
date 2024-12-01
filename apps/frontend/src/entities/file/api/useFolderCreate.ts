@@ -1,8 +1,16 @@
 import { useState } from "react";
-import { useQueryClient } from "@tanstack/react-query";
-import { getQueryKey } from "@trpc/react-query";
+import type { AppRouter, RouterInput, RouterOutput } from "@cirrodrive/backend";
+import type { TRPCClientErrorLike } from "@trpc/client";
+import type { UseTRPCMutationOptions } from "@trpc/react-query/shared";
 import { trpc } from "@/shared/api/trpc.ts";
 import { useBoundStore } from "@/shared/store/useBoundStore.ts";
+import { useEntryUpdatedEvent } from "@/entities/entry/api/useEntryUpdatedEvent.ts";
+
+type UseFolderCreateOptions = UseTRPCMutationOptions<
+  RouterInput["folder"]["create"],
+  TRPCClientErrorLike<AppRouter>,
+  RouterOutput["folder"]["create"]
+>;
 
 interface UseFolderManagement {
   folderName: string;
@@ -12,18 +20,24 @@ interface UseFolderManagement {
   createFolder: () => void;
 }
 
-export const useFolderCreate = (): UseFolderManagement => {
+export const useFolderCreate = (
+  opts?: UseFolderCreateOptions,
+): UseFolderManagement => {
   const { user } = useBoundStore();
-  const queryClient = useQueryClient();
-  const folderGetQueryKey = getQueryKey(trpc.folder.get);
   const [folderName, setFolderName] = useState("새 폴더");
-  const [parentFolderId, setParentFolderId] = useState(
-    user?.rootFolderId ?? -1,
-  );
+  const { entryUpdatedEvent } = useEntryUpdatedEvent();
+
+  if (user === null) {
+    throw new Error("User must be defined");
+  }
+
+  const [parentFolderId, setParentFolderId] = useState(user.rootFolderId);
 
   const folderMutation = trpc.folder.create.useMutation({
-    onSuccess: async () => {
-      await queryClient.invalidateQueries({ queryKey: folderGetQueryKey });
+    ...opts,
+    onSuccess: async (data, variable, context) => {
+      await entryUpdatedEvent();
+      opts?.onSuccess?.(data, variable, context);
     },
   });
 

@@ -37,7 +37,7 @@ export function DownloadByCodePage(): JSX.Element {
             type="text"
             value={code}
             onChange={handleInputChange}
-            className="mb-1 mt-2 w-full rounded-md border border-gray-300 px-3 py-2 text-black"
+            className="mb-1 mt-2 w-full rounded-md border border-gray-300 bg-background px-3 py-2 text-foreground"
             placeholder="Enter code"
           />
           <div className="flex w-full flex-col justify-center">

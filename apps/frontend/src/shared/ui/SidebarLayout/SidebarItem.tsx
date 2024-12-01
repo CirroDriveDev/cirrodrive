@@ -1,5 +1,5 @@
 import type React from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import { Button } from "@/shared/components/shadcn/Button.tsx";
 
 interface SidebarItemProps {
@@ -13,14 +13,19 @@ export function SidebarItem({
   icon,
 }: SidebarItemProps): JSX.Element {
   const navigate = useNavigate();
+  const location = useLocation();
   const handleClick = (): void => {
     navigate(path);
   };
 
   return (
-    <Button variant="ghost" onClick={handleClick} className="h-10 w-full">
-      {icon}
-      {label}
+    <Button
+      variant={location.pathname === path ? "default" : "ghost"}
+      onClick={handleClick}
+      className="flex h-8 w-full justify-start space-x-2 pl-9"
+    >
+      <div>{icon}</div>
+      <div>{label}</div>
     </Button>
   );
 }

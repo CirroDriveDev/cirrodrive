@@ -1,10 +1,198 @@
 import { create } from "zustand";
 import { devtools, persist } from "zustand/middleware";
 import { immer } from "zustand/middleware/immer";
-import { createUserSlice, type UserSlice } from "@/shared/store/userSlice.ts";
+import type { StateCreator } from "zustand";
+import type { UserDTO } from "@cirrodrive/schemas";
+
+// ------------------------------------
+// Store Slice Interfaces
+// ------------------------------------
+
+export interface UserStore {
+  /**
+   * 사용자 정보
+   *
+   * - 로그인한 경우 사용자 데이터
+   * - 로그인하지 않은 경우 `null`
+   */
+  user: UserDTO | null;
+
+  /**
+   * 사용자 정보를 설정
+   *
+   * @param user - 사용자 데이터
+   */
+  setUser: (user: UserDTO) => void;
+
+  /**
+   * 사용자 정보를 초기화
+   */
+  clearUser: () => void;
+}
+
+export interface ModalStore {
+  /**
+   * 모달이 열려있는지 여부
+   */
+  isOpen: boolean;
+
+  /**
+   * 모달 제목
+   */
+  title: string;
+
+  /**
+   * 모달 내용
+   */
+  content: React.ReactNode | null;
+
+  /**
+   * 모달을 열기
+   *
+   * @param content - 모달 내용
+   */
+  openModal: ({
+    title,
+    content,
+  }: {
+    title: string;
+    content: React.ReactNode;
+  }) => void;
+
+  /**
+   * 모달을 닫기
+   */
+  closeModal: () => void;
+}
+
+export interface SearchBarStore {
+  /**
+   * 검색어
+   */
+  searchTerm: string;
+
+  /**
+   * 검색어를 설정
+   *
+   * @param term - 검색어
+   */
+  setSearchTerm: (term: string) => void;
+}
+
+export interface RenameStore {
+  /**
+   * 폴더 ID
+   */
+  folderId: number | null;
+
+  /**
+   * 폴더 ID를 설정
+   *
+   * @param folderId - 폴더 ID
+   */
+  setFolderId: (folderId: number) => void;
+
+  /**
+   * 폴더 ID를 초기화
+   */
+  clearFolderId: () => void;
+}
 
 // 모든 슬라이스를 포함하는 상태 타입
-type StoreState = UserSlice;
+export type StoreState = UserStore & ModalStore & SearchBarStore & RenameStore;
+
+// ------------------------------------
+// Store Slice Creators
+// ------------------------------------
+
+export const createUserSlice: StateCreator<
+  StoreState,
+  [
+    ["zustand/immer", never],
+    ["zustand/persist", unknown],
+    ["zustand/devtools", never],
+  ],
+  [],
+  UserStore
+> = (set) => ({
+  user: null,
+  setUser: (user) =>
+    set((state) => {
+      state.user = user;
+    }),
+  clearUser: () =>
+    set((state) => {
+      state.user = null;
+    }),
+});
+
+export const createModalSlice: StateCreator<
+  StoreState,
+  [
+    ["zustand/immer", never],
+    ["zustand/persist", unknown],
+    ["zustand/devtools", never],
+  ],
+  [],
+  ModalStore
+> = (set) => ({
+  isOpen: false,
+  content: null,
+  title: "",
+  openModal: ({ title, content }) =>
+    set((state) => {
+      state.isOpen = true;
+      state.title = title;
+      state.content = content;
+    }),
+  closeModal: () =>
+    set((state) => {
+      state.isOpen = false;
+      state.content = null;
+    }),
+});
+
+export const createSearchBarSlice: StateCreator<
+  StoreState,
+  [
+    ["zustand/immer", never],
+    ["zustand/persist", unknown],
+    ["zustand/devtools", never],
+  ],
+  [],
+  SearchBarStore
+> = (set) => ({
+  searchTerm: "",
+  setSearchTerm: (term) =>
+    set((state) => {
+      state.searchTerm = term;
+    }),
+});
+
+export const createRenameSlice: StateCreator<
+  StoreState,
+  [
+    ["zustand/immer", never],
+    ["zustand/persist", unknown],
+    ["zustand/devtools", never],
+  ],
+  [],
+  RenameStore
+> = (set) => ({
+  folderId: 0,
+  setFolderId: (folderId) =>
+    set((state) => {
+      state.folderId = folderId;
+    }),
+  clearFolderId: () =>
+    set((state) => {
+      state.folderId = null;
+    }),
+});
+
+// ------------------------------------
+// Store Hook
+// ------------------------------------
 
 /**
  * 전역 Store 사용을 위한 Hook
@@ -30,6 +218,9 @@ export const useBoundStore = create<StoreState>()(
       // immer 미들웨어를 사용하여 불변성을 유지하면서 상태를 업데이트
       immer((...opts) => ({
         ...createUserSlice(...opts),
+        ...createModalSlice(...opts),
+        ...createSearchBarSlice(...opts),
+        ...createRenameSlice(...opts),
       })),
       // persist 미들웨어의 옵션
       {

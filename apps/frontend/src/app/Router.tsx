@@ -1,6 +1,6 @@
-import { createBrowserRouter, Navigate } from "react-router-dom";
+import { createBrowserRouter, Navigate, Outlet } from "react-router-dom";
 import type { RouteObject } from "react-router-dom";
-import { HomePage } from "@/pages/home/ui/HomePage.tsx";
+import { useEffect } from "react";
 import { LoginPage } from "@/pages/login/ui/LoginPage.tsx";
 import { RegisterPage } from "@/pages/register/ui/RegisterPage.tsx";
 import { LandingPage } from "@/pages/landing/ui/LandingPage.tsx";
@@ -11,6 +11,12 @@ import { TrashPage } from "@/pages/Trash/ui/TrashPage.tsx";
 import { CodePage } from "@/pages/code/ui/CodePage.tsx";
 import { NotFoundPage } from "@/pages/notFound/ui/NotFoundPage.tsx";
 import { FolderPage } from "@/pages/folder/ui/FolderPage.tsx";
+import { Modal } from "@/shared/ui/modal/Modal.tsx";
+import { DocumentsPage } from "@/pages/documents/ui/DocumentsPage.tsx";
+import { PhotosPage } from "@/pages/photos/ui/PhotosPage.tsx";
+import { RecentPage } from "@/pages/recent/ui/RecentPage.tsx";
+import { trpc } from "@/shared/api/trpc.ts";
+import { SearchResultsPage } from "@/pages/SearchResults/ui/SearchResultsPage.tsx";
 
 function RedirectAuthedUserToHome({
   children,
@@ -18,7 +24,9 @@ function RedirectAuthedUserToHome({
   children: React.ReactNode;
 }): React.ReactNode {
   const { user } = useBoundStore();
-  return user ? <Navigate to="/home" replace /> : children;
+  return user ?
+      <Navigate to={`/folder/${user.rootFolderId}`} replace />
+    : children;
 }
 
 function RequireAuth({
@@ -30,66 +38,106 @@ function RequireAuth({
   return user ? children : <Navigate to="/login" replace />;
 }
 
+function CheckAuth(): React.ReactNode {
+  const { user, setUser, clearUser } = useBoundStore();
+  const query = trpc.session.validate.useQuery(undefined, {
+    enabled: user !== null,
+    refetchOnMount: user !== null,
+    refetchOnReconnect: user !== null,
+    refetchInterval: 1000 * 60 * 5,
+  });
+
+  useEffect(() => {
+    if (query.data) {
+      setUser(query.data);
+    }
+    if (query.error) {
+      clearUser();
+    }
+  }, [query.data, query.error, setUser, clearUser]);
+
+  return null;
+}
+
 const routeTree: RouteObject[] = [
   {
-    path: "/",
     element: (
-      <RedirectAuthedUserToHome>
-        <LandingPage />
-      </RedirectAuthedUserToHome>
+      <>
+        <Modal />
+        <CheckAuth />
+        <Outlet />
+      </>
     ),
-  },
-  {
-    path: "/home",
-    element: (
-      <RequireAuth>
-        <HomePage />
-      </RequireAuth>
-    ),
-  },
-  {
-    path: "/login",
-    element: (
-      <RedirectAuthedUserToHome>
-        <LoginPage />
-      </RedirectAuthedUserToHome>
-    ),
-  },
-  {
-    path: "/register",
-    element: (
-      <RedirectAuthedUserToHome>
-        <RegisterPage />
-      </RedirectAuthedUserToHome>
-    ),
-  },
-  {
-    path: "/upload",
-    element: <UploadByCodePage />,
-  },
-  {
-    path: "/download",
-    element: <DownloadByCodePage />,
-  },
-  {
-    path: "/c/:code",
-    element: <CodePage />,
-  },
-  {
-    path: "/folder/:folderId",
-    element: (
-      <RequireAuth>
-        <FolderPage />
-      </RequireAuth>
-    ),
-  },
-  {
-    path: "/Trash",
-    element: <TrashPage />,
-  },
-  {
-    path: "*",
-    element: <NotFoundPage />,
+    children: [
+      {
+        path: "/",
+        element: (
+          <RedirectAuthedUserToHome>
+            <LandingPage />
+          </RedirectAuthedUserToHome>
+        ),
+      },
+      {
+        path: "/login",
+        element: (
+          <RedirectAuthedUserToHome>
+            <LoginPage />
+          </RedirectAuthedUserToHome>
+        ),
+      },
+      {
+        path: "/register",
+        element: (
+          <RedirectAuthedUserToHome>
+            <RegisterPage />
+          </RedirectAuthedUserToHome>
+        ),
+      },
+      {
+        path: "/upload",
+        element: <UploadByCodePage />,
+      },
+      {
+        path: "/download",
+        element: <DownloadByCodePage />,
+      },
+      {
+        path: "/c/:code",
+        element: <CodePage />,
+      },
+      {
+        path: "/folder/:folderId",
+        element: (
+          <RequireAuth>
+            <FolderPage />
+          </RequireAuth>
+        ),
+      },
+      {
+        path: "/trash",
+        element: <TrashPage />,
+      },
+      {
+        path: "/documents",
+        element: <DocumentsPage />,
+      },
+      {
+        path: "/photos",
+        element: <PhotosPage />,
+      },
+      {
+        path: "/recent",
+        element: <RecentPage />,
+      },
+      {
+        path: "/search",
+        element: <SearchResultsPage />,
+      },
+      {
+        path: "*",
+        element: <NotFoundPage />,
+      },
+    ],
   },
 ];
 

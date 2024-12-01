@@ -13,8 +13,6 @@ type UseUploadOptions = UseTRPCMutationOptions<
 interface UseUpload {
   selectedFile: File | null;
 
-  code: string | undefined;
-
   submissionError: string | undefined;
 
   mutation: ReturnType<typeof trpc.file.uploadPublic.useMutation>;
@@ -31,18 +29,16 @@ interface UseUpload {
    *
    * @param e - Form 요소의 submit 이벤트 객체
    */
-  handleFormSubmit: (e: React.FormEvent<HTMLFormElement>) => void;
+  upload: () => void;
 }
 
 export const useUploadPublic = (opts?: UseUploadOptions): UseUpload => {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
-  const [code, setCode] = useState<string>();
   const [submissionError, setSubmissionError] = useState<string>();
 
   const mutation = trpc.file.uploadPublic.useMutation({
     ...opts,
     onSuccess: (data, variable, context) => {
-      setCode(data.code);
       opts?.onSuccess?.(data, variable, context);
     },
     onError: (error, variable, context) => {
@@ -57,8 +53,7 @@ export const useUploadPublic = (opts?: UseUploadOptions): UseUpload => {
     }
   };
 
-  const handleFormSubmit = (e: React.FormEvent<HTMLFormElement>): void => {
-    e.preventDefault();
+  const upload = (): void => {
     if (!selectedFile) {
       return;
     }
@@ -66,14 +61,14 @@ export const useUploadPublic = (opts?: UseUploadOptions): UseUpload => {
     const formData = new FormData();
     formData.set("file", selectedFile);
     mutation.mutate(formData);
+    setSelectedFile(null);
   };
 
   return {
     selectedFile,
-    code,
     mutation,
     submissionError,
     handleFileChange,
-    handleFormSubmit,
+    upload,
   };
 };
