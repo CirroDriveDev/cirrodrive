@@ -8,7 +8,7 @@ import {
   Edit2,
   MoveIcon,
 } from "lucide-react";
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import type { EntryDTO } from "@cirrodrive/schemas";
 import { useNavigate } from "react-router-dom";
 import { formatSize } from "@/entities/entry/lib/formatSize.ts";
@@ -30,6 +30,7 @@ import { useFolderDelete } from "@/pages/Trash/api/useFolderDelete.ts";
 import { useRestore } from "@/pages/Trash/api/useRestore.ts";
 import { useMoveEntry } from "@/entities/entry/hooks/useMoveEntry.tsx";
 import { useGetCodeByFileId } from "@/entities/code/api/useCreateCode.tsx";
+import { useRenameStore } from "@/shared/store/useRenameStore.ts";
 
 interface EntryItemProps {
   entry: EntryDTO;
@@ -38,6 +39,7 @@ interface EntryItemProps {
 export function EntryItem({ entry }: EntryItemProps): JSX.Element {
   const { id, name, type, size, trashedAt } = entry;
   const navigate = useNavigate();
+  const { folderId } = useRenameStore();
 
   // 이름 변경
   const [isEditing, setIsEditing] = useState(false);
@@ -46,6 +48,12 @@ export function EntryItem({ entry }: EntryItemProps): JSX.Element {
     id,
     type === "folder",
   );
+
+  useEffect(() => {
+    if (folderId === id && type === "folder") {
+      setIsEditing(true);
+    }
+  }, [folderId, id, type]);
 
   // 변수 이름 변경: newName1 -> newNameValue
   const handleRename = (newNameValue: string): void => {
