@@ -31,7 +31,7 @@ export function DocumentsPage(): JSX.Element {
     >
       <div className="flex w-full flex-grow flex-col items-center">
         <div className="flex h-16 w-full items-center space-x-4 p-4">
-          <FolderName folderId={null} folderName="사진" />
+          <FolderName folderId={null} folderName="문서" />
         </div>
         <div className="flex w-full px-4">
           {entryListByUserQuery.isLoading || !entryListByUserQuery.data ?
