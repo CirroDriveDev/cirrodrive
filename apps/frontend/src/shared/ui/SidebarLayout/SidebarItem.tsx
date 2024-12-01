@@ -19,7 +19,7 @@ export function SidebarItem({
 
   return (
     <Button variant="ghost" onClick={handleClick} className="h-10 w-full">
-      {icon}
+      {icon} <span className="mx-1" />
       {label}
     </Button>
   );
