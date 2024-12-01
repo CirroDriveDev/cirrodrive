@@ -87,7 +87,7 @@ export function EntryItem({ entry }: EntryItemProps): JSX.Element {
 
   // 휴지통
   const { handleTrash } = useTrash(id);
-  const { restore } = useRestore(id); // 복원하기
+  const { handleRestore } = useRestore(id); // 복원하기
 
   // 완전 삭제
   const { handleFileDelete } = useFileDelete(id);
@@ -188,16 +188,20 @@ export function EntryItem({ entry }: EntryItemProps): JSX.Element {
                   <MoveIcon />
                   <span>이동</span>
                 </DropdownMenuItem>
-                <DropdownMenuItem onClick={handleTrash}>
-                  <Trash2 />
-                  <span>휴지통</span>
-                </DropdownMenuItem>
+                {["file", "folder"].includes(type) && (
+                  <DropdownMenuItem onClick={() => handleTrash(type)}>
+                    <Trash2 />
+                    <span>휴지통</span>
+                  </DropdownMenuItem>
+                )}
               </DropdownMenuGroup>
             : <DropdownMenuGroup>
-                <DropdownMenuItem onClick={restore}>
-                  <Activity />
-                  <span>복원하기</span>
-                </DropdownMenuItem>
+                {["file", "folder"].includes(type) && (
+                  <DropdownMenuItem onClick={() => handleRestore(type)}>
+                    <Activity />
+                    <span>복원하기</span>
+                  </DropdownMenuItem>
+                )}
                 <DropdownMenuItem onClick={deleteEntry}>
                   <Trash2Icon />
                   <span>삭제하기</span>

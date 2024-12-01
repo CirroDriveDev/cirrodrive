@@ -1,42 +1,70 @@
 import { useState } from "react";
+import { useQueryClient } from "@tanstack/react-query";
 import { trpc } from "@/shared/api/trpc.ts";
-import { useEntryUpdatedEvent } from "@/entities/entry/api/useEntryUpdatedEvent.ts";
+import { entryListQueryKey } from "@/entities/entry/api/useEntryList.ts";
+import { trashEntryListQueryKey } from "@/entities/entry/api/useTrashEntryList.ts";
 
 interface UseRestore {
-  restore: () => void; // 복원하기 함수
+  handleRestore: (type: "file" | "folder") => void; // 복원 함수 (파일/폴더 구분)
   isMutating: boolean; // 요청 진행 상태
   success: boolean | null; // 요청 성공 여부
 }
 
-export const useRestore = (fileId: number): UseRestore => {
-  const { entryUpdatedEvent } = useEntryUpdatedEvent();
+export const useRestore = (id: number): UseRestore => {
+  const queryClient = useQueryClient();
   const [isMutating, setIsMutating] = useState(false);
   const [success, setSuccess] = useState<boolean | null>(null);
 
-  const mutation = trpc.file.restoreFromTrash.useMutation({
+  // 파일 복원 Mutation
+  const fileMutation = trpc.file.restoreFromTrash.useMutation({
     onMutate: () => {
       setIsMutating(true);
-      setSuccess(null); // 성공 여부 초기화
+      setSuccess(null); // 초기화
     },
     onSuccess: async () => {
-      await entryUpdatedEvent();
-      setSuccess(true); //요청 성공 시 성공 여부를 true로 설정
+      await queryClient.invalidateQueries({ queryKey: entryListQueryKey });
+      await queryClient.invalidateQueries({ queryKey: trashEntryListQueryKey });
+      setSuccess(true); // 성공 상태
     },
     onError: () => {
-      setSuccess(false); ////요청 실패 시 성공 여부를 false로 설정
+      setSuccess(false); // 실패 상태
     },
     onSettled: () => {
-      setIsMutating(false); //요청 완료 시 진행 상태를 false로 설정
+      setIsMutating(false); // 진행 상태 초기화
     },
   });
-  // 복원하기 이동
-  const restore = (): void => {
-    if (isMutating) return; // 요청 중 중복 호출 방지
-    mutation.mutate({ fileId });
+
+  // 폴더 복원 Mutation
+  const folderMutation = trpc.folder.restoreFromTrash.useMutation({
+    onMutate: () => {
+      setIsMutating(true);
+      setSuccess(null); // 초기화
+    },
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({ queryKey: entryListQueryKey });
+      await queryClient.invalidateQueries({ queryKey: trashEntryListQueryKey });
+      setSuccess(true); // 성공 상태
+    },
+    onError: () => {
+      setSuccess(false); // 실패 상태
+    },
+    onSettled: () => {
+      setIsMutating(false); // 진행 상태 초기화
+    },
+  });
+
+  // 파일 또는 폴더 복원
+  const handleRestore = (type: "file" | "folder"): void => {
+    if (isMutating) return; // 중복 호출 방지
+    if (type === "file") {
+      fileMutation.mutate({ fileId: id });
+    } else if (type === "folder") {
+      folderMutation.mutate({ folderId: id });
+    }
   };
-  //사용할 값 반환
+
   return {
-    restore,
+    handleRestore,
     isMutating,
     success,
   };
