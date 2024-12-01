@@ -146,11 +146,22 @@ export function EntryItem({ entry }: EntryItemProps): JSX.Element {
       </div>
       <div className="flex min-w-32 flex-grow items-center gap-2" ref={nameRef}>
         {isEditing ?
-          <div className="flex items-center gap-2">
+          <div
+            className="flex items-center gap-2"
+            onKeyDown={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+            }}
+          >
             <input
               type="text"
               value={newName}
-              onChange={(e) => setNewName(e.target.value)}
+              onChange={(e) => {
+                e.stopPropagation();
+                e.preventDefault();
+                setNewName(e.target.value);
+                setTimeout(() => e.target.focus(), 100);
+              }}
               onBlur={handleRenameSubmit}
               onKeyDown={handleKeyDown}
               autoFocus
@@ -204,11 +215,10 @@ export function EntryItem({ entry }: EntryItemProps): JSX.Element {
                   onClick={() => {
                     setTimeout(() => {
                       setIsEditing(true);
-                    }, 100);
-                    setTimeout(() => {
-                      setIsEditing(true);
-                    }, 100);
+                    }, 0);
                   }}
+                  onPointerLeave={(event) => event.preventDefault()}
+                  onPointerMove={(event) => event.preventDefault()}
                 >
                   <Edit2 />
                   <span>이름 변경</span>
