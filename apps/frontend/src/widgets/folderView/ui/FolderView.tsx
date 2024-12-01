@@ -12,6 +12,7 @@ import { useFolderPath } from "@/widgets/folderView/api/useFolderPath.ts";
 import { FolderName } from "@/widgets/folderView/ui/FolderName.tsx";
 import { useBoundStore } from "@/shared/store/useBoundStore.ts";
 import { useFolderCreate } from "@/entities/file/api/useFolderCreate.ts";
+import { DragAndDropUploadOverlay } from "@/features/folderContent/ui/DragAndDropUploadOverlay.tsx";
 
 interface FolderViewProps {
   folderId: number;
@@ -64,10 +65,19 @@ export function FolderView({ folderId }: FolderViewProps): JSX.Element {
           <Button onClick={handleFileSelect}>업로드</Button>
           <Button onClick={createFolder}>폴더 생성</Button>
         </div>
-        <div className="flex w-full px-4">
+        <div className="relative flex w-full px-4">
           {entryListQuery.isLoading || !entryListQuery.data ?
             <LoadingSpinner />
           : <EntryList entries={entryListQuery.data} />}
+
+          <div className="pointer-events-none absolute h-full w-full">
+            <DragAndDropUploadOverlay
+              folderId={folderId}
+              onUploadSuccess={() => {
+                void entryListQuery.refetch();
+              }}
+            />
+          </div>
         </div>
       </div>
     </SidebarLayout>
