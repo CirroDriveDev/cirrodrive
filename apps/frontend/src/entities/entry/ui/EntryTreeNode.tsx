@@ -17,12 +17,14 @@ interface EntryTreeNodeProps {
     entry: RecursiveEntryDTO,
   ) => void;
   isOpened?: boolean;
+  highlight?: boolean;
 }
 
 export function EntryTreeNode({
   entry,
   onClick,
   isOpened,
+  highlight,
 }: EntryTreeNodeProps): React.ReactNode {
   const { user } = useUserStore();
   const { folderId } = useParams();
@@ -30,6 +32,12 @@ export function EntryTreeNode({
   const [isOpen, setIsOpen] = useState(isOpened ?? false);
 
   const isFolder = entry.type === "folder";
+  let buttonVariant: "ghost" | "default" = "ghost";
+
+  if (highlight && folderId === entry.id.toString()) {
+    buttonVariant = "default";
+  }
+
   if (!isFolder) {
     return null;
   }
@@ -38,7 +46,7 @@ export function EntryTreeNode({
     <div className="flex flex-col">
       {/* 파일 */}
       <Button
-        variant={folderId === entry.id.toString() ? "default" : "ghost"}
+        variant={buttonVariant}
         className="flex h-max justify-start space-x-2 p-1"
         onClick={(e) => {
           if (onClick) {
@@ -74,7 +82,12 @@ export function EntryTreeNode({
         }}
       >
         {entry.entries?.map((subEntry) => (
-          <EntryTreeNode key={subEntry.id} entry={subEntry} onClick={onClick} />
+          <EntryTreeNode
+            key={subEntry.id}
+            entry={subEntry}
+            onClick={onClick}
+            highlight={highlight}
+          />
         ))}
       </div>
     </div>

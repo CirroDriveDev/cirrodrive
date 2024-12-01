@@ -12,7 +12,7 @@ export function MemberSidebar(): JSX.Element {
       <nav className="flex flex-grow flex-col space-y-4 p-4">
         {/* 내 파일 */}
         {query.data ?
-          <EntryTreeNode entry={query.data} />
+          <EntryTreeNode entry={query.data} highlight />
         : null}
         {/* 문서 */}
         <SidebarItem label="문서" path="/documents" />
