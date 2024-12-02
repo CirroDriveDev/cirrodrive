@@ -37,33 +37,37 @@ export function DragAndDropUploadOverlay({
   };
 
   useEffect(() => {
-    const handleDragOver = (e: DragEvent): void => {
+    const handleDragEnter = (e: DragEvent): void => {
       e.preventDefault();
       setDragOver(true);
     };
-    const handleDragLeave = (e: DragEvent): void => {
-      e.preventDefault();
-      setDragOver(false);
-    };
 
-    window.addEventListener("dragover", handleDragOver);
-    window.addEventListener("dragleave", handleDragLeave);
+    window.addEventListener("dragenter", handleDragEnter);
     return () => {
-      window.removeEventListener("dragover", handleDragOver);
-      window.removeEventListener("dragleave", handleDragLeave);
+      window.removeEventListener("dragenter", handleDragEnter);
     };
   });
 
   return (
     <div
       onDrop={handleDrop}
+      onDragOver={(e) => {
+        e.preventDefault();
+        setDragOver(true);
+      }}
+      onDragLeave={(e) => {
+        e.preventDefault();
+        setDragOver(false);
+      }}
       style={{
         visibility: dragOver ? "visible" : "hidden",
       }}
       className="pointer-events-auto flex h-full w-full flex-col items-center justify-center space-y-4 rounded border-2 border-dashed border-blue-500 bg-background opacity-80 transition"
     >
-      <FileIcon className="h-32 w-32 text-blue-500" />
-      <p className="text-gray-500">파일을 여기에 드래그하세요.</p>
+      <FileIcon className="pointer-events-none h-32 w-32 text-blue-500" />
+      <p className="pointer-events-none text-gray-500">
+        파일을 여기에 드래그하세요.
+      </p>
     </div>
   );
 }
