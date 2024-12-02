@@ -134,7 +134,7 @@ export function EntryItem({
 
   return (
     <div
-      className="flex w-full cursor-pointer items-center justify-between gap-4 px-4 py-2 hover:bg-gray-200"
+      className="flex w-full cursor-pointer items-center justify-between gap-4 px-4 py-2 hover:bg-accent"
       onDoubleClick={handleDoubleClick}
     >
       <div className="flex w-8 items-center justify-center">
@@ -182,7 +182,7 @@ export function EntryItem({
         }
       </div>
       <div className="w-52 text-nowrap">{displayUpdatedAt}</div>
-      <div className="w-16">{displaySize}</div>
+      <div className="w-20">{displaySize}</div>
       <div className="flex w-8 items-center justify-center">
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
