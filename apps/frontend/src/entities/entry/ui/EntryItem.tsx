@@ -149,7 +149,6 @@ export function EntryItem({ entry }: EntryItemProps): JSX.Element {
           <div
             className="flex items-center gap-2"
             onKeyDown={(e) => {
-              e.preventDefault();
               e.stopPropagation();
             }}
           >
@@ -157,8 +156,6 @@ export function EntryItem({ entry }: EntryItemProps): JSX.Element {
               type="text"
               value={newName}
               onChange={(e) => {
-                e.stopPropagation();
-                e.preventDefault();
                 setNewName(e.target.value);
                 setTimeout(() => e.target.focus(), 100);
               }}
@@ -217,6 +214,7 @@ export function EntryItem({ entry }: EntryItemProps): JSX.Element {
                       setIsEditing(true);
                     }, 0);
                   }}
+                  className="hover:bg-accent"
                   onPointerLeave={(event) => event.preventDefault()}
                   onPointerMove={(event) => event.preventDefault()}
                 >
