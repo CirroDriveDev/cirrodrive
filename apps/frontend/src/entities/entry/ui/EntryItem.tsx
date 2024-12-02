@@ -34,9 +34,13 @@ import { useRenameStore } from "@/shared/store/useRenameStore.ts";
 
 interface EntryItemProps {
   entry: EntryDTO;
+  onDoubleClick?: (e: React.MouseEvent<HTMLDivElement>) => void;
 }
 
-export function EntryItem({ entry }: EntryItemProps): JSX.Element {
+export function EntryItem({
+  entry,
+  onDoubleClick,
+}: EntryItemProps): JSX.Element {
   const { id, name, type, size, trashedAt } = entry;
   const navigate = useNavigate();
   const { folderId, clearFolderId } = useRenameStore();
@@ -118,8 +122,10 @@ export function EntryItem({ entry }: EntryItemProps): JSX.Element {
   const deleteEntry = type === "folder" ? handleFolderDelete : handleFileDelete;
 
   // 이벤트 핸들러
-  const handleDoubleClick = (): void => {
-    if (type === "folder") {
+  const handleDoubleClick = (e: React.MouseEvent<HTMLDivElement>): void => {
+    if (onDoubleClick) {
+      onDoubleClick(e);
+    } else if (type === "folder") {
       navigate(`/folder/${id}`);
     } else {
       downloadEntry();
