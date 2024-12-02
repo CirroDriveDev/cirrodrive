@@ -81,14 +81,18 @@ export function EntryTreeNode({
           display: isOpen && isFolder ? "block" : "none",
         }}
       >
-        {entry.entries?.map((subEntry) => (
-          <EntryTreeNode
-            key={subEntry.id}
-            entry={subEntry}
-            onClick={onClick}
-            highlight={highlight}
-          />
-        ))}
+        {entry.entries
+          ?.sort((a, b) => {
+            return a.name.localeCompare(b.name);
+          })
+          .map((subEntry) => (
+            <EntryTreeNode
+              key={subEntry.id}
+              entry={subEntry}
+              onClick={onClick}
+              highlight={highlight}
+            />
+          ))}
       </div>
     </div>
   );
