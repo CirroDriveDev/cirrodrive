@@ -2,11 +2,11 @@ import { useNavigate } from "react-router-dom";
 import { useTrashEntryList } from "@/entities/entry/api/useTrashEntryList.ts";
 import { Header } from "@/shared/ui/layout/Header.tsx";
 import { Sidebar } from "@/shared/ui/SidebarLayout/Sidebar.tsx";
-import { EntryList } from "@/entities/entry/ui/EntryList.tsx";
 import { SidebarLayout } from "@/shared/ui/SidebarLayout/SidebarLayout.tsx";
 import { useBoundStore } from "@/shared/store/useBoundStore.ts";
 import { LoadingSpinner } from "@/shared/components/LoadingSpinner.tsx";
 import { useSearchBarStore } from "@/shared/store/useSearchBarStore.ts";
+import { TrashEntryList } from "@/entities/entry/ui/TrashEntryList.tsx";
 
 export function TrashPage(): JSX.Element {
   const navigate = useNavigate();
@@ -31,7 +31,7 @@ export function TrashPage(): JSX.Element {
         <div className="flex w-full px-4">
           {trashEntryListQuery.isLoading || !trashEntryListQuery.data ?
             <LoadingSpinner />
-          : <EntryList entries={filteredEntries} />}
+          : <TrashEntryList entries={filteredEntries} />}
         </div>
       </div>
     </SidebarLayout>

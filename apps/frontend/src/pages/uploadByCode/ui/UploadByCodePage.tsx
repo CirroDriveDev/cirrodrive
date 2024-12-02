@@ -6,8 +6,8 @@ export function UploadByCodePage(): JSX.Element {
   return (
     // TODO: 반응형 UI 구현
     <Layout header={<Header />}>
-      <div className="w-full">
-        <div className="flex h-[720px] items-center justify-center">
+      <div className="flex w-full flex-col">
+        <div className="flex flex-grow items-center justify-center">
           <div className="bg-gray-50">
             <DragAndDropUpload />
           </div>

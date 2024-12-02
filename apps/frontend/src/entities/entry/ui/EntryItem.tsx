@@ -34,12 +34,16 @@ import { useRenameStore } from "@/shared/store/useRenameStore.ts";
 
 interface EntryItemProps {
   entry: EntryDTO;
+  onDoubleClick?: (e: React.MouseEvent<HTMLDivElement>) => void;
 }
 
-export function EntryItem({ entry }: EntryItemProps): JSX.Element {
+export function EntryItem({
+  entry,
+  onDoubleClick,
+}: EntryItemProps): JSX.Element {
   const { id, name, type, size, trashedAt } = entry;
   const navigate = useNavigate();
-  const { folderId } = useRenameStore();
+  const { folderId, clearFolderId } = useRenameStore();
 
   // 이름 변경
   const [isEditing, setIsEditing] = useState(false);
@@ -53,7 +57,8 @@ export function EntryItem({ entry }: EntryItemProps): JSX.Element {
     if (folderId === id && type === "folder") {
       setIsEditing(true);
     }
-  }, [folderId, id, type]);
+    return clearFolderId;
+  }, [folderId, id, type, clearFolderId]);
 
   // 변수 이름 변경: newName1 -> newNameValue
   const handleRename = (newNameValue: string): void => {
@@ -63,6 +68,7 @@ export function EntryItem({ entry }: EntryItemProps): JSX.Element {
       handleRenameFile(newNameValue); // 파일 이름 변경
     }
   };
+
   const handleRenameSubmit = (): void => {
     if (newName !== name) {
       handleRename(newName);
@@ -116,8 +122,10 @@ export function EntryItem({ entry }: EntryItemProps): JSX.Element {
   const deleteEntry = type === "folder" ? handleFolderDelete : handleFileDelete;
 
   // 이벤트 핸들러
-  const handleDoubleClick = (): void => {
-    if (type === "folder") {
+  const handleDoubleClick = (e: React.MouseEvent<HTMLDivElement>): void => {
+    if (onDoubleClick) {
+      onDoubleClick(e);
+    } else if (type === "folder") {
       navigate(`/folder/${id}`);
     } else {
       downloadEntry();
@@ -128,18 +136,6 @@ export function EntryItem({ entry }: EntryItemProps): JSX.Element {
     <div
       className="flex w-full cursor-pointer items-center justify-between gap-4 px-4 py-2 hover:bg-gray-200"
       onDoubleClick={handleDoubleClick}
-      draggable
-      onDragStart={(e) => {
-        e.dataTransfer.setData(
-          "application/json",
-          JSON.stringify({
-            file: {
-              name,
-              type: type !== "folder" ? type : undefined,
-            },
-          }),
-        );
-      }}
     >
       <div className="flex w-8 items-center justify-center">
         <EntryIcon variant={iconVariant} />
@@ -149,7 +145,6 @@ export function EntryItem({ entry }: EntryItemProps): JSX.Element {
           <div
             className="flex items-center gap-2"
             onKeyDown={(e) => {
-              e.preventDefault();
               e.stopPropagation();
             }}
           >
@@ -157,8 +152,6 @@ export function EntryItem({ entry }: EntryItemProps): JSX.Element {
               type="text"
               value={newName}
               onChange={(e) => {
-                e.stopPropagation();
-                e.preventDefault();
                 setNewName(e.target.value);
                 setTimeout(() => e.target.focus(), 100);
               }}
@@ -217,6 +210,7 @@ export function EntryItem({ entry }: EntryItemProps): JSX.Element {
                       setIsEditing(true);
                     }, 0);
                   }}
+                  className="hover:bg-accent"
                   onPointerLeave={(event) => event.preventDefault()}
                   onPointerMove={(event) => event.preventDefault()}
                 >
