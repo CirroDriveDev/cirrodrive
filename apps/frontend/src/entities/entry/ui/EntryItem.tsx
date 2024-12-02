@@ -39,7 +39,7 @@ interface EntryItemProps {
 export function EntryItem({ entry }: EntryItemProps): JSX.Element {
   const { id, name, type, size, trashedAt } = entry;
   const navigate = useNavigate();
-  const { folderId } = useRenameStore();
+  const { folderId, clearFolderId } = useRenameStore();
 
   // 이름 변경
   const [isEditing, setIsEditing] = useState(false);
@@ -53,7 +53,8 @@ export function EntryItem({ entry }: EntryItemProps): JSX.Element {
     if (folderId === id && type === "folder") {
       setIsEditing(true);
     }
-  }, [folderId, id, type]);
+    return clearFolderId;
+  }, [folderId, id, type, clearFolderId]);
 
   // 변수 이름 변경: newName1 -> newNameValue
   const handleRename = (newNameValue: string): void => {
