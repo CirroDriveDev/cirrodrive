@@ -41,12 +41,15 @@ export function FolderView({ folderId }: FolderViewProps): JSX.Element {
 
   const { query: folderPathQuery } = useFolderPath(folderId);
 
-  const sortedEntries = entryListQuery.data?.sort((a, b) => {
-    if (a.type === b.type) {
-      return a.name.localeCompare(b.name);
-    }
-    return a.type === "folder" ? -1 : 1;
-  });
+  const sortedEntries =
+    entryListQuery.data ?
+      [...entryListQuery.data].sort((a, b) => {
+        if (a.type === b.type) {
+          return a.name.localeCompare(b.name);
+        }
+        return a.type === "folder" ? -1 : 1;
+      })
+    : [];
 
   return (
     <SidebarLayout header={<Header />} sidebar={<Sidebar />}>
