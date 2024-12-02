@@ -675,16 +675,15 @@ export class FileService {
       throw new Error("휴지통에 있는 파일의 이름은 변경할 수 없습니다.");
     }
 
-    if (
-      await this.existsByName({ name, parentFolderId: file.parentFolderId })
-    ) {
-      throw new Error("동일한 이름의 파일이 이미 존재합니다.");
-    }
+    const newName = await this.generateFileName({
+      parentFolderId: file.parentFolderId,
+      name,
+    });
 
     // 파일 이름 변경
     const newFile = await this.fileMetadataModel.update({
       where: { id: fileId },
-      data: { name },
+      data: { name: newName },
     });
 
     return newFile;

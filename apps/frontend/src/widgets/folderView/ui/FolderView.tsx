@@ -41,6 +41,13 @@ export function FolderView({ folderId }: FolderViewProps): JSX.Element {
 
   const { query: folderPathQuery } = useFolderPath(folderId);
 
+  const sortedEntries = entryListQuery.data?.sort((a, b) => {
+    if (a.type === b.type) {
+      return a.name.localeCompare(b.name);
+    }
+    return a.type === "folder" ? -1 : 1;
+  });
+
   return (
     <SidebarLayout header={<Header />} sidebar={<Sidebar />}>
       <div className="flex w-full flex-grow flex-col items-center">
@@ -74,9 +81,9 @@ export function FolderView({ folderId }: FolderViewProps): JSX.Element {
           <Button onClick={createFolder}>폴더 생성</Button>
         </div>
         <div className="relative flex w-full px-4">
-          {entryListQuery.isLoading || !entryListQuery.data ?
+          {entryListQuery.isLoading || !sortedEntries ?
             <LoadingSpinner />
-          : <EntryList entries={entryListQuery.data} />}
+          : <EntryList entries={sortedEntries} />}
 
           <div className="pointer-events-none absolute h-full w-full">
             <DragAndDropUploadOverlay
