@@ -113,7 +113,11 @@ export class FileService {
           `파일 경로 ${filePath}에 해당하는 파일을 찾을 수 없습니다.`,
         );
       }
-
+      if (fileMetadata.trashedAt) {
+        throw new Error(
+          `파일 ID ${fileId}은(는) 휴지통에 있습니다. 다운로드할 수 없습니다.`,
+        );
+      }
       const fileBuffer = fs.readFileSync(filePath);
       const file = new File([fileBuffer], fileMetadata.name);
 
