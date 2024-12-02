@@ -25,6 +25,9 @@ export function Header(): JSX.Element {
           <SearchBar />
 
           <div className="flex space-x-4">
+            <Link to="/download">
+              <NavButton>다운로드</NavButton>
+            </Link>
             <NavButton onClick={logout}>로그아웃</NavButton>
             <ModeToggle />
           </div>
