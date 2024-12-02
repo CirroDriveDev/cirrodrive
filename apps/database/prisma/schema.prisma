@@ -78,7 +78,7 @@ model Code {
   expiresAt  DateTime
   fileId     Int
   userId     Int? // 변경: nullable로 설정
-  file       FileMetadata @relation(fields: [fileId], references: [id])
+  file       FileMetadata @relation(fields: [fileId], references: [id], onDelete: Cascade)
   user       User?        @relation(fields: [userId], references: [id])
 }
 
