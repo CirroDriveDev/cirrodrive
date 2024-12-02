@@ -41,6 +41,11 @@ export const inferFileType = (name: string): EntryMIMEType => {
     case "ini":
     case "cfg":
     case "log":
+    case "pdf":
+    case "hwp":
+    case "pptx":
+    case "docx":
+    case "xlsx":
       return "text";
     default:
       return "file";
