@@ -7,6 +7,7 @@ import { useBoundStore } from "@/shared/store/useBoundStore.ts";
 import { LoadingSpinner } from "@/shared/components/LoadingSpinner.tsx";
 import { useSearchBarStore } from "@/shared/store/useSearchBarStore.ts";
 import { TrashEntryList } from "@/entities/entry/ui/TrashEntryList.tsx";
+import { FolderName } from "@/widgets/folderView/ui/FolderName.tsx";
 
 export function TrashPage(): JSX.Element {
   const navigate = useNavigate();
@@ -28,6 +29,9 @@ export function TrashPage(): JSX.Element {
   return (
     <SidebarLayout header={<Header />} sidebar={<Sidebar />}>
       <div className="flex w-full flex-grow flex-col items-center">
+        <div className="flex h-16 w-full items-center space-x-4 p-4">
+          <FolderName folderId={null} folderName="휴지통" />
+        </div>
         <div className="flex w-full px-4">
           {trashEntryListQuery.isLoading || !trashEntryListQuery.data ?
             <LoadingSpinner />
