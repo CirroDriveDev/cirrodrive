@@ -28,7 +28,7 @@ export function FolderView({ folderId }: FolderViewProps): JSX.Element {
     },
   });
   const { query: entryListQuery } = useEntryList(folderId);
-  const { handleFileSelect } = useUpload(folderId, {
+  const { handleFileSelect, isPending } = useUpload(folderId, {
     onSuccess: () => {
       void entryListQuery.refetch();
     },
@@ -68,7 +68,9 @@ export function FolderView({ folderId }: FolderViewProps): JSX.Element {
             ))}
         </div>
         <div className="flex w-full space-x-4 p-4">
-          <Button onClick={handleFileSelect}>업로드</Button>
+          {isPending ?
+            <LoadingSpinner />
+          : <Button onClick={handleFileSelect}>업로드</Button>}
           <Button onClick={createFolder}>폴더 생성</Button>
         </div>
         <div className="relative flex w-full px-4">
