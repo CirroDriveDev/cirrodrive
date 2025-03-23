@@ -89,10 +89,9 @@ pipeline {
                     // .env 파일 생성
                     def envFileContent = """
                     CIRRODRIVE_HOME=${CIRRODRIVE_HOME}
-                    RDS_ROOT_PASSWORD=${MARIADB_ROOT_PASSWORD}
-                    RDS_USER=${MARIADB_USER}
-                    RDS_PASSWORD=${MARIADB_PASSWORD}
-                    RDS_PORT=${MARIADB_PORT}
+                    RDS_USER=${RDS_USER}
+                    RDS_PASSWORD=${RDS_PASSWORD}
+                    RDS_PORT=${RDS_PORT}
                     DATABASE_URL=${DATABASE_URL}
                     SHADOW_DATABASE_URL=${SHADOW_DATABASE_URL}
                     """.stripIndent()
