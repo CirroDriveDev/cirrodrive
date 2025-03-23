@@ -1,0 +1,65 @@
+<!doctype html>
+<html lang="ko">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>이메일에 보낼 코드 페이지</title>
+  </head>
+  <body
+    style="
+      font-family: Arial, sans-serif;
+      text-align: center;
+      background-color: #f4f4f4;
+      padding: 20px;
+    "
+  >
+    <table
+      width="100%"
+      style="
+        max-width: 600px;
+        background: #ffffff;
+        padding: 20px;
+        margin: auto;
+        border-radius: 10px;
+        border: 1px solid #ddd;
+      "
+    >
+      <!-- /logo.png로 하면 보이지 않아 ./logo.png로 하였음 나중에 수정 예정 -->
+      <tr>
+        <td style="text-align: center; padding: 20px 0">
+          <img
+            src="./logo.png"
+            alt="Logo"
+            style="max-width: 150px; height: auto; display: block; margin: auto"
+          />
+        </td>
+      </tr>
+
+      <tr>
+        <td style="text-align: center">
+          <h2 style="color: #333; margin-bottom: 10px">이메일 인증 코드</h2>
+          <p style="font-size: 16px; color: #555; margin-bottom: 10px">
+            아래 인증 코드를 입력해주세요.
+          </p>
+          <div
+            style="
+              display: inline-block;
+              background: #007bff;
+              color: #fff;
+              font-size: 24px;
+              font-weight: bold;
+              padding: 10px 20px;
+              border-radius: 5px;
+              margin-top: 10px;
+            "
+          >
+            123456<!--실제 코드가 들어갈 위치 -->
+          </div>
+          <p style="margin-top: 20px; font-size: 14px; color: #777">
+            이 코드는 5분 후 만료됩니다.
+          </p>
+        </td>
+      </tr>
+    </table>
+  </body>
+</html>
