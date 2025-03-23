@@ -10,24 +10,17 @@
   },
   "scripts": {
     "build": "prisma generate",
-    "build:dev": "prisma generate",
     "clean": "git clean -xdf .cache .turbo node_modules",
-    "dev": "docker-compose up -d database --build",
-    "dev:stop": "docker-compose down -v database",
     "format": "prettier --check . --ignore-path ../../.gitignore",
     "healthcheck": "vite-node healthcheck.ts",
     "lint": "eslint",
-    "start": "docker-compose up -d database --build",
-    "stop": "docker-compose down -v database",
     "db:generate": "prisma generate",
     "db:migrate:dev": "prisma migrate dev --create-only --name init",
     "db:migrate:deploy": "prisma migrate deploy",
     "db:studio": "prisma studio",
     "db:push": "prisma db push --accept-data-loss",
     "db:seed": "prisma db seed",
-    "predb:reset": "docker-compose down -v database",
-    "db:reset": "git clean -xdf cirrodrive-database-data",
-    "postdb:reset": "docker-compose up -d database --build && vite-node healthcheck.ts && prisma db push --accept-data-loss && prisma db seed"
+    "db:reset": "prisma migrate reset --force"
   },
   "dependencies": {
     "@prisma/client": "^5.21.1"
@@ -36,6 +29,7 @@
     "@cirrodrive/tsconfig": "workspace:^",
     "@node-rs/argon2": "^2.0.0",
     "@types/node": "^20.14.9",
+    "mysql2": "^3.14.0",
     "prisma": "^5.21.1",
     "vite-node": "^2.1.4"
   }

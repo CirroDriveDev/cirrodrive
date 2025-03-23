@@ -20,24 +20,11 @@
       "dependsOn": ["^build"],
       "outputs": [".cache/tsbuildinfo.json", "dist/**"]
     },
-    "build:dev": {
-      "dependsOn": ["^build:dev"],
-      "outputs": [".cache/tsbuildinfo.json", "dist/**"]
-    },
     "@cirrodrive/database#build": {
       "env": ["DATABASE_URL"],
       "outputs": ["dist/**"]
     },
-    "@cirrodrive/database#build:dev": {
-      "env": ["DATABASE_URL"],
-      "outputs": ["dist/**"]
-    },
-    "@cirrodrive/database#dev": {
-      "cache": false,
-      "persistent": false
-    },
     "@cirrodrive/database#healthcheck": {
-      "dependsOn": ["@cirrodrive/database#dev"],
       "cache": false
     },
     "@cirrodrive/database#db:push": {
@@ -48,17 +35,6 @@
       "dependsOn": ["@cirrodrive/database#db:push"],
       "cache": false,
       "persistent": true
-    },
-    "@cirrodrive/database#dev:stop": {
-      "cache": false
-    },
-    "start": {
-      "dependsOn": ["@cirrodrive/database#db:push"],
-      "cache": false,
-      "persistent": true
-    },
-    "stop": {
-      "cache": false
     },
     "clean": {
       "cache": false
