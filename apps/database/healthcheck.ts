@@ -15,9 +15,9 @@ const Console = {
 
 // RDS 접속 정보 설정
 const RDS_CONFIG = {
-  host: process.env.RDS_HOST || "",
   user: process.env.RDS_USER || "",
   password: process.env.RDS_PASSWORD || "",
+  host: process.env.RDS_HOST || "",
   port: Number(process.env.RDS_PORT) || 3306,
   connectTimeout: 5000, // 5초 타임아웃 설정
 };

@@ -91,9 +91,10 @@ pipeline {
                     CIRRODRIVE_HOME=${CIRRODRIVE_HOME}
                     RDS_USER=${RDS_USER}
                     RDS_PASSWORD=${RDS_PASSWORD}
+                    RDS_HOST=${RDS_HOST}
                     RDS_PORT=${RDS_PORT}
-                    DATABASE_URL=${DATABASE_URL}
-                    SHADOW_DATABASE_URL=${SHADOW_DATABASE_URL}
+                    RDS_DATABASE=${RDS_DATABASE}
+                    RDS_SHADOW_DATABASE=${RDS_SHADOW_DATABASE}
                     """.stripIndent()
 
                     writeFile file: './apps/database/.env', text: envFileContent
