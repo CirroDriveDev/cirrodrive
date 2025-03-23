@@ -13,6 +13,7 @@ pipeline {
     environment {
         TURBO_TELEMETRY_DISABLED = 1
         PNPM_HOME = '/pnpm'
+        MAIN = 'main'
 
         CIRRODRIVE_HOME = '~/cirrodrive'
 
