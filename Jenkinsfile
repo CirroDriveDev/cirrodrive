@@ -95,6 +95,8 @@ pipeline {
                     RDS_PORT=${RDS_PORT}
                     RDS_DATABASE=${RDS_DATABASE}
                     RDS_SHADOW_DATABASE=${RDS_SHADOW_DATABASE}
+                    DATABASE_URL=${DATABASE_URL}
+                    SHADOW_DATABASE_URL=${SHADOW_DATABASE_URL}
                     """.stripIndent()
 
                     writeFile file: './apps/database/.env', text: envFileContent

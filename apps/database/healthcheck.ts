@@ -49,12 +49,12 @@ async function isDatabaseHealthy(database: string): Promise<boolean> {
 // 1초 간격으로 RDS 상태를 확인하는 함수
 async function healthcheck(): Promise<void> {
   Console.log(`[RDS] 접속 정보:`);
-  Console.log(`  - Host: ${RDS_CONFIG.host}`);
   Console.log(`  - User: ${RDS_CONFIG.user}`);
   Console.log(`  - Password: ${"*".repeat(20)}`);
+  Console.log(`  - Host: ${RDS_CONFIG.host}`);
+  Console.log(`  - Port: ${RDS_CONFIG.port}`);
   Console.log(`  - Database: ${DATABASES[0]}`);
   Console.log(`  - Shadow Database: ${DATABASES[1]}`);
-  Console.log(`  - Port: ${RDS_CONFIG.port}`);
 
   Console.log(`[RDS] RDS 상태 확인 중...`);
 
