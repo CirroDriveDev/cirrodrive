@@ -13,13 +13,7 @@
     "preview": "vite preview",
     "typecheck": "tsc --noEmit",
     "test": "vitest",
-    "ui-add": "shadcn add",
-    "compose:prod:build": "docker-compose -f compose.prod.yaml build",
-    "compose:prod:up": "docker-compose -f compose.prod.yaml up -d --renew-anon-volumes",
-    "compose:prod:down": "docker-compose -f compose.prod.yaml down -v",
-    "compose:dev:build": "docker-compose -f compose.dev.yaml build",
-    "compose:dev:up": "docker-compose -f compose.dev.yaml up -d --renew-anon-volumes",
-    "compose:dev:down": "docker-compose -f compose.dev.yaml down -v"
+    "ui-add": "shadcn add"
   },
   "dependencies": {
     "@cirrodrive/schemas": "workspace:*",

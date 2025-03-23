@@ -14,19 +14,27 @@ pipeline {
         TURBO_TELEMETRY_DISABLED = 1
         PNPM_HOME = '/pnpm'
         MAIN = 'main'
-        DEVELOP = 'develop'
 
-        CIRRODRIVE_HOME = '/home/ec2-user/cirrodrive'
+        CIRRODRIVE_HOME = '~/cirrodrive'
 
         // 데이터베이스
-        MARIADB_ROOT_PASSWORD = credentials('MARIADB_ROOT_PASSWORD_CREDENTIAL_ID')
-        MARIADB_USER = credentials('MARIADB_USER_CREDENTIAL_ID')
-        MARIADB_PASSWORD = credentials('MARIADB_PASSWORD_CREDENTIAL_ID')
-        MARIADB_HOST = 'localhost'
-        MARIADB_PORT = '3307'
+        RDS_USER = credentials('RDS_USER_CREDENTIAL_ID')
+        RDS_PASSWORD = credentials('RDS_PASSWORD_CREDENTIAL_ID')
+        RDS_HOST = credentials('RDS_HOST_CREDENTIAL_ID')
+        RDS_PORT = credentials('RDS_PORT_CREDENTIAL_ID')
+        RDS_DATABASE = credentials('RDS_DATABASE_CREDENTIAL_ID')
+        RDS_SHADOW_DATABASE = credentials('RDS_SHADOW_DATABASE_CREDENTIAL_ID')
+
+        // 포트
+        VITE_CLIENT_PORT = '80'
+        VITE_SERVER_PORT = '8000'
 
         // API 서버
         VITE_EC2_PUBLIC_URL = "${EC2_PUBLIC_URL}"
+
+        // 컨테이너 이름
+        FRONTEND_CONTAINER_NAME = 'frontend'
+        BACKEND_CONTAINER_NAME = 'backend'
     }
 
     stages {
@@ -34,22 +42,19 @@ pipeline {
             steps {
                 echo 'Setting environment variables...'
                 script {
-                    if (env.BRANCH_NAME == MAIN) {
-                        env.MARIADB_DATABASE = 'cirrodrive_prod'
-                        env.VITE_CLIENT_PORT = '80'
-                        env.VITE_SERVER_PORT = '8000'
-                    } else {
-                        env.MARIADB_DATABASE = 'cirrodrive_dev'
-                        env.NODE_ENV = 'development'
-                        env.VITE_CLIENT_PORT = '5000'
-                        env.VITE_SERVER_PORT = '3000'
-                    }
                     env.DATABASE_URL = createDatabaseUrl(
-                        env.MARIADB_USER,
-                        env.MARIADB_PASSWORD,
-                        env.MARIADB_HOST,
-                        env.MARIADB_PORT,
-                        env.MARIADB_DATABASE
+                        env.RDS_USER,
+                        env.RDS_PASSWORD,
+                        env.RDS_HOST,
+                        env.RDS_PORT,
+                        env.RDS_DATABASE
+                    )
+                    env.SHADOW_DATABASE_URL = createDatabaseUrl(
+                        env.RDS_USER,
+                        env.RDS_PASSWORD,
+                        env.RDS_HOST,
+                        env.RDS_PORT,
+                        env.RDS_SHADOW_DATABASE
                     )
                 }
             }
@@ -71,27 +76,6 @@ pipeline {
             }
         }
 
-        stage('Start database') {
-            steps {
-                echo 'Starting development database...'
-                script {
-                    // .env 파일 생성
-                    def envFileContent = """
-                    CIRRODRIVE_HOME=${env.CIRRODRIVE_HOME}
-                    MARIADB_ROOT_PASSWORD=${env.MARIADB_ROOT_PASSWORD}
-                    MARIADB_USER=${env.MARIADB_USER}
-                    MARIADB_PASSWORD=${env.MARIADB_PASSWORD}
-                    MARIADB_PORT=${env.MARIADB_PORT}
-                    DATABASE_URL=${env.DATABASE_URL}
-                    """.stripIndent()
-
-                    writeFile file: './apps/database/.env', text: envFileContent
-                }
-                sh 'pnpm run db:start'
-                sh 'socat TCP-LISTEN:3307,fork TCP:docker:3307 &'
-            }
-        }
-
         stage('Generate prisma client') {
             steps {
                 echo 'Generating Prisma client...'
@@ -102,6 +86,22 @@ pipeline {
         stage('DB push') {
             steps {
                 echo 'Push prisma schema to database...'
+                script {
+                    // .env 파일 생성
+                    def envFileContent = """
+                    CIRRODRIVE_HOME=${CIRRODRIVE_HOME}
+                    RDS_USER=${RDS_USER}
+                    RDS_PASSWORD=${RDS_PASSWORD}
+                    RDS_HOST=${RDS_HOST}
+                    RDS_PORT=${RDS_PORT}
+                    RDS_DATABASE=${RDS_DATABASE}
+                    RDS_SHADOW_DATABASE=${RDS_SHADOW_DATABASE}
+                    DATABASE_URL=${DATABASE_URL}
+                    SHADOW_DATABASE_URL=${SHADOW_DATABASE_URL}
+                    """.stripIndent()
+
+                    writeFile file: './apps/database/.env', text: envFileContent
+                }
                 sh 'pnpm run db:push'
             }
         }
@@ -122,30 +122,17 @@ pipeline {
 
         stage('Build') {
             when {
-                anyOf {
-                    branch MAIN
-                    branch DEVELOP
-                }
+                branch MAIN
             }
             steps {
-                script {
-                    if (env.BRANCH_NAME == MAIN) {
-                        echo 'Building in production...'
-                        sh 'pnpm run build'
-                    } else {
-                        echo 'Building in development...'
-                        sh 'pnpm run build:dev'
-                    }
-                }
+                echo 'Building...'
+                sh 'pnpm run build'
             }
         }
 
         stage('Build Docker image') {
             when {
-                anyOf {
-                    branch MAIN
-                    branch DEVELOP
-                }
+                branch MAIN
             }
             steps {
                 echo 'Building Docker image...'
@@ -155,10 +142,7 @@ pipeline {
 
         stage('Deploy') {
             when {
-                anyOf {
-                    branch MAIN
-                    branch DEVELOP
-                }
+                branch MAIN
             }
             environment {
                 SSH_CREDS = credentials('EC2_SSH_CREDENTIAL_ID')
@@ -166,40 +150,28 @@ pipeline {
             }
             steps {
                 script {
-                    if (env.BRANCH_NAME == MAIN) {
-                        echo 'Deploying to production...'
-                        env.FRONTEND_CONTAINER_NAME = 'frontend'
-                        env.BACKEND_CONTAINER_NAME = 'backend'
-                        env.DATABASE_CONTAINER_NAME = 'database'
-                    } else {
-                        echo 'Deploying to development...'
-                        env.FRONTEND_CONTAINER_NAME = 'frontend-dev'
-                        env.BACKEND_CONTAINER_NAME = 'backend-dev'
-                        env.DATABASE_CONTAINER_NAME = 'database'
-                    }
+                    echo 'Deploying...'
 
                     sshagent(credentials: ['EC2_SSH_CREDENTIAL_ID']) {
                         // 원격 디렉토리 생성
                         sh 'ssh -o StrictHostKeyChecking=no "${SSH_CREDS_USR}@${EC2_PRIVATE_IP}" "mkdir -p ${DEPLOY_PATH}"'
-                        sh 'ssh -o StrictHostKeyChecking=no "${SSH_CREDS_USR}@${EC2_PRIVATE_IP}" "mkdir -p ${DEPLOY_PATH}/apps/database"'
 
                         // compose 파일 전송
                         sh 'scp -o StrictHostKeyChecking=no ./compose.yaml "${SSH_CREDS_USR}@${EC2_PRIVATE_IP}:${DEPLOY_PATH}/"'
-                        sh 'scp -o StrictHostKeyChecking=no ./apps/database/compose.yaml "${SSH_CREDS_USR}@${EC2_PRIVATE_IP}:${DEPLOY_PATH}/apps/database/"'
 
                         // 도커 컴포즈 실행
                         sh """
                             ssh -o StrictHostKeyChecking=no "${SSH_CREDS_USR}@${EC2_PRIVATE_IP}" <<EOF
                             export CIRRODRIVE_HOME="${CIRRODRIVE_HOME}"
-                            export MARIADB_ROOT_PASSWORD="${MARIADB_ROOT_PASSWORD}"
-                            export MARIADB_USER="${MARIADB_USER}"
-                            export MARIADB_PASSWORD="${MARIADB_PASSWORD}"
-                            export MARIADB_HOST="${MARIADB_HOST}"
-                            export MARIADB_PORT="${MARIADB_PORT}"
+                            export RDS_USER="${RDS_USER}"
+                            export RDS_PASSWORD="${RDS_PASSWORD}"
+                            export RDS_HOST="${RDS_HOST}"
+                            export RDS_PORT="${RDS_PORT}"
                             export DATABASE_URL="${DATABASE_URL}"
+                            export SHADOW_DATABASE_URL="${SHADOW_DATABASE_URL}"
                             export VITE_CLIENT_PORT="${VITE_CLIENT_PORT}"
                             export VITE_SERVER_PORT="${VITE_SERVER_PORT}"
-                            docker-compose -f ${DEPLOY_PATH}/compose.yaml up -d --remove-orphans --renew-anon-volumes ${FRONTEND_CONTAINER_NAME} ${BACKEND_CONTAINER_NAME} ${DATABASE_CONTAINER_NAME}
+                            docker-compose -f ${DEPLOY_PATH}/compose.yaml up -d --remove-orphans --renew-anon-volumes ${FRONTEND_CONTAINER_NAME} ${BACKEND_CONTAINER_NAME}
                             """
                     }
                 }

@@ -1,4 +1,7 @@
-import { execSync } from "node:child_process";
+import mysql from "mysql2/promise";
+import dotenvx from "@dotenvx/dotenvx";
+
+dotenvx.config({ quiet: true });
 
 const Console = {
   log: (message?: string) => {
@@ -8,66 +11,70 @@ const Console = {
   error: (message?: string) => {
     process.stderr.write(`${message ?? ""}\n`);
   },
-
-  write: (message: string) => {
-    process.stdout.write(message);
-  },
 };
 
-// 컨테이너 이름
-const containerName = "database";
+// RDS 접속 정보 설정
+const RDS_CONFIG = {
+  user: process.env.RDS_USER || "",
+  password: process.env.RDS_PASSWORD || "",
+  host: process.env.RDS_HOST || "",
+  port: Number(process.env.RDS_PORT) || 3306,
+  connectTimeout: 5000, // 5초 타임아웃 설정
+};
 
-// 컨테이너 상태를 확인하는 함수
-function getContainerStatus(): { status: string; healthStatus: string } {
-  const status = execSync(
-    `docker inspect -f {{.State.Status}} ${containerName}`,
-  )
-    .toString()
-    .trim();
-  const healthStatus = execSync(
-    `docker inspect -f {{.State.Health.Status}} ${containerName}`,
-  )
-    .toString()
-    .trim();
-  return { status, healthStatus };
+// 헬스체크할 데이터베이스 목록
+const DATABASES = [
+  process.env.RDS_DATABASE || "",
+  process.env.RDS_SHADOW_DATABASE || "",
+];
+
+// 특정 데이터베이스에 대한 헬스체크 수행
+async function isDatabaseHealthy(database: string): Promise<boolean> {
+  let connection;
+  try {
+    const config = { ...RDS_CONFIG, database };
+    connection = await mysql.createConnection(config);
+    const [rows] = await connection.execute("SELECT 1 AS health_check");
+    return (rows as any).length > 0;
+  } catch (error) {
+    Console.error((error as any).message);
+    return false;
+  } finally {
+    if (connection) {
+      await connection.end();
+    }
+  }
 }
 
-// 1초 간격으로 컨테이너 상태를 확인하는 함수
+// 1초 간격으로 RDS 상태를 확인하는 함수
 async function healthcheck(): Promise<void> {
-  const MAX_COUNT = 60;
-  let count = 1;
-  Console.write("[MariaDB] 컨테이너 상태 확인 중...");
-  try {
-    const { status } = getContainerStatus();
-    if (status === "exited") {
-      throw new Error("컨테이너가 정지되어 있습니다.");
+  Console.log(`[RDS] 접속 정보:`);
+  Console.log(`  - User: ${RDS_CONFIG.user}`);
+  Console.log(`  - Password: ${"*".repeat(20)}`);
+  Console.log(`  - Host: ${RDS_CONFIG.host}`);
+  Console.log(`  - Port: ${RDS_CONFIG.port}`);
+  Console.log(`  - Database: ${DATABASES[0]}`);
+  Console.log(`  - Shadow Database: ${DATABASES[1]}`);
+
+  Console.log(`[RDS] RDS 상태 확인 중...`);
+
+  let allHealthy = true;
+
+  for (const db of DATABASES) {
+    const isHealthy = await isDatabaseHealthy(db);
+    if (!isHealthy) {
+      allHealthy = false;
+      break;
     }
-  } catch (error) {
-    Console.log();
-    Console.error("[MariaDB] 컨테이너 상태 확인 중 오류 발생");
-    Console.error(
-      "[MariaDB] 데이터베이스 컨테이너가 정상적으로 실행 중인지 확인하세요.",
-    );
-    process.exit(1);
   }
 
-  while (getContainerStatus().healthStatus !== "healthy") {
-    Console.write(".");
-    if (count >= MAX_COUNT) {
-      Console.error("[MariaDB] 컨테이너 상태 확인 실패");
-      Console.error("[MariaDB] 출력되는 로그를 팀장에게 전달하세요.");
-      execSync(`docker logs --tail 1000 ${containerName}`, {
-        stdio: "inherit",
-      });
-
-      process.exit(1);
-    }
-    await new Promise<void>((resolve) => {
-      setTimeout(resolve, 1000);
-    });
-    count++;
+  if (allHealthy) {
+    Console.log("[RDS] RDS 상태 확인 성공");
+    return;
   }
-  Console.log(" 성공");
+
+  Console.error("[RDS] RDS 상태 확인 실패");
+  process.exit(1);
 }
 
 await healthcheck();
