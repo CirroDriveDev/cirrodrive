@@ -49,5 +49,8 @@
       "vite>rollup": "npm:@rollup/wasm-node"
     }
   },
-  "prettier": "@cirrodrive/prettier-config"
+  "prettier": "@cirrodrive/prettier-config",
+  "dependencies": {
+    "@aws-sdk/client-ses": "^3.775.0"
+  }
 }
