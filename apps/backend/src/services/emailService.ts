@@ -9,8 +9,11 @@ import { sesClient } from "@/loaders/ses.ts";
  */
 @injectable()
 export class EmailService {
+  private verificationCodes: Map<string, string>;
+
   constructor(@inject(Symbols.Logger) private logger: Logger) {
     this.logger = logger.child({ prefix: "EmailService" });
+    this.verificationCodes = new Map();
   }
 
   /**
@@ -70,10 +73,31 @@ export class EmailService {
 
     try {
       await this.sendEmail({ to, subject, body });
+      this.verificationCodes.set(to, code); // 인증 코드 저장
       this.logger.info({ to, code }, "인증 코드 이메일 전송 성공");
     } catch (error) {
       this.logger.error({ error, to, code }, "인증 코드 이메일 전송 실패");
       throw error;
     }
+  }
+
+  /**
+   * 이메일 인증 코드를 검증합니다.
+   *
+   * @param email - 이메일 주소
+   * @param code - 인증 코드
+   * @returns 인증 코드가 유효하면 `true`, 그렇지 않으면 `false`
+   */
+  public verifyEmailCode(email: string, code: string): boolean {
+    const storedCode = this.verificationCodes.get(email); // 저장된 인증 코드 가져오기
+
+    if (storedCode === code) {
+      this.logger.info({ email }, "이메일 인증 성공");
+      this.verificationCodes.delete(email); // 인증 성공 시 코드 삭제
+      return true;
+    }
+
+    this.logger.error({ email }, "잘못된 인증 코드");
+    return false;
   }
 }

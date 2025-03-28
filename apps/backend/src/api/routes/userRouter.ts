@@ -9,7 +9,6 @@ import { generateVerificationCode } from "@/utils/generateVerificationCode.ts";
 import { EmailService } from "@/services/emailService.ts";
 
 const userService = container.get<UserService>(UserService);
-const verificationCodes = new Map<string, string>(); // 이메일 -> 인증 코드 매핑
 const emailService = container.get<EmailService>(EmailService);
 
 export const userRouter = router({
@@ -18,7 +17,6 @@ export const userRouter = router({
     .input(z.object({ email: z.string().email() }))
     .mutation(async ({ input }) => {
       const code = generateVerificationCode(); // 6자리 숫자 코드 생성
-      verificationCodes.set(input.email, code);
 
       try {
         await emailService.sendVerificationCode({ to: input.email, code }); // EmailService 사용
@@ -36,16 +34,14 @@ export const userRouter = router({
   verifyCode: procedure
     .input(z.object({ email: z.string().email(), code: z.string().length(6) }))
     .mutation(({ input }) => {
-      const storedCode = verificationCodes.get(input.email);
-
-      if (!storedCode || storedCode !== input.code) {
+      const isValid = emailService.verifyEmailCode(input.email, input.code); // EmailService 사용
+      if (!isValid) {
         throw new TRPCError({
           code: "UNAUTHORIZED",
           message: "인증 코드가 일치하지 않습니다.",
         });
       }
 
-      verificationCodes.delete(input.email);
       return { success: true, message: "이메일 인증이 완료되었습니다." };
     }),
 
