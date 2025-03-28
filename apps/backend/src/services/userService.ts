@@ -3,8 +3,8 @@ import type { Prisma, User } from "@cirrodrive/database";
 import { hash } from "@node-rs/argon2";
 import type { Logger } from "pino";
 import { Symbols } from "@/types/symbols.ts";
-import { sendVerificationEmail } from "@/utils/sendVerificationEmail.ts";
 import { generateVerificationCode } from "@/utils/generateVerificationCode.ts";
+import { EmailService } from "@/services/emailService.ts";
 
 /**
  * 사용자 서비스입니다.
@@ -16,6 +16,7 @@ export class UserService {
     @inject(Symbols.Logger) private logger: Logger,
     @inject(Symbols.UserModel) private userModel: Prisma.UserDelegate,
     @inject(Symbols.FolderModel) private folderModel: Prisma.FolderDelegate,
+    @inject(EmailService) private emailService: EmailService, // EmailService 주입
   ) {
     this.logger = logger.child({ serviceName: "UserService" });
   }
@@ -368,6 +369,7 @@ export class UserService {
       throw e;
     }
   }
+
   /**
    * 이메일 인증 코드를 발송합니다.
    *
@@ -379,8 +381,8 @@ export class UserService {
       const code = generateVerificationCode(); // 6자리 인증 코드 생성
       this.verificationCodes.set(email, code); // 코드 저장
 
-      // 인증 이메일 발송 (3개의 인수로 수정)
-      await sendVerificationEmail(email, code, this.logger); // 이메일 발송
+      // EmailService를 사용하여 인증 이메일 발송
+      await this.emailService.sendVerificationCode({ to: email, code });
       this.logger.info({ email, code }, "인증 코드 발송 완료");
     } catch (error) {
       this.logger.error({ email, error }, "인증 코드 발송 실패");

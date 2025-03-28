@@ -6,7 +6,7 @@ import { container } from "@/loaders/inversify.ts";
 import { UserService } from "@/services/userService.ts";
 import { logger } from "@/loaders/logger.ts";
 import { router, procedure, authedProcedure } from "@/loaders/trpc.ts";
-import { sesClient } from "@/utils/awsSes.ts";
+import { sesClient } from "@/loaders/ses.ts";
 
 const userService = container.get<UserService>(UserService);
 const verificationCodes = new Map<string, string>(); // 이메일 -> 인증 코드 매핑
