@@ -3,6 +3,7 @@ import type { Logger } from "pino";
 import { SendEmailCommand } from "@aws-sdk/client-ses";
 import { Symbols } from "@/types/symbols.ts";
 import { sesClient } from "@/loaders/ses.ts";
+import { generateVerificationCode } from "@/utils/generateVerificationCode.ts";
 
 /**
  * 이메일 서비스입니다.
@@ -58,15 +59,9 @@ export class EmailService {
    * 인증 코드를 이메일로 전송합니다.
    *
    * @param to - 수신자 이메일 주소
-   * @param code - 인증 코드
    */
-  public async sendVerificationCode({
-    to,
-    code,
-  }: {
-    to: string;
-    code: string;
-  }): Promise<void> {
+  public async sendVerificationCode({ to }: { to: string }): Promise<void> {
+    const code = generateVerificationCode(); // 인증 코드 생성
     const subject = "이메일 인증 코드";
     const body = `인증 코드: ${code}`;
     this.logger.info({ to, code }, "인증 코드 이메일 전송 중");

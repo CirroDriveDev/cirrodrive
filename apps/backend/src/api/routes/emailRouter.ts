@@ -3,7 +3,6 @@ import { TRPCError } from "@trpc/server";
 import { container } from "@/loaders/inversify.ts";
 import { logger } from "@/loaders/logger.ts";
 import { router, procedure } from "@/loaders/trpc.ts";
-import { generateVerificationCode } from "@/utils/generateVerificationCode.ts";
 import { EmailService } from "@/services/emailService.ts";
 
 const emailService = container.get<EmailService>(EmailService);
@@ -13,10 +12,8 @@ export const emailRouter = router({
   sendVerification: procedure
     .input(z.object({ email: z.string().email() }))
     .mutation(async ({ input }) => {
-      const code = generateVerificationCode(); // 6자리 숫자 코드 생성
-
       try {
-        await emailService.sendVerificationCode({ to: input.email, code }); // EmailService 사용
+        await emailService.sendVerificationCode({ to: input.email }); // 인증 코드 생성 및 전송
         return { success: true, message: "인증 코드가 전송되었습니다." };
       } catch (error) {
         logger.error({ email: input.email, error }, "이메일 전송 실패");
