@@ -11,7 +11,6 @@ import { EmailService } from "@/services/emailService.ts";
  */
 @injectable()
 export class UserService {
-  private verificationCodes = new Map<string, string>();
   constructor(
     @inject(Symbols.Logger) private logger: Logger,
     @inject(Symbols.UserModel) private userModel: Prisma.UserDelegate,
@@ -379,8 +378,6 @@ export class UserService {
   public async sendVerificationCode(email: string): Promise<void> {
     try {
       const code = generateVerificationCode(); // 6자리 인증 코드 생성
-      this.verificationCodes.set(email, code); // 코드 저장
-
       // EmailService를 사용하여 인증 이메일 발송
       await this.emailService.sendVerificationCode({ to: email, code });
       this.logger.info({ email, code }, "인증 코드 발송 완료");
@@ -398,13 +395,12 @@ export class UserService {
    * @returns 인증 코드가 유효하면 `true`, 그렇지 않으면 `false`를 반환합니다.
    */
   public verifyEmailCode(email: string, code: string): boolean {
-    const storedCode = this.verificationCodes.get(email); // 저장된 인증 코드 가져오기
-
-    if (storedCode === code) {
+    const isValid = this.emailService.verifyEmailCode(email, code); // EmailService 사용
+    if (isValid) {
       this.logger.info({ email }, "이메일 인증 성공");
-      return true; // 인증 성공
+    } else {
+      this.logger.error({ email }, "잘못된 인증 코드");
     }
-    this.logger.error({ email }, "잘못된 인증 코드");
-    return false; // 인증 실패
+    return isValid;
   }
 }
