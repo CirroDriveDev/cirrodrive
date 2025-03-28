@@ -1,40 +1,16 @@
 import { userDTOSchema, userSchema } from "@cirrodrive/schemas";
 import { z } from "zod";
 import { TRPCError } from "@trpc/server";
-import { SendEmailCommand } from "@aws-sdk/client-ses";
 import { container } from "@/loaders/inversify.ts";
 import { UserService } from "@/services/userService.ts";
 import { logger } from "@/loaders/logger.ts";
 import { router, procedure, authedProcedure } from "@/loaders/trpc.ts";
-import { sesClient } from "@/loaders/ses.ts";
+import { generateVerificationCode } from "@/utils/generateVerificationCode.ts";
+import { EmailService } from "@/services/emailService.ts";
 
 const userService = container.get<UserService>(UserService);
 const verificationCodes = new Map<string, string>(); // 이메일 -> 인증 코드 매핑
-
-// 인증 코드 생성 함수 (6자리 숫자)
-const generateVerificationCode = (): string => {
-  return Math.floor(100000 + Math.random() * 900000).toString();
-};
-
-// 인증 메일 발송 함수
-export const sendVerificationEmail = async (
-  toEmail: string,
-  code: string,
-): Promise<void> => {
-  const command = new SendEmailCommand({
-    Source: "your-verified-email@example.com", // AWS SES에서 확인된 이메일 주소
-    Destination: { ToAddresses: [toEmail] },
-    Message: {
-      Subject: { Data: "이메일 인증 코드" },
-      Body: {
-        Text: { Data: `인증 코드: ${code}` },
-      },
-    },
-  });
-
-  await sesClient.send(command);
-  logger.info(`인증 코드 ${code}가 ${toEmail}로 전송되었습니다.`);
-};
+const emailService = container.get<EmailService>(EmailService);
 
 export const userRouter = router({
   // 이메일 인증 코드 발송
@@ -45,7 +21,7 @@ export const userRouter = router({
       verificationCodes.set(input.email, code);
 
       try {
-        await sendVerificationEmail(input.email, code); // 이메일 발송
+        await emailService.sendVerificationCode({ to: input.email, code }); // EmailService 사용
         return { success: true, message: "인증 코드가 전송되었습니다." };
       } catch (error) {
         logger.error({ email: input.email, error }, "이메일 전송 실패");
