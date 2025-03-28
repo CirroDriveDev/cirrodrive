@@ -59,13 +59,6 @@ overrides:
 importers:
 
   .:
-    dependencies:
-      '@aws-sdk/client-ses':
-        specifier: ^3.775.0
-        version: 3.775.0
-      aws-sdk:
-        specifier: ^2.1692.0
-        version: 2.1692.0
     devDependencies:
       '@cirrodrive/prettier-config':
         specifier: workspace:*
@@ -118,6 +111,9 @@ importers:
       '@trpc/server':
         specifier: 'catalog:'
         version: 11.0.0(typescript@5.6.3)
+      aws-sdk:
+        specifier: ^2.1692.0
+        version: 2.1692.0
       cookie-parser:
         specifier: ^1.4.6
         version: 1.4.7
