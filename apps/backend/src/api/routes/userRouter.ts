@@ -74,7 +74,13 @@ export const userRouter = router({
     }),
 
   create: procedure
-    .input(userSchema.pick({ username: true, password: true, email: true }))
+    .input(
+      userSchema.pick({
+        username: true,
+        password: true,
+        email: true,
+      }),
+    )
     .output(userDTOSchema)
     .mutation(async ({ input, ctx }) => {
       logger.info({ requestId: ctx.req.id }, "user.create 요청 시작");
@@ -98,17 +104,20 @@ export const userRouter = router({
           message: "이미 사용 중인 이메일 주소입니다.",
         });
       }
-
       try {
-        const user = await userService.create(input);
+        const user = await userService.create({
+          username: input.username,
+          password: input.password,
+          email: input.email,
+        });
+
         logger.info({ requestId: ctx.req.id }, "user.create 요청 성공");
+
         return user;
       } catch (error) {
         logger.error({ requestId: ctx.req.id, error }, "user.create 요청 실패");
-        throw new TRPCError({
-          code: "INTERNAL_SERVER_ERROR",
-          message: "알 수 없는 오류가 발생했습니다.",
-        });
+
+        throw Error("알 수 없는 오류가 발생했습니다.");
       }
     }),
 
@@ -123,15 +132,18 @@ export const userRouter = router({
     .query(async ({ input, ctx }) => {
       logger.info({ requestId: ctx.req.id }, "user.list 요청 시작");
       try {
-        const users = await userService.list(input);
+        const users = await userService.list({
+          limit: input.limit,
+          offset: input.offset,
+        });
+
         logger.info({ requestId: ctx.req.id }, "user.list 요청 성공");
+
         return users;
       } catch (error) {
         logger.error({ requestId: ctx.req.id, error }, "user.list 요청 실패");
-        throw new TRPCError({
-          code: "INTERNAL_SERVER_ERROR",
-          message: "알 수 없는 오류가 발생했습니다.",
-        });
+
+        throw Error("알 수 없는 오류가 발생했습니다.");
       }
     }),
 
@@ -145,42 +157,51 @@ export const userRouter = router({
     .output(userDTOSchema)
     .query(async ({ input, ctx }) => {
       logger.info({ requestId: ctx.req.id }, "user.get 요청 시작");
+      let user = null;
 
       try {
-        const user = await userService.get({ id: input });
-
-        if (!user) {
-          throw new TRPCError({
-            code: "NOT_FOUND",
-            message: "사용자를 찾을 수 없습니다.",
-          });
-        }
-
-        return user;
+        user = await userService.get({ id: input });
       } catch (error) {
         logger.error({ requestId: ctx.req.id, error }, "user.get 요청 실패");
+
+        throw Error("알 수 없는 오류가 발생했습니다.");
+      }
+
+      if (!user) {
         throw new TRPCError({
-          code: "INTERNAL_SERVER_ERROR",
-          message: "알 수 없는 오류가 발생했습니다.",
+          code: "NOT_FOUND",
+          message: "사용자를 찾을 수 없습니다.",
         });
       }
+
+      return user;
     }),
 
   update: authedProcedure
-    .input(userSchema.pick({ username: true, password: true, email: true }))
+    .input(
+      userSchema.pick({
+        username: true,
+        password: true,
+        email: true,
+      }),
+    )
     .output(userDTOSchema)
     .mutation(async ({ input, ctx }) => {
       logger.info({ requestId: ctx.req.id }, "user.update 요청 시작");
 
       try {
-        const user = await userService.update({ id: ctx.user.id, ...input });
+        const user = await userService.update({
+          id: ctx.user.id,
+          username: input.username,
+          password: input.password,
+          email: input.email,
+        });
+
         return user;
       } catch (error) {
         logger.error({ requestId: ctx.req.id, error }, "user.update 요청 실패");
-        throw new TRPCError({
-          code: "INTERNAL_SERVER_ERROR",
-          message: "알 수 없는 오류가 발생했습니다.",
-        });
+
+        throw Error("알 수 없는 오류가 발생했습니다.");
       }
     }),
 
@@ -189,13 +210,12 @@ export const userRouter = router({
 
     try {
       const user = await userService.delete({ id: ctx.user.id });
+
       return user;
     } catch (error) {
       logger.error({ requestId: ctx.req.id, error }, "user.delete 요청 실패");
-      throw new TRPCError({
-        code: "INTERNAL_SERVER_ERROR",
-        message: "알 수 없는 오류가 발생했습니다.",
-      });
+
+      throw Error("알 수 없는 오류가 발생했습니다.");
     }
   }),
 });
