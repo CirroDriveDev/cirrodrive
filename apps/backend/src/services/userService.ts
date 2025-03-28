@@ -40,7 +40,11 @@ export class UserService {
   }): Promise<User> {
     try {
       this.logger.info(
-        { methodName: "create", username, email },
+        {
+          methodName: "create",
+          username,
+          email,
+        },
         "사용자 생성 시작",
       );
 
@@ -52,27 +56,49 @@ export class UserService {
           email,
           hashedPassword,
           rootFolder: {
-            create: { name: "root" },
+            create: {
+              name: "root",
+            },
           },
           trashFolder: {
-            create: { name: "trash" },
+            create: {
+              name: "trash",
+            },
           },
         },
       });
 
       await this.folderModel.update({
-        where: { id: user.rootFolderId },
-        data: { owner: { connect: { id: user.id } } },
+        where: {
+          id: user.rootFolderId,
+        },
+        data: {
+          owner: {
+            connect: {
+              id: user.id,
+            },
+          },
+        },
       });
 
       await this.folderModel.update({
-        where: { id: user.trashFolderId },
-        data: { owner: { connect: { id: user.id } } },
+        where: {
+          id: user.trashFolderId,
+        },
+        data: {
+          owner: {
+            connect: {
+              id: user.id,
+            },
+          },
+        },
       });
 
       return user;
     } catch (error) {
-      if (error instanceof Error) this.logger.error(error.message);
+      if (error instanceof Error) {
+        this.logger.error(error.message);
+      }
       throw error;
     }
   }
@@ -94,13 +120,24 @@ export class UserService {
   }): Promise<User[]> {
     try {
       this.logger.info(
-        { methodName: "list", limit, offset },
+        {
+          methodName: "list",
+          limit,
+          offset,
+        },
         "사용자 목록 조회 시작",
       );
 
-      return await this.userModel.findMany({ take: limit, skip: offset });
+      const users: User[] = await this.userModel.findMany({
+        take: limit,
+        skip: offset,
+      });
+
+      return users;
     } catch (error) {
-      if (error instanceof Error) this.logger.error(error.message);
+      if (error instanceof Error) {
+        this.logger.error(error.message);
+      }
       throw error;
     }
   }
@@ -113,17 +150,29 @@ export class UserService {
    */
   public async get({ id }: { id: number }): Promise<User | null> {
     try {
-      this.logger.info({ methodName: "get", id }, "사용자 조회 시작");
+      this.logger.info(
+        {
+          methodName: "get",
+          id,
+        },
+        "사용자 조회 시작",
+      );
 
-      return await this.userModel.findUnique({ where: { id } });
+      const user = await this.userModel.findUnique({
+        where: { id },
+      });
+
+      return user;
     } catch (error) {
-      if (error instanceof Error) this.logger.error(error.message);
+      if (error instanceof Error) {
+        this.logger.error(error.message);
+      }
       throw error;
     }
   }
 
   /**
-   * 사용자 이름으로 사용자를 조회합니다.
+   * 사용자를 조회합니다.
    *
    * @param username - 사용자 이름
    * @returns 지정된 이름을 가진 사용자 또는 null
@@ -135,13 +184,22 @@ export class UserService {
   }): Promise<User | null> {
     try {
       this.logger.info(
-        { methodName: "getByUsername", username },
+        {
+          methodName: "getByUsername",
+          username,
+        },
         "사용자 조회 시작",
       );
 
-      return await this.userModel.findUnique({ where: { username } });
+      const user = await this.userModel.findUnique({
+        where: { username },
+      });
+
+      return user;
     } catch (error) {
-      if (error instanceof Error) this.logger.error(error.message);
+      if (error instanceof Error) {
+        this.logger.error(error.message);
+      }
       throw error;
     }
   }
@@ -155,10 +213,15 @@ export class UserService {
   public async getByEmail({ email }: { email: string }): Promise<User | null> {
     try {
       this.logger.info({ methodName: "getByEmail", email }, "사용자 조회 시작");
+      const user = await this.userModel.findUnique({
+        where: { email },
+      });
 
-      return await this.userModel.findUnique({ where: { email } });
+      return user;
     } catch (error) {
-      if (error instanceof Error) this.logger.error(error.message);
+      if (error instanceof Error) {
+        this.logger.error(error.message);
+      }
       throw error;
     }
   }
@@ -185,18 +248,32 @@ export class UserService {
   }): Promise<User> {
     try {
       this.logger.info(
-        { methodName: "updateUser", id, username, password: "********", email },
+        {
+          methodName: "updateUser",
+          id,
+          username,
+          password: "********",
+          email,
+        },
         "사용자 수정 시작",
       );
 
       const hashedPassword = await hash(password);
 
-      return await this.userModel.update({
-        data: { username, hashedPassword, email },
+      const user = await this.userModel.update({
+        data: {
+          username,
+          hashedPassword,
+          email,
+        },
         where: { id },
       });
+
+      return user;
     } catch (error) {
-      if (error instanceof Error) this.logger.error(error.message);
+      if (error instanceof Error) {
+        this.logger.error(error.message);
+      }
       throw error;
     }
   }
@@ -209,12 +286,24 @@ export class UserService {
    */
   public async delete({ id }: { id: number }): Promise<User> {
     try {
-      this.logger.info({ methodName: "delete", id }, "사용자 삭제 시작");
+      this.logger.info(
+        {
+          methodName: "delete",
+          id,
+        },
+        "사용자 삭제 시작",
+      );
 
-      return await this.userModel.delete({ where: { id } });
-    } catch (error) {
-      if (error instanceof Error) this.logger.error(error.message);
-      throw error;
+      const user = await this.userModel.delete({
+        where: { id },
+      });
+
+      return user;
+    } catch (e) {
+      if (e instanceof Error) {
+        this.logger.error(e.message);
+      }
+      throw e;
     }
   }
 
@@ -231,16 +320,23 @@ export class UserService {
   }): Promise<boolean> {
     try {
       this.logger.info(
-        { methodName: "existsByUsername", username },
+        {
+          methodName: "existsByUsername",
+          username,
+        },
         "사용자 이름 중복 확인 시작",
       );
 
-      return (
-        (await this.userModel.findUnique({ where: { username } })) !== null
-      );
-    } catch (error) {
-      if (error instanceof Error) this.logger.error(error.message);
-      throw error;
+      const user = await this.userModel.findUnique({
+        where: { username },
+      });
+
+      return user !== null;
+    } catch (e) {
+      if (e instanceof Error) {
+        this.logger.error(e.message);
+      }
+      throw e;
     }
   }
 
@@ -253,14 +349,23 @@ export class UserService {
   public async existsByEmail({ email }: { email: string }): Promise<boolean> {
     try {
       this.logger.info(
-        { methodName: "existsByEmail", email },
+        {
+          methodName: "existsByEmail",
+          email,
+        },
         "이메일 중복 확인 시작",
       );
 
-      return (await this.userModel.findUnique({ where: { email } })) !== null;
-    } catch (error) {
-      if (error instanceof Error) this.logger.error(error.message);
-      throw error;
+      const user = await this.userModel.findUnique({
+        where: { email },
+      });
+
+      return user !== null;
+    } catch (e) {
+      if (e instanceof Error) {
+        this.logger.error(e.message);
+      }
+      throw e;
     }
   }
   /**
