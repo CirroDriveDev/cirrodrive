@@ -1,7 +1,9 @@
 import { SESClient, SendEmailCommand } from "@aws-sdk/client-ses";
 
-// SES 클라이언트 설정 (AWS SES 리전은 본인의 리전으로 설정하세요)
-export const sesClient = new SESClient({ region: "ap-northeast-2" }); // 리전 설정
+// SES 클라이언트 설정 (리전을 본인 리전으로 설정하세요)
+export const sesClient = new SESClient({
+  region: "ap-northeast-2", // 사용하고 있는 AWS SES 리전 (서울 리전)
+});
 
 // 이메일 발송 함수
 export const sendVerificationEmail = async (

@@ -3,12 +3,15 @@ import type { Prisma, User } from "@cirrodrive/database";
 import { hash } from "@node-rs/argon2";
 import type { Logger } from "pino";
 import { Symbols } from "@/types/symbols.ts";
+import { sendVerificationEmail } from "@/utils/sendVerificationEmail.ts";
+import { generateVerificationCode } from "@/utils/generateVerificationCode.ts";
 
 /**
  * 사용자 서비스입니다.
  */
 @injectable()
 export class UserService {
+  private verificationCodes = new Map<string, string>();
   constructor(
     @inject(Symbols.Logger) private logger: Logger,
     @inject(Symbols.UserModel) private userModel: Prisma.UserDelegate,
@@ -259,5 +262,42 @@ export class UserService {
       if (error instanceof Error) this.logger.error(error.message);
       throw error;
     }
+  }
+  /**
+   * 이메일 인증 코드를 발송합니다.
+   *
+   * @param email - 인증 코드를 발송할 사용자 이메일 주소입니다.
+   * @throws 인증 코드 발송 중 오류가 발생한 경우.
+   */
+  public async sendVerificationCode(email: string): Promise<void> {
+    try {
+      const code = generateVerificationCode(); // 6자리 인증 코드 생성
+      this.verificationCodes.set(email, code); // 코드 저장
+
+      // 인증 이메일 발송 (3개의 인수로 수정)
+      await sendVerificationEmail(email, code, this.logger); // 이메일 발송
+      this.logger.info({ email, code }, "인증 코드 발송 완료");
+    } catch (error) {
+      this.logger.error({ email, error }, "인증 코드 발송 실패");
+      throw new Error("인증 코드 발송 실패");
+    }
+  }
+
+  /**
+   * 사용자가 입력한 이메일 인증 코드가 유효한지 검증합니다.
+   *
+   * @param email - 인증 코드를 검증할 사용자 이메일 주소입니다.
+   * @param code - 사용자가 입력한 인증 코드입니다.
+   * @returns 인증 코드가 유효하면 `true`, 그렇지 않으면 `false`를 반환합니다.
+   */
+  public verifyEmailCode(email: string, code: string): boolean {
+    const storedCode = this.verificationCodes.get(email); // 저장된 인증 코드 가져오기
+
+    if (storedCode === code) {
+      this.logger.info({ email }, "이메일 인증 성공");
+      return true; // 인증 성공
+    }
+    this.logger.error({ email }, "잘못된 인증 코드");
+    return false; // 인증 실패
   }
 }

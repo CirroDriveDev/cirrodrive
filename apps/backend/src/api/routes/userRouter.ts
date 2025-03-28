@@ -11,8 +11,8 @@ import { sesClient } from "@/utils/awsSes.ts";
 const userService = container.get<UserService>(UserService);
 const verificationCodes = new Map<string, string>(); // 이메일 -> 인증 코드 매핑
 
-// 인증 코드 생성 함수
-export const generateCode = (): string => {
+// 인증 코드 생성 함수 (6자리 숫자)
+const generateVerificationCode = (): string => {
   return Math.floor(100000 + Math.random() * 900000).toString();
 };
 
@@ -41,11 +41,11 @@ export const userRouter = router({
   sendVerification: procedure
     .input(z.object({ email: z.string().email() }))
     .mutation(async ({ input }) => {
-      const code = generateCode();
+      const code = generateVerificationCode(); // 6자리 숫자 코드 생성
       verificationCodes.set(input.email, code);
 
       try {
-        await sendVerificationEmail(input.email, code);
+        await sendVerificationEmail(input.email, code); // 이메일 발송
         return { success: true, message: "인증 코드가 전송되었습니다." };
       } catch (error) {
         logger.error({ email: input.email, error }, "이메일 전송 실패");
