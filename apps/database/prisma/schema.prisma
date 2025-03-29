@@ -84,7 +84,7 @@ model Code {
 }
 
 model VerificationCode {
-  id        Int      @id @default(autoincrement())
+  id        String   @id @default(uuid())
   email     String   @unique
   code      String
   expiresAt DateTime
