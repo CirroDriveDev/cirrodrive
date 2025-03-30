@@ -27,15 +27,23 @@ export const emailRouter = router({
   // 인증 코드 검증
   verifyCode: procedure
     .input(z.object({ email: z.string().email(), code: z.string().length(6) }))
-    .mutation(({ input }) => {
-      const isValid = emailService.verifyEmailCode(input.email, input.code); // EmailService 사용
-      if (!isValid) {
+    .mutation(async ({ input }) => {
+      try {
+        const token = await emailService.verifyEmailCode(
+          input.email,
+          input.code,
+        );
+        return {
+          success: true,
+          message: "이메일 인증이 완료되었습니다.",
+          token,
+        };
+      } catch (error) {
+        logger.error({ email: input.email, error }, "이메일 인증 실패");
         throw new TRPCError({
           code: "UNAUTHORIZED",
-          message: "인증 코드가 일치하지 않습니다.",
+          message: "인증 코드가 유효하지 않습니다.",
         });
       }
-
-      return { success: true, message: "이메일 인증이 완료되었습니다." };
     }),
 });
