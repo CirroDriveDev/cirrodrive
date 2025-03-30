@@ -1,36 +1,55 @@
 import { useState, useEffect, useRef } from "react";
+import { TRPCClientError } from "@trpc/client";
+import { trpc } from "@/shared/api/trpc.ts";
 
 export interface UseEmailCodeReturn {
   email: string;
   verificationCode: string;
   handleCodeInputChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
-  handleSendCode: () => void;
-  handleVerifyCode: () => void;
+  handleSendCode: () => Promise<void>;
+  handleVerifyCode: () => Promise<void>;
   timer: number;
   cooldown: number;
   isEmailVerified: boolean;
+  sendError?: string;
+  verifyError?: string;
+  reset: () => void;
 }
 
 export const useEmailCode = (): UseEmailCodeReturn => {
   const [email, setEmail] = useState("");
   const [verificationCode, setVerificationCode] = useState("");
-  const [serverCode, setServerCode] = useState<string | null>(null);
   const [timer, setTimer] = useState(0);
   const [cooldown, setCooldown] = useState(0);
   const [isEmailVerified, setIsEmailVerified] = useState(false);
+  const [sendError, setSendError] = useState<string>();
+  const [verifyError, setVerifyError] = useState<string>();
+
   const timerRef = useRef<NodeJS.Timeout | null>(null);
   const cooldownRef = useRef<NodeJS.Timeout | null>(null);
 
-  useEffect(() => {
+  const sendCodeMutation = trpc.email.sendVerification.useMutation();
+  const verifyCodeMutation = trpc.email.verifyCode.useMutation();
+
+  useEffect((): (() => void) => {
     if (timer > 0) {
-      timerRef.current = setTimeout(() => setTimer(timer - 1), 1000);
+      timerRef.current = setTimeout(() => setTimer((prev) => prev - 1), 1000);
     }
+    return (): void => {
+      if (timerRef.current) clearTimeout(timerRef.current);
+    };
   }, [timer]);
 
-  useEffect(() => {
+  useEffect((): (() => void) => {
     if (cooldown > 0) {
-      cooldownRef.current = setTimeout(() => setCooldown(cooldown - 1), 1000);
+      cooldownRef.current = setTimeout(
+        () => setCooldown((prev) => prev - 1),
+        1000,
+      );
     }
+    return (): void => {
+      if (cooldownRef.current) clearTimeout(cooldownRef.current);
+    };
   }, [cooldown]);
 
   const handleCodeInputChange = (
@@ -41,27 +60,47 @@ export const useEmailCode = (): UseEmailCodeReturn => {
     else if (name === "verificationCode") setVerificationCode(value);
   };
 
-  const handleSendCode = (): void => {
-    if (!email) return; //alert("이메일을 입력하세요.");
-
-    // 실제 API 요청으로 대체 필요
-    const generatedCode = Math.floor(
-      100000 + Math.random() * 900000,
-    ).toString();
-    setServerCode(generatedCode);
-    //alert(`이메일로 인증코드 전송: ${generatedCode}`); // 실제 환경에서는 제거
-
-    setTimer(300); // 5분 유효 시간
-    setCooldown(30); // 30초 쿨타임
+  const handleSendCode = async (): Promise<void> => {
+    if (!/^[\w-.]+@(?<temp1>[\w-]+\.)+[\w-]{2,4}$/.test(email)) {
+      setSendError("유효한 이메일을 입력해주세요.");
+      return;
+    }
+    try {
+      await sendCodeMutation.mutateAsync({ email });
+      setTimer(300);
+      setCooldown(30);
+      setSendError(undefined);
+    } catch (err) {
+      if (err instanceof TRPCClientError) {
+        setSendError(err.message);
+      } else {
+        setSendError("인증 코드 전송 중 오류가 발생했습니다.");
+      }
+    }
   };
 
-  const handleVerifyCode = (): void => {
-    if (verificationCode === serverCode) {
+  const handleVerifyCode = async (): Promise<void> => {
+    try {
+      await verifyCodeMutation.mutateAsync({ email, code: verificationCode });
       setIsEmailVerified(true);
-      // alert("이메일 인증 성공");
-    } else {
-      //  alert("인증 코드가 올바르지 않습니다.");
+      setVerifyError(undefined);
+    } catch (err) {
+      if (err instanceof TRPCClientError) {
+        setVerifyError(err.message);
+      } else {
+        setVerifyError("인증 확인 중 오류가 발생했습니다.");
+      }
     }
+  };
+
+  const reset = (): void => {
+    setEmail("");
+    setVerificationCode("");
+    setTimer(0);
+    setCooldown(0);
+    setIsEmailVerified(false);
+    setSendError(undefined);
+    setVerifyError(undefined);
   };
 
   return {
@@ -73,5 +112,8 @@ export const useEmailCode = (): UseEmailCodeReturn => {
     timer,
     cooldown,
     isEmailVerified,
+    sendError,
+    verifyError,
+    reset,
   };
 };
