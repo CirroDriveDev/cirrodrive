@@ -5,6 +5,7 @@ interface ImportMetaEnv {
   readonly VITE_CLIENT_PORT: string;
   readonly VITE_SERVER_PORT: string;
   readonly VITE_SES_SOURCE_EMAIL: string;
+  readonly VITE_JWT_SECRET: string;
 }
 
 interface ImportMeta {
