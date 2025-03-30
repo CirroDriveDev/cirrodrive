@@ -11,6 +11,12 @@ export const emailRouter = router({
   // 이메일 인증 코드 발송
   sendVerification: procedure
     .input(z.object({ email: z.string().email() }))
+    .output(
+      z.object({
+        success: z.boolean(),
+        message: z.string(),
+      }),
+    )
     .mutation(async ({ input }) => {
       try {
         await emailService.sendVerificationCode({ to: input.email }); // 인증 코드 생성 및 전송
@@ -27,6 +33,13 @@ export const emailRouter = router({
   // 인증 코드 검증
   verifyCode: procedure
     .input(z.object({ email: z.string().email(), code: z.string().length(6) }))
+    .output(
+      z.object({
+        success: z.boolean(),
+        message: z.string(),
+        token: z.string(),
+      }),
+    )
     .mutation(async ({ input }) => {
       try {
         const token = await emailService.verifyEmailCode(
