@@ -8,6 +8,7 @@ import { AuthService } from "@/services/authService.ts";
 import { CodeService } from "@/services/codeService.ts";
 import { FileService } from "@/services/fileService.ts";
 import { FolderService } from "@/services/folderService.ts";
+import { EmailService } from "@/services/emailService.ts";
 
 const inversifyLogger = logger.child({ prefix: "Inversify" });
 
@@ -23,11 +24,15 @@ container.bind(Symbols.SessionModel).toConstantValue(prisma.session);
 container.bind(Symbols.CodeModel).toConstantValue(prisma.code);
 container.bind(Symbols.FileMetadataModel).toConstantValue(prisma.fileMetadata);
 container.bind(Symbols.FolderModel).toConstantValue(prisma.folder);
+container
+  .bind(Symbols.VerificationCodeModel)
+  .toConstantValue(prisma.verificationCode);
 
 container.bind(UserService).toSelf();
 container.bind(AuthService).toSelf();
 container.bind(CodeService).toSelf();
 container.bind(FileService).toSelf();
 container.bind(FolderService).toSelf();
+container.bind(EmailService).toSelf();
 
 inversifyLogger.info("Inversify loaded successfully");

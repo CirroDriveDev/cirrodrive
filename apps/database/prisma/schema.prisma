@@ -83,6 +83,14 @@ model Code {
   user       User?        @relation(fields: [userId], references: [id])
 }
 
+model VerificationCode {
+  id        String   @id @default(uuid())
+  email     String   @unique
+  code      String
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+}
+
 model Folder {
   id        Int       @id @default(autoincrement())
   name      String

@@ -202,6 +202,28 @@ export class UserService {
   }
 
   /**
+   * 이메일로 사용자를 조회합니다.
+   *
+   * @param email - 이메일
+   * @returns 지정된 이메일을 가진 사용자 또는 null
+   */
+  public async getByEmail({ email }: { email: string }): Promise<User | null> {
+    try {
+      this.logger.info({ methodName: "getByEmail", email }, "사용자 조회 시작");
+      const user = await this.userModel.findUnique({
+        where: { email },
+      });
+
+      return user;
+    } catch (error) {
+      if (error instanceof Error) {
+        this.logger.error(error.message);
+      }
+      throw error;
+    }
+  }
+
+  /**
    * 사용자를 수정합니다.
    *
    * @param id - 사용자 ID
