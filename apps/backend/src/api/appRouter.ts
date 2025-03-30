@@ -6,6 +6,7 @@ import { router } from "@/loaders/trpc.ts";
 import { fileRouter } from "@/api/routes/fileRouter.ts";
 import { folderRouter } from "@/api/routes/folderRouter.ts";
 import { entryRouter } from "@/api/routes/entryRouter.ts";
+import { emailRouter } from "@/api/routes/emailRouter.ts";
 
 export const appRouter = router({
   user: userRouter,
@@ -14,6 +15,7 @@ export const appRouter = router({
   file: fileRouter,
   folder: folderRouter,
   entry: entryRouter,
+  email: emailRouter,
 });
 
 export type AppRouter = typeof appRouter;
