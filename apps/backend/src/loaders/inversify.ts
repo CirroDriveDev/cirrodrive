@@ -24,6 +24,9 @@ container.bind(Symbols.SessionModel).toConstantValue(prisma.session);
 container.bind(Symbols.CodeModel).toConstantValue(prisma.code);
 container.bind(Symbols.FileMetadataModel).toConstantValue(prisma.fileMetadata);
 container.bind(Symbols.FolderModel).toConstantValue(prisma.folder);
+container
+  .bind(Symbols.VerificationCodeModel)
+  .toConstantValue(prisma.verificationCode);
 
 container.bind(UserService).toSelf();
 container.bind(AuthService).toSelf();
