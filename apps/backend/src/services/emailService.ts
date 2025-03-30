@@ -38,7 +38,7 @@ export class EmailService {
     this.logger.info({ to, subject }, "이메일 전송 중");
 
     const params = new SendEmailCommand({
-      Source: "your-verified-email@example.com", // SES에서 확인된 이메일 주소
+      Source: import.meta.env.VITE_SES_SOURCE_EMAIL, // 환경변수에서 SES 이메일 주소 가져오기
       Destination: { ToAddresses: [to] },
       Message: {
         Subject: { Data: subject },

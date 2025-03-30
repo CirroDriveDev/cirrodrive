@@ -35,6 +35,9 @@ pipeline {
         // 컨테이너 이름
         FRONTEND_CONTAINER_NAME = 'frontend'
         BACKEND_CONTAINER_NAME = 'backend'
+
+        // SES 이메일
+        VITE_SES_SOURCE_EMAIL = credentials('SES_SOURCE_EMAIL_CREDENTIAL_ID')
     }
 
     stages {
@@ -171,6 +174,7 @@ pipeline {
                             export SHADOW_DATABASE_URL="${SHADOW_DATABASE_URL}"
                             export VITE_CLIENT_PORT="${VITE_CLIENT_PORT}"
                             export VITE_SERVER_PORT="${VITE_SERVER_PORT}"
+                            export VITE_SES_SOURCE_EMAIL="${VITE_SES_SOURCE_EMAIL}"
                             docker-compose -f ${DEPLOY_PATH}/compose.yaml up -d --remove-orphans --renew-anon-volumes ${FRONTEND_CONTAINER_NAME} ${BACKEND_CONTAINER_NAME}
                             """
                     }
