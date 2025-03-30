@@ -76,7 +76,10 @@ export function RegisterPage(): JSX.Element {
               type="text"
               name="email"
               value={email}
-              onChange={handleCodeInputChange}
+              onChange={(e) => {
+                handleInputChange(e);
+                handleCodeInputChange(e);
+              }}
             />
             <div className="flex w-full items-center space-x-2">
               <Button
