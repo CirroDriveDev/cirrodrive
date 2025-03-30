@@ -38,6 +38,9 @@ pipeline {
 
         // SES 이메일
         VITE_SES_SOURCE_EMAIL = credentials('SES_SOURCE_EMAIL_CREDENTIAL_ID')
+
+        // JWT 비밀키
+        VITE_JWT_SECRET = credentials('JWT_SECRET_CREDENTIAL_ID')
     }
 
     stages {

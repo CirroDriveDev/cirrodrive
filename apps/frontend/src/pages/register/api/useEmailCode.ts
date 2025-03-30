@@ -14,6 +14,7 @@ export interface UseEmailCodeReturn {
   sendError?: string;
   verifyError?: string;
   reset: () => void;
+  token: string | null; // 추가: JWT 반환
 }
 
 export const useEmailCode = (): UseEmailCodeReturn => {
@@ -24,6 +25,7 @@ export const useEmailCode = (): UseEmailCodeReturn => {
   const [isEmailVerified, setIsEmailVerified] = useState(false);
   const [sendError, setSendError] = useState<string>();
   const [verifyError, setVerifyError] = useState<string>();
+  const [token, setToken] = useState<string | null>(null); // 추가: JWT 상태
 
   const timerRef = useRef<NodeJS.Timeout | null>(null);
   const cooldownRef = useRef<NodeJS.Timeout | null>(null);
@@ -98,8 +100,12 @@ export const useEmailCode = (): UseEmailCodeReturn => {
     }
 
     try {
-      await verifyCodeMutation.mutateAsync({ email, code: verificationCode });
+      const response = await verifyCodeMutation.mutateAsync({
+        email,
+        code: verificationCode,
+      });
       setIsEmailVerified(true);
+      setToken(response.token); // JWT를 메모리에 저장
       setVerifyError(undefined);
     } catch (err) {
       if (err instanceof TRPCClientError) {
@@ -118,6 +124,7 @@ export const useEmailCode = (): UseEmailCodeReturn => {
     setIsEmailVerified(false);
     setSendError(undefined);
     setVerifyError(undefined);
+    setToken(null); // JWT 초기화
   };
 
   return {
@@ -132,5 +139,6 @@ export const useEmailCode = (): UseEmailCodeReturn => {
     sendError,
     verifyError,
     reset,
+    token, // 추가: JWT 반환
   };
 };

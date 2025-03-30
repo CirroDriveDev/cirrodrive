@@ -2,9 +2,11 @@ import { injectable, inject } from "inversify";
 import type { Logger } from "pino";
 import { SendEmailCommand } from "@aws-sdk/client-ses";
 import type { Prisma } from "@cirrodrive/database";
+import { SignJWT } from "jose"; // jose 추가
 import { Symbols } from "@/types/symbols.ts";
 import { sesClient } from "@/loaders/ses.ts";
 import { generateVerificationCode } from "@/utils/generateVerificationCode.ts";
+import { createSecretKey } from "@/utils/jwt.ts"; // JWT 비밀키 유틸리티 추가
 
 /**
  * 이메일 서비스입니다.
@@ -88,25 +90,34 @@ export class EmailService {
   }
 
   /**
-   * 이메일 인증 코드를 검증합니다.
+   * 이메일 인증 코드를 검증하고 JWT를 생성합니다.
    *
    * @param email - 이메일 주소
    * @param code - 인증 코드
-   * @returns 인증 코드가 유효하면 `true`, 그렇지 않으면 `false`
+   * @returns 인증 성공 시 JWT 토큰
+   * @throws 인증 실패 시 오류
    */
-  public async verifyEmailCode(email: string, code: string): Promise<boolean> {
+  public async verifyEmailCode(email: string, code: string): Promise<string> {
     const record = await this.verificationCodeModel.findUnique({
       where: { email },
     });
 
     if (!record || record.code !== code || record.expiresAt < new Date()) {
       this.logger.error({ email }, "잘못된 인증 코드 또는 만료됨");
-      return false;
+      throw new Error("잘못된 인증 코드이거나 만료되었습니다.");
     }
 
     // 인증 성공 후 코드 삭제
     await this.verificationCodeModel.delete({ where: { email } });
     this.logger.info({ email }, "이메일 인증 성공");
-    return true;
+
+    // JWT 생성
+    const secretKey = createSecretKey();
+    const token = await new SignJWT({ email })
+      .setProtectedHeader({ alg: "HS256" })
+      .setExpirationTime("10m")
+      .sign(secretKey);
+
+    return token;
   }
 }
