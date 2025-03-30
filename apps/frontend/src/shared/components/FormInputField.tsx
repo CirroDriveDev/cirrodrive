@@ -7,6 +7,7 @@ interface FormInputFieldProps {
   value?: string | number | readonly string[];
   onChange?: React.ChangeEventHandler<HTMLInputElement>;
   errorMessage?: string;
+  disabled?: boolean;
 }
 
 export function FormInputField({
@@ -16,6 +17,7 @@ export function FormInputField({
   value,
   onChange,
   errorMessage,
+  disabled,
 }: FormInputFieldProps): JSX.Element {
   return (
     <div className="flex w-full flex-col">
@@ -26,6 +28,7 @@ export function FormInputField({
         value={value}
         onChange={onChange}
         className="rounded-md border border-gray-300 bg-white p-2 text-black"
+        disabled={disabled}
       />
       {errorMessage ?
         <div className="h-8">

@@ -80,6 +80,7 @@ export function RegisterPage(): JSX.Element {
                 handleInputChange(e);
                 handleCodeInputChange(e);
               }}
+              disabled={isEmailVerified}
             />
             <div className="flex w-full items-center space-x-2">
               <Button
