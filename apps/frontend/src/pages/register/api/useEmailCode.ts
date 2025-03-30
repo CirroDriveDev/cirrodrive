@@ -80,6 +80,23 @@ export const useEmailCode = (): UseEmailCodeReturn => {
   };
 
   const handleVerifyCode = async (): Promise<void> => {
+    if (!verificationCode) {
+      setVerifyError("인증 코드를 입력해주세요.");
+      return;
+    }
+    if (verificationCode.length !== 6) {
+      setVerifyError("인증 코드는 6자리 숫자여야 합니다.");
+      return;
+    }
+    if (isEmailVerified) {
+      setVerifyError("이미 인증된 이메일입니다.");
+      return;
+    }
+    if (timer <= 0) {
+      setVerifyError("인증 코드의 유효 시간이 만료되었습니다.");
+      return;
+    }
+
     try {
       await verifyCodeMutation.mutateAsync({ email, code: verificationCode });
       setIsEmailVerified(true);
