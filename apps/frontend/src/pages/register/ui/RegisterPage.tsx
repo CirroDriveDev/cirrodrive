@@ -1,12 +1,14 @@
-import { Link, useNavigate } from "react-router-dom";
-import { Button } from "@/shared/components/shadcn/Button.tsx";
+import { useNavigate, Link } from "react-router-dom";
 import { useRegister } from "@/pages/register/api/useRegister.tsx";
+import { useEmailCode } from "@/pages/register/api/useEmailCode.ts";
 import { FormInputField } from "@/shared/components/FormInputField.tsx";
 import { Layout } from "@/shared/ui/layout/Layout.tsx";
 import { Header } from "@/shared/ui/layout/Header.tsx";
+import { Button } from "@/shared/components/shadcn/Button.tsx";
 
 export function RegisterPage(): JSX.Element {
   const navigate = useNavigate();
+
   const {
     input,
     validationError,
@@ -14,11 +16,23 @@ export function RegisterPage(): JSX.Element {
     handleInputChange,
     handleFormSubmit,
   } = useRegister({
-    onSuccess: () => {
-      navigate("/login");
-    },
+    onSuccess: () => navigate("/login"),
   });
-  const { username, password, passwordConfirm, email } = input;
+
+  const {
+    email,
+    verificationCode,
+    handleCodeInputChange,
+    handleSendCode,
+    handleVerifyCode,
+    timer,
+    cooldown,
+    isEmailVerified,
+    sendError,
+    verifyError,
+  } = useEmailCode();
+
+  const { username, password, passwordConfirm } = input;
 
   return (
     <Layout header={<Header />}>
@@ -40,7 +54,7 @@ export function RegisterPage(): JSX.Element {
 
             <FormInputField
               displayName="비밀번호"
-              type="text"
+              type="password"
               name="password"
               value={password}
               onChange={handleInputChange}
@@ -49,32 +63,75 @@ export function RegisterPage(): JSX.Element {
 
             <FormInputField
               displayName="비밀번호 확인"
-              type="text"
+              type="password"
               name="passwordConfirm"
               value={passwordConfirm}
               onChange={handleInputChange}
               errorMessage={validationError?.passwordConfirm?._errors[0]}
             />
 
+            {/* 이메일 입력 */}
             <FormInputField
               displayName="이메일"
               type="text"
               name="email"
               value={email}
-              onChange={handleInputChange}
-              errorMessage={validationError?.email?._errors[0]}
+              onChange={handleCodeInputChange}
             />
+            <div className="flex w-full items-center space-x-2">
+              <Button
+                type="button"
+                variant="outline"
+                onClick={handleSendCode}
+                disabled={cooldown > 0}
+              >
+                {cooldown > 0 ? `${cooldown}초 후 재전송` : "인증 코드 보내기"}
+              </Button>
+              <span className="text-sm text-muted-foreground">
+                유효 시간: {timer}초
+              </span>
+            </div>
+            {sendError ?
+              <p className="text-sm text-destructive">{sendError}</p>
+            : null}
 
+            {/* 인증 코드 입력 */}
+            <FormInputField
+              displayName="인증 코드"
+              type="text"
+              name="verificationCode"
+              value={verificationCode}
+              onChange={handleCodeInputChange}
+            />
+            <Button
+              type="button"
+              variant="outline"
+              onClick={handleVerifyCode}
+              disabled={isEmailVerified}
+            >
+              {isEmailVerified ? "이메일 인증 완료" : "인증 확인"}
+            </Button>
+            {verifyError ?
+              <p className="text-sm text-destructive">{verifyError}</p>
+            : null}
+
+            {/* 서버 오류 메시지 */}
             {submissionError ?
               <div className="h-8">
                 <p className="text-destructive">{submissionError}</p>
               </div>
             : null}
-            <div className="flex w-full justify-center">
-              <Button variant="default" className="w-full" type="submit">
-                회원가입
-              </Button>
-            </div>
+
+            {/* 회원가입 버튼 */}
+            <Button
+              type="submit"
+              variant="default"
+              className="mt-6 w-full"
+              disabled={!isEmailVerified}
+            >
+              회원가입
+            </Button>
+
             <div className="flex space-x-2">
               <span className="text-l">이미 계정이 있으신가요?</span>
               <Link to="/login">
