@@ -141,6 +141,9 @@ importers:
       inversify:
         specifier: ^6.0.2
         version: 6.0.3
+      jose:
+        specifier: ^6.0.10
+        version: 6.0.10
       jsonfile:
         specifier: ^6.1.0
         version: 6.1.0
@@ -1914,8 +1917,8 @@ packages:
       rollup:
         optional: true
 
-  '@rollup/wasm-node@4.37.0':
-    resolution: {integrity: sha512-Nzbex+bqQ2wffHfAX5nHUMhcAUwedzE02arkETjt/ybjD0ieWtXwRUgIipB7giMRqKLdopDmkSIWow0mxzWmLg==}
+  '@rollup/wasm-node@4.38.0':
+    resolution: {integrity: sha512-WgdJf6XyQ5x4qaHbjGjsqWqgg2L4WNNRsQPl80agmFX6Kdobe+FsUn116lnR7lbtiAucgI4ywGYuAoew8RHb8w==}
     engines: {node: '>=18.0.0', npm: '>=8.0.0'}
     hasBin: true
 
@@ -2276,6 +2279,9 @@ packages:
 
   '@types/estree@1.0.6':
     resolution: {integrity: sha512-AYnb1nQyY49te+VRAVgmzfcgjYS91mY5P0TKUDCLEM+gNnA+3T6rWITXRLYCpahpqSQbN5cE+gHpnPyXjHWxcw==}
+
+  '@types/estree@1.0.7':
+    resolution: {integrity: sha512-w28IoSUCJpidD/TGviZwwMJckNESJZXFu7NBZ5YJ4mEUnNraUn9Pm8HSZm/jDF1pDWYKspWE7oVphigUPRakIQ==}
 
   '@types/express-serve-static-core@4.19.6':
     resolution: {integrity: sha512-N4LZ2xG7DatVqhCZzOGb1Yi5lMbXSZcmdLDe9EzSndPV2HpWYWzRbaerl2n27irrm94EPpprqa8KpskPT085+A==}
@@ -3956,6 +3962,9 @@ packages:
   jmespath@0.16.0:
     resolution: {integrity: sha512-9FzQjJ7MATs1tSpnco1K6ayiYE3figslrXA72G2HQ/n76RzvYlofyi5QM+iX4YRs/pu3yzxlVQSST23+dMDknw==}
     engines: {node: '>= 0.6.0'}
+
+  jose@6.0.10:
+    resolution: {integrity: sha512-skIAxZqcMkOrSwjJvplIPYrlXGpxTPnro2/QWTDCxAdWQrSTV5/KqspMWmi5WAx5+ULswASJiZ0a+1B/Lxt9cw==}
 
   joycon@3.1.1:
     resolution: {integrity: sha512-34wB/Y7MW7bzjKRjUKTa46I2Z7eV62Rkhva+KkopW7Qvv/OSWBqvkSY7vusOPrNuZcUG3tApvdVgNB8POj3SPw==}
@@ -7383,9 +7392,9 @@ snapshots:
       estree-walker: 2.0.2
       picomatch: 4.0.2
 
-  '@rollup/wasm-node@4.37.0':
+  '@rollup/wasm-node@4.38.0':
     dependencies:
-      '@types/estree': 1.0.6
+      '@types/estree': 1.0.7
     optionalDependencies:
       fsevents: 2.3.3
 
@@ -7843,6 +7852,8 @@ snapshots:
       '@types/eslint': 8.56.12
 
   '@types/estree@1.0.6': {}
+
+  '@types/estree@1.0.7': {}
 
   '@types/express-serve-static-core@4.19.6':
     dependencies:
@@ -9778,6 +9789,8 @@ snapshots:
 
   jmespath@0.16.0: {}
 
+  jose@6.0.10: {}
+
   joycon@3.1.1: {}
 
   js-tokens@4.0.0: {}
@@ -11569,7 +11582,7 @@ snapshots:
     dependencies:
       esbuild: 0.21.5
       postcss: 8.4.47
-      rollup: '@rollup/wasm-node@4.37.0'
+      rollup: '@rollup/wasm-node@4.38.0'
     optionalDependencies:
       '@types/node': 20.17.1
       fsevents: 2.3.3
