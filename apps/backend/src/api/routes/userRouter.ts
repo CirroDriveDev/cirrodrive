@@ -11,11 +11,15 @@ const userService = container.get<UserService>(UserService);
 export const userRouter = router({
   create: procedure
     .input(
-      userSchema.pick({
-        username: true,
-        password: true,
-        email: true,
-      }),
+      userSchema
+        .pick({
+          username: true,
+          password: true,
+          email: true,
+        })
+        .extend({
+          token: z.string(), // 추가: 이메일 인증 토큰
+        }),
     )
     .output(userDTOSchema)
     .mutation(async ({ input, ctx }) => {
@@ -45,6 +49,7 @@ export const userRouter = router({
           username: input.username,
           password: input.password,
           email: input.email,
+          token: input.token, // 추가
         });
 
         logger.info({ requestId: ctx.req.id }, "user.create 요청 성공");

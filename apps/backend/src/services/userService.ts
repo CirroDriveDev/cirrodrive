@@ -1,8 +1,10 @@
 import { injectable, inject } from "inversify";
 import type { Prisma, User } from "@cirrodrive/database";
 import { hash } from "@node-rs/argon2";
+import { jwtVerify } from "jose";
 import type { Logger } from "pino";
 import { Symbols } from "@/types/symbols.ts";
+import { createSecretKey } from "@/utils/jwt.ts";
 
 /**
  * 사용자 서비스입니다.
@@ -23,6 +25,7 @@ export class UserService {
    * @param username - 사용자 이름입니다.
    * @param password - 비밀번호입니다.
    * @param email - 이메일입니다.
+   * @param token - 이메일 인증 토큰입니다.
    * @returns 생성된 사용자입니다.
    * @throws 사용자 생성 중 오류가 발생한 경우.
    */
@@ -30,10 +33,12 @@ export class UserService {
     username,
     password,
     email,
+    token, // 추가: 이메일 인증 토큰
   }: {
     username: string;
     password: string;
     email: string;
+    token: string; // 추가
   }): Promise<User> {
     try {
       this.logger.info(
@@ -44,6 +49,13 @@ export class UserService {
         },
         "사용자 생성 시작",
       );
+
+      // JWT 검증
+      const secretKey = createSecretKey();
+      const { payload } = await jwtVerify(token, secretKey); // 수정: jwtVerify 사용
+      if (payload.email !== email) {
+        throw new Error("이메일 인증 토큰이 유효하지 않습니다.");
+      }
 
       const hashedPassword = await hash(password);
 
