@@ -98,8 +98,31 @@ export interface RenameStore {
   clearFolderId: () => void;
 }
 
+export interface JwtStore {
+  /**
+   * JWT 토큰
+   */
+  token: string | null;
+
+  /**
+   * JWT 토큰을 설정
+   *
+   * @param token - JWT 토큰
+   */
+  setToken: (token: string) => void;
+
+  /**
+   * JWT 토큰을 초기화
+   */
+  clearToken: () => void;
+}
+
 // 모든 슬라이스를 포함하는 상태 타입
-export type StoreState = UserStore & ModalStore & SearchBarStore & RenameStore;
+export type StoreState = UserStore &
+  ModalStore &
+  SearchBarStore &
+  RenameStore &
+  JwtStore;
 
 // ------------------------------------
 // Store Slice Creators
@@ -190,6 +213,27 @@ export const createRenameSlice: StateCreator<
     }),
 });
 
+export const createJwtSlice: StateCreator<
+  StoreState,
+  [
+    ["zustand/immer", never],
+    ["zustand/persist", unknown],
+    ["zustand/devtools", never],
+  ],
+  [],
+  JwtStore
+> = (set) => ({
+  token: null,
+  setToken: (token) =>
+    set((state) => {
+      state.token = token;
+    }),
+  clearToken: () =>
+    set((state) => {
+      state.token = null;
+    }),
+});
+
 // ------------------------------------
 // Store Hook
 // ------------------------------------
@@ -221,6 +265,7 @@ export const useBoundStore = create<StoreState>()(
         ...createModalSlice(...opts),
         ...createSearchBarSlice(...opts),
         ...createRenameSlice(...opts),
+        ...createJwtSlice(...opts), // 추가: JWT 슬라이스
       })),
       // persist 미들웨어의 옵션
       {

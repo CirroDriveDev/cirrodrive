@@ -7,7 +7,7 @@ import { userSchema } from "@cirrodrive/schemas";
 import { z, type ZodFormattedError } from "zod";
 import { trpc } from "@/shared/api/trpc.ts";
 import { useModalStore } from "@/shared/store/useModalStore.ts";
-import { useEmailCode } from "@/pages/register/api/useEmailCode.ts";
+import { useBoundStore } from "@/shared/store/useBoundStore.ts";
 
 const formSchema = z
   .object({
@@ -61,13 +61,13 @@ interface UseRegister {
 
 export const useRegister = (opts?: UseRegisterOptions): UseRegister => {
   const { openModal } = useModalStore();
-  const { token: emailToken } = useEmailCode(); // 추가: 이메일 인증 토큰 가져오기
+  const { token, setToken } = useBoundStore();
   const [input, setInput] = useState<Input>({
     username: "",
     password: "",
     passwordConfirm: "",
     email: "",
-    token: emailToken ?? "",
+    token: token ?? "",
   });
 
   const [validationError, setValidationError] =
@@ -108,7 +108,7 @@ export const useRegister = (opts?: UseRegisterOptions): UseRegister => {
 
     if (result.success) {
       setValidationError(undefined);
-      if (!emailToken) {
+      if (!token) {
         setSubmissionError("이메일 인증이 필요합니다.");
         return;
       }
@@ -116,8 +116,9 @@ export const useRegister = (opts?: UseRegisterOptions): UseRegister => {
         username: result.data.username,
         password: result.data.password,
         email: result.data.email,
-        token: emailToken,
+        token,
       });
+      setToken("");
     } else {
       setValidationError(result.error.format());
       setSubmissionError(undefined);

@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import { TRPCClientError } from "@trpc/client";
 import { trpc } from "@/shared/api/trpc.ts";
+import { useBoundStore } from "@/shared/store/useBoundStore.ts";
 
 export interface UseEmailCodeReturn {
   email: string;
@@ -14,7 +15,6 @@ export interface UseEmailCodeReturn {
   sendError?: string;
   verifyError?: string;
   reset: () => void;
-  token: string | null; // 추가: JWT 반환
 }
 
 export const useEmailCode = (): UseEmailCodeReturn => {
@@ -25,13 +25,14 @@ export const useEmailCode = (): UseEmailCodeReturn => {
   const [isEmailVerified, setIsEmailVerified] = useState(false);
   const [sendError, setSendError] = useState<string>();
   const [verifyError, setVerifyError] = useState<string>();
-  const [token, setToken] = useState<string | null>(null); // 추가: JWT 상태
 
   const timerRef = useRef<NodeJS.Timeout | null>(null);
   const cooldownRef = useRef<NodeJS.Timeout | null>(null);
 
   const sendCodeMutation = trpc.email.sendVerification.useMutation();
   const verifyCodeMutation = trpc.email.verifyCode.useMutation();
+
+  const { setToken } = useBoundStore();
 
   useEffect((): (() => void) => {
     if (timer > 0) {
@@ -105,7 +106,7 @@ export const useEmailCode = (): UseEmailCodeReturn => {
         code: verificationCode,
       });
       setIsEmailVerified(true);
-      setToken(response.token); // JWT를 메모리에 저장
+      setToken(response.token); // 수정: JWT를 전역 스토어에 저장
       setVerifyError(undefined);
     } catch (err) {
       if (err instanceof TRPCClientError) {
@@ -124,7 +125,7 @@ export const useEmailCode = (): UseEmailCodeReturn => {
     setIsEmailVerified(false);
     setSendError(undefined);
     setVerifyError(undefined);
-    setToken(null); // JWT 초기화
+    setToken(""); // JWT 초기화
   };
 
   return {
@@ -139,6 +140,5 @@ export const useEmailCode = (): UseEmailCodeReturn => {
     sendError,
     verifyError,
     reset,
-    token, // 추가: JWT 반환
   };
 };
