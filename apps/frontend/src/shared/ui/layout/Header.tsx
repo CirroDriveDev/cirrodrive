@@ -5,10 +5,12 @@ import { ModeToggle } from "@/shared/components/shadcn/ModeToggle.tsx";
 import { useBoundStore } from "@/shared/store/useBoundStore.ts";
 import { useLogout } from "@/shared/api/useLogout.ts";
 import { NavButton } from "@/shared/ui/layout/NavButton.tsx";
+import { useDeleteAccount } from "@/pages/settings/api/useDeleteAccount.ts";
 
 export function Header(): JSX.Element {
   const { user } = useBoundStore();
   const { logout } = useLogout();
+  const { deleteAccount } = useDeleteAccount();
 
   return (
     <header className="flex flex-grow bg-primary">
@@ -29,6 +31,7 @@ export function Header(): JSX.Element {
               <NavButton>다운로드</NavButton>
             </Link>
             <NavButton onClick={logout}>로그아웃</NavButton>
+            <NavButton onClick={deleteAccount}>계정 탈퇴</NavButton>
             <ModeToggle />
           </div>
         </div>
