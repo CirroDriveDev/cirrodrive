@@ -65,6 +65,10 @@ export class EmailService {
    * @param to - 수신자 이메일 주소
    */
   public async sendVerificationCode({ to }: { to: string }): Promise<void> {
+    if (import.meta.env.DEV) {
+      this.logger.warn("개발 환경에서는 이메일 전송을 건너뜁니다.");
+      return;
+    }
     const code = generateVerificationCode(); // 6자리 인증 코드 생성
     const expiresAt = new Date(Date.now() + 10 * 60 * 1000); // 10분 후 만료
     const subject = "이메일 인증 코드";
@@ -98,6 +102,16 @@ export class EmailService {
    * @throws 인증 실패 시 오류
    */
   public async verifyEmailCode(email: string, code: string): Promise<string> {
+    if (import.meta.env.DEV) {
+      this.logger.warn("개발 환경에서는 이메일 인증을 건너뜁니다.");
+      const secretKey = createSecretKey();
+      const token = await new SignJWT({ email })
+        .setProtectedHeader({ alg: "HS256" })
+        .setExpirationTime("10m")
+        .sign(secretKey);
+      return token;
+    }
+
     const record = await this.verificationCodeModel.findUnique({
       where: { email },
     });
