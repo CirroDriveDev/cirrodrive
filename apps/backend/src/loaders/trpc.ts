@@ -72,17 +72,3 @@ export const authedProcedure = procedure.use(async (opts) => {
     },
   });
 });
-export const adminProcedure = procedure.use(async (opts) => {
-  const { ctx } = opts;
-  if (!ctx.user || ctx.user.role !== "admin") {
-    throw new TRPCError({ code: "FORBIDDEN" });
-  }
-
-  return opts.next({
-    ctx: {
-      user: ctx.user,
-      session: ctx.session,
-      sessionToken: ctx.sessionToken,
-    },
-  });
-});
