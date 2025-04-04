@@ -29,6 +29,7 @@ model User {
   profileImageUrl String?     @unique
   createdAt       DateTime    @default(now())
   updatedAt       DateTime    @updatedAt
+  role            String      @default("user") // 기본값 "user", 관리자 계정은 "admin"
 
   rootFolderId Int    @unique
   rootFolder   Folder @relation(name: "RootFolder", fields: [rootFolderId], references: [id], onDelete: Cascade)
