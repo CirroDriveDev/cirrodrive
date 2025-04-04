@@ -4,7 +4,7 @@ import { SendEmailCommand } from "@aws-sdk/client-ses";
 import type { Prisma } from "@cirrodrive/database";
 import { SignJWT } from "jose"; // jose 추가
 import { Symbols } from "@/types/symbols.ts";
-import { sesClient } from "@/loaders/ses.ts";
+import { sesClient } from "@/loaders/aws.ts";
 import { generateVerificationCode } from "@/utils/generateVerificationCode.ts";
 import { createSecretKey } from "@/utils/jwt.ts"; // JWT 비밀키 유틸리티 추가
 

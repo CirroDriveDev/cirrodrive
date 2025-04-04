@@ -36,6 +36,10 @@ pipeline {
         FRONTEND_CONTAINER_NAME = 'frontend'
         BACKEND_CONTAINER_NAME = 'backend'
 
+        // AWS
+        VITE_AWS_REGION = credentials('AWS_REGION_CREDENTIAL_ID')
+        VITE_AWS_S3_BUCKET = credentials('AWS_S3_BUCKET_CREDENTIAL_ID')
+
         // SES 이메일
         VITE_SES_SOURCE_EMAIL = credentials('SES_SOURCE_EMAIL_CREDENTIAL_ID')
 
