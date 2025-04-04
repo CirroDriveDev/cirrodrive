@@ -7,6 +7,7 @@ import { fileRouter } from "@/api/routes/fileRouter.ts";
 import { folderRouter } from "@/api/routes/folderRouter.ts";
 import { entryRouter } from "@/api/routes/entryRouter.ts";
 import { emailRouter } from "@/api/routes/emailRouter.ts";
+import { adminRouter } from "@/api/routes/adminRouter.ts";
 
 export const appRouter = router({
   user: userRouter,
@@ -16,6 +17,7 @@ export const appRouter = router({
   folder: folderRouter,
   entry: entryRouter,
   email: emailRouter,
+  admin: adminRouter,
 });
 
 export type AppRouter = typeof appRouter;
