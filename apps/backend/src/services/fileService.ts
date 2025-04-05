@@ -1,4 +1,3 @@
-import fs from "node:fs";
 import path from "node:path";
 import { injectable, inject } from "inversify";
 import type { Prisma, FileMetadata } from "@cirrodrive/database";
@@ -6,13 +5,12 @@ import type { Logger } from "pino";
 import { Symbols } from "@/types/symbols.ts";
 import { CodeService } from "@/services/codeService.ts";
 import { UserService } from "@/services/userService.ts";
+import { type S3Metadata } from "@/services/s3Service.ts";
 /**
  * 파일 서비스입니다.
  */
 @injectable()
 export class FileService {
-  private rootDir: string;
-
   constructor(
     @inject(Symbols.Logger) private logger: Logger,
     @inject(Symbols.FileMetadataModel)
@@ -20,51 +18,48 @@ export class FileService {
     @inject(CodeService) private codeService: CodeService,
     @inject(UserService) private userService: UserService,
   ) {
-    this.rootDir = `./`;
     this.logger = logger.child({ serviceName: "FileService" });
   }
 
   /**
-   * 파일을 디스크에 저장하고 메타데이터를 데이터베이스에 저장합니다.
+   * 메타데이터를 데이터베이스에 저장합니다.
    *
-   * @param file - 저장할 파일입니다.
+   * @param metadata - S3 메타데이터입니다.
    * @param ownerId - 사용자의 ID입니다.
    * @returns 저장된 파일의 경로와 이름입니다.
    * @throws 파일 저장 중 오류가 발생한 경우.
    */
-  public async saveFile({
-    file,
+  public async save({
+    metadata,
     ownerId,
   }: {
-    file: File;
+    metadata: S3Metadata;
     ownerId?: number;
   }): Promise<FileMetadata> {
     try {
       this.logger.info(
         {
-          methodName: "saveFile",
-          fileName: file.name,
+          methodName: "save",
+          metadata,
         },
         "파일 저장 시작",
       );
-
-      const { path: filePath } = await this.writeFileToDisk(file);
 
       // 파일 메타데이터를 데이터베이스에 저장
       const fileMetadata = await this.fileMetadataModel.create({
         data: {
           ownerId,
-          name: file.name,
-          extension: path.extname(file.name),
-          size: file.size,
-          hash: "",
-          savedPath: filePath,
+          name: metadata.name,
+          extension: metadata.extension,
+          size: metadata.size,
+          key: metadata.key,
+          hash: metadata.hash,
         },
       });
 
       this.logger.info(
         {
-          methodName: "saveFile",
+          methodName: "save",
           fileMetadataId: fileMetadata.id,
         },
         "파일 메타데이터 저장 완료",
@@ -83,10 +78,14 @@ export class FileService {
    * ID로 파일 메타데이터 조회
    *
    * @param fileId - 다운로드할 파일의 ID입니다.
-   * @returns 다운로드할 파일입니다.
+   * @returns 파일 메타데이터입니다.
    * @throws 파일 조회 중 오류가 발생한 경우.
    */
-  public async getFileById({ fileId }: { fileId: number }): Promise<File> {
+  public async getFileById({
+    fileId,
+  }: {
+    fileId: number;
+  }): Promise<FileMetadata> {
     try {
       this.logger.info(
         {
@@ -106,17 +105,6 @@ export class FileService {
         );
       }
 
-      const filePath = fileMetadata.savedPath;
-
-      if (!fs.existsSync(filePath)) {
-        throw new Error(
-          `파일 경로 ${filePath}에 해당하는 파일을 찾을 수 없습니다.`,
-        );
-      }
-
-      const fileBuffer = fs.readFileSync(filePath);
-      const file = new File([fileBuffer], fileMetadata.name);
-
       this.logger.info(
         {
           methodName: "getFileById",
@@ -125,7 +113,7 @@ export class FileService {
         "파일 조회 완료",
       );
 
-      return file;
+      return fileMetadata;
     } catch (error) {
       if (error instanceof Error) {
         this.logger.error(error.message);
@@ -231,14 +219,14 @@ export class FileService {
    * 코드로 파일 다운로드
    *
    * @param codeString - 다운로드할 파일의 코드입니다.
-   * @returns 다운로드할 파일입니다.
+   * @returns 파일 메타데이터입니다.
    * @throws 파일 조회 중 오류가 발생한 경우.
    */
   public async getFileByCode({
     codeString,
   }: {
     codeString: string;
-  }): Promise<File> {
+  }): Promise<FileMetadata> {
     try {
       this.logger.info(
         {
@@ -250,7 +238,7 @@ export class FileService {
 
       const { id } = await this.codeService.getCodeMetadata({ codeString });
 
-      const file = await this.getFileById({ fileId: id });
+      const metadata = await this.getFileById({ fileId: id });
 
       this.logger.info(
         {
@@ -260,7 +248,7 @@ export class FileService {
         "코드로 파일 조회 완료",
       );
 
-      return file;
+      return metadata;
     } catch (error) {
       if (error instanceof Error) {
         this.logger.error(error.message);
@@ -293,14 +281,6 @@ export class FileService {
       if (!fileMetadata) {
         throw new Error(
           `파일 ID ${fileId}에 해당하는 파일을 찾을 수 없습니다.`,
-        );
-      }
-
-      const filePath = fileMetadata.savedPath;
-
-      if (!fs.existsSync(filePath)) {
-        throw new Error(
-          `파일 경로 ${filePath}에 해당하는 파일을 찾을 수 없습니다.`,
         );
       }
 
@@ -483,7 +463,7 @@ export class FileService {
           extension: fileMetadata.extension,
           size: fileMetadata.size,
           hash: fileMetadata.hash,
-          savedPath: fileMetadata.savedPath,
+          key: fileMetadata.key,
           parentFolder: {
             connect: {
               id: targetFolderId,
@@ -510,41 +490,6 @@ export class FileService {
     }
   }
 
-  /**
-   * 파일을 디스크에 저장합니다.
-   *
-   * @param file - 저장할 파일입니다.
-   * @returns 저장된 파일의 경로와 이름입니다.
-   */
-  private async writeFileToDisk(
-    file: File,
-  ): Promise<{ path: string; name: string }> {
-    const uploadDate = Date.now();
-    const fileDir = path.resolve(`${this.rootDir}/data`);
-
-    if (!fs.existsSync(fileDir)) {
-      fs.mkdirSync(fileDir, { recursive: true });
-    }
-
-    const savedName = `${uploadDate}-${file.name}`;
-    const filePath = path.resolve(`${fileDir}/${savedName}`);
-    this.logger.info(
-      { methodName: "writeFileToDisk", fileName: file.name, filePath },
-      "파일 저장 시작",
-    );
-
-    const fileBuffer = await file
-      .arrayBuffer()
-      .then((buffer) => Buffer.from(buffer));
-    fs.writeFileSync(filePath, fileBuffer.toString("base64"), "base64");
-
-    this.logger.info(
-      { methodName: "writeFileToDisk", fileName: file.name, filePath },
-      "파일 저장 완료",
-    );
-
-    return { path: filePath, name: savedName };
-  }
   public async getFileMetadata({
     fileId,
   }: {
@@ -637,11 +582,6 @@ export class FileService {
 
     if (!file) {
       throw new Error("파일이 존재하지 않습니다.");
-    }
-
-    // 파일 삭제
-    if (file.savedPath) {
-      fs.unlinkSync(file.savedPath); // 로컬 스토리지에서 파일 삭제
     }
 
     // 데이터베이스에서 파일 메타데이터 삭제
