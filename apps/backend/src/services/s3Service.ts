@@ -1,6 +1,10 @@
 import { injectable } from "inversify";
 import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
-import { PutObjectCommand } from "@aws-sdk/client-s3";
+import {
+  HeadObjectCommand,
+  PutObjectCommand,
+  type HeadObjectCommandOutput,
+} from "@aws-sdk/client-s3";
 import { s3Client } from "@/loaders/aws.ts";
 
 const BUCKET_NAME = import.meta.env.VITE_AWS_S3_BUCKET;
@@ -47,5 +51,20 @@ export class S3Service {
   ): string {
     const uuid = crypto.randomUUID();
     return `user-uploads/${userId}/${parentFolderId}/${uuid}_${filename}`;
+  }
+
+  /**
+   * S3 객체의 메타데이터를 가져옵니다.
+   *
+   * @param key - S3 객체 키
+   * @returns S3 객체 메타데이터
+   */
+  public async headObject(key: string): Promise<HeadObjectCommandOutput> {
+    const command = new HeadObjectCommand({
+      Bucket: BUCKET_NAME,
+      Key: key,
+    });
+    const data = await s3Client.send(command);
+    return data;
   }
 }
