@@ -2,7 +2,6 @@ import path from "node:path";
 import { injectable } from "inversify";
 import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
 import { HeadObjectCommand, PutObjectCommand } from "@aws-sdk/client-s3";
-import type { Prisma } from "@cirrodrive/database";
 import { s3Client } from "@/loaders/aws.ts";
 
 const BUCKET_NAME = import.meta.env.VITE_AWS_S3_BUCKET;
@@ -10,6 +9,13 @@ export const S3_KEY_PREFIX = {
   USER_UPLOADS: "user-uploads",
   PUBLIC_UPLOADS: "public-uploads",
 } as const;
+export interface S3Metadata {
+  name: string;
+  extension: string;
+  size: number;
+  key: string;
+  hash: string;
+}
 
 @injectable()
 export class S3Service {
@@ -58,9 +64,7 @@ export class S3Service {
    * @param key - S3 객체 키
    * @returns S3 객체 메타데이터
    */
-  public async getMetadata(
-    key: string,
-  ): Promise<Prisma.FileMetadataCreateInput> {
+  public async getMetadata(key: string): Promise<S3Metadata> {
     const command = new HeadObjectCommand({
       Bucket: BUCKET_NAME,
       Key: key,
@@ -81,10 +85,7 @@ export class S3Service {
 
     const extension = path.extname(data.Metadata.Name);
 
-    const metadata: Pick<
-      Prisma.FileMetadataCreateInput,
-      "name" | "extension" | "size" | "key" | "hash"
-    > = {
+    const metadata: S3Metadata = {
       name: data.Metadata.Name,
       extension,
       size: data.ContentLength,
