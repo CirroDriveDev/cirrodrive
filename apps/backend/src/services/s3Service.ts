@@ -1,10 +1,8 @@
+import path from "node:path";
 import { injectable } from "inversify";
 import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
-import {
-  HeadObjectCommand,
-  PutObjectCommand,
-  type HeadObjectCommandOutput,
-} from "@aws-sdk/client-s3";
+import { HeadObjectCommand, PutObjectCommand } from "@aws-sdk/client-s3";
+import type { Prisma } from "@cirrodrive/database";
 import { s3Client } from "@/loaders/aws.ts";
 
 const BUCKET_NAME = import.meta.env.VITE_AWS_S3_BUCKET;
@@ -60,12 +58,40 @@ export class S3Service {
    * @param key - S3 객체 키
    * @returns S3 객체 메타데이터
    */
-  public async headObject(key: string): Promise<HeadObjectCommandOutput> {
+  public async getMetadata(
+    key: string,
+  ): Promise<Prisma.FileMetadataCreateInput> {
     const command = new HeadObjectCommand({
       Bucket: BUCKET_NAME,
       Key: key,
     });
     const data = await s3Client.send(command);
-    return data;
+    if (data.Metadata === undefined) {
+      throw new Error("Metadata is undefined");
+    }
+    if (data.Metadata.Name === undefined) {
+      throw new Error("Metadata Name is undefined");
+    }
+    if (data.ContentLength === undefined) {
+      throw new Error("Metadata ContentLength is undefined");
+    }
+    if (data.ChecksumCRC64NVME === undefined) {
+      throw new Error("Metadata ChecksumCRC64NVME is undefined");
+    }
+
+    const extension = path.extname(data.Metadata.Name);
+
+    const metadata: Pick<
+      Prisma.FileMetadataCreateInput,
+      "name" | "extension" | "size" | "key" | "hash"
+    > = {
+      name: data.Metadata.Name,
+      extension,
+      size: data.ContentLength,
+      key,
+      hash: data.ChecksumCRC64NVME,
+    };
+
+    return metadata;
   }
 }
