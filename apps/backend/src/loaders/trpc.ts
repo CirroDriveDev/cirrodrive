@@ -57,7 +57,6 @@ const t = initTRPC.context<Context>().create({
 
 export const router = t.router;
 export const procedure = t.procedure;
-export const middleware = t.middleware;
 
 export const authedProcedure = procedure.use(async (opts) => {
   const { ctx } = opts;
@@ -73,6 +72,7 @@ export const authedProcedure = procedure.use(async (opts) => {
     },
   });
 });
+
 export const adminProcedure = authedProcedure.use(async ({ ctx, next }) => {
   if (!ctx.user?.isAdmin) {
     throw new TRPCError({
