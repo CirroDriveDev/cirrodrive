@@ -72,7 +72,10 @@ pipeline {
                 script {
                     env.PATH = "${PNPM_HOME}:${PATH}"
                 }
-                sh 'corepack enable pnpm'
+                sh '''
+                npm install -g corepack
+                corepack enable pnpm
+                '''
             }
         }
 
