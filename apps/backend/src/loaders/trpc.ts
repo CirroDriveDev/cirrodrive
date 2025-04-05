@@ -57,6 +57,7 @@ const t = initTRPC.context<Context>().create({
 
 export const router = t.router;
 export const procedure = t.procedure;
+export const middleware = t.middleware;
 
 export const authedProcedure = procedure.use(async (opts) => {
   const { ctx } = opts;
@@ -71,4 +72,14 @@ export const authedProcedure = procedure.use(async (opts) => {
       sessionToken: ctx.sessionToken,
     },
   });
+});
+
+export const adminProcedure = authedProcedure.use(async ({ ctx, next }) => {
+  if (!ctx.user?.isAdmin) {
+    throw new TRPCError({
+      code: "FORBIDDEN",
+      message: "관리자 권한이 필요합니다.",
+    });
+  }
+  return next();
 });
