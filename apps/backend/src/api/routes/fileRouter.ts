@@ -35,8 +35,8 @@ export const fileRouter = router({
       const prefix =
         user ? S3_KEY_PREFIX.USER_UPLOADS : S3_KEY_PREFIX.PUBLIC_UPLOADS;
 
-      const key = s3Service.getObjectKey(prefix, filename);
-      const signedUrl = await s3Service.getSignedUrl(key);
+      const key = s3Service.generateS3ObjectKey(prefix, filename);
+      const signedUrl = await s3Service.generateS3PresignedUploadUrl(key);
 
       return { signedUrl };
     }),

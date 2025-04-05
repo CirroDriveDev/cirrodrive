@@ -20,13 +20,13 @@ export interface S3Metadata {
 @injectable()
 export class S3Service {
   /**
-   * S3 Presigned URL을 생성합니다.
+   * 업로드용 S3 Presigned URL을 생성합니다.
    *
    * @param key - S3 객체 키
    * @param expiresIn - Presigned URL의 유효 기간(초)
    * @returns Presigned URL
    */
-  public async getSignedUrl(
+  public async generateS3PresignedUploadUrl(
     key: string,
     expiresIn = 60 * 5, // 5분
   ): Promise<string> {
@@ -34,11 +34,11 @@ export class S3Service {
       Bucket: BUCKET_NAME,
       Key: key,
     });
-    const signedS3Url = await getSignedUrl(s3Client, command, {
+    const presignedUploadUrl = await getSignedUrl(s3Client, command, {
       expiresIn,
     });
 
-    return signedS3Url;
+    return presignedUploadUrl;
   }
 
   /**
@@ -48,7 +48,7 @@ export class S3Service {
    * @param filename - 파일 이름
    * @returns S3 객체 키
    */
-  public getObjectKey(
+  public generateS3ObjectKey(
     prefix: (typeof S3_KEY_PREFIX)[keyof typeof S3_KEY_PREFIX],
     filename: string,
   ): string {
@@ -64,7 +64,7 @@ export class S3Service {
    * @param key - S3 객체 키
    * @returns S3 객체 메타데이터
    */
-  public async getMetadata(key: string): Promise<S3Metadata> {
+  public async fetchS3ObjectMetadata(key: string): Promise<S3Metadata> {
     const command = new HeadObjectCommand({
       Bucket: BUCKET_NAME,
       Key: key,
