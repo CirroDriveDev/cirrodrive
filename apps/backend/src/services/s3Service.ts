@@ -19,19 +19,16 @@ export class S3Service {
    * S3 Presigned URL을 생성합니다.
    *
    * @param key - S3 객체 키
-   * @param contentType - S3 객체의 Content-Type
    * @param expiresIn - Presigned URL의 유효 기간(초)
    * @returns Presigned URL
    */
   public async getSignedUrl(
     key: string,
-    contentType: string,
     expiresIn = 60 * 5, // 5분
   ): Promise<string> {
     const command = new PutObjectCommand({
       Bucket: BUCKET_NAME,
       Key: key,
-      ContentType: contentType,
     });
     const signedS3Url = await getSignedUrl(s3Client, command, {
       expiresIn,
