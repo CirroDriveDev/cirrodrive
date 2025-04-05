@@ -29,6 +29,7 @@ model User {
   profileImageUrl String?     @unique
   createdAt       DateTime    @default(now())
   updatedAt       DateTime    @updatedAt
+  isAdmin         Boolean     @default(false)
 
   rootFolderId Int    @unique
   rootFolder   Folder @relation(name: "RootFolder", fields: [rootFolderId], references: [id], onDelete: Cascade)
