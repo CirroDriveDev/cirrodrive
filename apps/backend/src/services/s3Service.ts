@@ -8,6 +8,10 @@ import {
 import { s3Client } from "@/loaders/aws.ts";
 
 const BUCKET_NAME = import.meta.env.VITE_AWS_S3_BUCKET;
+export const S3_KEY_PREFIX = {
+  USER_UPLOADS: "user-uploads",
+  PUBLIC_UPLOADS: "public-uploads",
+} as const;
 
 @injectable()
 export class S3Service {
@@ -39,18 +43,18 @@ export class S3Service {
   /**
    * S3 객체의 키를 생성합니다.
    *
-   * @param userId - 객체 소유자 ID
-   * @param parentFolderId - 부모 폴더 ID
+   * @param prefix - S3 객체의 접두사
    * @param filename - 파일 이름
    * @returns S3 객체 키
    */
-  public getKey(
-    userId: string,
-    parentFolderId: string,
+  public getObjectKey(
+    prefix: (typeof S3_KEY_PREFIX)[keyof typeof S3_KEY_PREFIX],
     filename: string,
   ): string {
     const uuid = crypto.randomUUID();
-    return `user-uploads/${userId}/${parentFolderId}/${uuid}_${filename}`;
+    const timestamp = new Date().toISOString().replace(/:/g, "-");
+
+    return `${prefix}/${timestamp}/${uuid}/${filename}`;
   }
 
   /**
