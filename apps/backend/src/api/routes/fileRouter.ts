@@ -9,11 +9,38 @@ import { logger } from "@/loaders/logger.ts";
 import { container } from "@/loaders/inversify.ts";
 import { FileService } from "@/services/fileService.ts";
 import { CodeService } from "@/services/codeService.ts";
+import { S3Service, S3_KEY_PREFIX } from "@/services/s3Service.ts";
 
 const fileService = container.get<FileService>(FileService);
 const codeService = container.get<CodeService>(CodeService);
+const s3Service = container.get<S3Service>(S3Service);
 
 export const fileRouter = router({
+  /**
+   * S3 Presigned URL을 생성합니다.
+   *
+   * @param filename - 업로드할 파일의 이름
+   * @returns Presigned URL
+   */
+  getSignedURL: procedure
+    .input(
+      z.object({
+        filename: z.string(),
+      }),
+    )
+    .output(z.object({ signedUrl: z.string() }))
+    .mutation(async ({ input, ctx }) => {
+      const { filename } = input;
+      const { user } = ctx;
+      const prefix =
+        user ? S3_KEY_PREFIX.USER_UPLOADS : S3_KEY_PREFIX.PUBLIC_UPLOADS;
+
+      const key = s3Service.getObjectKey(prefix, filename);
+      const signedUrl = await s3Service.getSignedUrl(key);
+
+      return { signedUrl };
+    }),
+
   /**
    * 파일 메타데이터 조회
    */
