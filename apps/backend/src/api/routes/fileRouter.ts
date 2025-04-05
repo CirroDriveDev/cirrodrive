@@ -41,6 +41,40 @@ export const fileRouter = router({
       return { signedUrl };
     }),
 
+  completeUpload: procedure
+    .input(
+      z.object({
+        key: z.string(),
+        parentFolderId: z.number().optional(),
+      }),
+    )
+    .output(z.object({ fileId: z.number() }))
+    .mutation(async ({ input, ctx }) => {
+      const { key, parentFolderId } = input;
+      const { user } = ctx;
+
+      if (user && !parentFolderId) {
+        throw new TRPCError({
+          code: "BAD_REQUEST",
+          message: "로그인한 사용자는 parentFolderId를 제공해야 합니다.",
+        });
+      }
+
+      // 존재 확인
+      const metadata = await s3Service.fetchS3ObjectMetadata(key);
+
+      if (!metadata) {
+        throw new TRPCError({
+          code: "NOT_FOUND",
+          message: "파일을 찾을 수 없습니다.",
+        });
+      }
+
+      const { id } = await fileService.save({ metadata, ownerId: user?.id });
+
+      return { fileId: id };
+    }),
+
   /**
    * 파일 메타데이터 조회
    */
