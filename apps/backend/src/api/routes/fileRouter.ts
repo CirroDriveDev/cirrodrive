@@ -22,7 +22,7 @@ export const fileRouter = router({
    * @param filename - 업로드할 파일의 이름
    * @returns Presigned URL
    */
-  getSignedURL: procedure
+  getS3PresignedUploadURL: procedure
     .input(
       z.object({
         filename: z.string(),
