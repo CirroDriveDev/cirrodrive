@@ -91,6 +91,40 @@ export const adminUserRouter = router({
         });
       }
     }),
+  get: adminProcedure
+    .input(z.object({ userId: z.number() }))
+    .query(async ({ input, ctx }) => {
+      logger.info(
+        { requestId: ctx.req.id },
+        `admin.user.get 요청 시작: ${input.userId}`,
+      );
+
+      try {
+        const user = await adminService.getUserById(input.userId);
+        if (!user) {
+          throw new TRPCError({
+            code: "NOT_FOUND",
+            message: "해당 유저를 찾을 수 없습니다.",
+          });
+        }
+
+        logger.info(
+          { requestId: ctx.req.id },
+          `admin.user.get 요청 성공: ${input.userId}`,
+        );
+        return user;
+      } catch (error) {
+        logger.error(
+          { requestId: ctx.req.id, error },
+          `admin.user.get 요청 실패: ${input.userId}`,
+        );
+
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: "유저 조회 중 오류가 발생했습니다.",
+        });
+      }
+    }),
 
   list: adminProcedure
     .input(
