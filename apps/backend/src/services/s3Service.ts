@@ -20,13 +20,13 @@ export interface S3Metadata {
 @injectable()
 export class S3Service {
   /**
-   * 업로드용 S3 Presigned URL을 생성합니다.
+   * S3 Presigned Upload URL을 생성합니다.
    *
    * @param key - S3 객체 키
    * @param expiresIn - Presigned URL의 유효 기간(초)
-   * @returns Presigned URL
+   * @returns Presigned Upload URL
    */
-  public async generateS3PresignedUploadUrl(
+  public async generateS3PresignedUploadURL(
     key: string,
     expiresIn = 60 * 5, // 5분
   ): Promise<string> {

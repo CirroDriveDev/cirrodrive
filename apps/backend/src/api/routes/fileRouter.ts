@@ -17,28 +17,33 @@ const s3Service = container.get<S3Service>(S3Service);
 
 export const fileRouter = router({
   /**
-   * S3 Presigned URL을 생성합니다.
+   * S3 Presigned Upload URL을 생성합니다.
    *
-   * @param filename - 업로드할 파일의 이름
-   * @returns Presigned URL
+   * @param fileName - 업로드할 파일의 이름
+   * @returns Presigned Upload URL
    */
   getS3PresignedUploadURL: procedure
     .input(
       z.object({
-        filename: z.string(),
+        fileName: z.string(),
       }),
     )
-    .output(z.object({ signedUrl: z.string() }))
+    .output(
+      z.object({
+        presignedUploadURL: z.string(),
+      }),
+    )
     .mutation(async ({ input, ctx }) => {
-      const { filename } = input;
+      const { fileName } = input;
       const { user } = ctx;
       const prefix =
         user ? S3_KEY_PREFIX.USER_UPLOADS : S3_KEY_PREFIX.PUBLIC_UPLOADS;
 
-      const key = s3Service.generateS3ObjectKey(prefix, filename);
-      const signedUrl = await s3Service.generateS3PresignedUploadUrl(key);
+      const key = s3Service.generateS3ObjectKey(prefix, fileName);
+      const presignedUploadURL =
+        await s3Service.generateS3PresignedUploadURL(key);
 
-      return { signedUrl };
+      return { presignedUploadURL };
     }),
 
   completeUpload: procedure
