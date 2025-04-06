@@ -99,17 +99,27 @@ export const adminUserRouter = router({
         offset: z.number().optional().default(0),
       }),
     )
-    .query(() => {
-      throw new TRPCError({
-        code: "INTERNAL_SERVER_ERROR",
-        message: "User list service not implemented yet.",
-      });
-    }),
+    .query(async ({ input, ctx }) => {
+      logger.info({ requestId: ctx.req.id }, "admin.user.list 요청 시작");
 
-  get: adminProcedure.input(z.number()).query(() => {
-    throw new TRPCError({
-      code: "INTERNAL_SERVER_ERROR",
-      message: "User get service not implemented yet.",
-    });
-  }),
+      try {
+        const users = await adminService.getUsers({
+          limit: input.limit,
+          offset: input.offset,
+        });
+
+        logger.info({ requestId: ctx.req.id }, "admin.user.list 요청 성공");
+        return users;
+      } catch (error) {
+        logger.error(
+          { requestId: ctx.req.id, error },
+          "admin.user.list 요청 실패",
+        );
+
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: "유저 목록 조회 중 오류가 발생했습니다.",
+        });
+      }
+    }),
 });

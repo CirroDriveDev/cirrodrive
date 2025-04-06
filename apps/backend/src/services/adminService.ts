@@ -152,4 +152,39 @@ export class AdminService {
       throw error;
     }
   }
+  /**
+   * 유저 목록을 조회합니다.
+   *
+   * @param limit - 가져올 유저 수
+   * @param offset - 시작 위치
+   * @returns 유저 목록
+   * @throws 유저 조회 중 오류 발생 시
+   */
+  public async getUsers({
+    limit,
+    offset,
+  }: {
+    limit: number;
+    offset: number;
+  }): Promise<User[]> {
+    try {
+      this.logger.info(
+        { methodName: "getUsers", limit, offset },
+        "유저 목록 조회 시작",
+      );
+
+      const users = await this.userModel.findMany({
+        take: limit,
+        skip: offset,
+        orderBy: { createdAt: "desc" },
+      });
+
+      this.logger.info({ userCount: users.length }, "유저 목록 조회 성공");
+
+      return users;
+    } catch (error) {
+      this.logger.error({ error }, "유저 목록 조회 실패");
+      throw error;
+    }
+  }
 }
