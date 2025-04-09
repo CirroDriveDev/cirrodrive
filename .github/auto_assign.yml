@@ -1,10 +1,4 @@
-addReviewers: true
 addAssignees: true
-
-reviewers:
-  - ZetabS
-
-numberOfReviewers: 1
 
 assignees:
   - ZetabS
