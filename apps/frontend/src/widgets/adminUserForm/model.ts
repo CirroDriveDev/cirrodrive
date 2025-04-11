@@ -1,32 +1,18 @@
-import { useState } from "react";
-import { initialUsers } from "@/features/admin/userView/model.ts";
-import type { User } from "@/entities/user/types.ts";
+import { useUserView } from "@/features/admin/userView/model.ts";
+import { useUserAdd } from "@/features/admin/userAdd/model.ts";
+import { useUserEdit } from "@/features/admin/userEdit/model.ts";
 
 // 사용자 관리 훅
 export const useUsers = (): {
-  users: User[];
-  getUserById: (id: number) => User | undefined;
-  addUser: (user: Omit<User, "id">) => void;
-  updateUser: (id: number, updated: Omit<User, "id">) => void;
+  getUserById: ReturnType<typeof useUserView>["getUserById"];
+  addUser: ReturnType<typeof useUserAdd>["addUser"];
+  updateUser: ReturnType<typeof useUserEdit>["updateUser"];
 } => {
-  const [users, setUsers] = useState<User[]>(initialUsers);
-
-  const getUserById = (id: number): User | undefined =>
-    users.find((u) => u.id === id);
-
-  const addUser = (user: Omit<User, "id">): void => {
-    const newUser = { ...user, id: Date.now() };
-    setUsers((prev) => [...prev, newUser]);
-  };
-
-  const updateUser = (id: number, updated: Omit<User, "id">): void => {
-    setUsers((prev) =>
-      prev.map((user) => (user.id === id ? { id, ...updated } : user)),
-    );
-  };
+  const { getUserById } = useUserView();
+  const { addUser } = useUserAdd();
+  const { updateUser } = useUserEdit();
 
   return {
-    users,
     getUserById,
     addUser,
     updateUser,

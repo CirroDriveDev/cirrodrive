@@ -1,4 +1,4 @@
-import { type User } from "@/entities/user/types.ts";
+import type { User } from "@/entities/user/types.ts";
 
 // 더미 데이터
 export const initialUsers: User[] = [
@@ -15,3 +15,16 @@ export const initialUsers: User[] = [
     email: "user1@example.com",
   },
 ];
+
+export const useUserView = (): {
+  getUserById: (id: number) => User | undefined;
+} => {
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars -- 아직 구현되지 않음
+  const getUserById = (id: number): User | undefined => {
+    throw new Error("Not implemented");
+  };
+
+  return {
+    getUserById,
+  };
+};
