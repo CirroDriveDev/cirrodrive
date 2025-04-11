@@ -1,6 +1,8 @@
 import { createBrowserRouter, Navigate, Outlet } from "react-router-dom";
 import type { RouteObject } from "react-router-dom";
 import { useEffect } from "react";
+import { AdminUserPage } from "@/pages/admin/ui/AdminUserPage.tsx";
+import { AdminFilePage } from "@/pages/admin/ui/AdminFilePage.tsx";
 import { LoginPage } from "@/pages/login/ui/LoginPage.tsx";
 import { RegisterPage } from "@/pages/register/ui/RegisterPage.tsx";
 import { LandingPage } from "@/pages/landing/ui/LandingPage.tsx";
@@ -132,6 +134,14 @@ const routeTree: RouteObject[] = [
       {
         path: "/search",
         element: <SearchResultsPage />,
+      },
+      {
+        path: "/admin/user",
+        element: <AdminUserPage />,
+      },
+      {
+        path: "/admin/file",
+        element: <AdminFilePage />,
       },
       {
         path: "*",
