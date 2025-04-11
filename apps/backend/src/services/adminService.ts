@@ -113,4 +113,43 @@ export class AdminService {
       throw error;
     }
   }
+
+  /**
+   * 주어진 ID를 가진 사용자를 삭제합니다.
+   *
+   * @param userId - 삭제할 유저의 ID
+   * @returns 삭제 성공 여부
+   * @throws 유저 삭제 중 오류 발생 시
+   */
+  public async deleteUser(userId: number): Promise<boolean> {
+    try {
+      this.logger.info({ methodName: "deleteUser", userId }, "유저 삭제 시작");
+
+      const user = await this.userModel.findUnique({
+        where: { id: userId },
+        include: { rootFolder: true, trashFolder: true },
+      });
+
+      if (!user) {
+        this.logger.warn({ userId }, "삭제할 유저를 찾을 수 없음");
+        return false;
+      }
+
+      // 유저 관련 데이터 삭제 (예: 폴더 삭제)
+      if (user.rootFolderId) {
+        await this.folderModel.delete({ where: { id: user.rootFolderId } });
+      }
+      if (user.trashFolderId) {
+        await this.folderModel.delete({ where: { id: user.trashFolderId } });
+      }
+
+      await this.userModel.delete({ where: { id: userId } });
+
+      this.logger.info({ userId }, "유저 삭제 완료");
+      return true;
+    } catch (error) {
+      this.logger.error({ error, userId }, "유저 삭제 실패");
+      throw error;
+    }
+  }
 }
