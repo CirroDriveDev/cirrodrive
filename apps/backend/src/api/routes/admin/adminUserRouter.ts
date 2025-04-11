@@ -197,23 +197,4 @@ export const adminUserRouter = router({
         });
       }
     }),
-  adminExistsAndAuthorized: adminProcedure.query(async ({ ctx }) => {
-    const adminCount = await adminService.countAdmins();
-    if (adminCount === 0) {
-      throw new TRPCError({
-        code: "UNAUTHORIZED",
-        message: "관리자가 존재하지 않습니다.",
-      });
-    }
-
-    const isAdmin = await adminService.isAdminUser(ctx.user.id);
-    if (!isAdmin) {
-      throw new TRPCError({
-        code: "UNAUTHORIZED",
-        message: "접근 권한이 없습니다.",
-      });
-    }
-
-    return { authorized: true };
-  }),
 });
