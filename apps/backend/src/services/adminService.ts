@@ -187,4 +187,31 @@ export class AdminService {
       throw error;
     }
   }
+  /**
+   * 주어진 ID를 가진 사용자의 정보를 조회합니다.
+   *
+   * @param userId - 조회할 유저의 ID
+   * @returns 조회된 유저 정보
+   * @throws 유저 조회 중 오류 발생 시
+   */
+  public async getUserById(userId: number): Promise<User | null> {
+    try {
+      this.logger.info({ methodName: "getUserById", userId }, "유저 조회 시작");
+
+      const user = await this.userModel.findUnique({
+        where: { id: userId },
+      });
+
+      if (!user) {
+        this.logger.warn({ userId }, "조회할 유저를 찾을 수 없음");
+      } else {
+        this.logger.info({ userId }, "유저 조회 성공");
+      }
+
+      return user;
+    } catch (error) {
+      this.logger.error({ error, userId }, "유저 조회 실패");
+      throw error;
+    }
+  }
 }
