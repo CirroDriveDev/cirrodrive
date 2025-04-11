@@ -1,6 +1,6 @@
 import { useState } from "react";
-import { initialUsers } from "./dummyUsers.ts";
-import type { User } from "./types.ts";
+import { initialUsers } from "@/features/admin/userView/model.ts";
+import type { User } from "@/entities/user/types.ts";
 
 // 사용자 관리 훅
 export const useUsers = (): {

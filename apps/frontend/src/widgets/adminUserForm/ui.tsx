@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { type User } from "@/pages/userEditCreate/types.ts";
+import { type User } from "@/entities/user/types.ts";
 
 // props 정의
 interface UserFormProps {
