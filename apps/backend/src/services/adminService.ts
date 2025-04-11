@@ -36,6 +36,7 @@ export class AdminService {
     pricingPlan,
     profileImageUrl,
     usedStorage,
+    isAdmin,
   }: {
     username: string;
     password: string;
@@ -65,7 +66,7 @@ export class AdminService {
           pricingPlan,
           profileImageUrl,
           usedStorage,
-          isAdmin: true, // 관리자 여부 설정
+          isAdmin, // 관리자 여부 설정
           rootFolder: {
             create: {
               name: "root",
@@ -273,26 +274,51 @@ export class AdminService {
     }
   }
   /**
-   * 관리자 존재 여부를 확인합니다.
+   * 주어진 유저가 관리자 여부를 확인합니다.
    *
-   * @returns 관리자가 존재하면 true, 없으면 false
-   * @throws 관리자 조회 중 오류 발생 시
+   * @param userId - 확인할 유저 ID
+   * @returns 관리자인 경우 true, 아니면 false
+   * @throws 관리자 여부 조회 중 오류 발생 시
+   */
+  public async isAdminUser(userId: number): Promise<boolean> {
+    try {
+      this.logger.info(
+        { methodName: "isAdminUser", userId },
+        "관리자 여부 확인 시작",
+      );
+
+      const user = await this.userModel.findUnique({
+        where: { id: userId },
+        select: { isAdmin: true },
+      });
+
+      const isAdmin = user?.isAdmin ?? false;
+
+      this.logger.info({ userId, isAdmin }, "관리자 여부 확인 성공");
+      return isAdmin;
+    } catch (error) {
+      this.logger.error({ error, userId }, "관리자 여부 확인 실패");
+      throw error;
+    }
+  }
+  /**
+   * 현재 시스템에 등록된 관리자 수를 반환합니다.
+   *
+   * @returns 관리자 수
+   * @throws 관리자 수 조회 중 오류 발생 시
    */
   public async countAdmins(): Promise<number> {
     try {
-      this.logger.info(
-        { methodName: "countAdmins" },
-        "관리자 계정 수 조회 시작",
-      );
+      this.logger.info({ methodName: "countAdmins" }, "관리자 수 조회 시작");
 
       const adminCount = await this.userModel.count({
         where: { isAdmin: true },
       });
 
-      this.logger.info({ adminCount }, "관리자 계정 수 조회 성공");
+      this.logger.info({ adminCount }, "관리자 수 조회 성공");
       return adminCount;
     } catch (error) {
-      this.logger.error({ error }, "관리자 계정 수 조회 실패");
+      this.logger.error({ error }, "관리자 수 조회 실패");
       throw error;
     }
   }
