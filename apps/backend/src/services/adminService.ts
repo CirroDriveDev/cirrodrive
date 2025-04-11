@@ -36,6 +36,7 @@ export class AdminService {
     pricingPlan,
     profileImageUrl,
     usedStorage,
+    isAdmin,
   }: {
     username: string;
     password: string;
@@ -65,7 +66,7 @@ export class AdminService {
           pricingPlan,
           profileImageUrl,
           usedStorage,
-          isAdmin: true, // 관리자 여부 설정
+          isAdmin, // 관리자 여부 설정
           rootFolder: {
             create: {
               name: "root",
