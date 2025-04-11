@@ -81,6 +81,5 @@ export const adminProcedure = authedProcedure.use(async ({ ctx, next }) => {
       message: "관리자 권한이 필요합니다.",
     });
   }
-
   return next();
 });
