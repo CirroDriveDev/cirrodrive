@@ -19,9 +19,8 @@ export const initialUsers: User[] = [
 export const useUserView = (): {
   getUserById: (id: number) => User | undefined;
 } => {
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars -- 아직 구현되지 않음
   const getUserById = (id: number): User | undefined => {
-    throw new Error("Not implemented");
+    return initialUsers.find((user) => user.id === id);
   };
 
   return {
