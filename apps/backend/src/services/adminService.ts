@@ -214,4 +214,62 @@ export class AdminService {
       throw error;
     }
   }
+  /**
+   * 주어진 ID를 가진 사용자의 정보를 업데이트합니다.
+   *
+   * @param userId - 업데이트할 유저의 ID
+   * @param data - 업데이트할 정보
+   * @returns 업데이트된 유저 정보
+   * @throws 유저 업데이트 중 오류 발생 시
+   */
+  public async updateUser(
+    userId: number,
+    data: {
+      username?: string;
+      password?: string;
+      email?: string;
+      pricingPlan?: "free" | "basic" | "premium";
+      profileImageUrl?: string | null;
+      usedStorage?: number;
+    },
+  ): Promise<User> {
+    try {
+      this.logger.info(
+        { methodName: "updateUser", userId },
+        "유저 업데이트 시작",
+      );
+
+      const existingUser = await this.userModel.findUnique({
+        where: { id: userId },
+      });
+
+      if (!existingUser) {
+        this.logger.warn({ userId }, "업데이트할 유저를 찾을 수 없음");
+        throw new Error("해당 유저를 찾을 수 없습니다.");
+      }
+
+      const updateData: Prisma.UserUpdateInput = {
+        username: data.username ?? existingUser.username,
+        email: data.email ?? existingUser.email,
+        pricingPlan: data.pricingPlan ?? existingUser.pricingPlan,
+        profileImageUrl: data.profileImageUrl ?? existingUser.profileImageUrl,
+        usedStorage: data.usedStorage ?? existingUser.usedStorage,
+      };
+
+      if (data.password) {
+        updateData.hashedPassword = await hash(data.password);
+      }
+
+      const updatedUser = await this.userModel.update({
+        where: { id: userId },
+        data: updateData,
+      });
+
+      this.logger.info({ userId }, "유저 업데이트 성공");
+      return updatedUser;
+    } catch (error) {
+      this.logger.error({ error, userId }, "유저 업데이트 실패");
+      throw error;
+    }
+  }
 }

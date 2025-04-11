@@ -50,12 +50,53 @@ export const adminUserRouter = router({
       }
     }),
 
-  update: adminProcedure.input(userInputSchema).mutation(() => {
-    throw new TRPCError({
-      code: "INTERNAL_SERVER_ERROR",
-      message: "User update service not implemented yet.",
-    });
-  }),
+  update: adminProcedure
+    .input(
+      userInputSchema.extend({
+        userId: z.number(),
+      }),
+    )
+    .mutation(async ({ input, ctx }) => {
+      logger.info(
+        { requestId: ctx.req.id },
+        `admin.user.update 요청 시작: ${input.userId}`,
+      );
+
+      try {
+        const existingUser = await adminService.getUserById(input.userId);
+        if (!existingUser) {
+          throw new TRPCError({
+            code: "NOT_FOUND",
+            message: "해당 유저를 찾을 수 없습니다.",
+          });
+        }
+
+        const updatedUser = await adminService.updateUser(input.userId, {
+          username: input.username,
+          password: input.password,
+          email: input.email,
+          pricingPlan: input.pricingPlan,
+          profileImageUrl: input.profileImageUrl,
+          usedStorage: input.usedStorage,
+        });
+
+        logger.info(
+          { requestId: ctx.req.id },
+          `admin.user.update 요청 성공: ${input.userId}`,
+        );
+        return updatedUser;
+      } catch (error) {
+        logger.error(
+          { requestId: ctx.req.id, error },
+          `admin.user.update 요청 실패: ${input.userId}`,
+        );
+
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: "유저 업데이트 중 오류가 발생했습니다.",
+        });
+      }
+    }),
 
   delete: adminProcedure
     .input(z.object({ userId: z.number() }))
