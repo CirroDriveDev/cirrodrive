@@ -37,17 +37,6 @@ export default tseslint.config(
     },
   },
   {
-    files: ["**/*.tsx"],
-    rules: {
-      "unicorn/filename-case": [
-        "error",
-        {
-          case: "pascalCase",
-        },
-      ],
-    },
-  },
-  {
     files: ["**/*.ts"],
     rules: {
       "unicorn/filename-case": [
