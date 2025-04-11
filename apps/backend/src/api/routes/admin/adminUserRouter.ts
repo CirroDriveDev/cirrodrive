@@ -197,4 +197,8 @@ export const adminUserRouter = router({
         });
       }
     }),
+  adminExists: adminProcedure.query(async () => {
+    const adminCount = await adminService.countAdmins();
+    return { exists: adminCount > 0 };
+  }),
 });

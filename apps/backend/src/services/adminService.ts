@@ -272,4 +272,28 @@ export class AdminService {
       throw error;
     }
   }
+  /**
+   * 관리자 존재 여부를 확인합니다.
+   *
+   * @returns 관리자가 존재하면 true, 없으면 false
+   * @throws 관리자 조회 중 오류 발생 시
+   */
+  public async countAdmins(): Promise<number> {
+    try {
+      this.logger.info(
+        { methodName: "countAdmins" },
+        "관리자 계정 수 조회 시작",
+      );
+
+      const adminCount = await this.userModel.count({
+        where: { isAdmin: true },
+      });
+
+      this.logger.info({ adminCount }, "관리자 계정 수 조회 성공");
+      return adminCount;
+    } catch (error) {
+      this.logger.error({ error }, "관리자 계정 수 조회 실패");
+      throw error;
+    }
+  }
 }
