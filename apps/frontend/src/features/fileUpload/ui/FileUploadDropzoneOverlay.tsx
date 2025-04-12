@@ -1,26 +1,27 @@
 import { useEffect, useState } from "react";
 import { FileIcon } from "lucide-react";
-import { useDragUpload } from "@/entities/file/api/useDragUpload.ts";
+import { useUpload } from "@/features/fileUpload/model/useUpload.ts";
+import { useBoundStore } from "@/shared/store/useBoundStore.ts";
+import { UploadSuccessModal } from "@/features/fileUpload/ui/UploadSuccessModal.tsx";
 
 interface DragAndDropUploadOverlayProps {
   folderId?: number; // 폴더 ID
   onUploadSuccess?: () => void; // 업로드 성공 시 호출할 함수
 }
 
-export function DragAndDropUploadOverlay({
+export function FileUploadDropzoneOverlay({
   folderId,
   onUploadSuccess,
 }: DragAndDropUploadOverlayProps): JSX.Element {
   const [dragOver, setDragOver] = useState(false);
+  const { openModal } = useBoundStore();
 
-  const { handleFileSelect } = useDragUpload(folderId ?? 0, {
-    onSuccess: () => {
-      if (onUploadSuccess) onUploadSuccess(); // 업로드 성공 시 추가 작업 호출
-    },
-  });
+  const { upload } = useUpload();
 
   // 드래그 앤 드롭 공통 처리
-  const handleDrop = (e: React.DragEvent<HTMLDivElement>): void => {
+  const handleDrop = async (
+    e: React.DragEvent<HTMLDivElement>,
+  ): Promise<void> => {
     e.preventDefault();
     setDragOver(false);
 
@@ -29,10 +30,22 @@ export function DragAndDropUploadOverlay({
     if (files?.[0]) {
       const file = files[0];
 
-      const formData = new FormData();
-      formData.append("file", file);
-      formData.append("folderId", (folderId ?? "").toString());
-      handleFileSelect(formData);
+      await upload(file, folderId, {
+        onSuccess: (data) => {
+          // 업로드 성공 시 추가 작업 호출
+          if (onUploadSuccess) onUploadSuccess();
+          openModal({
+            title: "업로드 성공",
+            content: UploadSuccessModal(file.name, data.code),
+          });
+        },
+        onError: (error) => {
+          openModal({
+            title: "업로드 실패",
+            content: <div>{error.message}</div>,
+          });
+        },
+      });
     }
   };
 

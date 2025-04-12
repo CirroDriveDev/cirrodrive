@@ -30,6 +30,9 @@ export class S3Service {
     key: string,
     expiresIn = 60 * 5, // 5분
   ): Promise<string> {
+    if (import.meta.env.DEV) {
+      return `https://localhost/${key}`;
+    }
     const command = new PutObjectCommand({
       Bucket: BUCKET_NAME,
       Key: key,

@@ -1,12 +1,25 @@
 import { useState } from "react";
+import type { UseTRPCMutationOptions } from "@trpc/react-query/shared";
+import type { AppRouter, RouterInput, RouterOutput } from "@cirrodrive/backend";
+import type { TRPCClientErrorLike } from "@trpc/client";
 import { trpc } from "@/shared/api/trpc.ts";
 
 interface UseUpload {
-  upload: (file: File, folderId?: number) => Promise<void>;
+  upload: (
+    file: File,
+    folderId?: number,
+    opts?: UseUploadOptions,
+  ) => Promise<void>;
   code: string | undefined;
   isPending: boolean;
   error: string | null;
 }
+
+type UseUploadOptions = UseTRPCMutationOptions<
+  RouterInput["file"]["completeUpload"],
+  TRPCClientErrorLike<AppRouter>,
+  RouterOutput["file"]["completeUpload"]
+>;
 
 export const useUpload = (): UseUpload => {
   const [error, setError] = useState<string | null>(null);
@@ -15,7 +28,11 @@ export const useUpload = (): UseUpload => {
   const isPending = urlMutation.isPending || completeMutation.isPending;
   const code = completeMutation.data?.code;
 
-  async function upload(file: File, folderId?: number): Promise<void> {
+  async function upload(
+    file: File,
+    folderId?: number,
+    opts?: UseUploadOptions,
+  ): Promise<void> {
     urlMutation.mutate({ fileName: file.name });
 
     if (!urlMutation.isSuccess) {
@@ -39,7 +56,18 @@ export const useUpload = (): UseUpload => {
       return;
     }
 
-    completeMutation.mutate({ key, folderId });
+    completeMutation.mutate(
+      { key, folderId },
+      {
+        onSuccess: (data, variable, context) => {
+          opts?.onSuccess?.(data, variable, context);
+        },
+        onError: (trpcError, variable, context) => {
+          setError(trpcError.message);
+          opts?.onError?.(trpcError, variable, context);
+        },
+      },
+    );
   }
 
   return {

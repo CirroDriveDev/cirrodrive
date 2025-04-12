@@ -6,13 +6,13 @@ import { Sidebar } from "@/shared/ui/SidebarLayout/Sidebar.tsx";
 import { SidebarLayout } from "@/shared/ui/SidebarLayout/SidebarLayout.tsx";
 import { LoadingSpinner } from "@/shared/components/LoadingSpinner.tsx";
 import { Button } from "@/shared/components/shadcn/Button.tsx";
-import { useUpload } from "@/features/file/upload/model.ts";
+import { useUpload } from "@/features/fileUpload/model/useUpload.ts";
 import { useEntryList } from "@/entities/entry/api/useEntryList.ts";
 import { useFolderPath } from "@/widgets/folderView/api/useFolderPath.ts";
 import { FolderName } from "@/widgets/folderView/ui/FolderName.tsx";
 import { useBoundStore } from "@/shared/store/useBoundStore.ts";
 import { useFolderCreate } from "@/entities/file/api/useFolderCreate.ts";
-import { DragAndDropUploadOverlay } from "@/features/folderContent/ui/DragAndDropUploadOverlay.tsx";
+import { FileUploadDropzoneOverlay } from "@/features/fileUpload/ui/FileUploadDropzoneOverlay.tsx";
 import { useRenameStore } from "@/shared/store/useRenameStore.ts";
 import { selectFile } from "@/entities/file/lib/selectFile.ts";
 
@@ -95,7 +95,7 @@ export function FolderView({ folderId }: FolderViewProps): JSX.Element {
           : <EntryList entries={sortedEntries} />}
 
           <div className="pointer-events-none absolute h-full w-full">
-            <DragAndDropUploadOverlay
+            <FileUploadDropzoneOverlay
               folderId={folderId}
               onUploadSuccess={() => {
                 void entryListQuery.refetch();
