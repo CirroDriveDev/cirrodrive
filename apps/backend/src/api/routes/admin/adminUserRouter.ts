@@ -197,4 +197,48 @@ export const adminUserRouter = router({
         });
       }
     }),
+  listFiles: adminProcedure
+    .input(
+      z.object({
+        limit: z.number().optional().default(20),
+        offset: z.number().optional().default(0),
+        sortBy: z
+          .enum(["uploadDate", "owner"])
+          .optional()
+          .default("uploadDate"),
+        order: z.enum(["asc", "desc"]).optional().default("desc"),
+      }),
+    )
+    .query(async ({ input, ctx }) => {
+      logger.info({ requestId: ctx.req.id }, "admin.user.listFiles 요청 시작");
+
+      try {
+        // currentUserId를 인증 정보에서 가져온다고 가정
+        const currentUserId = ctx.user.id;
+
+        const files = await adminService.getAllUserFiles({
+          limit: input.limit,
+          offset: input.offset,
+          sortBy: input.sortBy,
+          order: input.order,
+          currentUserId, // currentUserId 전달
+        });
+
+        logger.info(
+          { requestId: ctx.req.id },
+          "admin.user.listFiles 요청 성공",
+        );
+        return files;
+      } catch (error) {
+        logger.error(
+          { requestId: ctx.req.id, error },
+          "admin.user.listFiles 요청 실패",
+        );
+
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: "파일 목록 조회 중 오류가 발생했습니다.",
+        });
+      }
+    }),
 });

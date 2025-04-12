@@ -1,9 +1,9 @@
 import { injectable, inject } from "inversify";
-import type { Prisma, User } from "@cirrodrive/database";
+import type { Prisma, User, FileMetadata } from "@cirrodrive/database";
 import { hash } from "@node-rs/argon2";
 import type { Logger } from "pino";
+import { TRPCError } from "@trpc/server";
 import { Symbols } from "@/types/symbols.ts";
-
 /**
  * 관리자 서비스입니다.
  */
@@ -13,6 +13,8 @@ export class AdminService {
     @inject(Symbols.Logger) private logger: Logger,
     @inject(Symbols.UserModel) private userModel: Prisma.UserDelegate,
     @inject(Symbols.FolderModel) private folderModel: Prisma.FolderDelegate,
+    @inject(Symbols.FileMetadataModel)
+    private fileModel: Prisma.FileMetadataDelegate,
   ) {
     this.logger = logger.child({ serviceName: "AdminService" });
   }
@@ -271,6 +273,68 @@ export class AdminService {
     } catch (error) {
       this.logger.error({ error, userId }, "유저 업데이트 실패");
       throw error;
+    }
+  }
+  /**
+   * 파일 목록을 조회합니다.
+   *
+   * @param limit - 가져올 파일 수
+   * @param offset - 시작 위치
+   * @param sortBy - 정렬 기준 ('uploadDate' 또는 'owner')
+   * @param order - 정렬 순서 ('asc' 또는 'desc')
+   * @returns 파일 목록
+   * @throws 파일 목록 조회 중 오류 발생 시
+   */
+  public async getAllUserFiles({
+    limit,
+    offset,
+    sortBy = "uploadDate",
+    order = "desc",
+    currentUserId, // 현재 로그인된 사용자 ID
+  }: {
+    limit: number;
+    offset: number;
+    sortBy?: "uploadDate" | "owner";
+    order?: "asc" | "desc";
+    currentUserId: number; // 현재 로그인된 사용자의 ID
+  }): Promise<FileMetadata[]> {
+    try {
+      // 관리자 인증: 현재 사용자가 관리자 권한을 가지고 있는지 확인
+      const user = await this.userModel.findUnique({
+        where: { id: currentUserId },
+      });
+
+      // 관리자가 아니면 오류를 반환
+      if (!user?.isAdmin) {
+        throw new TRPCError({
+          code: "UNAUTHORIZED",
+          message: "관리자만 접근할 수 있습니다.",
+        });
+      }
+
+      this.logger.info(
+        { methodName: "getAllUserFiles", limit, offset, sortBy, order },
+        "파일 목록 조회 시작",
+      );
+
+      // 파일 목록 조회
+      const files = await this.fileModel.findMany({
+        take: limit,
+        skip: offset,
+        orderBy: {
+          [sortBy]: order === "desc" ? "desc" : "asc", // 정렬 기준
+        },
+        include: {
+          owner: true, // 소유자 정보 포함
+        },
+      });
+
+      this.logger.info({ fileCount: files.length }, "파일 목록 조회 성공");
+
+      return files;
+    } catch (error) {
+      this.logger.error({ error }, "파일 목록 조회 실패");
+      throw new Error("파일 목록 조회 중 오류가 발생했습니다.");
     }
   }
 }
