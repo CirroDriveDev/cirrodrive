@@ -2,7 +2,9 @@ import { useState } from "react";
 import { trpc } from "@/shared/api/trpc.ts";
 
 interface UseUpload {
-  upload: (file: File) => void;
+  upload: (file: File, folderId?: number) => Promise<void>;
+  code: string | undefined;
+  isPending: boolean;
   error: string | null;
 }
 
@@ -10,6 +12,8 @@ export const useUpload = (): UseUpload => {
   const [error, setError] = useState<string | null>(null);
   const urlMutation = trpc.file.getS3PresignedUploadURL.useMutation();
   const completeMutation = trpc.file.completeUpload.useMutation();
+  const isPending = urlMutation.isPending || completeMutation.isPending;
+  const code = completeMutation.data?.code;
 
   async function upload(file: File, folderId?: number): Promise<void> {
     urlMutation.mutate({ fileName: file.name });
@@ -38,5 +42,10 @@ export const useUpload = (): UseUpload => {
     completeMutation.mutate({ key, folderId });
   }
 
-  return { upload, error };
+  return {
+    upload,
+    code,
+    isPending,
+    error,
+  };
 };
