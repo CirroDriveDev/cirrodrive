@@ -1,5 +1,5 @@
 import { Line } from "react-chartjs-2";
-import { useActivityStore } from "../model/activityStore.ts";
+import { useActivityStore } from "@/features/statistics/model/activityStore.ts";
 
 // 최근 6개월 간의 월간 활동 그래프
 export function MonthlyActivityChart(): JSX.Element {
