@@ -51,18 +51,18 @@ export const fileRouter = router({
     .input(
       z.object({
         key: z.string(),
-        parentFolderId: z.number().optional(),
+        folderId: z.number().optional(),
       }),
     )
     .output(z.object({ fileId: z.number() }))
     .mutation(async ({ input, ctx }) => {
-      const { key, parentFolderId } = input;
+      const { key, folderId } = input;
       const { user } = ctx;
 
-      if (user && !parentFolderId) {
+      if (user && !folderId) {
         throw new TRPCError({
           code: "BAD_REQUEST",
-          message: "로그인한 사용자는 parentFolderId를 제공해야 합니다.",
+          message: "로그인한 사용자는 folderId를 제공해야 합니다.",
         });
       }
 
