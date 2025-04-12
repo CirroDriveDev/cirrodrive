@@ -54,7 +54,12 @@ export const fileRouter = router({
         folderId: z.number().optional(),
       }),
     )
-    .output(z.object({ fileId: z.number() }))
+    .output(
+      z.object({
+        fileId: z.number(),
+        code: z.string().optional(),
+      }),
+    )
     .mutation(async ({ input, ctx }) => {
       const { key, folderId } = input;
       const { user } = ctx;
@@ -76,9 +81,19 @@ export const fileRouter = router({
         });
       }
 
-      const { id } = await fileService.save({ metadata, ownerId: user?.id });
+      const { id: fileId } = await fileService.save({
+        metadata,
+        ownerId: user?.id,
+      });
 
-      return { fileId: id };
+      const { codeString: code } = await codeService.createCode({
+        fileId,
+      });
+
+      return {
+        fileId,
+        code,
+      };
     }),
 
   /**
