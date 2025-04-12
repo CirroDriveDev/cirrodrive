@@ -31,6 +31,7 @@ export const fileRouter = router({
     .output(
       z.object({
         presignedUploadURL: z.string(),
+        key: z.string(),
       }),
     )
     .mutation(async ({ input, ctx }) => {
@@ -43,7 +44,7 @@ export const fileRouter = router({
       const presignedUploadURL =
         await s3Service.generateS3PresignedUploadURL(key);
 
-      return { presignedUploadURL };
+      return { presignedUploadURL, key };
     }),
 
   completeUpload: procedure
