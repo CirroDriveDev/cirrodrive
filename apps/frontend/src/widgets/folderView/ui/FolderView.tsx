@@ -6,7 +6,7 @@ import { Sidebar } from "@/shared/ui/SidebarLayout/Sidebar.tsx";
 import { SidebarLayout } from "@/shared/ui/SidebarLayout/SidebarLayout.tsx";
 import { LoadingSpinner } from "@/shared/components/LoadingSpinner.tsx";
 import { Button } from "@/shared/components/shadcn/Button.tsx";
-import { useUpload } from "@/entities/file/api/useUpload.ts";
+import { useUpload } from "@/features/file/upload/model.ts";
 import { useEntryList } from "@/entities/entry/api/useEntryList.ts";
 import { useFolderPath } from "@/widgets/folderView/api/useFolderPath.ts";
 import { FolderName } from "@/widgets/folderView/ui/FolderName.tsx";
@@ -14,6 +14,7 @@ import { useBoundStore } from "@/shared/store/useBoundStore.ts";
 import { useFolderCreate } from "@/entities/file/api/useFolderCreate.ts";
 import { DragAndDropUploadOverlay } from "@/features/folderContent/ui/DragAndDropUploadOverlay.tsx";
 import { useRenameStore } from "@/shared/store/useRenameStore.ts";
+import { selectFile } from "@/entities/file/lib/selectFile.ts";
 
 interface FolderViewProps {
   folderId: number;
@@ -28,11 +29,16 @@ export function FolderView({ folderId }: FolderViewProps): JSX.Element {
     },
   });
   const { query: entryListQuery } = useEntryList(folderId);
-  const { handleFileSelect, isPending } = useUpload(folderId, {
-    onSuccess: () => {
-      void entryListQuery.refetch();
-    },
-  });
+  const { upload, isPending } = useUpload();
+
+  async function handleFileSelect(): Promise<void> {
+    const files = await selectFile();
+    if (!files) return;
+    for (const file of files) {
+      await upload(file, folderId);
+    }
+    void entryListQuery.refetch();
+  }
 
   // useEffect에 넣어서 렌더링 이후 실행하지 않으면 무한 루프에 빠집니다.
   useEffect(() => {
