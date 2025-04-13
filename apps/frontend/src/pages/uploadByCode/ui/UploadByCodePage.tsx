@@ -1,6 +1,6 @@
 import { Header } from "@/shared/ui/layout/Header.tsx";
 import { Layout } from "@/shared/ui/layout/Layout.tsx";
-import { DragAndDropUpload } from "@/features/folderContent/ui/DragAndDropUpload.tsx";
+import { FileUploadDropzone } from "@/features/fileUpload/ui/FileUploadDropzone.tsx";
 
 export function UploadByCodePage(): JSX.Element {
   return (
@@ -9,7 +9,7 @@ export function UploadByCodePage(): JSX.Element {
       <div className="flex w-full flex-col">
         <div className="flex flex-grow items-center justify-center">
           <div className="bg-gray-50">
-            <DragAndDropUpload />
+            <FileUploadDropzone />
           </div>
         </div>
       </div>

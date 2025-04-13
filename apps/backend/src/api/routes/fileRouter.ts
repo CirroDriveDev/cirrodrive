@@ -1,8 +1,5 @@
-import { readFileSync } from "node:fs"; // fs 모듈
-import { resolve } from "node:path"; // path 모듈
 import { z } from "zod";
 import { TRPCError } from "@trpc/server";
-import { zfd } from "zod-form-data";
 import {
   fileMetadataDTOSchema,
   fileMetadataPublicDTOSchema,
@@ -12,93 +9,106 @@ import { logger } from "@/loaders/logger.ts";
 import { container } from "@/loaders/inversify.ts";
 import { FileService } from "@/services/fileService.ts";
 import { CodeService } from "@/services/codeService.ts";
+import { S3Service, S3_KEY_PREFIX } from "@/services/s3Service.ts";
 
 const fileService = container.get<FileService>(FileService);
 const codeService = container.get<CodeService>(CodeService);
+const s3Service = container.get<S3Service>(S3Service);
 
 export const fileRouter = router({
-  uploadPublic: procedure
-    .input(
-      zfd.formData({
-        file: zfd.file(),
-      }),
-    )
-    .output(
-      z.object({
-        code: z.string(),
-        file: fileMetadataDTOSchema,
-      }),
-    )
-    .mutation(async ({ input, ctx }) => {
-      logger.info({ requestId: ctx.req.id }, "file.upload 요청 시작");
-      let metadata;
-      let code;
-      try {
-        metadata = await fileService.saveFile({
-          file: input.file,
-        });
-      } catch (error) {
-        logger.error({ requestId: ctx.req.id, error }, "file.upload 요청 실패");
-
-        throw new TRPCError({
-          code: "INTERNAL_SERVER_ERROR",
-          message: "파일 업로드 중 오류가 발생했습니다.",
-        });
-      }
-      try {
-        code = await codeService.createCode({ fileId: metadata.id });
-      } catch (error) {
-        logger.error({ requestId: ctx.req.id, error }, "file.upload 요청 실패");
-
-        throw new TRPCError({
-          code: "INTERNAL_SERVER_ERROR",
-          message: "파일 업로드 중 오류가 발생했습니다.",
-        });
-      }
-
-      logger.info({ requestId: ctx.req.id }, "file.upload 요청 성공");
-
-      return {
-        code: code.codeString,
-        file: metadata,
-      };
-    }),
-
-  downloadByCode: procedure
+  /**
+   * S3 Presigned Upload URL을 생성합니다.
+   *
+   * @param fileName - 업로드할 파일의 이름
+   * @returns Presigned Upload URL
+   */
+  getS3PresignedUploadURL: procedure
     .input(
       z.object({
-        codeString: z.string(),
-      }),
-    )
-    .output(
-      z.object({
-        encodedFile: z.string(),
         fileName: z.string(),
       }),
     )
-    .query(async ({ input, ctx }) => {
-      logger.info({ requestId: ctx.req.id }, "file.download 요청 시작");
+    .output(
+      z.object({
+        presignedUploadURL: z.string(),
+        key: z.string(),
+      }),
+    )
+    .mutation(async ({ input, ctx }) => {
+      const { fileName } = input;
+      const { user } = ctx;
+      const prefix =
+        user ? S3_KEY_PREFIX.USER_UPLOADS : S3_KEY_PREFIX.PUBLIC_UPLOADS;
 
-      try {
-        const file = await fileService.getFileByCode({
-          codeString: input.codeString,
+      const key = s3Service.generateS3ObjectKey(prefix, fileName);
+      const presignedUploadURL =
+        await s3Service.generateS3PresignedUploadURL(key);
+
+      return { presignedUploadURL, key };
+    }),
+
+  completeUpload: procedure
+    .input(
+      z.object({
+        key: z.string(),
+        folderId: z.number().optional(),
+      }),
+    )
+    .output(
+      z.object({
+        fileId: z.number(),
+        code: z.string().optional(),
+      }),
+    )
+    .mutation(async ({ input, ctx }) => {
+      const { key, folderId } = input;
+      const { user } = ctx;
+
+      if (user && !folderId) {
+        throw new TRPCError({
+          code: "BAD_REQUEST",
+          message: "로그인한 사용자는 folderId를 제공해야 합니다.",
         });
-
-        logger.info({ requestId: ctx.req.id }, "file.download 요청 성공");
-        const fileArrayBuffer = await file.arrayBuffer();
-        const fileString = Buffer.from(fileArrayBuffer).toString("base64");
-        return {
-          encodedFile: fileString,
-          fileName: file.name,
-        };
-      } catch (error) {
-        logger.error(
-          { requestId: ctx.req.id, error },
-          "file.download 요청 실패",
-        );
-
-        throw error;
       }
+
+      // 존재 확인
+      const metadata = await s3Service.fetchS3ObjectMetadata(key);
+
+      if (!metadata) {
+        throw new TRPCError({
+          code: "NOT_FOUND",
+          message: "파일을 찾을 수 없습니다.",
+        });
+      }
+
+      const { id: fileId } = await fileService.save({
+        metadata,
+        ownerId: user?.id,
+      });
+
+      const { codeString: code } = await codeService.createCode({
+        fileId,
+      });
+
+      return {
+        fileId,
+        code,
+      };
+    }),
+
+  download: procedure
+    .input(
+      z.object({
+        fileId: z.number(),
+      }),
+    )
+    .output(
+      z.object({
+        url: z.string(),
+      }),
+    )
+    .query(() => {
+      throw new Error("Not implemented");
     }),
 
   /**
@@ -143,125 +153,6 @@ export const fileRouter = router({
       return fileMetadataList.filter(
         (file) => file.ownerId === user.id && !file.trashedAt,
       );
-    }),
-
-  upload: authedProcedure
-    .input(
-      zfd.formData({
-        file: zfd.file(), // 업로드할 파일
-        folderId: zfd.text().optional(), // 폴더 ID (선택적)
-      }),
-    )
-    .output(
-      z.object({
-        fileId: z.number(), // 업로드된 파일 ID
-      }),
-    )
-    .mutation(async ({ input, ctx }) => {
-      const { file, folderId } = input;
-      const { user } = ctx;
-      logger.info({ requestId: ctx.req.id, user }, "파일 업로드 요청 시작");
-
-      let metadata;
-      try {
-        let count = 1;
-        let newFile = file;
-        while (
-          await fileService.existsByName({
-            name: newFile.name,
-            parentFolderId: Number(folderId),
-          })
-        ) {
-          newFile = new File(
-            [file],
-            `${file.name.slice(0, file.name.lastIndexOf("."))} (${count})${file.name.slice(
-              file.name.lastIndexOf("."),
-            )}`,
-          );
-          count++;
-        }
-
-        metadata = await fileService.saveFile({
-          file: newFile,
-          ownerId: user.id,
-        });
-        // 폴더 ID가 주어진 경우 파일을 해당 폴더로 이동
-        if (folderId) {
-          metadata = await fileService.moveFile({
-            fileId: metadata.id,
-            targetFolderId: Number(folderId),
-          });
-        }
-      } catch (error) {
-        logger.error({ requestId: ctx.req.id, error }, "파일 업로드 실패");
-        throw new TRPCError({
-          code: "INTERNAL_SERVER_ERROR",
-          message: "파일 업로드 중 오류가 발생했습니다.",
-        });
-      }
-
-      logger.info({ requestId: ctx.req.id }, "파일 업로드 성공");
-
-      return {
-        fileId: metadata.id,
-      };
-    }),
-  download: authedProcedure
-    .input(
-      z.object({
-        fileId: z.number(), // 다운로드할 파일의 ID
-      }),
-    )
-    .output(
-      z.object({
-        encodedFile: z.string(),
-        fileName: z.string(),
-      }),
-    )
-    .query(async ({ input, ctx }) => {
-      const { fileId } = input;
-      const { id: userId } = ctx.user; // 인증된 사용자의 ID
-
-      try {
-        // 파일 메타데이터 조회 (ownerId, codeString 포함)
-        const fileMetadata = await fileService.getFileMetadata({
-          fileId,
-        });
-
-        if (!fileMetadata) {
-          throw new TRPCError({
-            code: "NOT_FOUND",
-            message: "파일을 찾을 수 없습니다.",
-          });
-        }
-
-        // 파일 소유자 검증 (로그인한 사용자와 일치해야만 다운로드 가능)
-        if (fileMetadata.ownerId !== userId) {
-          throw new TRPCError({
-            code: "FORBIDDEN",
-            message: "파일에 접근할 권한이 없습니다.",
-          });
-        }
-
-        // 파일 경로로 파일 읽기
-        const filePath = resolve(fileMetadata.savedPath); // 경로를 절대경로로 변환
-        const fileBuffer = readFileSync(filePath); // Buffer로 파일 읽기
-        const encodedFile = fileBuffer.toString("base64"); // Base64로 변환
-
-        return {
-          encodedFile,
-          fileName: fileMetadata.name, // 파일 이름
-        };
-      } catch (error) {
-        logger.error(
-          { requestId: ctx.req.id, error, fileId, userId },
-          "파일 다운로드 중 오류 발생",
-        );
-        throw new TRPCError({
-          code: "INTERNAL_SERVER_ERROR",
-          message: "파일 다운로드 중 오류가 발생했습니다.",
-        });
-      }
     }),
 
   saveToAccount: authedProcedure

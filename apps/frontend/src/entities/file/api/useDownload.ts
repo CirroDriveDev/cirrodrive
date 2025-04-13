@@ -3,8 +3,6 @@ import type { RouterOutput, AppRouter } from "@cirrodrive/backend";
 import type { TRPCClientErrorLike } from "@trpc/client";
 import type { UseTRPCQueryOptions } from "@trpc/react-query/shared";
 import { trpc } from "@/shared/api/trpc.ts";
-import { downloadFile } from "@/entities/file/lib/downloadFile.ts";
-import { parseBase64ToFile } from "@/entities/file/lib/parseBase64ToFile.ts";
 
 type UseDownloadOptions = UseTRPCQueryOptions<
   RouterOutput["file"]["download"],
@@ -44,8 +42,6 @@ export const useDownload = (
     if (!query.data || query.isFetching || !isDownloadClicked) {
       return;
     }
-    const file = parseBase64ToFile(query.data.encodedFile, query.data.fileName);
-    downloadFile(file);
     setIsDownloadClicked(false);
   }, [query.data, query.isFetching, isDownloadClicked]);
 

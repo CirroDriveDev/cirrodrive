@@ -10,6 +10,7 @@ import { FileService } from "@/services/fileService.ts";
 import { FolderService } from "@/services/folderService.ts";
 import { EmailService } from "@/services/emailService.ts";
 import { AdminService } from "@/services/adminService.ts";
+import { S3Service } from "@/services/s3Service.ts";
 
 const inversifyLogger = logger.child({ prefix: "Inversify" });
 
@@ -36,5 +37,6 @@ container.bind(FileService).toSelf();
 container.bind(FolderService).toSelf();
 container.bind(EmailService).toSelf();
 container.bind(AdminService).toSelf();
+container.bind(S3Service).toSelf();
 
 inversifyLogger.info("Inversify loaded successfully");
