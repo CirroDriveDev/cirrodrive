@@ -16,7 +16,7 @@ export function FileUploadDropzoneOverlay({
   const [dragOver, setDragOver] = useState(false);
   const { openModal } = useBoundStore();
 
-  const { upload } = useUpload();
+  const { upload, error: uploadError } = useUpload();
 
   // 드래그 앤 드롭 공통 처리
   const handleDrop = async (
@@ -30,21 +30,21 @@ export function FileUploadDropzoneOverlay({
     if (files?.[0]) {
       const file = files[0];
 
-      await upload(file, folderId, {
-        onSuccess: (data) => {
-          // 업로드 성공 시 추가 작업 호출
-          if (onUploadSuccess) onUploadSuccess();
-          openModal({
-            title: "업로드 성공",
-            content: UploadSuccessModal(file.name, data.code),
-          });
-        },
-        onError: (error) => {
-          openModal({
-            title: "업로드 실패",
-            content: <div>{error.message}</div>,
-          });
-        },
+      const { code } = await upload(file, folderId);
+      if (uploadError) {
+        openModal({
+          title: "업로드 실패",
+          content: <div>{uploadError?.message}</div>,
+        });
+        return;
+      }
+
+      if (onUploadSuccess) {
+        onUploadSuccess();
+      }
+      openModal({
+        title: "업로드 성공",
+        content: UploadSuccessModal(file.name, code),
       });
     }
   };
