@@ -96,6 +96,21 @@ export const fileRouter = router({
       };
     }),
 
+  download: procedure
+    .input(
+      z.object({
+        fileId: z.number(),
+      }),
+    )
+    .output(
+      z.object({
+        url: z.string(),
+      }),
+    )
+    .query(() => {
+      throw new Error("Not implemented");
+    }),
+
   /**
    * 파일 메타데이터 조회
    */
