@@ -241,4 +241,41 @@ export const adminUserRouter = router({
         });
       }
     }),
+  deleteFile: adminProcedure
+    .input(
+      z.object({
+        fileId: z.number(),
+      }),
+    )
+    .mutation(async ({ input, ctx }) => {
+      logger.info(
+        { fileId: input.fileId, requestId: ctx.req.id },
+        "파일 삭제 요청",
+      );
+
+      // currentUserId를 ctx에서 추출 (예: ctx.user.id)
+      const currentUserId = ctx.user.id; // 로그인된 사용자의 ID
+
+      try {
+        const result = await adminService.deleteFile({
+          fileId: input.fileId,
+          currentUserId, // currentUserId 전달
+        });
+
+        if (!result) {
+          throw new TRPCError({
+            code: "NOT_FOUND",
+            message: "파일을 찾을 수 없습니다.",
+          });
+        }
+
+        return { success: true };
+      } catch (error) {
+        logger.error({ error, requestId: ctx.req.id }, "파일 삭제 실패");
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: "파일 삭제 중 오류가 발생했습니다.",
+        });
+      }
+    }),
 });
