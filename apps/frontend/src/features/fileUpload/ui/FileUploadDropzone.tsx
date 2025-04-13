@@ -35,14 +35,17 @@ export function FileUploadDropzone(): JSX.Element {
 
     const { code } = await upload(file);
 
+    if (uploadError) {
+      openModal({
+        title: "업로드 실패",
+        content: <div>{uploadError?.message}</div>,
+      });
+      return;
+    }
+
     openModal({
       title: "업로드 성공",
       content: UploadSuccessModal(file.name, code),
-    });
-
-    openModal({
-      title: "업로드 실패",
-      content: <div>{uploadError?.message}</div>,
     });
   };
 
