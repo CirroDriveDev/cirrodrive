@@ -1,4 +1,7 @@
 import type { UserDTO } from "@cirrodrive/schemas";
+import { useEffect } from "react";
+import { useNavigate } from "react-router-dom";
+import { useBoundStore } from "@/shared/store/useBoundStore.ts";
 import { SidebarLayout } from "@/shared/ui/SidebarLayout/SidebarLayout.tsx";
 import { Header } from "@/shared/ui/layout/Header.tsx";
 import { Sidebar } from "@/shared/ui/SidebarLayout/Sidebar.tsx";
@@ -14,6 +17,7 @@ const dummyUsers: UserDTO[] = [
     profileImageUrl: null,
     rootFolderId: 10,
     trashFolderId: 11,
+    isAdmin: false,
     createdAt: new Date("2024-01-01"),
     updatedAt: new Date("2024-04-01"),
   },
@@ -26,12 +30,24 @@ const dummyUsers: UserDTO[] = [
     profileImageUrl: null,
     rootFolderId: 12,
     trashFolderId: 13,
+    isAdmin: false,
     createdAt: new Date("2023-12-15"),
     updatedAt: new Date("2024-03-25"),
   },
 ];
 
 export function AdminUserPage(): JSX.Element {
+  const navigate = useNavigate();
+  const { user } = useBoundStore();
+
+  useEffect(() => {
+    if (!user) {
+      navigate("/login");
+    } else if (!user.isAdmin) {
+      navigate("/login");
+    }
+  }, [navigate, user]);
+
   return (
     <SidebarLayout header={<Header />} sidebar={<Sidebar />}>
       <div className="flex w-full flex-grow flex-col items-center">

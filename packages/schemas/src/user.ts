@@ -35,6 +35,7 @@ export const userSchema = z.object({
   profileImageUrl: z.string().url().nullable(),
   rootFolderId: z.number(),
   trashFolderId: z.number(),
+  isAdmin: z.boolean(),
   createdAt: z.date(),
   updatedAt: z.date(),
 });

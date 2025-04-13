@@ -4,11 +4,13 @@ import { useLogin } from "@/pages/login/api/useLogin.ts";
 import { FormInputField } from "@/shared/components/FormInputField.tsx";
 import { Layout } from "@/shared/ui/layout/Layout.tsx";
 import { Header } from "@/shared/ui/layout/Header.tsx";
-import { useUserStore } from "@/shared/store/useUserStore.ts";
+//import { useUserStore } from "@/shared/store/useUserStore.ts";
+//import { mockAdminUser } from "@/pages/admin/api/mockAdminUser.ts";
 
 export function LoginPage(): JSX.Element {
   const navigate = useNavigate();
-  const { user } = useUserStore();
+  // const { setUser } = useUserStore();
+
   const {
     input,
     validationError,
@@ -16,11 +18,17 @@ export function LoginPage(): JSX.Element {
     handleInputChange,
     handleFormSubmit,
   } = useLogin({
-    onSuccess: () => {
-      navigate(`/folder/${user!.rootFolderId}`);
+    onSuccess: (data) => {
+      // 로그인 성공 시 받은 user data 활용
+      if (data.isAdmin) {
+        navigate("/admin/user");
+      } else {
+        navigate(`/folder/${data.rootFolderId}`);
+      }
     },
     retry: 0,
   });
+
   const { username, password } = input;
 
   return (
@@ -64,11 +72,22 @@ export function LoginPage(): JSX.Element {
                 로그인
               </Button>
             </div>
-            <div className="flex space-x-2">
-              <span className="text-l">계정이 없으신가요?</span>
-              <Link to="/register">
-                <span className="text-l text-primary">회원가입</span>
+
+            <div className="flex flex-col items-center space-y-2 pt-2">
+              <span className="text-sm">계정이 없으신가요?</span>
+              <Link to="/register" className="text-primary underline">
+                회원가입
               </Link>
+              {/*   임시 로그인 버튼
+              {import.meta.env.DEV ? <Button
+                  onClick={() => {
+                    setUser(mockAdminUser);
+                    navigate("/admin/user");
+                  }}
+                  className="rounded bg-green-600 px-4 py-2 text-white"
+                >
+                  임시 관리자 로그인
+                </Button> : null}*/}
             </div>
           </form>
         </section>
