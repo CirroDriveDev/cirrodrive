@@ -1,3 +1,4 @@
+import fs from "node:fs";
 import { injectable, inject } from "inversify";
 import type { Prisma, User, FileMetadata } from "@cirrodrive/database";
 import { hash } from "@node-rs/argon2";
@@ -335,6 +336,75 @@ export class AdminService {
     } catch (error) {
       this.logger.error({ error }, "파일 목록 조회 실패");
       throw new Error("파일 목록 조회 중 오류가 발생했습니다.");
+    }
+  }
+  /**
+   * 파일을 삭제합니다.
+   *
+   * @param fileId - 삭제할 파일의 ID
+   * @param currentUserId - 현재 관리자 ID (삭제 요청자)
+   * @returns 삭제 성공 여부
+   * @throws 관리자 권한 없음, 파일 없음, 삭제 실패 시 예외 발생
+   */
+  public async deleteFile({
+    fileId,
+    currentUserId,
+  }: {
+    fileId: number;
+    currentUserId: number;
+  }): Promise<boolean> {
+    try {
+      // 관리자 권한 확인
+      const user = await this.userModel.findUnique({
+        where: { id: currentUserId },
+      });
+
+      if (!user?.isAdmin) {
+        throw new TRPCError({
+          code: "UNAUTHORIZED",
+          message: "관리자만 파일을 삭제할 수 있습니다.",
+        });
+      }
+
+      this.logger.info({ methodName: "deleteFile", fileId }, "파일 삭제 시작");
+
+      // 파일 존재 여부 확인
+      const file = await this.fileModel.findUnique({
+        where: { id: fileId },
+      });
+
+      if (!file) {
+        this.logger.warn({ fileId }, "삭제할 파일을 찾을 수 없음");
+        return false;
+      }
+
+      // 파일이 저장된 경로가 있다면 실제 파일 삭제
+      if (file.savedPath) {
+        try {
+          fs.unlinkSync(file.savedPath); // 로컬 파일 삭제
+        } catch (err) {
+          this.logger.error({ error: err, fileId }, "파일 삭제 중 오류 발생");
+          throw new TRPCError({
+            code: "INTERNAL_SERVER_ERROR",
+            message: "파일 삭제 중 오류가 발생했습니다.",
+          });
+        }
+      }
+
+      // 메타데이터 삭제
+      await this.fileModel.delete({
+        where: { id: fileId },
+      });
+
+      this.logger.info({ fileId }, "파일 삭제 완료");
+
+      return true;
+    } catch (error) {
+      this.logger.error({ error, fileId }, "파일 삭제 실패");
+      throw new TRPCError({
+        code: "INTERNAL_SERVER_ERROR",
+        message: "파일 삭제 중 오류가 발생했습니다.",
+      });
     }
   }
 }
