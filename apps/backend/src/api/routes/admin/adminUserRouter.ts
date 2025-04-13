@@ -4,6 +4,7 @@ import { router, adminProcedure } from "@/loaders/trpc.ts";
 import { container } from "@/loaders/inversify.ts";
 import { AdminService } from "@/services/adminService.ts";
 import { logger } from "@/loaders/logger.ts";
+import { isAdminMiddleware } from "@/loaders/isAdminMiddleware.ts";
 
 const adminService = container.get<AdminService>(AdminService);
 
@@ -20,6 +21,7 @@ const userInputSchema = z.object({
 
 export const adminUserRouter = router({
   create: adminProcedure
+    .use(isAdminMiddleware)
     .input(userInputSchema)
     .mutation(async ({ input, ctx }) => {
       logger.info({ requestId: ctx.req.id }, "admin.user.create 요청 시작");
@@ -51,11 +53,8 @@ export const adminUserRouter = router({
     }),
 
   update: adminProcedure
-    .input(
-      userInputSchema.extend({
-        userId: z.number(),
-      }),
-    )
+    .use(isAdminMiddleware)
+    .input(userInputSchema.extend({ userId: z.number() }))
     .mutation(async ({ input, ctx }) => {
       logger.info(
         { requestId: ctx.req.id },
@@ -99,6 +98,7 @@ export const adminUserRouter = router({
     }),
 
   delete: adminProcedure
+    .use(isAdminMiddleware)
     .input(z.object({ userId: z.number() }))
     .mutation(async ({ input, ctx }) => {
       logger.info(
@@ -132,7 +132,9 @@ export const adminUserRouter = router({
         });
       }
     }),
+
   get: adminProcedure
+    .use(isAdminMiddleware)
     .input(z.object({ userId: z.number() }))
     .query(async ({ input, ctx }) => {
       logger.info(
@@ -168,6 +170,7 @@ export const adminUserRouter = router({
     }),
 
   list: adminProcedure
+    .use(isAdminMiddleware)
     .input(
       z.object({
         limit: z.number().optional().default(10),
