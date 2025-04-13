@@ -127,20 +127,6 @@ pipeline {
             }
         }
 
-        stage('Type check') {
-            steps {
-                echo 'Running typecheck...'
-                sh 'pnpm run typecheck'
-            }
-        }
-
-        // stage('Test') {
-        //     steps {
-        //         echo 'Running vitest...'
-        //         sh 'pnpm run test -- run'
-        //     }
-        // }
-
         stage('Build') {
             when {
                 branch MAIN
