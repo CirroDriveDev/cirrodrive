@@ -59,7 +59,7 @@ export function FileUploadDropzone(): JSX.Element {
 
   return (
     <div>
-      <form method="post" className="</> flex flex-col gap-4 bg-background">
+      <form method="post" className="flex flex-col gap-4 bg-background">
         <input type="file" className="hidden" id="file-upload" />
         <label htmlFor="file-upload">
           <div
