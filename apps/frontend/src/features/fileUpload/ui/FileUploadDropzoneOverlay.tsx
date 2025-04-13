@@ -30,20 +30,21 @@ export function FileUploadDropzoneOverlay({
     if (files?.[0]) {
       const file = files[0];
 
-      const { fileId, code } = await upload(file, folderId);
-      if (fileId) {
-        if (onUploadSuccess) {
-          onUploadSuccess();
-          openModal({
-            title: "업로드 성공",
-            content: UploadSuccessModal(file.name, code),
-          });
-        }
+      const { code } = await upload(file, folderId);
+      if (uploadError) {
+        openModal({
+          title: "업로드 실패",
+          content: <div>{uploadError?.message}</div>,
+        });
+        return;
       }
 
+      if (onUploadSuccess) {
+        onUploadSuccess();
+      }
       openModal({
-        title: "업로드 실패",
-        content: <div>{uploadError?.message}</div>,
+        title: "업로드 성공",
+        content: UploadSuccessModal(file.name, code),
       });
     }
   };
