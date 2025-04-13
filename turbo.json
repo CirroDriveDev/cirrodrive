@@ -31,8 +31,15 @@
       "dependsOn": ["@cirrodrive/database#healthcheck"],
       "cache": false
     },
-    "dev": {
+    "@cirrodrive/database#db:seed": {
       "dependsOn": ["@cirrodrive/database#db:push"],
+      "cache": false
+    },
+    "dev": {
+      "dependsOn": [
+        "@cirrodrive/database#db:push",
+        "@cirrodrive/database#db:seed"
+      ],
       "cache": false,
       "persistent": true
     },

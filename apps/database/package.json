@@ -11,6 +11,7 @@
   "scripts": {
     "build": "prisma generate",
     "clean": "git clean -xdf .cache .turbo node_modules",
+    "dev": "prisma studio",
     "format": "prettier --check . --ignore-path ../../.gitignore",
     "healthcheck": "vite-node healthcheck.ts",
     "lint": "eslint",
