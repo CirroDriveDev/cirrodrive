@@ -45,6 +45,10 @@ pipeline {
 
         // JWT 비밀키
         VITE_JWT_SECRET = credentials('JWT_SECRET_CREDENTIAL_ID')
+
+        // 관리자 계정
+        ADMIN_USERNAME = credentials('ADMIN_USERNAME_CREDENTIAL_ID')
+        ADMIN_PASSWORD = credentials('ADMIN_PASSWORD_CREDENTIAL_ID')
     }
 
     stages {
@@ -96,7 +100,7 @@ pipeline {
             }
         }
 
-        stage('DB push') {
+        stage('DB push & seed') {
             when {
                 branch MAIN
             }
@@ -119,6 +123,7 @@ pipeline {
                     writeFile file: './apps/database/.env', text: envFileContent
                 }
                 sh 'pnpm run db:push'
+                sh 'pnpm run db:seed'
             }
         }
 

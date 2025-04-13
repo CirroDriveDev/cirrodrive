@@ -2,80 +2,93 @@ import { PrismaClient } from "../dist/index.js";
 import { hash } from "@node-rs/argon2";
 const prisma = new PrismaClient();
 
+async function createUserWithFolder(
+  username: string,
+  password: string,
+  email: string,
+) {
+  const user = await prisma.user.upsert({
+    where: { email: email },
+    update: {},
+    create: {
+      username: username,
+      email: email,
+      hashedPassword: await hash(password),
+      rootFolder: {
+        create: {
+          name: "root",
+        },
+      },
+      trashFolder: {
+        create: {
+          name: "trash",
+        },
+      },
+    },
+    include: {
+      rootFolder: true,
+    },
+  });
+
+  const rootFolder = await prisma.folder.update({
+    where: { id: user.rootFolderId },
+    data: {
+      ownerId: user.id,
+    },
+  });
+
+  const trashFolder = await prisma.folder.update({
+    where: { id: user.trashFolderId },
+    data: {
+      ownerId: user.id,
+    },
+  });
+
+  console.log({
+    user,
+    rootFolder,
+    trashFolder,
+  });
+  return { user, rootFolder, trashFolder };
+}
+
 async function main() {
-  const testuser1 = await prisma.user.upsert({
-    where: { email: "testuser1@example.com" },
-    update: {},
-    create: {
-      username: "testuser1",
-      email: "testuser1@example.com",
-      hashedPassword: await hash("testTEST1234!"),
-      rootFolder: {
-        create: {
-          name: "root",
-        },
+  const {
+    user: testuser1,
+    rootFolder: testuser1RootFolder,
+    trashFolder: testuser1TrashFolder,
+  } = await createUserWithFolder(
+    "testuser1",
+    "testTEST1234!",
+    "testuser1@example.com",
+  );
+
+  const {
+    user: testuser2,
+    rootFolder: testuser2RootFolder,
+    trashFolder: testuser2TrashFolder,
+  } = await createUserWithFolder(
+    "testuser2",
+    "testTEST1234!",
+    "testuser2@example.com",
+  );
+
+  if (process.env.ADMIN_USERNAME && process.env.ADMIN_PASSWORD) {
+    const { user: adminUser } = await createUserWithFolder(
+      process.env.ADMIN_USERNAME,
+      process.env.ADMIN_PASSWORD,
+      "adminuser@example.com",
+    );
+
+    await prisma.user.update({
+      where: { id: adminUser.id },
+      data: {
+        isAdmin: true,
       },
-      trashFolder: {
-        create: {
-          name: "trash",
-        },
-      },
-    },
-    include: {
-      rootFolder: true,
-    },
-  });
-
-  const testuser1RootFolder = await prisma.folder.update({
-    where: { id: testuser1.rootFolderId },
-    data: {
-      ownerId: testuser1.id,
-    },
-  });
-
-  const testuser1TrashFolder = await prisma.folder.update({
-    where: { id: testuser1.trashFolderId },
-    data: {
-      ownerId: testuser1.id,
-    },
-  });
-
-  const testuser2 = await prisma.user.upsert({
-    where: { email: "testuser2@example.com" },
-    update: {},
-    create: {
-      username: "testuser2",
-      email: "testuser2@example.com",
-      hashedPassword: await hash("testTEST1234!"),
-      rootFolder: {
-        create: {
-          name: "root",
-        },
-      },
-      trashFolder: {
-        create: {
-          name: "trash",
-        },
-      },
-    },
-    include: {
-      rootFolder: true,
-    },
-  });
-
-  const testuser2RootFolder = await prisma.folder.update({
-    where: { id: testuser2.rootFolderId },
-    data: {
-      ownerId: testuser2.id,
-    },
-  });
-
-  const testuser2TrashFolder = await prisma.folder.update({
-    where: { id: testuser2.trashFolderId },
-    data: {
-      ownerId: testuser2.id,
-    },
-  });
+    });
+  } else {
+    console.error("ADMIN_USERNAME and ADMIN_PASSWORD must be set");
+  }
 
   console.log({
     testuser1,
