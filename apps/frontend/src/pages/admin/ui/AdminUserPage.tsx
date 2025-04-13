@@ -28,9 +28,13 @@ export function AdminUserPage(): JSX.Element {
           <h1 className="text-xl font-semibold">사용자 목록</h1>
         </div>
         <div className="flex w-full px-4">
-          {userListQuery.isLoading || !userListQuery.data ?
+          {userListQuery.isLoading ? (
             <LoadingSpinner />
-          : <UserList users={userListQuery.data} />}
+          ) : userListQuery.isError ? (
+            <div className="text-red-500">사용자 목록을 불러오는 중 오류가 발생했습니다. 다시 시도해주세요.</div>
+          ) : (
+            <UserList users={userListQuery.data} />
+          )}
         </div>
       </div>
     </SidebarLayout>
