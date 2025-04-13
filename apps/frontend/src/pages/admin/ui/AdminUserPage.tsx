@@ -7,6 +7,7 @@ import { Sidebar } from "@/shared/ui/SidebarLayout/Sidebar.tsx";
 import { LoadingSpinner } from "@/shared/components/LoadingSpinner.tsx";
 import { UserList } from "@/entities/entry/ui/UserList.tsx";
 import { useUserList } from "@/entities/entry/api/useUserList.ts";
+import { SearchBar } from "@/shared/ui/layout/SearchBar.tsx";
 
 export function AdminUserPage(): JSX.Element {
   const navigate = useNavigate();
