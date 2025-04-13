@@ -1,4 +1,3 @@
-import fs from "node:fs";
 import { injectable, inject } from "inversify";
 import type { Prisma, User, FileMetadata } from "@cirrodrive/database";
 import { hash } from "@node-rs/argon2";
@@ -376,19 +375,6 @@ export class AdminService {
       if (!file) {
         this.logger.warn({ fileId }, "삭제할 파일을 찾을 수 없음");
         return false;
-      }
-
-      // 파일이 저장된 경로가 있다면 실제 파일 삭제
-      if (file.savedPath) {
-        try {
-          fs.unlinkSync(file.savedPath); // 로컬 파일 삭제
-        } catch (err) {
-          this.logger.error({ error: err, fileId }, "파일 삭제 중 오류 발생");
-          throw new TRPCError({
-            code: "INTERNAL_SERVER_ERROR",
-            message: "파일 삭제 중 오류가 발생했습니다.",
-          });
-        }
       }
 
       // 메타데이터 삭제
