@@ -6,7 +6,7 @@ import { useUpload } from "@/features/fileUpload/model/useUpload.ts";
 import { UploadSuccessModal } from "@/features/fileUpload/ui/UploadSuccessModal.tsx";
 
 export function FileUploadDropzone(): JSX.Element {
-  const { upload, isPending } = useUpload();
+  const { upload, isPending, error: uploadError } = useUpload();
 
   const [dragOver, setDragOver] = useState(false);
   const { openModal } = useBoundStore();
@@ -33,27 +33,16 @@ export function FileUploadDropzone(): JSX.Element {
 
     const file = files[0];
 
-    await upload(file, undefined, {
-      onSuccess: (data) => {
-        if (!data.code) {
-          openModal({
-            title: "업로드 실패",
-            content: <div>코드가 전송되지 않았습니다.</div>,
-          });
-          return;
-        }
+    const { code } = await upload(file);
 
-        openModal({
-          title: "업로드 성공",
-          content: UploadSuccessModal(file.name, data.code),
-        });
-      },
-      onError: (error) => {
-        openModal({
-          title: "업로드 실패",
-          content: <div>{error.message}</div>,
-        });
-      },
+    openModal({
+      title: "업로드 성공",
+      content: UploadSuccessModal(file.name, code),
+    });
+
+    openModal({
+      title: "업로드 실패",
+      content: <div>{uploadError?.message}</div>,
     });
   };
 
