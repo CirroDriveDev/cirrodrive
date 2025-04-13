@@ -33,7 +33,7 @@ export const useUpload = (): UseUpload => {
     folderId?: number,
     opts?: UseUploadOptions,
   ): Promise<void> {
-    urlMutation.mutate({ fileName: file.name });
+    await urlMutation.mutateAsync({ fileName: file.name });
 
     if (!urlMutation.isSuccess) {
       setError("Failed to get presigned URL");
