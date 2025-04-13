@@ -56,9 +56,9 @@ export class S3Service {
     filename: string,
   ): string {
     const uuid = crypto.randomUUID();
-    const timestamp = new Date().toISOString().replace(/:/g, "-");
+    const timestamp = new Date().toISOString().split("T")[0];
 
-    return `${prefix}/${timestamp}/${uuid}/${filename}`;
+    return `${prefix}/${timestamp}/${uuid}__${filename}`;
   }
 
   /**
