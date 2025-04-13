@@ -24,8 +24,9 @@ export function AdminUserPage(): JSX.Element {
   return (
     <SidebarLayout header={<Header />} sidebar={<Sidebar />}>
       <div className="flex w-full flex-grow flex-col items-center">
-        <div className="flex h-16 w-full items-center space-x-4 p-4">
+        <div className="flex w-full items-center justify-between px-4 py-2">
           <h1 className="text-xl font-semibold">사용자 목록</h1>
+          <SearchBar />
         </div>
         <div className="flex w-full px-4">
           {userListQuery.isLoading ? (

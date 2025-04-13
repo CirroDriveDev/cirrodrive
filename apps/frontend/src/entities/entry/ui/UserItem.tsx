@@ -21,6 +21,7 @@ export function UserItem({ user }: UserItemProps): JSX.Element {
       <div className="w-40 truncate">{user.username}</div>
       <div className="w-64 truncate">{user.email}</div>
       <div className="w-40">{displayDate}</div>
+      <div className="w-24 capitalize">{user.pricingPlan}</div>
       <div className="flex w-8 shrink-0 items-center justify-center">
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
