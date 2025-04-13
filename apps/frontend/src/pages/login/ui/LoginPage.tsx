@@ -9,7 +9,7 @@ import { Header } from "@/shared/ui/layout/Header.tsx";
 
 export function LoginPage(): JSX.Element {
   const navigate = useNavigate();
-  // const { setUser } = useUserStore();
+  //const { setUser } = useUserStore();
 
   const {
     input,
@@ -78,8 +78,8 @@ export function LoginPage(): JSX.Element {
               <Link to="/register" className="text-primary underline">
                 회원가입
               </Link>
-              {/*   임시 로그인 버튼
-              {import.meta.env.DEV ? <Button
+
+              {/* {import.meta.env.DEV ? <Button
                   onClick={() => {
                     setUser(mockAdminUser);
                     navigate("/admin/user");
@@ -87,7 +87,7 @@ export function LoginPage(): JSX.Element {
                   className="rounded bg-green-600 px-4 py-2 text-white"
                 >
                   임시 관리자 로그인
-                </Button> : null}*/}
+                </Button> : null} */}
             </div>
           </form>
         </section>

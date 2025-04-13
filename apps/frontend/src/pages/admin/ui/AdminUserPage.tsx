@@ -1,52 +1,25 @@
-import type { UserDTO } from "@cirrodrive/schemas";
-import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import { useEffect } from "react";
 import { useBoundStore } from "@/shared/store/useBoundStore.ts";
 import { SidebarLayout } from "@/shared/ui/SidebarLayout/SidebarLayout.tsx";
 import { Header } from "@/shared/ui/layout/Header.tsx";
 import { Sidebar } from "@/shared/ui/SidebarLayout/Sidebar.tsx";
+import { LoadingSpinner } from "@/shared/components/LoadingSpinner.tsx";
 import { UserList } from "@/entities/entry/ui/UserList.tsx";
-
-const dummyUsers: UserDTO[] = [
-  {
-    id: 1,
-    username: "hong",
-    email: "hong@example.com",
-    pricingPlan: "basic",
-    usedStorage: 1024 * 1024 * 500, // 500MB
-    profileImageUrl: null,
-    rootFolderId: 10,
-    trashFolderId: 11,
-    isAdmin: false,
-    createdAt: new Date("2024-01-01"),
-    updatedAt: new Date("2024-04-01"),
-  },
-  {
-    id: 2,
-    username: "kim",
-    email: "kim@example.com",
-    pricingPlan: "premium",
-    usedStorage: 1024 * 1024 * 2048, // 2GB
-    profileImageUrl: null,
-    rootFolderId: 12,
-    trashFolderId: 13,
-    isAdmin: false,
-    createdAt: new Date("2023-12-15"),
-    updatedAt: new Date("2024-03-25"),
-  },
-];
+import { useUserList } from "@/entities/entry/api/useUserList.ts";
 
 export function AdminUserPage(): JSX.Element {
   const navigate = useNavigate();
   const { user } = useBoundStore();
 
+  // 로그인 & 관리자 권한 확인
   useEffect(() => {
-    if (!user) {
-      navigate("/login");
-    } else if (!user.isAdmin) {
+    if (!user?.isAdmin) {
       navigate("/login");
     }
   }, [navigate, user]);
+
+  const { query: userListQuery } = useUserList();
 
   return (
     <SidebarLayout header={<Header />} sidebar={<Sidebar />}>
@@ -55,7 +28,9 @@ export function AdminUserPage(): JSX.Element {
           <h1 className="text-xl font-semibold">사용자 목록</h1>
         </div>
         <div className="flex w-full px-4">
-          <UserList users={dummyUsers} />
+          {userListQuery.isLoading || !userListQuery.data ?
+            <LoadingSpinner />
+          : <UserList users={userListQuery.data} />}
         </div>
       </div>
     </SidebarLayout>
