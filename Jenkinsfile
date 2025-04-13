@@ -97,6 +97,9 @@ pipeline {
         }
 
         stage('DB push') {
+            when {
+                branch MAIN
+            }
             steps {
                 echo 'Push prisma schema to database...'
                 script {
