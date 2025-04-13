@@ -30,13 +30,21 @@ export function AdminUserPage(): JSX.Element {
           <SearchBar />
         </div>
         <div className="flex w-full px-4">
-          {userListQuery.isLoading ? (
+          {userListQuery.isLoading ?
             <LoadingSpinner />
-          ) : userListQuery.isError ? (
-            <div className="text-red-500">사용자 목록을 불러오는 중 오류가 발생했습니다. 다시 시도해주세요.</div>
-          ) : (
-            <UserList users={userListQuery.data} />
-          )}
+          : null}
+          {userListQuery.isError ?
+            <div className="text-red-500">
+              사용자 목록을 불러오는 중 오류가 발생했습니다. 다시 시도해주세요.
+            </div>
+          : null}
+          {(
+            !userListQuery.isLoading &&
+            !userListQuery.isError &&
+            userListQuery.data
+          ) ?
+            <UserList users={userListQuery.data ?? []} />
+          : null}
         </div>
       </div>
     </SidebarLayout>
