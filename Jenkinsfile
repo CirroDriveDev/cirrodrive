@@ -118,6 +118,8 @@ pipeline {
                     RDS_SHADOW_DATABASE=${RDS_SHADOW_DATABASE}
                     DATABASE_URL=${DATABASE_URL}
                     SHADOW_DATABASE_URL=${SHADOW_DATABASE_URL}
+                    ADMIN_USERNAME=${ADMIN_USERNAME}
+                    ADMIN_PASSWORD=${ADMIN_PASSWORD}
                     """.stripIndent()
 
                     writeFile file: './apps/database/.env', text: envFileContent
