@@ -18,7 +18,7 @@
   },
   "devDependencies": {
     "@cirrodrive/tsconfig": "workspace:*",
-    "@types/node": "^20.14.9",
+    "@types/node": "^20.17.1",
     "typescript": "catalog:"
   },
   "prettier": "@cirrodrive/prettier-config"

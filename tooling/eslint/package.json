@@ -34,7 +34,7 @@
     "@cirrodrive/tsconfig": "workspace:*",
     "@types/eslint-config-prettier": "^6.11.3",
     "@types/eslint__js": "8.42.3",
-    "@types/node": "^20.14.9",
+    "@types/node": "^20.17.1",
     "eslint": "catalog:",
     "prettier": "catalog:",
     "typescript": "catalog:"
