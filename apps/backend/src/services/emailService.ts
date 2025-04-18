@@ -7,6 +7,7 @@ import { Symbols } from "@/types/symbols.ts";
 import { sesClient } from "@/loaders/aws.ts";
 import { generateVerificationCode } from "@/utils/generateVerificationCode.ts";
 import { createSecretKey } from "@/utils/jwt.ts"; // JWT 비밀키 유틸리티 추가
+import { env } from "@/loaders/env.ts";
 
 /**
  * 이메일 서비스입니다.
@@ -40,7 +41,7 @@ export class EmailService {
     this.logger.info({ to, subject }, "이메일 전송 중");
 
     const params = new SendEmailCommand({
-      Source: import.meta.env.VITE_SES_SOURCE_EMAIL, // 환경변수에서 SES 이메일 주소 가져오기
+      Source: env.AWS_SES_SOURCE_EMAIL,
       Destination: { ToAddresses: [to] },
       Message: {
         Subject: { Data: subject },

@@ -26,25 +26,25 @@ pipeline {
         RDS_SHADOW_DATABASE = credentials('RDS_SHADOW_DATABASE_CREDENTIAL_ID')
 
         // 포트
-        VITE_CLIENT_PORT = '80'
-        VITE_SERVER_PORT = '8000'
+        CLIENT_PORT = '80'
+        SERVER_PORT = '8000'
 
         // API 서버
-        VITE_EC2_PUBLIC_URL = "${EC2_PUBLIC_URL}"
+        EC2_PUBLIC_URL = "${EC2_PUBLIC_URL}"
 
         // 컨테이너 이름
         FRONTEND_CONTAINER_NAME = 'frontend'
         BACKEND_CONTAINER_NAME = 'backend'
 
         // AWS
-        VITE_AWS_REGION = credentials('AWS_REGION_CREDENTIAL_ID')
-        VITE_AWS_S3_BUCKET = credentials('AWS_S3_BUCKET_CREDENTIAL_ID')
+        AWS_REGION = credentials('AWS_REGION_CREDENTIAL_ID')
+        AWS_S3_BUCKET = credentials('AWS_S3_BUCKET_CREDENTIAL_ID')
 
         // SES 이메일
-        VITE_SES_SOURCE_EMAIL = credentials('SES_SOURCE_EMAIL_CREDENTIAL_ID')
+        SES_SOURCE_EMAIL = credentials('SES_SOURCE_EMAIL_CREDENTIAL_ID')
 
         // JWT 비밀키
-        VITE_JWT_SECRET = credentials('JWT_SECRET_CREDENTIAL_ID')
+        JWT_SECRET = credentials('JWT_SECRET_CREDENTIAL_ID')
 
         // 관리자 계정
         ADMIN_USERNAME = credentials('ADMIN_USERNAME_CREDENTIAL_ID')

@@ -11,6 +11,7 @@ import { StatusCodes } from "http-status-codes";
 import cors from "cors";
 import { loggerMiddleware } from "@/loaders/logger.ts";
 import { trpcMiddleware } from "@/loaders/trpcMiddleware.ts";
+import { env } from "@/loaders/env.ts";
 
 export const TRPC_PATH = "/trpc";
 
@@ -25,8 +26,8 @@ export const expressLoader = (): Express => {
     cors({
       credentials: true,
       origin: [
-        `http://${import.meta.env.VITE_EC2_PUBLIC_URL}`,
-        `http://${import.meta.env.VITE_EC2_PUBLIC_URL}:${import.meta.env.VITE_CLIENT_PORT}`,
+        `http://${env.EC2_PUBLIC_URL}`,
+        `http://${env.EC2_PUBLIC_URL}:${env.CLIENT_PORT}`,
       ],
     }),
   );

@@ -3,8 +3,9 @@ import { injectable } from "inversify";
 import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
 import { HeadObjectCommand, PutObjectCommand } from "@aws-sdk/client-s3";
 import { s3Client } from "@/loaders/aws.ts";
+import { env } from "@/loaders/env.ts";
 
-const BUCKET_NAME = import.meta.env.VITE_AWS_S3_BUCKET;
+const BUCKET_NAME = env.AWS_S3_BUCKET;
 export const S3_KEY_PREFIX = {
   USER_UPLOADS: "user-uploads",
   PUBLIC_UPLOADS: "public-uploads",

@@ -25,6 +25,7 @@
     "@aws-sdk/types": "^3.734.0",
     "@cirrodrive/database": "workspace:^",
     "@cirrodrive/schemas": "workspace:*",
+    "@dotenvx/dotenvx": "^1.39.0",
     "@node-rs/argon2": "^2.0.0",
     "@oslojs/crypto": "^1.0.1",
     "@oslojs/encoding": "^1.1.0",

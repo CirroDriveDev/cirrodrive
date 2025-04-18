@@ -3,6 +3,7 @@ import { type Server } from "node:http";
 import type express from "express";
 import { expressLoader } from "@/loaders/express.ts";
 import { logger } from "@/loaders/logger.ts";
+import { env } from "@/loaders/env.ts";
 
 let server: Server;
 
@@ -16,10 +17,8 @@ function load(): express.Application {
 }
 
 function startServer(app: express.Application): void {
-  server = app.listen(import.meta.env.VITE_SERVER_PORT, () => {
-    logger.info(
-      `Server listening on port: ${import.meta.env.VITE_SERVER_PORT}`,
-    );
+  server = app.listen(env.SERVER_PORT, () => {
+    logger.info(`Server listening on port: ${env.SERVER_PORT}`);
     logger.info(`Currently running on ${import.meta.env.MODE} mode.`);
   });
 
