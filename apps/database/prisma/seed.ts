@@ -44,35 +44,19 @@ async function createUserWithFolder(
     },
   });
 
-  console.log({
-    user,
-    rootFolder,
-    trashFolder,
+  console.log("User and folders created/updated successfully");
+  console.log("User:", {
+    ...user,
+    hashedPassword: "<hidden>",
   });
+  console.log("Root Folder:", rootFolder);
+  console.log("Trash Folder:", trashFolder);
+  console.log();
+
   return { user, rootFolder, trashFolder };
 }
 
 async function main() {
-  const {
-    user: testuser1,
-    rootFolder: testuser1RootFolder,
-    trashFolder: testuser1TrashFolder,
-  } = await createUserWithFolder(
-    "testuser1",
-    "testTEST1234!",
-    "testuser1@example.com",
-  );
-
-  const {
-    user: testuser2,
-    rootFolder: testuser2RootFolder,
-    trashFolder: testuser2TrashFolder,
-  } = await createUserWithFolder(
-    "testuser2",
-    "testTEST1234!",
-    "testuser2@example.com",
-  );
-
   if (process.env.ADMIN_USERNAME && process.env.ADMIN_PASSWORD) {
     const { user: adminUser } = await createUserWithFolder(
       process.env.ADMIN_USERNAME,
@@ -90,14 +74,17 @@ async function main() {
     console.error("ADMIN_USERNAME and ADMIN_PASSWORD must be set");
   }
 
-  console.log({
-    testuser1,
-    testuser1RootFolder,
-    testuser1TrashFolder,
-    testuser2,
-    testuser2RootFolder,
-    testuser2TrashFolder,
-  });
+  await createUserWithFolder(
+    "testuser1",
+    "testTEST1234!",
+    "testuser1@example.com",
+  );
+
+  await createUserWithFolder(
+    "testuser2",
+    "testTEST1234!",
+    "testuser2@example.com",
+  );
 }
 
 main()
