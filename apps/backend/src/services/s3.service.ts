@@ -1,8 +1,13 @@
-/* eslint-disable @typescript-eslint/require-await -- Not implemented */
 import path from "node:path";
 import { injectable } from "inversify";
 import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
-import { HeadObjectCommand, PutObjectCommand } from "@aws-sdk/client-s3";
+import {
+  HeadObjectCommand,
+  PutObjectCommand,
+  DeleteObjectCommand,
+  DeleteObjectsCommand,
+  CopyObjectCommand,
+} from "@aws-sdk/client-s3";
 import { s3Client } from "@/loaders/aws.loader.ts";
 import { env } from "@/loaders/env.loader.ts";
 
@@ -22,13 +27,13 @@ export interface S3Metadata {
 @injectable()
 export class S3Service {
   /**
-   * S3 Presigned Upload URL을 생성합니다.
+   * S3 PutObject Signed URL을 생성합니다.
    *
    * @param key - S3 객체 키
-   * @param expiresIn - Presigned URL의 유효 기간(초)
-   * @returns Presigned Upload URL
+   * @param expiresIn - Signed URL의 유효 기간(초)
+   * @returns PutObject Signed URL
    */
-  public async generateS3PresignedUploadURL(
+  public async getPutObjectSignedURL(
     key: string,
     expiresIn = 60 * 5, // 5분
   ): Promise<string> {
@@ -39,11 +44,11 @@ export class S3Service {
       Bucket: BUCKET_NAME,
       Key: key,
     });
-    const presignedUploadUrl = await getSignedUrl(s3Client, command, {
+    const signedUploadUrl = await getSignedUrl(s3Client, command, {
       expiresIn,
     });
 
-    return presignedUploadUrl;
+    return signedUploadUrl;
   }
 
   /**
@@ -59,8 +64,9 @@ export class S3Service {
   ): string {
     const uuid = crypto.randomUUID();
     const timestamp = new Date().toISOString().split("T")[0];
+    const safeFilename = path.basename(filename).replace(/[^\w\-.]/g, "_");
 
-    return `${prefix}/${timestamp}/${uuid}__${filename}`;
+    return `${prefix}/${timestamp}/${uuid}__${safeFilename}`;
   }
 
   /**
@@ -69,7 +75,7 @@ export class S3Service {
    * @param key - S3 객체 키
    * @returns S3 객체 메타데이터
    */
-  public async fetchS3ObjectMetadata(key: string): Promise<S3Metadata> {
+  public async headObject(key: string): Promise<S3Metadata> {
     const command = new HeadObjectCommand({
       Bucket: BUCKET_NAME,
       Key: key,
@@ -101,18 +107,47 @@ export class S3Service {
     return metadata;
   }
 
-  public async deleteObject(_key: string): Promise<void> {
-    throw new Error("Not implemented.");
+  /**
+   * S3 객체를 삭제합니다.
+   *
+   * @param key - S3 객체 키
+   */
+  public async deleteObject(key: string): Promise<void> {
+    const command = new DeleteObjectCommand({
+      Bucket: BUCKET_NAME,
+      Key: key,
+    });
+    await s3Client.send(command);
   }
 
-  public async deleteObjects(_keys: string[]): Promise<void> {
-    throw new Error("Not implemented.");
+  /**
+   * S3 객체를 삭제합니다.
+   *
+   * @param keys - S3 객체 키 배열
+   */
+  public async deleteObjects(keys: string[]): Promise<void> {
+    if (keys.length === 0) {
+      throw new Error("No keys provided for deletion.");
+    }
+
+    const command = new DeleteObjectsCommand({
+      Bucket: BUCKET_NAME,
+      Delete: {
+        Objects: keys.map((key) => ({ Key: key })),
+        Quiet: true,
+      },
+    });
+
+    await s3Client.send(command);
   }
 
-  public async copyObject(
-    _sourceKey: string,
-    _targetKey: string,
-  ): Promise<void> {
-    throw new Error("Not implemented.");
+  public async copyObject(sourceKey: string, targetKey: string): Promise<void> {
+    const command = new CopyObjectCommand({
+      Bucket: BUCKET_NAME,
+      CopySource: `${BUCKET_NAME}/${sourceKey}`,
+      Key: targetKey,
+    });
+
+    await s3Client.send(command);
   }
 }

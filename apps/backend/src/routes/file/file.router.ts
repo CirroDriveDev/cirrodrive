@@ -41,8 +41,7 @@ export const fileRouter = router({
         user ? S3_KEY_PREFIX.USER_UPLOADS : S3_KEY_PREFIX.PUBLIC_UPLOADS;
 
       const key = s3Service.generateS3ObjectKey(prefix, fileName);
-      const presignedUploadURL =
-        await s3Service.generateS3PresignedUploadURL(key);
+      const presignedUploadURL = await s3Service.getPutObjectSignedURL(key);
 
       return { presignedUploadURL, key };
     }),
@@ -72,7 +71,7 @@ export const fileRouter = router({
       }
 
       // 존재 확인
-      const metadata = await s3Service.fetchS3ObjectMetadata(key);
+      const metadata = await s3Service.headObject(key);
 
       if (!metadata) {
         throw new TRPCError({
