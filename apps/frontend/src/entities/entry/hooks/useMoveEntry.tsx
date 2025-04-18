@@ -1,4 +1,3 @@
-/* eslint-disable unicorn/filename-case -- 리액트 훅 파일명은 camelCase로 작성합니다. */
 import type { EntryDTO } from "@cirrodrive/schemas";
 import { trpc } from "@/shared/api/trpc.ts";
 import { useEntryUpdatedEvent } from "@/entities/entry/api/useEntryUpdatedEvent.ts";

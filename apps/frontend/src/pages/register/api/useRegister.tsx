@@ -1,4 +1,3 @@
-/* eslint-disable unicorn/filename-case -- 리액트 훅 파일명은 camelCase로 작성합니다. */
 import { useState } from "react";
 import type { RouterOutput, RouterInput, AppRouter } from "@cirrodrive/backend";
 import type { TRPCClientErrorLike } from "@trpc/client";

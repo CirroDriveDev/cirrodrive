@@ -1,4 +1,3 @@
-/* eslint-disable unicorn/filename-case -- 리액트 훅 파일명은 camelCase로 작성합니다. */
 import { getQueryKey, type TRPCClientErrorLike } from "@trpc/react-query";
 import type { UseTRPCQueryResult } from "@trpc/react-query/shared";
 import type { AppRouter, RouterOutput } from "@cirrodrive/backend";
