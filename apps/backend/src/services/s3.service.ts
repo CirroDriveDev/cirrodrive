@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/require-await -- Not implemented */
 import path from "node:path";
 import { injectable } from "inversify";
 import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
@@ -98,5 +99,20 @@ export class S3Service {
     };
 
     return metadata;
+  }
+
+  public async deleteObject(_key: string): Promise<void> {
+    throw new Error("Not implemented.");
+  }
+
+  public async deleteObjects(_keys: string[]): Promise<void> {
+    throw new Error("Not implemented.");
+  }
+
+  public async copyObject(
+    _sourceKey: string,
+    _targetKey: string,
+  ): Promise<void> {
+    throw new Error("Not implemented.");
   }
 }
