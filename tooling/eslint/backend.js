@@ -11,4 +11,23 @@ export default tseslint.config(
       "@typescript-eslint/no-misused-promises": "off",
     },
   },
+  {
+    files: ["**/*.ts"],
+    rules: {
+      "unicorn/filename-case": [
+        "error",
+        {
+          cases: {
+            kebabCase: true,
+          },
+        },
+      ],
+    },
+  },
+  {
+    files: ["**/*.d.ts"],
+    rules: {
+      "unicorn/filename-case": ["off"],
+    },
+  },
 );

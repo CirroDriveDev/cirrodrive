@@ -9,7 +9,7 @@ export default defineConfig({
       exclude: ["**/node_modules/**", "**/index.ts"],
     },
     globals: true,
-    setupFiles: "./vitestSetup.ts",
+    setupFiles: "./vitest-setup.ts",
     fileParallelism: false,
   },
   optimizeDeps: {

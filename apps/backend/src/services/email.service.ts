@@ -5,7 +5,7 @@ import type { Prisma } from "@cirrodrive/database";
 import { SignJWT } from "jose"; // jose 추가
 import { Symbols } from "@/types/symbols.ts";
 import { sesClient } from "@/loaders/aws.loader.ts";
-import { generateVerificationCode } from "@/utils/generateVerificationCode.ts";
+import { generateVerificationCode } from "@/utils/generate-verification-code.ts";
 import { createSecretKey } from "@/utils/jwt.ts"; // JWT 비밀키 유틸리티 추가
 import { env } from "@/loaders/env.loader.ts";
 

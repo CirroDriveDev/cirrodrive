@@ -23,8 +23,7 @@ export default tseslint.config(
         "error",
         {
           cases: {
-            camelCase: true,
-            pascalCase: true,
+            kebabCase: true,
           },
         },
       ],
@@ -34,23 +33,6 @@ export default tseslint.config(
     files: ["**/*.js"],
     rules: {
       "import/no-default-export": "off",
-    },
-  },
-  {
-    files: ["**/*.ts"],
-    rules: {
-      "unicorn/filename-case": [
-        "error",
-        {
-          case: "camelCase",
-        },
-      ],
-    },
-  },
-  {
-    files: ["**/*.d.ts"],
-    rules: {
-      "unicorn/filename-case": ["off"],
     },
   },
 );

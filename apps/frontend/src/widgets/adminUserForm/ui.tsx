@@ -1,3 +1,4 @@
+/* eslint-disable unicorn/filename-case -- Todo */
 import { useUserForm } from "@/widgets/adminUserForm/model.ts";
 
 interface UserFormProps {

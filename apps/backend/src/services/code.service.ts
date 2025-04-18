@@ -6,7 +6,7 @@ import {
   type FileMetadataPublicDTO,
 } from "@cirrodrive/schemas";
 import { Symbols } from "@/types/symbols.ts";
-import { generateCode } from "@/utils/generateCode.ts";
+import { generateCode } from "@/utils/generate-code.ts";
 
 /**
  * 코드 서비스입니다.

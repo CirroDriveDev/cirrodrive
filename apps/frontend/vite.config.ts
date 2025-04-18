@@ -13,7 +13,7 @@ export default defineConfig({
     },
     environment: "jsdom",
     globals: true,
-    setupFiles: "./vitestSetup.ts",
+    setupFiles: "./vitest-setup.ts",
   },
   resolve: {
     alias: {

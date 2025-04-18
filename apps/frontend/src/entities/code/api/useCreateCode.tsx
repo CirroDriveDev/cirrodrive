@@ -1,3 +1,4 @@
+/* eslint-disable unicorn/filename-case -- Todo */
 import { getQueryKey, type TRPCClientErrorLike } from "@trpc/react-query";
 import type { UseTRPCQueryResult } from "@trpc/react-query/shared";
 import type { AppRouter, RouterOutput } from "@cirrodrive/backend";

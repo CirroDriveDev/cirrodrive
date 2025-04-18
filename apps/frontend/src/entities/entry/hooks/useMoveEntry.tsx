@@ -1,3 +1,4 @@
+/* eslint-disable unicorn/filename-case -- Todo */
 import type { EntryDTO } from "@cirrodrive/schemas";
 import { trpc } from "@/shared/api/trpc.ts";
 import { useEntryUpdatedEvent } from "@/entities/entry/api/useEntryUpdatedEvent.ts";
