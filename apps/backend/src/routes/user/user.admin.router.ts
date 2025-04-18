@@ -4,11 +4,11 @@ import { router, adminProcedure } from "@/loaders/trpc.loader.ts";
 import { container } from "@/loaders/inversify.loader.ts";
 import { AdminService } from "@/services/admin.service.ts";
 import { logger } from "@/loaders/logger.loader.ts";
-import { userInputSchema } from "@/routes/admin/admin.user.schema.ts";
+import { userInputSchema } from "@/routes/user/user.admin.schema.ts";
 
 const adminService = container.get<AdminService>(AdminService);
 
-export const adminUserRouter = router({
+export const userAdminRouter = router({
   create: adminProcedure
     .input(userInputSchema)
     .mutation(async ({ input, ctx }) => {

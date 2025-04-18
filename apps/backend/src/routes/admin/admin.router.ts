@@ -1,10 +1,14 @@
 import { adminProcedure, router } from "@/loaders/trpc.loader.ts";
-import { adminUserRouter } from "@/routes/admin/admin.user.router.ts";
+import { userAdminRouter } from "@/routes/user/user.admin.router.ts";
 
 export const adminRouter = router({
-  user: adminUserRouter,
-  // file: adminFileRouter,
-  // stat: adminStatRouter,
+  user: userAdminRouter,
+  // file: fileAdminRouter,
+  // stat: statAdminRouter,
+
+  /**
+   * 관리자 인증을 위한 API입니다.
+   */
   verify: adminProcedure.query(() => {
     return { authorized: true };
   }),
