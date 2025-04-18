@@ -1,22 +1,12 @@
 import { z } from "zod";
 import { TRPCError } from "@trpc/server";
-import { router, adminProcedure } from "@/loaders/trpc.ts";
-import { container } from "@/loaders/inversify.ts";
-import { AdminService } from "@/services/adminService.ts";
-import { logger } from "@/loaders/logger.ts";
+import { router, adminProcedure } from "@/loaders/trpc.loader.ts";
+import { container } from "@/loaders/inversify.loader.ts";
+import { AdminService } from "@/services/admin.service.ts";
+import { logger } from "@/loaders/logger.loader.ts";
+import { userInputSchema } from "@/routes/admin/admin.user.schema.ts";
 
 const adminService = container.get<AdminService>(AdminService);
-
-const userInputSchema = z.object({
-  username: z.string(),
-  password: z.string().min(6),
-  email: z.string().email(),
-  pricingPlan: z.enum(["free", "basic", "premium"]),
-  profileImageUrl: z.string().nullable(),
-  usedStorage: z.number().default(0),
-  customFields: z.record(z.string()).optional(),
-  isAdmin: z.boolean().default(false),
-});
 
 export const adminUserRouter = router({
   create: adminProcedure

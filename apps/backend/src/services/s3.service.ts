@@ -2,8 +2,8 @@ import path from "node:path";
 import { injectable } from "inversify";
 import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
 import { HeadObjectCommand, PutObjectCommand } from "@aws-sdk/client-s3";
-import { s3Client } from "@/loaders/aws.ts";
-import { env } from "@/loaders/env.ts";
+import { s3Client } from "@/loaders/aws.loader.ts";
+import { env } from "@/loaders/env.loader.ts";
 
 const BUCKET_NAME = env.AWS_S3_BUCKET;
 export const S3_KEY_PREFIX = {

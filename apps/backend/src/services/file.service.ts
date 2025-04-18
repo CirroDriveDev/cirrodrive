@@ -3,9 +3,9 @@ import { injectable, inject } from "inversify";
 import type { Prisma, FileMetadata } from "@cirrodrive/database";
 import type { Logger } from "pino";
 import { Symbols } from "@/types/symbols.ts";
-import { CodeService } from "@/services/codeService.ts";
-import { UserService } from "@/services/userService.ts";
-import { type S3Metadata } from "@/services/s3Service.ts";
+import { CodeService } from "@/services/code.service.ts";
+import { UserService } from "@/services/user.service.ts";
+import { type S3Metadata } from "@/services/s3.service.ts";
 /**
  * 파일 서비스입니다.
  */

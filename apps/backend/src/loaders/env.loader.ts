@@ -17,7 +17,6 @@ config({
  */
 const envSchema = z.object({
   SERVER_PORT: z.coerce.number().default(3000),
-  DATABASE_URL: z.string().url(),
   EC2_PUBLIC_URL: z.string().default("localhost"),
   CLIENT_PORT: z.coerce.number().default(5173),
   JWT_SECRET: z.string().default("dev-secret"),

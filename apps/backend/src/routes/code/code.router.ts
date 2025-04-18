@@ -1,8 +1,8 @@
 import { z } from "zod"; // zod 임포트
 import { TRPCError } from "@trpc/server"; // TRPCError 임포트
-import { router, procedure, authedProcedure } from "@/loaders/trpc.ts"; // tRPC 설정 임포트
-import { container } from "@/loaders/inversify.ts";
-import { CodeService } from "@/services/codeService.ts";
+import { router, procedure, authedProcedure } from "@/loaders/trpc.loader.ts"; // tRPC 설정 임포트
+import { container } from "@/loaders/inversify.loader.ts";
+import { CodeService } from "@/services/code.service.ts";
 
 const codeService = container.get(CodeService);
 

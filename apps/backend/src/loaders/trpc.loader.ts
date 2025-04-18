@@ -1,10 +1,10 @@
 import { initTRPC, TRPCError } from "@trpc/server";
-import type { CreateExpressContextOptions } from "@trpc/server/adapters/express";
+import { type CreateExpressContextOptions } from "@trpc/server/adapters/express";
 import { z } from "zod";
 import type { Session, User } from "@cirrodrive/database";
 import { SuperJSON } from "superjson";
-import { AuthService } from "@/services/authService.ts";
-import { container } from "@/loaders/inversify.ts";
+import { AuthService } from "@/services/auth.service.ts";
+import { container } from "@/loaders/inversify.loader.ts";
 
 const authService = container.get<AuthService>(AuthService);
 

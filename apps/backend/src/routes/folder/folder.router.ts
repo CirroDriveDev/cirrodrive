@@ -1,9 +1,9 @@
 import { z } from "zod"; // zod 임포트
 import { TRPCError } from "@trpc/server"; // TRPCError 임포트
 import { folderDTOSchema, subFolderDTOSchema } from "@cirrodrive/schemas";
-import { router, authedProcedure } from "@/loaders/trpc.ts"; // tRPC 설정 임포트
-import { container } from "@/loaders/inversify.ts";
-import { FolderService } from "@/services/folderService.ts";
+import { router, authedProcedure } from "@/loaders/trpc.loader.ts"; // tRPC 설정 임포트
+import { container } from "@/loaders/inversify.loader.ts";
+import { FolderService } from "@/services/folder.service.ts";
 
 const folderService = container.get(FolderService);
 

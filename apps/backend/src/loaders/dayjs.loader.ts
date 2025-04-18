@@ -2,7 +2,7 @@ import "dayjs/locale/ko.js";
 import dayjs from "dayjs";
 import timezone from "dayjs/plugin/timezone";
 import utc from "dayjs/plugin/utc";
-import { logger as baseLogger } from "@/loaders/logger.ts";
+import { logger as baseLogger } from "@/loaders/logger.loader.ts";
 
 const logger = baseLogger.child({ prefix: "dayjs" });
 logger.info("Loading Dayjs...");

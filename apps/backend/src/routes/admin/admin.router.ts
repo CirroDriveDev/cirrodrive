@@ -1,5 +1,5 @@
-import { adminProcedure, router } from "@/loaders/trpc.ts";
-import { adminUserRouter } from "@/api/routes/admin/adminUserRouter.ts";
+import { adminProcedure, router } from "@/loaders/trpc.loader.ts";
+import { adminUserRouter } from "@/routes/admin/admin.user.router.ts";
 
 export const adminRouter = router({
   user: adminUserRouter,

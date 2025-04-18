@@ -3,8 +3,8 @@ import type { Prisma, Folder } from "@cirrodrive/database";
 import type { Logger } from "pino";
 import type { EntryDTO, RecursiveEntryDTO } from "@cirrodrive/schemas";
 import { Symbols } from "@/types/symbols.ts";
-import { FileService } from "@/services/fileService.ts";
-import { UserService } from "@/services/userService.ts";
+import { FileService } from "@/services/file.service.ts";
+import { UserService } from "@/services/user.service.ts";
 /**
  * 폴더 서비스입니다.
  */

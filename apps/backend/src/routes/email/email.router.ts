@@ -1,9 +1,9 @@
 import { z } from "zod";
 import { TRPCError } from "@trpc/server";
-import { container } from "@/loaders/inversify.ts";
-import { logger } from "@/loaders/logger.ts";
-import { router, procedure } from "@/loaders/trpc.ts";
-import { EmailService } from "@/services/emailService.ts";
+import { container } from "@/loaders/inversify.loader.ts";
+import { logger } from "@/loaders/logger.loader.ts";
+import { router, procedure } from "@/loaders/trpc.loader.ts";
+import { EmailService } from "@/services/email.service.ts";
 
 const emailService = container.get<EmailService>(EmailService);
 

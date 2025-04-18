@@ -1,10 +1,10 @@
 import { userDTOSchema, userSchema } from "@cirrodrive/schemas";
 import { z } from "zod";
 import { TRPCError } from "@trpc/server";
-import { container } from "@/loaders/inversify.ts";
-import { UserService } from "@/services/userService.ts";
-import { logger } from "@/loaders/logger.ts";
-import { router, procedure, authedProcedure } from "@/loaders/trpc.ts";
+import { container } from "@/loaders/inversify.loader.ts";
+import { UserService } from "@/services/user.service.ts";
+import { logger } from "@/loaders/logger.loader.ts";
+import { router, procedure, authedProcedure } from "@/loaders/trpc.loader.ts";
 
 const userService = container.get<UserService>(UserService);
 

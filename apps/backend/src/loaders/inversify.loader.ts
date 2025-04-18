@@ -1,16 +1,16 @@
 import { Container } from "inversify";
-import { dayjs } from "@/loaders/dayjs.ts";
-import { logger } from "@/loaders/logger.ts";
+import { dayjs } from "@/loaders/dayjs.loader.ts";
+import { logger } from "@/loaders/logger.loader.ts";
 import { Symbols } from "@/types/symbols.ts";
-import { prisma } from "@/loaders/prisma.ts";
-import { UserService } from "@/services/userService.ts";
-import { AuthService } from "@/services/authService.ts";
-import { CodeService } from "@/services/codeService.ts";
-import { FileService } from "@/services/fileService.ts";
-import { FolderService } from "@/services/folderService.ts";
-import { EmailService } from "@/services/emailService.ts";
-import { AdminService } from "@/services/adminService.ts";
-import { S3Service } from "@/services/s3Service.ts";
+import { prisma } from "@/loaders/prisma.loader.ts";
+import { UserService } from "@/services/user.service.ts";
+import { AuthService } from "@/services/auth.service.ts";
+import { CodeService } from "@/services/code.service.ts";
+import { FileService } from "@/services/file.service.ts";
+import { FolderService } from "@/services/folder.service.ts";
+import { EmailService } from "@/services/email.service.ts";
+import { AdminService } from "@/services/admin.service.ts";
+import { S3Service } from "@/services/s3.service.ts";
 
 const inversifyLogger = logger.child({ prefix: "Inversify" });
 

@@ -4,12 +4,12 @@ import {
   fileMetadataDTOSchema,
   fileMetadataPublicDTOSchema,
 } from "@cirrodrive/schemas";
-import { router, procedure, authedProcedure } from "@/loaders/trpc.ts";
-import { logger } from "@/loaders/logger.ts";
-import { container } from "@/loaders/inversify.ts";
-import { FileService } from "@/services/fileService.ts";
-import { CodeService } from "@/services/codeService.ts";
-import { S3Service, S3_KEY_PREFIX } from "@/services/s3Service.ts";
+import { router, procedure, authedProcedure } from "@/loaders/trpc.loader.ts";
+import { logger } from "@/loaders/logger.loader.ts";
+import { container } from "@/loaders/inversify.loader.ts";
+import { FileService } from "@/services/file.service.ts";
+import { CodeService } from "@/services/code.service.ts";
+import { S3Service, S3_KEY_PREFIX } from "@/services/s3.service.ts";
 
 const fileService = container.get<FileService>(FileService);
 const codeService = container.get<CodeService>(CodeService);

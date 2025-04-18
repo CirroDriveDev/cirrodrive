@@ -5,10 +5,10 @@ import {
   recursiveEntrySchema,
   type EntryDTO,
 } from "@cirrodrive/schemas";
-import { router, authedProcedure } from "@/loaders/trpc.ts";
-import { container } from "@/loaders/inversify.ts";
-import { FolderService } from "@/services/folderService.ts";
-import { FileService } from "@/services/fileService.ts";
+import { router, authedProcedure } from "@/loaders/trpc.loader.ts";
+import { container } from "@/loaders/inversify.loader.ts";
+import { FolderService } from "@/services/folder.service.ts";
+import { FileService } from "@/services/file.service.ts";
 
 const folderService = container.get(FolderService);
 const fileService = container.get(FileService);
