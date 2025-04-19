@@ -268,4 +268,137 @@ export const userAdminRouter = router({
         });
       }
     }),
+  listNewUsers: adminProcedure
+    .input(z.object({ period: z.enum(["1d", "1w", "6m"]) }))
+    .query(async ({ input, ctx }) => {
+      logger.info(
+        { requestId: ctx.req.id },
+        `admin.user.listNewUsers 요청 시작: ${input.period}`,
+      );
+
+      try {
+        const newUsersCount = await adminService.getNewUsersCount(input.period);
+
+        logger.info(
+          { requestId: ctx.req.id },
+          `admin.user.listNewUsers 요청 성공: ${input.period}`,
+        );
+        return { newUsersCount };
+      } catch (error) {
+        logger.error(
+          { requestId: ctx.req.id, error },
+          "admin.user.listNewUsers 요청 실패",
+        );
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: "가입한 회원 수 조회 중 오류가 발생했습니다.",
+        });
+      }
+    }),
+  listUploads: adminProcedure
+    .input(z.object({ period: z.enum(["1d", "1w", "6m"]) }))
+    .query(async ({ input, ctx }) => {
+      logger.info(
+        { requestId: ctx.req.id },
+        `admin.user.listUploads 요청 시작: ${input.period}`,
+      );
+
+      try {
+        const uploadCount = await adminService.getUploadCount(input.period);
+
+        logger.info(
+          { requestId: ctx.req.id },
+          `admin.user.listUploads 요청 성공: ${input.period}`,
+        );
+        return { uploadCount };
+      } catch (error) {
+        logger.error(
+          { requestId: ctx.req.id, error },
+          "admin.user.listUploads 요청 실패",
+        );
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: "업로드 수 조회 중 오류가 발생했습니다.",
+        });
+      }
+    }),
+  getTotalFiles: adminProcedure.query(async ({ ctx }) => {
+    logger.info(
+      { requestId: ctx.req.id },
+      "admin.user.getTotalFiles 요청 시작",
+    );
+
+    try {
+      const totalFiles = await adminService.getTotalFiles();
+
+      logger.info(
+        { requestId: ctx.req.id },
+        "admin.user.getTotalFiles 요청 성공",
+      );
+      return { totalFiles };
+    } catch (error) {
+      logger.error(
+        { requestId: ctx.req.id, error },
+        "admin.user.getTotalFiles 요청 실패",
+      );
+      throw new TRPCError({
+        code: "INTERNAL_SERVER_ERROR",
+        message: "총 파일 수 조회 중 오류가 발생했습니다.",
+      });
+    }
+  }),
+  getTotalUsers: adminProcedure.query(async ({ ctx }) => {
+    logger.info(
+      { requestId: ctx.req.id },
+      "admin.user.getTotalUsers 요청 시작",
+    );
+
+    try {
+      const totalUsers = await adminService.getTotalUsers();
+
+      logger.info(
+        { requestId: ctx.req.id },
+        "admin.user.getTotalUsers 요청 성공",
+      );
+      return { totalUsers };
+    } catch (error) {
+      logger.error(
+        { requestId: ctx.req.id, error },
+        "admin.user.getTotalUsers 요청 실패",
+      );
+      throw new TRPCError({
+        code: "INTERNAL_SERVER_ERROR",
+        message: "총 회원 수 조회 중 오류가 발생했습니다.",
+      });
+    }
+  }),
+  listDeletedUsers: adminProcedure
+    .input(z.object({ period: z.enum(["1d", "1w"]) }))
+    .query(async ({ input, ctx }) => {
+      logger.info(
+        { requestId: ctx.req.id },
+        `admin.user.listDeletedUsers 요청 시작: ${input.period}`,
+      );
+
+      try {
+        const deletedUsersCount = await adminService.getDeletedUsersCount(
+          input.period,
+        );
+
+        logger.info(
+          { requestId: ctx.req.id },
+          `admin.user.listDeletedUsers 요청 성공: ${input.period}`,
+        );
+        return { deletedUsersCount };
+      } catch (error) {
+        logger.error(
+          { requestId: ctx.req.id, error },
+          "admin.user.listDeletedUsers 요청 실패",
+        );
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: "탈퇴한 회원 수 조회 중 오류가 발생했습니다.",
+        });
+      }
+    }),
 });

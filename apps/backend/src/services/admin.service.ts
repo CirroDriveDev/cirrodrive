@@ -3,7 +3,9 @@ import type { Prisma, User, FileMetadata } from "@cirrodrive/database";
 import { hash } from "@node-rs/argon2";
 import type { Logger } from "pino";
 import { TRPCError } from "@trpc/server";
+import dayjs from "dayjs";
 import { Symbols } from "@/types/symbols.ts";
+
 /**
  * 관리자 서비스입니다.
  */
@@ -391,6 +393,139 @@ export class AdminService {
         code: "INTERNAL_SERVER_ERROR",
         message: "파일 삭제 중 오류가 발생했습니다.",
       });
+    }
+  }
+  // 특정 기간에 따른 날짜 계산 함수 (private)
+  private getStartDate(period: "1d" | "1w" | "6m"): Date {
+    const now = dayjs();
+    switch (period) {
+      case "1d":
+        return now.subtract(1, "day").toDate();
+      case "1w":
+        return now.subtract(1, "week").toDate();
+      case "6m":
+        return now.subtract(6, "month").toDate();
+    }
+  }
+
+  /**
+   * 특정 기간 동안 가입한 유저 수를 반환합니다.
+   */
+  public async getNewUsersCount(period: "1d" | "1w" | "6m"): Promise<number> {
+    try {
+      const startDate = this.getStartDate(period);
+      this.logger.info(
+        { methodName: "getNewUsersCount", period },
+        "가입 유저 수 조회 시작",
+      );
+
+      const count = await this.userModel.count({
+        where: {
+          createdAt: {
+            gte: startDate,
+          },
+        },
+      });
+
+      this.logger.info({ period, count }, "가입 유저 수 조회 성공");
+      return count;
+    } catch (error) {
+      this.logger.error({ error, period }, "가입 유저 수 조회 실패");
+      throw error;
+    }
+  }
+
+  /**
+   * 특정 기간 동안 업로드된 파일 수를 반환합니다.
+   */
+  public async getUploadCount(period: "1d" | "1w" | "6m"): Promise<number> {
+    try {
+      const startDate = this.getStartDate(period);
+      this.logger.info(
+        { methodName: "getUploadCount", period },
+        "업로드 수 조회 시작",
+      );
+
+      const count = await this.fileModel.count({
+        where: {
+          createdAt: {
+            gte: startDate,
+          },
+        },
+      });
+
+      this.logger.info({ period, count }, "업로드 수 조회 성공");
+      return count;
+    } catch (error) {
+      this.logger.error({ error, period }, "업로드 수 조회 실패");
+      throw error;
+    }
+  }
+
+  /**
+   * 전체 파일 수를 반환합니다.
+   */
+  public async getTotalFiles(): Promise<number> {
+    try {
+      this.logger.info(
+        { methodName: "getTotalFiles" },
+        "전체 파일 수 조회 시작",
+      );
+
+      const count = await this.fileModel.count();
+
+      this.logger.info({ count }, "전체 파일 수 조회 성공");
+      return count;
+    } catch (error) {
+      this.logger.error({ error }, "전체 파일 수 조회 실패");
+      throw error;
+    }
+  }
+
+  /**
+   * 전체 유저 수를 반환합니다.
+   */
+  public async getTotalUsers(): Promise<number> {
+    try {
+      this.logger.info(
+        { methodName: "getTotalUsers" },
+        "전체 유저 수 조회 시작",
+      );
+
+      const count = await this.userModel.count();
+
+      this.logger.info({ count }, "전체 유저 수 조회 성공");
+      return count;
+    } catch (error) {
+      this.logger.error({ error }, "전체 유저 수 조회 실패");
+      throw error;
+    }
+  }
+
+  /**
+   * 특정 기간 동안 탈퇴한 유저 수를 반환합니다.
+   */
+  public async getDeletedUsersCount(period: "1d" | "1w"): Promise<number> {
+    try {
+      const startDate = this.getStartDate(period);
+      this.logger.info(
+        { methodName: "getDeletedUsersCount", period },
+        "탈퇴 유저 수 조회 시작",
+      );
+
+      const count = await this.userModel.count({
+        where: {
+          createdAt: {
+            gte: startDate,
+          },
+        },
+      });
+
+      this.logger.info({ period, count }, "탈퇴 유저 수 조회 성공");
+      return count;
+    } catch (error) {
+      this.logger.error({ error, period }, "탈퇴 유저 수 조회 실패");
+      throw error;
     }
   }
 }
