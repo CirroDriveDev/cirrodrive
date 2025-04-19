@@ -377,4 +377,32 @@ export class UserService {
       throw e;
     }
   }
+  /**
+   * 이메일을 통해 사용자를 조회합니다.
+   *
+   * @param email - 이메일
+   * @returns 사용자 또는 null
+   */
+  public async findByEmail({ email }: { email: string }): Promise<User | null> {
+    try {
+      this.logger.info(
+        {
+          methodName: "findByEmail",
+          email,
+        },
+        "이메일로 사용자 조회 시작",
+      );
+
+      const user = await this.userModel.findUnique({
+        where: { email },
+      });
+
+      return user;
+    } catch (error) {
+      if (error instanceof Error) {
+        this.logger.error(error.message);
+      }
+      throw error;
+    }
+  }
 }

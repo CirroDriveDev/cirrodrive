@@ -159,4 +159,43 @@ export const userRouter = router({
       throw Error("알 수 없는 오류가 발생했습니다.");
     }
   }),
+  findUsername: procedure
+    .input(
+      z.object({
+        email: z.string().email(),
+      }),
+    )
+    .output(
+      z.object({
+        username: z.string(),
+      }),
+    )
+    .query(async ({ input, ctx }) => {
+      logger.info({ requestId: ctx.req.id }, "user.findUsername 요청 시작");
+
+      try {
+        const user = await userService.findByEmail({ email: input.email });
+
+        if (!user) {
+          throw new TRPCError({
+            code: "NOT_FOUND",
+            message: "해당 이메일로 등록된 계정을 찾을 수 없습니다.",
+          });
+        }
+
+        logger.info({ requestId: ctx.req.id }, "user.findUsername 요청 성공");
+
+        return { username: user.username };
+      } catch (error) {
+        logger.error(
+          { requestId: ctx.req.id, error },
+          "user.findUsername 요청 실패",
+        );
+
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: "아이디 찾기 중 오류가 발생했습니다.",
+        });
+      }
+    }),
 });
