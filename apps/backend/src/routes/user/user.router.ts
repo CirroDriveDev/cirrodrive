@@ -198,4 +198,41 @@ export const userRouter = router({
         });
       }
     }),
+  resetPassword: procedure
+    .input(
+      z.object({
+        email: z.string().email(), // email을 받도록 수정
+        token: z.string(),
+        newPassword: z.string().min(8),
+      }),
+    )
+    .output(userDTOSchema)
+    .mutation(async ({ input, ctx }) => {
+      logger.info({ requestId: ctx.req.id }, "user.resetPassword 요청 시작");
+
+      try {
+        const { email, token, newPassword } = input; // email도 input에서 추출
+
+        // resetPassword 호출 시 email 포함
+        const user = await userService.resetPassword({
+          email,
+          token,
+          newPassword,
+        });
+
+        logger.info({ requestId: ctx.req.id }, "user.resetPassword 요청 성공");
+
+        return user;
+      } catch (error) {
+        logger.error(
+          { requestId: ctx.req.id, error },
+          "user.resetPassword 요청 실패",
+        );
+
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: "비밀번호 재설정 중 오류가 발생했습니다.",
+        });
+      }
+    }),
 });

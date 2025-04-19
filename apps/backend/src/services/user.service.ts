@@ -405,4 +405,71 @@ export class UserService {
       throw error;
     }
   }
+  /**
+   * 비밀번호를 재설정합니다.
+   *
+   * @param email - 비밀번호를 재설정할 사용자 이메일
+   * @param token - 비밀번호 재설정 토큰
+   * @param newPassword - 새 비밀번호
+   * @returns 비밀번호가 성공적으로 변경된 사용자
+   * @throws 비밀번호 재설정 중 오류가 발생한 경우
+   */
+  public async resetPassword({
+    email,
+    token,
+    newPassword,
+  }: {
+    email: string;
+    token: string;
+    newPassword: string;
+  }): Promise<User> {
+    try {
+      this.logger.info(
+        {
+          methodName: "resetPassword",
+          email,
+        },
+        "비밀번호 재설정 시작",
+      );
+
+      // JWT 검증
+      const secretKey = createSecretKey();
+      const { payload } = await jwtVerify(token, secretKey);
+      if (payload.email !== email) {
+        throw new Error("비밀번호 재설정 토큰이 유효하지 않습니다.");
+      }
+
+      // 비밀번호 해시
+      const hashedPassword = await hash(newPassword);
+
+      // 사용자 정보 업데이트
+      const user = await this.userModel.update({
+        data: {
+          hashedPassword,
+        },
+        where: {
+          email, // 이메일로 사용자 업데이트
+        },
+      });
+
+      this.logger.info(
+        {
+          methodName: "resetPassword",
+          email,
+        },
+        "비밀번호 재설정 완료",
+      );
+
+      return user;
+    } catch (error: unknown) {
+      // 'unknown' 타입 처리
+      if (error instanceof Error) {
+        // 'Error'로 타입 단언
+        this.logger.error(error.message); // 오류 메시지 기록
+      } else {
+        this.logger.error("알 수 없는 오류가 발생했습니다.");
+      }
+      throw error; // 에러 다시 던짐
+    }
+  }
 }
