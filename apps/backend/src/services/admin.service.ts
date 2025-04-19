@@ -3,7 +3,7 @@ import type { Prisma, User, FileMetadata } from "@cirrodrive/database";
 import { hash } from "@node-rs/argon2";
 import type { Logger } from "pino";
 import { TRPCError } from "@trpc/server";
-import dayjs from "dayjs";
+import { dayjs } from "@/loaders/dayjs.loader.ts";
 import { Symbols } from "@/types/symbols.ts";
 
 /**
