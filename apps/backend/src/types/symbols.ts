@@ -3,8 +3,8 @@ export const Symbols = {
   DayJS: Symbol.for("DayJS"),
   UserModel: Symbol.for("UserModel"),
   SessionModel: Symbol.for("SessionModel"),
-  CodeModel: Symbol.for("CodeModel"),
-  FileMetadataModel: Symbol.for("FileMetadataModel"),
-  FolderModel: Symbol.for("FolderModel"),
+  FileAccessCodeModel: Symbol.for("FileAccessCodeModel"),
+  FileModel: Symbol.for("FileModel"),
   VerificationCodeModel: Symbol("VerificationCodeModel"),
+  FileRepositoryFactory: Symbol.for("FileRepositoryFactory"),
 };

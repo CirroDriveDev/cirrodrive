@@ -1,7 +1,7 @@
 import { z } from "zod";
 
 export const userSchema = z.object({
-  id: z.number(),
+  id: z.string(),
   username: z
     .string()
     .min(3, { message: "3글자 이상 입력해주세요." })
@@ -30,11 +30,10 @@ export const userSchema = z.object({
     }),
 
   email: z.string().email("유효한 이메일 주소를 입력해주세요."),
-  pricingPlan: z.enum(["free", "basic", "premium"]),
+  pricingPlan: z.enum(["FREE", "BASIC", "PREMIUM"]),
   usedStorage: z.number(),
   profileImageUrl: z.string().url().nullable(),
-  rootFolderId: z.number(),
-  trashFolderId: z.number(),
+  rootDirId: z.string(),
   isAdmin: z.boolean().default(false),
   createdAt: z.date(),
   updatedAt: z.date(),

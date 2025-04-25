@@ -1,10 +1,11 @@
 import { injectable, inject } from "inversify";
-import type { Prisma, User, FileMetadata } from "@cirrodrive/database";
+import type { Prisma, User, $Enums, File } from "@cirrodrive/database";
 import { hash } from "@node-rs/argon2";
 import type { Logger } from "pino";
 import { TRPCError } from "@trpc/server";
 import { dayjs } from "@/loaders/dayjs.loader.ts";
 import { Symbols } from "@/types/symbols.ts";
+import { FileRepository } from "@/repositories/file.repository.ts";
 
 /**
  * 관리자 서비스입니다.
@@ -13,10 +14,10 @@ import { Symbols } from "@/types/symbols.ts";
 export class AdminService {
   constructor(
     @inject(Symbols.Logger) private logger: Logger,
+    @inject(FileRepository)
+    private fileRepository: FileRepository,
     @inject(Symbols.UserModel) private userModel: Prisma.UserDelegate,
-    @inject(Symbols.FolderModel) private folderModel: Prisma.FolderDelegate,
-    @inject(Symbols.FileMetadataModel)
-    private fileModel: Prisma.FileMetadataDelegate,
+    @inject(Symbols.FileModel) private fileModel: Prisma.FileDelegate,
   ) {
     this.logger = logger.child({ serviceName: "AdminService" });
   }
@@ -45,7 +46,7 @@ export class AdminService {
     username: string;
     password: string;
     email: string;
-    pricingPlan: "free" | "basic" | "premium";
+    pricingPlan: $Enums.PricingPlan;
     profileImageUrl: string | null;
     usedStorage: number;
     isAdmin: boolean;
@@ -71,43 +72,18 @@ export class AdminService {
           profileImageUrl,
           usedStorage,
           isAdmin, // 관리자 여부 설정
-          rootFolder: {
+          rootDir: {
             create: {
               name: "root",
-            },
-          },
-          trashFolder: {
-            create: {
-              name: "trash",
+              isDir: true,
+              fullPath: "/root",
             },
           },
         },
       });
 
-      await this.folderModel.update({
-        where: {
-          id: admin.rootFolderId,
-        },
-        data: {
-          owner: {
-            connect: {
-              id: admin.id,
-            },
-          },
-        },
-      });
-
-      await this.folderModel.update({
-        where: {
-          id: admin.trashFolderId,
-        },
-        data: {
-          owner: {
-            connect: {
-              id: admin.id,
-            },
-          },
-        },
+      await this.fileRepository.update(admin.rootDirId, {
+        ownerId: admin.id,
       });
 
       return admin;
@@ -126,13 +102,13 @@ export class AdminService {
    * @returns 삭제 성공 여부
    * @throws 유저 삭제 중 오류 발생 시
    */
-  public async deleteUser(userId: number): Promise<boolean> {
+  public async deleteUser(userId: string): Promise<boolean> {
     try {
       this.logger.info({ methodName: "deleteUser", userId }, "유저 삭제 시작");
 
       const user = await this.userModel.findUnique({
         where: { id: userId },
-        include: { rootFolder: true, trashFolder: true },
+        include: { rootDir: true },
       });
 
       if (!user) {
@@ -141,11 +117,8 @@ export class AdminService {
       }
 
       // 유저 관련 데이터 삭제 (예: 폴더 삭제)
-      if (user.rootFolderId) {
-        await this.folderModel.delete({ where: { id: user.rootFolderId } });
-      }
-      if (user.trashFolderId) {
-        await this.folderModel.delete({ where: { id: user.trashFolderId } });
+      if (user.rootDirId) {
+        await this.fileRepository.delete(user.rootDirId);
       }
 
       await this.userModel.delete({ where: { id: userId } });
@@ -199,7 +172,7 @@ export class AdminService {
    * @returns 조회된 유저 정보
    * @throws 유저 조회 중 오류 발생 시
    */
-  public async getUserById(userId: number): Promise<User | null> {
+  public async getUserById(userId: string): Promise<User | null> {
     try {
       this.logger.info({ methodName: "getUserById", userId }, "유저 조회 시작");
 
@@ -228,12 +201,12 @@ export class AdminService {
    * @throws 유저 업데이트 중 오류 발생 시
    */
   public async updateUser(
-    userId: number,
+    userId: string,
     data: {
       username?: string;
       password?: string;
       email?: string;
-      pricingPlan?: "free" | "basic" | "premium";
+      pricingPlan?: $Enums.PricingPlan;
       profileImageUrl?: string | null;
       usedStorage?: number;
     },
@@ -298,8 +271,8 @@ export class AdminService {
     offset: number;
     sortBy?: "uploadDate" | "owner";
     order?: "asc" | "desc";
-    currentUserId: number; // 현재 로그인된 사용자의 ID
-  }): Promise<FileMetadata[]> {
+    currentUserId: string; // 현재 로그인된 사용자의 ID
+  }): Promise<File[]> {
     try {
       // 관리자 인증: 현재 사용자가 관리자 권한을 가지고 있는지 확인
       const user = await this.userModel.findUnique({
@@ -320,14 +293,11 @@ export class AdminService {
       );
 
       // 파일 목록 조회
-      const files = await this.fileModel.findMany({
+      const files = await this.fileRepository.listByOwnerId(user.id, {
         take: limit,
         skip: offset,
         orderBy: {
           [sortBy]: order === "desc" ? "desc" : "asc", // 정렬 기준
-        },
-        include: {
-          owner: true, // 소유자 정보 포함
         },
       });
 
@@ -351,8 +321,8 @@ export class AdminService {
     fileId,
     currentUserId,
   }: {
-    fileId: number;
-    currentUserId: number;
+    fileId: string;
+    currentUserId: string;
   }): Promise<boolean> {
     try {
       // 관리자 권한 확인
@@ -370,9 +340,7 @@ export class AdminService {
       this.logger.info({ methodName: "deleteFile", fileId }, "파일 삭제 시작");
 
       // 파일 존재 여부 확인
-      const file = await this.fileModel.findUnique({
-        where: { id: fileId },
-      });
+      const file = await this.fileRepository.get(fileId);
 
       if (!file) {
         this.logger.warn({ fileId }, "삭제할 파일을 찾을 수 없음");
@@ -380,9 +348,7 @@ export class AdminService {
       }
 
       // 메타데이터 삭제
-      await this.fileModel.delete({
-        where: { id: fileId },
-      });
+      await this.fileRepository.delete(fileId);
 
       this.logger.info({ fileId }, "파일 삭제 완료");
 
@@ -660,7 +626,7 @@ export class AdminService {
         "전체 파일 수 조회 시작",
       );
 
-      const count = await this.fileModel.count();
+      const count = await this.fileRepository.count();
 
       this.logger.info({ count }, "전체 파일 수 조회 성공");
       return count;
@@ -736,9 +702,9 @@ export class AdminService {
    * @returns 해당 사용자가 최근에 업로드한 파일 목록 (최신순 내림차순)
    */
   public async getRecentUserFiles(
-    currentUserId: number,
+    currentUserId: string,
     limit = 5,
-  ): Promise<FileMetadata[]> {
+  ): Promise<File[]> {
     try {
       const files = await this.fileModel.findMany({
         where: { ownerId: currentUserId },

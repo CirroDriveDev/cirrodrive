@@ -2,63 +2,50 @@ import { PrismaClient } from "../dist/index.js";
 import { hash } from "@node-rs/argon2";
 const prisma = new PrismaClient();
 
-async function createUserWithFolder(
+async function createUserWithRootDir(
   username: string,
   password: string,
   email: string,
 ) {
-  const user = await prisma.user.upsert({
-    where: { email: email },
-    update: {},
-    create: {
-      username: username,
-      email: email,
-      hashedPassword: await hash(password),
-      rootFolder: {
-        create: {
-          name: "root",
+  return await prisma.$transaction(async (tx) => {
+    const user = await tx.user.upsert({
+      where: { username: username },
+      update: {},
+      create: {
+        username: username,
+        email: email,
+        hashedPassword: await hash(password),
+        rootDir: {
+          create: {
+            name: "root",
+            isDir: true,
+            fullPath: "/root",
+          },
         },
       },
-      trashFolder: {
-        create: {
-          name: "trash",
-        },
+    });
+
+    await tx.file.update({
+      where: {
+        id: user.rootDirId,
       },
-    },
-    include: {
-      rootFolder: true,
-    },
-  });
+      data: {
+        ownerId: user.id,
+      },
+    });
 
-  const rootFolder = await prisma.folder.update({
-    where: { id: user.rootFolderId },
-    data: {
-      ownerId: user.id,
-    },
+    console.log("User and folders created/updated successfully");
+    console.log("User:", {
+      ...user,
+      hashedPassword: "<hidden>",
+    });
+    return { user };
   });
-
-  const trashFolder = await prisma.folder.update({
-    where: { id: user.trashFolderId },
-    data: {
-      ownerId: user.id,
-    },
-  });
-
-  console.log("User and folders created/updated successfully");
-  console.log("User:", {
-    ...user,
-    hashedPassword: "<hidden>",
-  });
-  console.log("Root Folder:", rootFolder);
-  console.log("Trash Folder:", trashFolder);
-  console.log();
-
-  return { user, rootFolder, trashFolder };
 }
 
 async function main() {
   if (process.env.ADMIN_USERNAME && process.env.ADMIN_PASSWORD) {
-    const { user: adminUser } = await createUserWithFolder(
+    const { user: adminUser } = await createUserWithRootDir(
       process.env.ADMIN_USERNAME,
       process.env.ADMIN_PASSWORD,
       "adminuser@example.com",
@@ -74,13 +61,13 @@ async function main() {
     console.error("ADMIN_USERNAME and ADMIN_PASSWORD must be set");
   }
 
-  await createUserWithFolder(
+  await createUserWithRootDir(
     "testuser1",
     "testTEST1234!",
     "testuser1@example.com",
   );
 
-  await createUserWithFolder(
+  await createUserWithRootDir(
     "testuser2",
     "testTEST1234!",
     "testuser2@example.com",

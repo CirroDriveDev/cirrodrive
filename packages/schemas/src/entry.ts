@@ -11,7 +11,7 @@ const baseEntrySchema = z.object({
   size: z.number(),
 });
 
-const fileEntrySchema = baseEntrySchema.extend({
+const fileSchema = baseEntrySchema.extend({
   type: z.literal("file"),
 });
 
@@ -20,7 +20,7 @@ const folderEntrySchema = baseEntrySchema.extend({
   size: z.null(),
 });
 
-export const entryDTOSchema = z.union([fileEntrySchema, folderEntrySchema]);
+export const entryDTOSchema = z.union([fileSchema, folderEntrySchema]);
 
 export type EntryDTO = z.infer<typeof entryDTOSchema>;
 

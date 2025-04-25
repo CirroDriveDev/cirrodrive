@@ -15,13 +15,13 @@ interface UseGetCodeByFileId {
 }
 
 export const useGetCodeByFileId = (
-  fileId: number | null,
+  fileId: string | null,
 ): UseGetCodeByFileId => {
   const { openModal } = useModalStore();
   const [clicked, setClicked] = useState(false);
   const query = trpc.code.getByFileId.useQuery(
     {
-      fileId: fileId ?? -1,
+      fileId: fileId ?? "",
     },
     {
       enabled: false,
@@ -34,14 +34,14 @@ export const useGetCodeByFileId = (
       title: "코드 공유하기",
       content: (
         <div className="flex-col text-green-500">
-          <div>코드: {query.data?.codeString}</div>
+          <div>코드: {query.data?.code}</div>
           <div>
             링크:{" "}
             <a
-              href={`${window.location.origin}/c/${query.data?.codeString}`}
+              href={`${window.location.origin}/c/${query.data?.code}`}
               className="text-blue-500 hover:underline"
             >
-              {`${window.location.origin}/c/${query.data?.codeString}`}
+              {`${window.location.origin}/c/${query.data?.code}`}
             </a>
           </div>
           <div>만료일 : 7일</div>

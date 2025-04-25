@@ -6,6 +6,13 @@ import type { Logger } from "pino";
 import { Symbols } from "@/types/symbols.ts";
 import { createSecretKey } from "@/utils/jwt.ts";
 
+interface UserCreate {
+  data: Pick<Prisma.UserCreateInput, "username" | "email"> & {
+    password: string;
+  };
+  token: string;
+}
+
 /**
  * 사용자 서비스입니다.
  */
@@ -14,7 +21,8 @@ export class UserService {
   constructor(
     @inject(Symbols.Logger) private logger: Logger,
     @inject(Symbols.UserModel) private userModel: Prisma.UserDelegate,
-    @inject(Symbols.FolderModel) private folderModel: Prisma.FolderDelegate,
+    @inject(Symbols.FileModel)
+    private fileModel: Prisma.FileDelegate,
   ) {
     this.logger = logger.child({ serviceName: "UserService" });
   }
@@ -29,17 +37,8 @@ export class UserService {
    * @returns 생성된 사용자입니다.
    * @throws 사용자 생성 중 오류가 발생한 경우.
    */
-  public async create({
-    username,
-    password,
-    email,
-    token, // 추가: 이메일 인증 토큰
-  }: {
-    username: string;
-    password: string;
-    email: string;
-    token: string; // 추가
-  }): Promise<User> {
+  public async create({ data, token }: UserCreate): Promise<User> {
+    const { username, password, email } = data;
     try {
       this.logger.info(
         {
@@ -64,35 +63,19 @@ export class UserService {
           username,
           email,
           hashedPassword,
-          rootFolder: {
+          rootDir: {
             create: {
               name: "root",
-            },
-          },
-          trashFolder: {
-            create: {
-              name: "trash",
+              isDir: true,
+              fullPath: "/root",
             },
           },
         },
       });
 
-      await this.folderModel.update({
+      await this.fileModel.update({
         where: {
-          id: user.rootFolderId,
-        },
-        data: {
-          owner: {
-            connect: {
-              id: user.id,
-            },
-          },
-        },
-      });
-
-      await this.folderModel.update({
-        where: {
-          id: user.trashFolderId,
+          id: user.rootDirId,
         },
         data: {
           owner: {
@@ -157,7 +140,7 @@ export class UserService {
    * @param id - 사용자 ID
    * @returns 지정된 ID를 가진 사용자 또는 null
    */
-  public async get({ id }: { id: number }): Promise<User | null> {
+  public async get({ id }: { id: string }): Promise<User | null> {
     try {
       this.logger.info(
         {
@@ -250,7 +233,7 @@ export class UserService {
     password,
     email,
   }: {
-    id: number;
+    id: string;
     username: string;
     password: string;
     email: string;
@@ -293,7 +276,7 @@ export class UserService {
    * @param id - 사용자 ID
    * @returns 삭제된 사용자
    */
-  public async delete({ id }: { id: number }): Promise<User> {
+  public async delete({ id }: { id: string }): Promise<User> {
     try {
       this.logger.info(
         {

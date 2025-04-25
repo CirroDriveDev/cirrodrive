@@ -2,9 +2,9 @@ import { z } from "zod"; // zod 임포트
 import { TRPCError } from "@trpc/server"; // TRPCError 임포트
 import { router, procedure, authedProcedure } from "@/loaders/trpc.loader.ts"; // tRPC 설정 임포트
 import { container } from "@/loaders/inversify.loader.ts";
-import { CodeService } from "@/services/code.service.ts";
+import { FileAccessCodeService } from "@/services/file-access-code.service.ts";
 
-const codeService = container.get(CodeService);
+const fileAccessCodeService = container.get(FileAccessCodeService);
 
 export const codeRouter = router({
   // 사용자가 생성한 코드 목록 조회
@@ -16,19 +16,18 @@ export const codeRouter = router({
       });
     }
 
-    // CodeService의 getCodes 메서드를 호출하여 사용자의 코드 목록을 가져옵니다.
-    const codes = await codeService.getCodes({
+    const codes = await fileAccessCodeService.listByFileOwnerId({
       userId: ctx.user.id,
     });
     return codes;
   }),
 
   getByFileId: authedProcedure
-    .input(z.object({ fileId: z.number() }))
+    .input(z.object({ fileId: z.string() }))
     .query(async ({ input }) => {
       const { fileId } = input;
 
-      const code = await codeService.getCodeByFileId({
+      const code = await fileAccessCodeService.getByFileId({
         fileId,
       });
 
@@ -54,12 +53,12 @@ export const codeRouter = router({
         });
       }
       // 코드 생성 시 만료 시간이 제공된 경우 처리
-      const code = await codeService.createCode({
-        fileId,
+      const code = await fileAccessCodeService.create({
+        fileId: fileId.toString(),
         expiresAt,
       });
 
-      return { codeString: code.codeString };
+      return { codeString: code.code };
     }),
 
   // 코드 삭제
@@ -76,8 +75,8 @@ export const codeRouter = router({
       }
 
       try {
-        await codeService.deleteCode({
-          codeString,
+        await fileAccessCodeService.deleteByCode({
+          code: codeString,
         });
       } catch (error: unknown) {
         if (
