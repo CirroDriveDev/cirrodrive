@@ -89,6 +89,15 @@ export function LoginPage(): JSX.Element {
                   임시 관리자 로그인
                 </Button> : null} */}
             </div>
+            <div className="flex space-x-2">
+              <Link to="/findname">
+                <span className="text-l text-primary">아이디 찾기</span>
+              </Link>
+              <div>/</div>
+              <Link to="/findpassword">
+                <span className="text-l text-primary">비밀번호 찾기</span>
+              </Link>
+            </div>
           </form>
         </section>
       </div>

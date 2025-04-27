@@ -142,6 +142,15 @@ export function RegisterPage(): JSX.Element {
                 <span className="text-l text-primary">로그인</span>
               </Link>
             </div>
+            <div className="flex space-x-2">
+              <Link to="/findname">
+                <span className="text-l text-primary">아이디 찾기</span>
+              </Link>
+              <div>/</div>
+              <Link to="/findpassword">
+                <span className="text-l text-primary">비밀번호 찾기</span>
+              </Link>
+            </div>
           </form>
         </section>
       </div>

@@ -52,6 +52,12 @@ export function Header(): JSX.Element {
             <Link to="/register">
               <NavButton>회원가입</NavButton>
             </Link>
+            <Link to="/findname">
+              <NavButton>아이디 찾기</NavButton>
+            </Link>
+            <Link to="/findpassword">
+              <NavButton>비밀번호 찾기</NavButton>
+            </Link>
             <ModeToggle />
           </div>
         </div>

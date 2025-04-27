@@ -1,8 +1,8 @@
 import { createBrowserRouter, Navigate, Outlet } from "react-router-dom";
 import type { RouteObject } from "react-router-dom";
 import { useEffect } from "react";
-import { AdminUserPage } from "@/pages/admin/ui/AdminUserPage.tsx";
-import { AdminFilePage } from "@/pages/admin/ui/AdminFilePage.tsx";
+import { AdminUserPage } from "@/pages/Admin/ui/AdminUserPage.tsx";
+import { AdminFilePage } from "@/pages/Admin/ui/AdminFilePage.tsx";
 import { LoginPage } from "@/pages/login/ui/LoginPage.tsx";
 import { RegisterPage } from "@/pages/register/ui/RegisterPage.tsx";
 import { LandingPage } from "@/pages/landing/ui/LandingPage.tsx";
@@ -19,6 +19,8 @@ import { PhotosPage } from "@/pages/photos/ui/PhotosPage.tsx";
 import { RecentPage } from "@/pages/recent/ui/RecentPage.tsx";
 import { trpc } from "@/shared/api/trpc.ts";
 import { SearchResultsPage } from "@/pages/SearchResults/ui/SearchResultsPage.tsx";
+import { FindPasswordPage } from "@/pages/find/ui/FindPasswordPage.tsx";
+import { FindUsernamePage } from "@/pages/find/ui/FindUsernamePage.tsx";
 
 function RedirectAuthedUserToHome({
   children,
@@ -146,6 +148,14 @@ const routeTree: RouteObject[] = [
       {
         path: "*",
         element: <NotFoundPage />,
+      },
+      {
+        path: "/findpassword",
+        element: <FindPasswordPage />,
+      },
+      {
+        path: "/findname",
+        element: <FindUsernamePage />,
       },
     ],
   },
