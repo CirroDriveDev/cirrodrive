@@ -1,33 +1,54 @@
 import { FileItem } from "./FileItem.tsx";
-import { useSearchBarStore } from "@/shared/store/useSearchBarStore.ts";
+import { useAdminSearchBarStore } from "@/shared/store/useAdminSearchBarStore.ts";
 import type { TempFile } from "@/entities/entry/api/useTempFileList.ts";
-import type { SortOrder } from "@/entities/entry/api/useSortedList.ts"; // ✅ 추가
+import type { SortOrder } from "@/entities/entry/api/useSortedList.ts";
 
-interface FileListProps {
+interface AdminFileListProps {
   files: TempFile[];
+  onDelete: (id: number) => void;
   sortKey: keyof TempFile;
   sortOrder: SortOrder;
   changeSort: (key: keyof TempFile) => void;
-  onDelete: (id: number) => void;
 }
 
 export function AdminFileList({
   files,
+  onDelete,
   sortKey,
   sortOrder,
   changeSort,
-  onDelete,
-}: FileListProps): JSX.Element {
-  const { searchTerm } = useSearchBarStore();
+}: AdminFileListProps): JSX.Element {
+  const { searchTerms } = useAdminSearchBarStore();
 
   const filteredFiles = files.filter((file) => {
-    const keyword = searchTerm.toLowerCase();
-    return (
-      file.name.toLowerCase().includes(keyword) ||
-      file.ownerName.toLowerCase().includes(keyword) ||
-      file.pricingPlan.toLowerCase().includes(keyword) ||
-      new Date(file.createdAt).toLocaleDateString("ko-KR").includes(keyword)
-    );
+    const keyword = (s: string): string => s.trim().toLowerCase();
+    const matches = [];
+
+    if (searchTerms.name) {
+      matches.push(file.name.toLowerCase().includes(keyword(searchTerms.name)));
+    }
+    if (searchTerms.ownerName) {
+      matches.push(
+        file.ownerName.toLowerCase().includes(keyword(searchTerms.ownerName)),
+      );
+    }
+    if (searchTerms.pricingPlan) {
+      matches.push(
+        file.pricingPlan
+          .toLowerCase()
+          .includes(keyword(searchTerms.pricingPlan)),
+      );
+    }
+    if (searchTerms.createdAt) {
+      matches.push(
+        new Date(file.createdAt)
+          .toISOString()
+          .startsWith(searchTerms.createdAt),
+      );
+    }
+
+    if (matches.length === 0) return true;
+    return matches.some(Boolean);
   });
 
   const renderArrow = (key: keyof TempFile): "▲" | "▼" | null => {

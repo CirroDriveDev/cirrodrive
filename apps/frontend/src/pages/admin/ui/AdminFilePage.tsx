@@ -9,7 +9,7 @@ import { useTempFileList } from "@/entities/entry/api/useTempFileList.ts";
 import { useSortedList } from "@/entities/entry/api/useSortedList.ts";
 import { AdminFileList } from "@/entities/entry/ui/AdminFile.tsx"; // ✅ AdminFileList 사용
 import { Button } from "@/shared/components/shadcn/Button.tsx";
-import { SearchBar } from "@/shared/ui/layout/SearchBar.tsx";
+import { AdminFileSearchBar } from "@/shared/ui/layout/AdminFileSearchBar.tsx";
 
 export function AdminFilePage(): JSX.Element {
   const navigate = useNavigate();
@@ -34,7 +34,7 @@ export function AdminFilePage(): JSX.Element {
         <div className="flex w-full items-center justify-between px-4 py-2">
           <h1 className="text-xl font-semibold">파일 목록</h1>
           <div className="flex gap-2">
-            <SearchBar />
+            <AdminFileSearchBar />
             <Button
               className="rounded bg-blue-600 px-4 py-2 text-white hover:bg-blue-700"
               onClick={addTempFile}
