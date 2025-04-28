@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { ChevronDown } from "lucide-react";
-import { useAdminSearchBarStore } from "@/shared/store/useAdminSearchBarStore.ts";
+import { useUserSearchBarStore } from "@/shared/store/useUserSearchBarStore.ts";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -9,19 +9,21 @@ import {
 } from "@/shared/components/shadcn/DropdownMenu.tsx";
 import { Button } from "@/shared/components/shadcn/Button.tsx";
 
-export function AdminFileSearchBar(): JSX.Element {
-  const { setSearchTerm, resetSearchTerms } = useAdminSearchBarStore();
+export function UserSearchBar(): JSX.Element {
+  const { setSearchTerm, resetSearch } = useUserSearchBarStore();
   const [inputValue, setInputValue] = useState<string>("");
   const [searchFields, setSearchFields] = useState<{
-    name: boolean;
-    ownerName: boolean;
-    pricingPlan: boolean;
+    id: boolean;
+    username: boolean;
+    email: boolean;
     createdAt: boolean;
+    pricingPlan: boolean;
   }>({
-    name: true,
-    ownerName: false,
-    pricingPlan: false,
+    id: true,
+    username: false,
+    email: false,
     createdAt: false,
+    pricingPlan: false,
   });
 
   const toggleField = (field: keyof typeof searchFields): void => {
@@ -32,20 +34,18 @@ export function AdminFileSearchBar(): JSX.Element {
     const value = e.target.value;
     setInputValue(value);
 
-    setSearchTerm("name", searchFields.name ? value : "");
-    setSearchTerm("ownerName", searchFields.ownerName ? value : "");
-    setSearchTerm("pricingPlan", searchFields.pricingPlan ? value : "");
-    setSearchTerm("createdAt", searchFields.createdAt ? value : "");
+    setSearchTerm(value);
   };
 
   const resetAll = (): void => {
     setInputValue("");
-    resetSearchTerms();
+    resetSearch();
     setSearchFields({
-      name: true,
-      ownerName: false,
-      pricingPlan: false,
+      id: true,
+      username: false,
+      email: false,
       createdAt: false,
+      pricingPlan: false,
     });
   };
 
@@ -70,28 +70,34 @@ export function AdminFileSearchBar(): JSX.Element {
         </DropdownMenuTrigger>
         <DropdownMenuContent className="w-40">
           <DropdownMenuCheckboxItem
-            checked={searchFields.name}
-            onCheckedChange={() => toggleField("name")}
+            checked={searchFields.id}
+            onCheckedChange={() => toggleField("id")}
           >
-            파일명
+            ID
           </DropdownMenuCheckboxItem>
           <DropdownMenuCheckboxItem
-            checked={searchFields.ownerName}
-            onCheckedChange={() => toggleField("ownerName")}
+            checked={searchFields.username}
+            onCheckedChange={() => toggleField("username")}
           >
-            유저명
+            유저네임
           </DropdownMenuCheckboxItem>
           <DropdownMenuCheckboxItem
-            checked={searchFields.pricingPlan}
-            onCheckedChange={() => toggleField("pricingPlan")}
+            checked={searchFields.email}
+            onCheckedChange={() => toggleField("email")}
           >
-            요금제
+            이메일
           </DropdownMenuCheckboxItem>
           <DropdownMenuCheckboxItem
             checked={searchFields.createdAt}
             onCheckedChange={() => toggleField("createdAt")}
           >
-            생성일
+            가입일
+          </DropdownMenuCheckboxItem>
+          <DropdownMenuCheckboxItem
+            checked={searchFields.pricingPlan}
+            onCheckedChange={() => toggleField("pricingPlan")}
+          >
+            등급
           </DropdownMenuCheckboxItem>
           <DropdownMenuCheckboxItem>
             <Button

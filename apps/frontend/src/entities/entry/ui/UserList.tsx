@@ -1,7 +1,7 @@
 import { useState, useMemo } from "react";
 import type { UserDTO } from "@cirrodrive/schemas";
 import { UserItem } from "./UserItem.tsx";
-import { useSearchBarStore } from "@/shared/store/useSearchBarStore.ts";
+import { useUserSearchBarStore } from "@/shared/store/useUserSearchBarStore.ts";
 
 interface UserListProps {
   users: UserDTO[];
@@ -11,7 +11,7 @@ type SortKey = "id" | "username" | "email" | "createdAt" | "pricingPlan";
 type SortOrder = "asc" | "desc";
 
 export function UserList({ users }: UserListProps): JSX.Element {
-  const { searchTerm } = useSearchBarStore();
+  const { searchTerm, searchFields } = useUserSearchBarStore();
   const [sortKey, setSortKey] = useState<SortKey>("id");
   const [sortOrder, setSortOrder] = useState<SortOrder>("asc");
 
@@ -25,13 +25,28 @@ export function UserList({ users }: UserListProps): JSX.Element {
   };
 
   const filteredUsers = users.filter((user) => {
-    const keyword = searchTerm.toLowerCase();
-    return (
-      user.username.toLowerCase().includes(keyword) ||
-      user.email.toLowerCase().includes(keyword) ||
-      user.pricingPlan.toLowerCase().includes(keyword) ||
-      user.createdAt.toLocaleDateString().includes(keyword)
-    );
+    const keyword = searchTerm.trim().toLowerCase();
+    if (keyword === "") return true;
+
+    const matches = [];
+
+    if (searchFields.id) {
+      matches.push(user.id.toString().includes(keyword));
+    }
+    if (searchFields.username) {
+      matches.push(user.username.toLowerCase().includes(keyword));
+    }
+    if (searchFields.email) {
+      matches.push(user.email.toLowerCase().includes(keyword));
+    }
+    if (searchFields.createdAt) {
+      matches.push(user.createdAt.toLocaleDateString().includes(keyword));
+    }
+    if (searchFields.pricingPlan) {
+      matches.push(user.pricingPlan.toLowerCase().includes(keyword));
+    }
+
+    return matches.some(Boolean);
   });
 
   const sortedUsers = useMemo(() => {
@@ -93,7 +108,7 @@ export function UserList({ users }: UserListProps): JSX.Element {
         <div className="w-8 shrink-0 text-center">⋯</div>
       </div>
 
-      {/* Filtered + Sorted List */}
+      {/* List */}
       <div className="flex h-[720px] w-full flex-col divide-y divide-muted-foreground overflow-auto border-y border-y-muted-foreground">
         {sortedUsers.length > 0 ?
           sortedUsers.map((user) => <UserItem key={user.id} user={user} />)

@@ -7,7 +7,7 @@ import { Sidebar } from "@/shared/ui/SidebarLayout/Sidebar.tsx";
 import { LoadingSpinner } from "@/shared/components/LoadingSpinner.tsx";
 import { UserList } from "@/entities/entry/ui/UserList.tsx";
 import { useUserList } from "@/entities/entry/api/useUserList.ts";
-import { SearchBar } from "@/shared/ui/layout/SearchBar.tsx";
+import { UserSearchBar } from "@/shared/ui/layout/UserSearchBar.tsx";
 
 export function AdminUserPage(): JSX.Element {
   const navigate = useNavigate();
@@ -27,7 +27,7 @@ export function AdminUserPage(): JSX.Element {
       <div className="flex w-full flex-grow flex-col items-center">
         <div className="flex w-full items-center justify-between px-4 py-2">
           <h1 className="text-xl font-semibold">사용자 목록</h1>
-          <SearchBar />
+          <UserSearchBar />
         </div>
         <div className="flex w-full px-4">
           {userListQuery.isLoading ?
