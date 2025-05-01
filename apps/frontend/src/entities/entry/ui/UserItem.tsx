@@ -10,9 +10,10 @@ import {
 
 interface UserItemProps {
   user: UserDTO;
+  onDelete: (id: number) => void;
 }
 
-export function UserItem({ user }: UserItemProps): JSX.Element {
+export function UserItem({ user, onDelete }: UserItemProps): JSX.Element {
   const displayDate = new Date(user.createdAt).toLocaleDateString();
 
   return (
@@ -31,8 +32,14 @@ export function UserItem({ user }: UserItemProps): JSX.Element {
           </DropdownMenuTrigger>
           <DropdownMenuContent className="w-48">
             <DropdownMenuGroup>
-              <DropdownMenuItem>
-                <span>계정 삭제</span>
+              <DropdownMenuItem asChild>
+                <button
+                  type="button"
+                  onClick={() => onDelete(user.id)}
+                  className="w-full px-2 py-1 text-left"
+                >
+                  계정 삭제
+                </button>
               </DropdownMenuItem>
             </DropdownMenuGroup>
           </DropdownMenuContent>

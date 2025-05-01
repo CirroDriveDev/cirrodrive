@@ -2,6 +2,7 @@ import { useState, useMemo } from "react";
 import type { UserDTO } from "@cirrodrive/schemas";
 import { UserItem } from "./UserItem.tsx";
 import { useUserSearchBarStore } from "@/shared/store/useUserSearchBarStore.ts";
+import { useUserDelete } from "@/pages/admin/api/useDeleteUser.ts";
 
 interface UserListProps {
   users: UserDTO[];
@@ -14,6 +15,8 @@ export function UserList({ users }: UserListProps): JSX.Element {
   const { searchTerm, searchFields } = useUserSearchBarStore();
   const [sortKey, setSortKey] = useState<SortKey>("id");
   const [sortOrder, setSortOrder] = useState<SortOrder>("asc");
+
+  const { handleUserDelete } = useUserDelete();
 
   const handleSort = (key: SortKey): void => {
     if (sortKey === key) {
@@ -111,7 +114,13 @@ export function UserList({ users }: UserListProps): JSX.Element {
       {/* List */}
       <div className="flex h-[720px] w-full flex-col divide-y divide-muted-foreground overflow-auto border-y border-y-muted-foreground">
         {sortedUsers.length > 0 ?
-          sortedUsers.map((user) => <UserItem key={user.id} user={user} />)
+          sortedUsers.map((user) => (
+            <UserItem
+              key={user.id}
+              user={user}
+              onDelete={handleUserDelete} // ✅ 여기서 user.id를 넘기게 됨
+            />
+          ))
         : <div className="px-16 py-4 text-muted-foreground">
             검색 결과가 없습니다.
           </div>
