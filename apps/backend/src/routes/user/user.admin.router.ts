@@ -401,4 +401,15 @@ export const userAdminRouter = router({
         });
       }
     }),
+  recentFiles: adminProcedure.query(async ({ ctx }) => {
+    const currentUserId = ctx.user?.id;
+    if (!currentUserId) {
+      throw new TRPCError({
+        code: "UNAUTHORIZED",
+        message: "로그인된 사용자가 없습니다.",
+      });
+    }
+    const files = await adminService.getRecentUserFiles(currentUserId, 5);
+    return files;
+  }),
 });

@@ -410,25 +410,116 @@ export class AdminService {
 
   /**
    * 특정 기간 동안 가입한 유저 수를 반환합니다.
+   *
+   * 입력값 (period)에 따라 반환되는 데이터의 집계 단위가 달라집니다.
+   *
+   * - "1d": 오늘만 집계하여 오늘의 가입자 수를 반환합니다.
+   * - "1w": 최근 7일간 (오늘 포함) 매일의 가입자 수를 집계하여 반환합니다.
+   * - "6m": 최근 6개월 (이번 달 포함) 동안 각 월의 가입자 수를 집계하여 반환합니다.
+   *
+   * `반환값은 { signups: { date: string; count: number }[] } 형식입니다.`
+   *
+   * `@param period 가입 기간 ("1d", "1w", "6m")`
+   *
+   * `@returns {signups: { date: string; count: number }[]} - 기간별 가입자 수 데이터`
+   *
+   * @throws 가입 유저 수 집계 중 오류가 발생하면 에러를 던집니다.
    */
-  public async getNewUsersCount(period: "1d" | "1w" | "6m"): Promise<number> {
+  public async getNewUsersCount(
+    period: "1d" | "1w" | "6m",
+  ): Promise<{ signups: { date: string; count: number }[] }> {
     try {
-      const startDate = this.getStartDate(period);
-      this.logger.info(
-        { methodName: "getNewUsersCount", period },
-        "가입 유저 수 조회 시작",
-      );
+      switch (period) {
+        case "1d": {
+          // 오늘만 집계 (하루 데이터)
+          const startDate = dayjs().startOf("day").toDate();
+          this.logger.info(
+            { methodName: "getNewUsersCount", period, startDate },
+            "가입 유저 수 조회 시작 (1d)",
+          );
+          const count = await this.userModel.count({
+            where: { createdAt: { gte: startDate } },
+          });
+          this.logger.info({ period, count }, "가입 유저 수 조회 성공 (1d)");
+          // 그래프용 데이터는 [오늘] 한 포인트로 구성
+          return { signups: [{ date: dayjs().format("YYYY-MM-DD"), count }] };
+        }
 
-      const count = await this.userModel.count({
-        where: {
-          createdAt: {
-            gte: startDate,
-          },
-        },
-      });
+        case "1w": {
+          // 최근 7일: 오늘을 포함하여 6일 전부터 오늘까지 (하루 단위)
+          const startDate = dayjs().subtract(6, "day").startOf("day").toDate();
+          this.logger.info(
+            { methodName: "getNewUsersCount", period, startDate },
+            "가입 유저 수 조회 시작 (1w)",
+          );
+          const groups = await this.userModel.groupBy({
+            by: ["createdAt"],
+            where: {
+              createdAt: { gte: startDate },
+            },
+            _count: { id: true },
+          });
+          // 그룹 결과를 "YYYY-MM-DD" 형식의 맵으로 변환
+          const signupMap: Record<string, number> = {};
+          groups.forEach((group) => {
+            const key = dayjs(group.createdAt).format("YYYY-MM-DD");
+            signupMap[key] = group._count.id;
+          });
+          // 7일치 데이터를 생성 (없으면 0)
+          const signups: { date: string; count: number }[] = [];
+          for (let i = 6; i >= 0; i--) {
+            const dayKey = dayjs().subtract(i, "day").format("YYYY-MM-DD");
+            signups.push({ date: dayKey, count: signupMap[dayKey] ?? 0 });
+          }
+          this.logger.info({ period, signups }, "가입 유저 수 조회 성공 (1w)");
+          return { signups };
+        }
 
-      this.logger.info({ period, count }, "가입 유저 수 조회 성공");
-      return count;
+        case "6m": {
+          // 최근 6개월: 이번 달 포함하여, 예를 들어 오늘이 2025-05-xx이면 2024-12 ~ 2025-05까지 집계
+          // 시작: 5개월 전의 시작일, 종료: 이번 달 마지막 날
+          const startDate = dayjs()
+            .subtract(5, "month")
+            .startOf("month")
+            .toDate();
+          const endDate = dayjs().endOf("month").toDate();
+          this.logger.info(
+            { methodName: "getNewUsersCount", period, startDate, endDate },
+            "가입 유저 수 조회 시작 (6m)",
+          );
+
+          const groups = await this.userModel.groupBy({
+            by: ["createdAt"],
+            where: {
+              createdAt: { gte: startDate, lte: endDate },
+            },
+            _count: { id: true },
+          });
+
+          // 그룹 결과를 "YYYY-MM" 형식의 맵으로 변환 (동일 월은 누적)
+          const signupMap: Record<string, number> = {};
+          groups.forEach((group) => {
+            const key = dayjs(group.createdAt).format("YYYY-MM");
+            signupMap[key] = (signupMap[key] ?? 0) + group._count.id;
+          });
+
+          // 지난 6개월 (이번 달 포함) 동안 각 월의 데이터를 생성 (없으면 0)
+          const signups: { date: string; count: number }[] = [];
+          for (let i = 5; i >= 0; i--) {
+            const monthKey = dayjs().subtract(i, "month").format("YYYY-MM");
+            signups.push({ date: monthKey, count: signupMap[monthKey] ?? 0 });
+          }
+
+          this.logger.info({ period, signups }, "가입 유저 수 조회 성공 (6m)");
+          return { signups };
+        }
+
+        default: {
+          // never 타입 안전 처리
+          const _exhaustiveCheck: never = period;
+          throw new Error(`Invalid period: ${String(_exhaustiveCheck)}`);
+        }
+      }
     } catch (error) {
       this.logger.error({ error, period }, "가입 유저 수 조회 실패");
       throw error;
@@ -437,25 +528,117 @@ export class AdminService {
 
   /**
    * 특정 기간 동안 업로드된 파일 수를 반환합니다.
+   *
+   * 이 메서드는 입력된 기간(`"1d"`, `"1w"`, `"6m"`)에 따라 파일 업로드 건수를 집계합니다.
+   *
+   * - `"1d"`: 오늘의 시작 시각부터의 업로드 건수를 집계하여 단일 데이터 포인트를 반환합니다.
+   * - `"1w"`: 최근 7일 동안(오늘 포함) 하루 단위 업로드 건수를 집계하여 7개의 데이터 포인트를 반환합니다.
+   * - `"6m"`: 최근 6개월 동안(이번 달 포함) 월별 업로드 건수를 집계하여 6개의 데이터 포인트를 반환합니다.
+   *
+   * @param period - 업로드 수를 집계할 기간. `"1d"`, `"1w"`, `"6m"` 중 하나를 전달합니다.
+   * @returns `{ uploads: { date: string; count: number }[] }` - 업로드 건수 데이터가 포함된
+   *   객체. 각 배열 원소는 `{ date: string; count: number }` 형식으로, 날짜 또는 월과 해당 기간의 업로드
+   *   건수를 나타냅니다.
+   * @throws 업로드 수 조회 중 오류가 발생하면 해당 에러를 throw 합니다.
    */
-  public async getUploadCount(period: "1d" | "1w" | "6m"): Promise<number> {
+  public async getUploadCount(
+    period: "1d" | "1w" | "6m",
+  ): Promise<{ uploads: { date: string; count: number }[] }> {
     try {
-      const startDate = this.getStartDate(period);
-      this.logger.info(
-        { methodName: "getUploadCount", period },
-        "업로드 수 조회 시작",
-      );
+      switch (period) {
+        case "1d": {
+          // 오늘만 집계 (하루 데이터)
+          const startDate = dayjs().startOf("day").toDate();
+          this.logger.info(
+            { methodName: "getUploadCount", period, startDate },
+            "파일 업로드 수 조회 시작 (1d)",
+          );
+          const count = await this.fileModel.count({
+            where: { createdAt: { gte: startDate } },
+          });
+          this.logger.info({ period, count }, "파일 업로드 수 조회 성공 (1d)");
+          // 그래프용 데이터는 [오늘] 한 포인트로 구성
+          return { uploads: [{ date: dayjs().format("YYYY-MM-DD"), count }] };
+        }
+        case "1w": {
+          // 최근 7일: 오늘을 포함하여 6일 전부터 오늘까지 (하루 단위)
+          const startDate = dayjs().subtract(6, "day").startOf("day").toDate();
+          this.logger.info(
+            { methodName: "getUploadCount", period, startDate },
+            "파일 업로드 수 조회 시작 (1w)",
+          );
+          const groups = await this.fileModel.groupBy({
+            by: ["createdAt"],
+            where: {
+              createdAt: { gte: startDate },
+            },
+            _count: { id: true },
+          });
+          // 그룹 결과를 "YYYY-MM-DD" 형식의 맵으로 변환
+          const uploadMap: Record<string, number> = {};
+          groups.forEach((group) => {
+            const key = dayjs(group.createdAt).format("YYYY-MM-DD");
+            uploadMap[key] = group._count.id;
+          });
+          // 7일치 데이터를 생성 (없으면 0)
+          const uploads: { date: string; count: number }[] = [];
+          for (let i = 6; i >= 0; i--) {
+            const dayKey = dayjs().subtract(i, "day").format("YYYY-MM-DD");
+            uploads.push({ date: dayKey, count: uploadMap[dayKey] ?? 0 });
+          }
+          this.logger.info(
+            { period, uploads },
+            "파일 업로드 수 조회 성공 (1w)",
+          );
+          return { uploads };
+        }
+        case "6m": {
+          // 최근 6개월: 이번 달 포함하여, 예를 들어 오늘이 2025-05-xx이면 2024-12 ~ 2025-05까지 집계
+          // 시작: 5개월 전의 시작일, 종료: 이번 달의 마지막 날까지
+          const startDate = dayjs()
+            .subtract(5, "month")
+            .startOf("month")
+            .toDate();
+          const endDate = dayjs().endOf("month").toDate();
+          this.logger.info(
+            { methodName: "getUploadCount", period, startDate, endDate },
+            "파일 업로드 수 조회 시작 (6m)",
+          );
 
-      const count = await this.fileModel.count({
-        where: {
-          createdAt: {
-            gte: startDate,
-          },
-        },
-      });
+          const groups = await this.fileModel.groupBy({
+            by: ["createdAt"],
+            where: {
+              createdAt: { gte: startDate, lte: endDate },
+            },
+            _count: { id: true },
+          });
 
-      this.logger.info({ period, count }, "업로드 수 조회 성공");
-      return count;
+          // 그룹 결과를 "YYYY-MM" 형식의 맵으로 변환 (동일 월끼리 누적)
+          const uploadMap: Record<string, number> = {};
+          groups.forEach((group) => {
+            const key = dayjs(group.createdAt).format("YYYY-MM");
+            uploadMap[key] = (uploadMap[key] ?? 0) + group._count.id;
+          });
+
+          // 지난 6개월 (이번 달 포함) 동안 각 월의 데이터를 생성 (없으면 0)
+          const uploads: { date: string; count: number }[] = [];
+          for (let i = 5; i >= 0; i--) {
+            const monthKey = dayjs().subtract(i, "month").format("YYYY-MM");
+            uploads.push({ date: monthKey, count: uploadMap[monthKey] ?? 0 });
+          }
+
+          this.logger.info(
+            { period, uploads },
+            "파일 업로드 수 조회 성공 (6m)",
+          );
+          return { uploads };
+        }
+
+        default: {
+          const _exhaustiveCheck: never = period;
+          throw new Error(`Invalid period: ${String(_exhaustiveCheck)}`);
+        }
+      }
     } catch (error) {
       this.logger.error({ error, period }, "업로드 수 조회 실패");
       throw error;
@@ -464,6 +647,11 @@ export class AdminService {
 
   /**
    * 전체 파일 수를 반환합니다.
+   *
+   * 이 메서드는 휴지통에 있는 파일을 포함한 전체 파일 수를 데이터베이스에서 조회합니다.
+   *
+   * @returns `{ number }` - 전체 파일 수
+   * @throws 전체 파일 수 조회 중 오류가 발생하면 해당 에러를 throw합니다.
    */
   public async getTotalFiles(): Promise<number> {
     try {
@@ -484,6 +672,11 @@ export class AdminService {
 
   /**
    * 전체 유저 수를 반환합니다.
+   *
+   * 이 메서드는 데이터베이스 내의 전체 유저 수를 조회합니다.
+   *
+   * @returns `{ number }` - 전체 유저 수
+   * @throws 전체 유저 수 조회 중 오류가 발생하면 해당 에러를 throw합니다.
    */
   public async getTotalUsers(): Promise<number> {
     try {
@@ -504,6 +697,12 @@ export class AdminService {
 
   /**
    * 특정 기간 동안 탈퇴한 유저 수를 반환합니다.
+   *
+   * 입력된 기간(`"1d"` 혹은 `"1w"`) 동안 탈퇴한 유저 수를 데이터베이스에서 집계하여 반환합니다.
+   *
+   * @param period - 탈퇴 유저 수를 조회할 기간 (`"1d"` 또는 `"1w"`)
+   * @returns `{ number }` - 지정된 기간 동안 탈퇴한 유저 수
+   * @throws 탈퇴한 유저 수 조회 중 오류가 발생하면 해당 에러를 throw합니다.
    */
   public async getDeletedUsersCount(period: "1d" | "1w"): Promise<number> {
     try {
@@ -525,6 +724,35 @@ export class AdminService {
       return count;
     } catch (error) {
       this.logger.error({ error, period }, "탈퇴 유저 수 조회 실패");
+      throw error;
+    }
+  }
+
+  /**
+   * 특정 사용자가 최근 업로드한 파일 목록을 반환합니다.
+   *
+   * @param currentUserId - 현재 로그인한 사용자의 ID
+   * @param limit - 반환할 파일의 최대 개수 (기본값: 5)
+   * @returns 해당 사용자가 최근에 업로드한 파일 목록 (최신순 내림차순)
+   */
+  public async getRecentUserFiles(
+    currentUserId: number,
+    limit = 5,
+  ): Promise<FileMetadata[]> {
+    try {
+      const files = await this.fileModel.findMany({
+        where: { ownerId: currentUserId },
+        orderBy: { createdAt: "desc" },
+        take: limit,
+        include: { owner: true },
+      });
+      this.logger.info(
+        { currentUserId, fileCount: files.length },
+        "최근 업로드 파일 조회 성공",
+      );
+      return files;
+    } catch (error) {
+      this.logger.error({ error, currentUserId }, "최근 업로드 파일 조회 실패");
       throw error;
     }
   }
