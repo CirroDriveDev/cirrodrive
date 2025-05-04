@@ -45,6 +45,9 @@ export function Header(): JSX.Element {
             </Link>
           </div>
           <div className="flex space-x-4">
+            <Link to="/admin/login">
+              <NavButton>관리자 로그인</NavButton>
+            </Link>
             <Link to="/login">
               <NavButton>로그인</NavButton>
             </Link>

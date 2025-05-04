@@ -21,6 +21,7 @@ import { trpc } from "@/shared/api/trpc.ts";
 import { SearchResultsPage } from "@/pages/SearchResults/ui/SearchResultsPage.tsx";
 import { FindPasswordPage } from "@/pages/find/ui/FindPasswordPage.tsx";
 import { FindUsernamePage } from "@/pages/find/ui/FindUsernamePage.tsx";
+import { AdminLoginPage } from "@/pages/Admin/login/ui/AdminLoginPage.tsx";
 
 function RedirectAuthedUserToHome({
   children,
@@ -156,6 +157,10 @@ const routeTree: RouteObject[] = [
       {
         path: "/findname",
         element: <FindUsernamePage />,
+      },
+      {
+        path: "/admin/login",
+        element: <AdminLoginPage />,
       },
     ],
   },
