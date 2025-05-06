@@ -1,0 +1,62 @@
+import { userDTOSchema } from "@cirrodrive/schemas";
+import { TRPCError } from "@trpc/server";
+import { z } from "zod";
+import { container } from "@/loaders/inversify.loader.ts";
+import { logger } from "@/loaders/logger.loader.ts";
+import { AuthService } from "@/services/auth.service.ts";
+import { router, procedure } from "@/loaders/trpc.loader.ts";
+
+const authService = container.get<AuthService>(AuthService);
+
+export const adminSessionRouter = router({
+  login: procedure
+    .input(
+      z.object({
+        username: z.string(),
+        password: z.string(),
+      }),
+    )
+    .output(userDTOSchema)
+    .mutation(async ({ input, ctx }) => {
+      logger.info({ requestId: ctx.req.id }, "admin login 요청 시작");
+
+      if (ctx.user) {
+        throw new TRPCError({
+          code: "FORBIDDEN",
+          message: "이미 로그인되어 있습니다.",
+        });
+      }
+
+      try {
+        const { user, session, token } = await authService.login({
+          username: input.username,
+          password: input.password,
+        });
+
+        // 관리자 여부 확인
+        if (!user.isAdmin) {
+          throw new TRPCError({
+            code: "FORBIDDEN",
+            message: "관리자 계정이 아닙니다.",
+          });
+        }
+
+        logger.info({ requestId: ctx.req.id, session }, "admin login 성공");
+
+        authService.setSessionTokenCookie({
+          response: ctx.res,
+          token,
+          expiresAt: session.expiresAt,
+        });
+
+        return user;
+      } catch (error) {
+        logger.error({ requestId: ctx.req.id, error }, "admin login 실패");
+
+        throw new TRPCError({
+          code: "UNAUTHORIZED",
+          message: "아이디 또는 비밀번호가 잘못되었습니다.",
+        });
+      }
+    }),
+});

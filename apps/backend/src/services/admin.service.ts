@@ -756,4 +756,45 @@ export class AdminService {
       throw error;
     }
   }
+  /**
+   * 관리자가 로그인할 수 있는 메서드입니다.
+   *
+   * @param username - 관리자 사용자명
+   * @param password - 관리자 비밀번호
+   * @returns 로그인된 관리자 정보 또는 오류
+   */
+  public async login(username: string, password: string): Promise<User> {
+    try {
+      this.logger.info({ methodName: "login", username }, "관리자 로그인 시도");
+
+      // 관리자 정보를 조회합니다.
+      const user = await this.userModel.findUnique({
+        where: { username },
+      });
+
+      if (!user) {
+        throw new TRPCError({
+          code: "NOT_FOUND",
+          message: "관리자를 찾을 수 없습니다.",
+        });
+      }
+
+      // 비밀번호 검증 (예: bcrypt, argon2 등 사용)
+      const isPasswordValid = (await hash(password)) === user.hashedPassword;
+
+      if (!isPasswordValid) {
+        throw new TRPCError({
+          code: "UNAUTHORIZED",
+          message: "비밀번호가 올바르지 않습니다.",
+        });
+      }
+
+      this.logger.info({ username }, "관리자 로그인 성공");
+
+      return user;
+    } catch (error) {
+      this.logger.error({ error, username }, "관리자 로그인 실패");
+      throw error;
+    }
+  }
 }
