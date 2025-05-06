@@ -1,15 +1,16 @@
 import { userDTOSchema } from "@cirrodrive/schemas";
 import { TRPCError } from "@trpc/server";
 import { z } from "zod";
+import { type Response } from "express";
 import { container } from "@/loaders/inversify.loader.ts";
 import { logger } from "@/loaders/logger.loader.ts";
 import { AuthService } from "@/services/auth.service.ts";
-import { router, procedure } from "@/loaders/trpc.loader.ts";
+import { router, authedProcedure } from "@/loaders/trpc.loader.ts";
 
 const authService = container.get<AuthService>(AuthService);
 
 export const adminSessionRouter = router({
-  login: procedure
+  login: authedProcedure
     .input(
       z.object({
         username: z.string(),
@@ -33,7 +34,6 @@ export const adminSessionRouter = router({
           password: input.password,
         });
 
-        // 관리자 여부 확인
         if (!user.isAdmin) {
           throw new TRPCError({
             code: "FORBIDDEN",
@@ -43,8 +43,9 @@ export const adminSessionRouter = router({
 
         logger.info({ requestId: ctx.req.id, session }, "admin login 성공");
 
+        const response = ctx.res as Response;
         authService.setSessionTokenCookie({
-          response: ctx.res,
+          response,
           token,
           expiresAt: session.expiresAt,
         });
@@ -59,4 +60,21 @@ export const adminSessionRouter = router({
         });
       }
     }),
+
+  logout: authedProcedure.mutation(({ ctx }) => {
+    logger.info({ requestId: ctx.req.id }, "admin logout 요청 시작");
+
+    if (!ctx.user) {
+      throw new TRPCError({
+        code: "FORBIDDEN",
+        message: "로그인되지 않았습니다.",
+      });
+    }
+
+    const response = ctx.res as Response;
+    authService.clearSessionTokenCookie({ response });
+    logger.info({ requestId: ctx.req.id }, "admin logout 성공");
+
+    return { message: "로그아웃 되었습니다." };
+  }),
 });
