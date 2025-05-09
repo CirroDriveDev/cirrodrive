@@ -1,11 +1,11 @@
-import { createMockLogger } from "test/utils/create-mock-logger";
-import { createMock } from "test/utils/create-mocked.ts";
-import { createMockFile } from "test/utils/create-mock-data.ts";
-import { FileService } from "@/services/file.service";
+import { createMockLogger } from "test/test-utils/create-mock-logger";
+import { createMock } from "test/test-utils/create-mock.ts";
+import { createMockFile } from "test/test-utils/create-mock-data";
+import { FileService } from "@/services/file.service.ts";
 import { NotFoundError } from "@/errors/error-classes.ts";
-import type { FileRepositoryInterface } from "@/repositories/file.repository";
-import type { FileDomainService } from "@/services/file-domain.service";
-import type { S3Service } from "@/services/s3.service";
+import type { FileRepositoryInterface } from "@/repositories/file.repository.ts";
+import type { FileDomainService } from "@/services/file-domain.service.ts";
+import type { S3Service } from "@/services/s3.service.ts";
 
 describe("FileService.createFile", () => {
   const mockLogger = createMockLogger();
