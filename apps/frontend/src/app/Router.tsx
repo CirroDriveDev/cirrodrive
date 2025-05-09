@@ -1,8 +1,8 @@
 import { createBrowserRouter, Navigate, Outlet } from "react-router-dom";
 import type { RouteObject } from "react-router-dom";
 import { useEffect } from "react";
-import { AdminUserPage } from "@/pages/Admin/ui/AdminUserPage.tsx";
-import { AdminFilePage } from "@/pages/Admin/ui/AdminFilePage.tsx";
+import { AdminUserPage } from "@/pages/admin/ui/AdminUserPage.tsx";
+import { AdminFilePage } from "@/pages/admin/ui/AdminFilePage.tsx";
 import { LoginPage } from "@/pages/login/ui/LoginPage.tsx";
 import { RegisterPage } from "@/pages/register/ui/RegisterPage.tsx";
 import { LandingPage } from "@/pages/landing/ui/LandingPage.tsx";
@@ -21,7 +21,7 @@ import { trpc } from "@/shared/api/trpc.ts";
 import { SearchResultsPage } from "@/pages/SearchResults/ui/SearchResultsPage.tsx";
 import { FindPasswordPage } from "@/pages/find/ui/FindPasswordPage.tsx";
 import { FindUsernamePage } from "@/pages/find/ui/FindUsernamePage.tsx";
-import { AdminLoginPage } from "@/pages/Admin/login/ui/AdminLoginPage.tsx";
+import { AdminLoginPage } from "@/pages/admin/login/ui/AdminLoginPage.tsx";
 
 function RedirectAuthedUserToHome({
   children,
@@ -30,7 +30,7 @@ function RedirectAuthedUserToHome({
 }): React.ReactNode {
   const { user } = useBoundStore();
   return user ?
-      <Navigate to={`/folder/${user.rootFolderId}`} replace />
+      <Navigate to={`/folder/${user.rootDirId}`} replace />
     : children;
 }
 
