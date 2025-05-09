@@ -1,0 +1,66 @@
+// For format details, see https://aka.ms/devcontainer.json. For config options, see the
+// README at: https://github.com/devcontainers/templates/tree/main/src/javascript-node
+{
+  // Configure tool-specific properties.
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "antfu.vite",
+        "bradlc.vscode-tailwindcss",
+        "christian-kohler.npm-intellisense",
+        "dbaeumer.vscode-eslint",
+        "eamodio.gitlens",
+        "esbenp.prettier-vscode",
+        "foxundermoon.shell-format",
+        "github.vscode-github-actions",
+        "github.vscode-pull-request-github",
+        "ms-azuretools.vscode-containers",
+        "Prisma.prisma",
+        "redhat.vscode-yaml",
+        "vitest.explorer",
+        "yoavbls.pretty-ts-errors"
+      ],
+      "settings": {
+        "[dockerfile]": {
+          "editor.defaultFormatter": "ms-azuretools.vscode-containers"
+        },
+        "[dotenv]": {
+          "editor.defaultFormatter": "foxundermoon.shell-format"
+        },
+        "[prisma]": {
+          "editor.defaultFormatter": "Prisma.prisma"
+        },
+        "[shellscript]": {
+          "editor.defaultFormatter": "foxundermoon.shell-format"
+        },
+        "[yaml]": {
+          "editor.defaultFormatter": "redhat.vscode-yaml"
+        },
+        "aws.telemetry": false,
+        "editor.codeActionsOnSave": {
+          "source.fixAll.eslint": "always",
+          "source.sort.json": "always"
+        },
+        "editor.defaultFormatter": "esbenp.prettier-vscode",
+        "editor.tabSize": 2,
+        "files.associations": {
+          ".env*": "dotenv"
+        },
+        "files.eol": "\n",
+        "redhat.telemetry.enabled": false
+      }
+    }
+  },
+  "dockerComposeFile": "docker-compose.yml",
+  "features": {
+    "ghcr.io/devcontainers/features/aws-cli:1": {
+      "version": "latest"
+    }
+  },
+  // "forwardPorts": [],
+  "name": "Cirrodrive Dev",
+  "postCreateCommand": "pnpm install",
+  "remoteUser": "node",
+  "service": "app",
+  "workspaceFolder": "/workspaces/${localWorkspaceFolderBasename}"
+}
