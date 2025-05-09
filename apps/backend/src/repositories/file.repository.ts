@@ -1,6 +1,7 @@
 import { injectable } from "inversify";
 import { File, Prisma, type $Enums } from "@cirrodrive/database";
 import { BaseRepository } from "@/repositories/base.repository.ts";
+import { NotFoundError } from "@/errors/error-classes.ts";
 
 export interface FileRepositoryInterface {
   create: (data: Prisma.FileUncheckedCreateInput) => Promise<File>;
@@ -76,7 +77,7 @@ export class FileRepository
     });
 
     if (!file) {
-      throw new Error("File entry not found");
+      throw new NotFoundError(`No metadata found for code ${code}`);
     }
 
     return file;

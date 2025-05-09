@@ -138,10 +138,6 @@ export class FileService {
   async findFileByCode({ code }: { code: string }): Promise<File> {
     const metadata = await this.fileRepository.getByCode(code);
 
-    if (!metadata) {
-      throw new Error(`No metadata found for code ${code}`);
-    }
-
     return metadata;
   }
 
