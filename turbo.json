@@ -27,20 +27,11 @@
     "@cirrodrive/database#healthcheck": {
       "cache": false
     },
-    "//#clean": {
-      "cache": false
-    },
     "build": {
       "dependsOn": ["^build"],
       "outputs": [".cache/tsbuildinfo.json", "dist/**"]
     },
     "clean": {
-      "cache": false
-    },
-    "db:generate": {
-      "outputs": ["dist/**"]
-    },
-    "db:reset": {
       "cache": false
     },
     "db:studio": {
@@ -49,10 +40,7 @@
     },
     "dev": {
       "cache": false,
-      "dependsOn": [
-        "@cirrodrive/database#db:push",
-        "@cirrodrive/database#db:seed"
-      ],
+      "dependsOn": ["@cirrodrive/database#db:seed"],
       "persistent": true
     },
     "format": {
@@ -64,7 +52,8 @@
       "outputs": [".cache/.eslintcache"]
     },
     "test": {
-      "dependsOn": ["@cirrodrive/database#db:push", "^test"]
+      "dependsOn": ["^test"],
+      "outputs": [".cache/vitest-report.json"]
     },
     "topo": {
       "dependsOn": ["^topo"]

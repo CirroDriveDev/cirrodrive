@@ -1,0 +1,49 @@
+name: CI Pipeline
+
+on:
+  # Trigger the workflow on push or pull request events to the main branch,
+  # but only when changes are made in specified paths (apps, packages, tooling, etc.)
+  push:
+    branches: [main]
+    paths:
+      - "apps/**/src/**"
+      - "apps/**/test/**"
+      - "packages/**"
+      - "tooling/**"
+      - "eslint.config.js"
+      - "pnpm-workspace.yaml"
+      - "turbo.json"
+      - "pnpm-lock.yaml"
+  pull_request:
+    branches: [main]
+    paths:
+      - "apps/**/src/**"
+      - "apps/**/test/**"
+      - "packages/**"
+      - "tooling/**"
+      - "eslint.config.js"
+      - "pnpm-workspace.yaml"
+      - "turbo.json"
+      - "pnpm-lock.yaml"
+
+jobs:
+  lint:
+    name: CI (Lint)
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: ./.github/actions/setup
+      - run: pnpx turbo run lint
+
+  typecheck:
+    name: CI (TypeCheck)
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: ./.github/actions/setup
+      - run: pnpx turbo run typecheck
+
+  backend-test:
+    name: CI (Test)
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: ./.github/actions/setup
+      - run: pnpx turbo run test
