@@ -4,7 +4,7 @@ import { fileMetadataPublicDTOSchema } from "@cirrodrive/schemas";
 import { router, procedure, authedProcedure } from "@/loaders/trpc.loader.ts";
 import { container } from "@/loaders/inversify.loader.ts";
 import { S3Service, S3_KEY_PREFIX } from "@/services/s3.service.ts";
-import { FileService } from "@/services/file.service";
+import { FileService } from "@/services/file.service.ts";
 import { FileAccessCodeService } from "@/services/file-access-code.service.ts";
 
 const s3Service = container.get<S3Service>(S3Service);

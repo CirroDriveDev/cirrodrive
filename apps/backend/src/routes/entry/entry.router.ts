@@ -3,7 +3,7 @@ import { TRPCError } from "@trpc/server";
 import { entryDTOSchema } from "@cirrodrive/schemas";
 import { router, authedProcedure } from "@/loaders/trpc.loader.ts";
 import { container } from "@/loaders/inversify.loader.ts";
-import { FileService } from "@/services/file.service";
+import { FileService } from "@/services/file.service.ts";
 
 const fileService = container.get(FileService);
 

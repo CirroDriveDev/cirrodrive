@@ -8,7 +8,7 @@ import {
   FileRepository,
   type FileRepositoryInterface,
 } from "@/repositories/file.repository.ts";
-import { FileDomainService } from "@/services/file-domain.service";
+import { FileDomainService } from "@/services/file-domain.service.ts";
 
 @injectable()
 export class FileService {

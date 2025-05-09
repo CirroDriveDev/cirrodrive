@@ -10,10 +10,10 @@ import { EmailService } from "@/services/email.service.ts";
 import { AdminService } from "@/services/admin.service.ts";
 import { S3Service } from "@/services/s3.service.ts";
 import { FileRepository } from "@/repositories/file.repository.ts";
-import { FileDomainService } from "@/services/file-domain.service";
+import { FileDomainService } from "@/services/file-domain.service.ts";
 import { FileAccessCodeRepository } from "@/repositories/file-access-code.repository.ts";
 import { FileAccessCodeService } from "@/services/file-access-code.service.ts";
-import { FileService } from "@/services/file.service";
+import { FileService } from "@/services/file.service.ts";
 
 const inversifyLogger = logger.child({ prefix: "Inversify" });
 
