@@ -1,5 +1,4 @@
 import { PrismaClient } from "@cirrodrive/database";
-import { container } from "@/loaders/inversify.loader.ts";
 import { TxContext } from "@/contexts/tx-context.ts";
 
 /**
@@ -28,6 +27,7 @@ export function Transactional(): MethodDecorator {
         return await originalMethod.apply(this, args);
       }
 
+      const { container } = await import("@/loaders/inversify.loader.ts");
       const prisma = container.get<PrismaClient>(PrismaClient);
       return await prisma.$transaction(async (tx) => {
         TxContext.set(tx);
