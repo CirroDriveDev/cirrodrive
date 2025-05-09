@@ -47,7 +47,7 @@
     "lint:ext": "vite-node fix-import-extensions.ts",
     "lint:fix": "turbo run lint --continue -- --fix --cache --cache-location .cache/.eslintcache",
     "lint:ws": "pnpx sherif@latest",
-    "postinstall": "pnpx sherif@latest && turbo run -F @cirrodrive/database db:generate",
+    "postinstall": "turbo run -F @cirrodrive/database db:generate",
     "prepare": "husky",
     "test": "turbo run test",
     "typecheck": "turbo run typecheck",
