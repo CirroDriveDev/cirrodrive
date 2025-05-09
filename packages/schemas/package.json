@@ -1,18 +1,4 @@
 {
-  "name": "@cirrodrive/schemas",
-  "version": "0.0.0",
-  "private": true,
-  "type": "module",
-  "exports": {
-    ".": "./src/index.ts"
-  },
-  "types": "./src/index.ts",
-  "scripts": {
-    "clean": "git clean -xdf .cache .turbo node_modules",
-    "format": "prettier --check . --ignore-path ../../.gitignore",
-    "lint": "eslint",
-    "typecheck": "tsc --noEmit"
-  },
   "dependencies": {
     "zod": "catalog:",
     "zod-form-data": "^2.0.2"
@@ -25,5 +11,19 @@
     "prettier": "catalog:",
     "typescript": "catalog:"
   },
-  "prettier": "@cirrodrive/prettier-config"
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "name": "@cirrodrive/schemas",
+  "prettier": "@cirrodrive/prettier-config",
+  "private": true,
+  "scripts": {
+    "clean": "git clean -xdf .cache .turbo node_modules",
+    "format": "prettier --check . --ignore-path ../../.gitignore",
+    "lint": "eslint",
+    "typecheck": "tsc --noEmit"
+  },
+  "type": "module",
+  "types": "./src/index.ts",
+  "version": "0.0.0"
 }

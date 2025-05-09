@@ -1,40 +1,4 @@
 {
-  "name": "cirrodrive",
-  "version": "0.0.0",
-  "private": true,
-  "engines": {
-    "node": ">=20.18.0",
-    "pnpm": "^9.6.0"
-  },
-  "packageManager": "pnpm@9.12.2",
-  "type": "module",
-  "scripts": {
-    "build": "turbo run build",
-    "build:dev": "turbo run build:dev",
-    "clean": "git clean -xdf node_modules",
-    "clean:workspaces": "turbo run clean",
-    "db:push": "turbo run -F @cirrodrive/database db:push",
-    "db:seed": "turbo run -F @cirrodrive/database db:seed",
-    "db:studio": "turbo run -F @cirrodrive/database db:studio",
-    "db:generate": "turbo run -F @cirrodrive/database db:generate",
-    "db:reset": "turbo run -F @cirrodrive/database db:reset",
-    "db:healthcheck": "turbo run -F @cirrodrive/database healthcheck",
-    "dev": "turbo run dev",
-    "format": "turbo run format --continue -- --cache --cache-location .cache/.prettiercache",
-    "format:fix": "turbo run format --continue -- --write --cache --cache-location .cache/.prettiercache",
-    "lint": "turbo run lint --continue -- --cache --cache-location .cache/.eslintcache",
-    "lint:fix": "turbo run lint --continue -- --fix --cache --cache-location .cache/.eslintcache",
-    "lint:ws": "pnpx sherif@latest",
-    "lint:ext": "vite-node fix-import-extensions.ts",
-    "postinstall": "pnpx sherif@latest && turbo run -F @cirrodrive/database db:generate",
-    "prepare": "husky",
-    "test": "turbo run test",
-    "typecheck": "turbo run typecheck",
-    "ui-add": "turbo run ui-add",
-    "docker:build": "docker-compose build",
-    "docker:up": "docker-compose up -d --remove-orphans --renew-anon-volumes frontend backend",
-    "docker:down": "docker-compose down -v frontend backend"
-  },
   "devDependencies": {
     "@cirrodrive/prettier-config": "workspace:*",
     "@dotenvx/dotenvx": "^1.39.0",
@@ -49,10 +13,46 @@
     "vite-node": "^2.1.4",
     "vitest": "catalog:"
   },
+  "engines": {
+    "node": ">=20.18.0",
+    "pnpm": "^9.6.0"
+  },
+  "name": "cirrodrive",
+  "packageManager": "pnpm@9.12.2",
   "pnpm": {
     "overrides": {
       "vite>rollup": "npm:@rollup/wasm-node"
     }
   },
-  "prettier": "@cirrodrive/prettier-config"
+  "prettier": "@cirrodrive/prettier-config",
+  "private": true,
+  "scripts": {
+    "build": "turbo run build",
+    "build:dev": "turbo run build:dev",
+    "clean": "git clean -xdf node_modules",
+    "clean:workspaces": "turbo run clean",
+    "db:generate": "turbo run -F @cirrodrive/database db:generate",
+    "db:healthcheck": "turbo run -F @cirrodrive/database healthcheck",
+    "db:push": "turbo run -F @cirrodrive/database db:push",
+    "db:reset": "turbo run -F @cirrodrive/database db:reset",
+    "db:seed": "turbo run -F @cirrodrive/database db:seed",
+    "db:studio": "turbo run -F @cirrodrive/database db:studio",
+    "dev": "turbo run dev",
+    "docker:build": "docker-compose build",
+    "docker:down": "docker-compose down -v frontend backend",
+    "docker:up": "docker-compose up -d --remove-orphans --renew-anon-volumes frontend backend",
+    "format": "turbo run format --continue -- --cache --cache-location .cache/.prettiercache",
+    "format:fix": "turbo run format --continue -- --write --cache --cache-location .cache/.prettiercache",
+    "lint": "turbo run lint --continue -- --cache --cache-location .cache/.eslintcache",
+    "lint:ext": "vite-node fix-import-extensions.ts",
+    "lint:fix": "turbo run lint --continue -- --fix --cache --cache-location .cache/.eslintcache",
+    "lint:ws": "pnpx sherif@latest",
+    "postinstall": "pnpx sherif@latest && turbo run -F @cirrodrive/database db:generate",
+    "prepare": "husky",
+    "test": "turbo run test",
+    "typecheck": "turbo run typecheck",
+    "ui-add": "turbo run ui-add"
+  },
+  "type": "module",
+  "version": "0.0.0"
 }

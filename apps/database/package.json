@@ -1,28 +1,4 @@
 {
-  "name": "@cirrodrive/database",
-  "version": "0.0.0",
-  "private": true,
-  "exports": {
-    ".": "./dist/index.js"
-  },
-  "prisma": {
-    "seed": "vite-node prisma/seed.ts"
-  },
-  "scripts": {
-    "build": "prisma generate",
-    "clean": "git clean -xdf .cache .turbo node_modules",
-    "dev": "prisma studio --browser none",
-    "format": "prettier --check . --ignore-path ../../.gitignore",
-    "healthcheck": "vite-node healthcheck.ts",
-    "lint": "eslint",
-    "db:generate": "prisma generate",
-    "db:migrate:dev": "prisma migrate dev --create-only --name init",
-    "db:migrate:deploy": "prisma migrate deploy",
-    "db:studio": "prisma studio",
-    "db:push": "prisma db push --accept-data-loss",
-    "db:seed": "prisma db seed",
-    "db:reset": "prisma migrate reset --force --skip-seed && prisma db push --accept-data-loss --force-reset && prisma db seed"
-  },
   "dependencies": {
     "@prisma/client": "^5.21.1"
   },
@@ -33,5 +9,29 @@
     "mysql2": "^3.14.0",
     "prisma": "^5.21.1",
     "vite-node": "^2.1.4"
-  }
+  },
+  "exports": {
+    ".": "./dist/index.js"
+  },
+  "name": "@cirrodrive/database",
+  "prisma": {
+    "seed": "vite-node prisma/seed.ts"
+  },
+  "private": true,
+  "scripts": {
+    "build": "prisma generate",
+    "clean": "git clean -xdf .cache .turbo node_modules",
+    "db:generate": "prisma generate",
+    "db:migrate:deploy": "prisma migrate deploy",
+    "db:migrate:dev": "prisma migrate dev --create-only --name init",
+    "db:push": "prisma db push --accept-data-loss",
+    "db:reset": "prisma migrate reset --force --skip-seed && prisma db push --accept-data-loss --force-reset && prisma db seed",
+    "db:seed": "prisma db seed",
+    "db:studio": "prisma studio",
+    "dev": "prisma studio --browser none",
+    "format": "prettier --check . --ignore-path ../../.gitignore",
+    "healthcheck": "vite-node healthcheck.ts",
+    "lint": "eslint"
+  },
+  "version": "0.0.0"
 }

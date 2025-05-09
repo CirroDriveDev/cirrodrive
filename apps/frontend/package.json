@@ -1,20 +1,4 @@
 {
-  "name": "@cirrodrive/frontend",
-  "private": true,
-  "version": "0.0.0",
-  "type": "module",
-  "scripts": {
-    "build": "tsc -b && vite build",
-    "build:dev": "tsc -b && vite build --mode development",
-    "clean": "git clean -xdf .cache .turbo dist node_modules",
-    "dev": "vite",
-    "format": "prettier --check . --ignore-path ../../.gitignore",
-    "lint": "eslint",
-    "preview": "vite preview",
-    "typecheck": "tsc --noEmit",
-    "test": "vitest",
-    "ui-add": "shadcn add"
-  },
   "dependencies": {
     "@cirrodrive/schemas": "workspace:*",
     "@cirrodrive/tsconfig": "workspace:^",
@@ -67,5 +51,21 @@
     "vite-plugin-node-polyfills": "^0.22.0",
     "vite-tsconfig-paths": "^4.3.2",
     "vitest": "catalog:"
-  }
+  },
+  "name": "@cirrodrive/frontend",
+  "private": true,
+  "scripts": {
+    "build": "tsc -b && vite build",
+    "build:dev": "tsc -b && vite build --mode development",
+    "clean": "git clean -xdf .cache .turbo dist node_modules",
+    "dev": "vite",
+    "format": "prettier --check . --ignore-path ../../.gitignore",
+    "lint": "eslint",
+    "preview": "vite preview",
+    "test": "vitest",
+    "typecheck": "tsc --noEmit",
+    "ui-add": "shadcn add"
+  },
+  "type": "module",
+  "version": "0.0.0"
 }
