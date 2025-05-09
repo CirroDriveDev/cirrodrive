@@ -2,8 +2,50 @@ import { injectable } from "inversify";
 import { File, Prisma, type $Enums } from "@cirrodrive/database";
 import { BaseRepository } from "@/repositories/base.repository.ts";
 
+export interface FileRepositoryInterface {
+  create: (data: Prisma.FileUncheckedCreateInput) => Promise<File>;
+  get: (id: string) => Promise<File>;
+  getByCode: (code: string) => Promise<File>;
+  listByOwnerId: (
+    ownerId: string,
+    options?: {
+      status?: $Enums.FileStatus;
+      take?: number;
+      skip?: number;
+      orderBy?: Prisma.FileOrderByWithRelationInput;
+    },
+  ) => Promise<File[]>;
+  listByParentId: (
+    parentId: string,
+    options?: {
+      status?: $Enums.FileStatus;
+    },
+  ) => Promise<File[]>;
+  listByFullPath: (
+    fullPath: string,
+    options?: {
+      status?: $Enums.FileStatus;
+    },
+  ) => Promise<File[]>;
+  findByNameAndParent: (
+    name: string,
+    parentId: string,
+    options?: {
+      status?: $Enums.FileStatus;
+    },
+  ) => Promise<File | null>;
+  existsByNameAndParent: (name: string, parentId: string) => Promise<boolean>;
+  count: () => Promise<number>;
+  countAfterCreatedAt: (date: Date) => Promise<number>;
+  update: (id: string, data: Prisma.FileUncheckedUpdateInput) => Promise<File>;
+  delete: (id: string) => Promise<File>;
+}
+
 @injectable()
-export class FileRepository extends BaseRepository {
+export class FileRepository
+  extends BaseRepository
+  implements FileRepositoryInterface
+{
   // 생성
   public async create(data: Prisma.FileUncheckedCreateInput): Promise<File> {
     return this.prisma.file.create({ data });

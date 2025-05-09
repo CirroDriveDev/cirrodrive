@@ -4,7 +4,10 @@ import type { Logger } from "pino";
 import { Symbols } from "@/types/symbols.ts";
 import { S3Service } from "@/services/s3.service.ts";
 import { Transactional } from "@/decorators/transactional.ts";
-import { FileRepository } from "@/repositories/file.repository.ts";
+import {
+  FileRepository,
+  type FileRepositoryInterface,
+} from "@/repositories/file.repository.ts";
 import { FileDomainService } from "@/services/file-domain.service";
 
 @injectable()
@@ -13,7 +16,7 @@ export class FileService {
     @inject(Symbols.Logger) private logger: Logger,
     @inject(S3Service) private s3Service: S3Service,
     @inject(FileRepository)
-    private fileRepository: FileRepository,
+    private fileRepository: FileRepositoryInterface,
     @inject(FileDomainService)
     private fileDomainService: FileDomainService,
   ) {
