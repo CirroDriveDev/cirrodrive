@@ -12,20 +12,28 @@
     "VITE_SERVER_PORT"
   ],
   "tasks": {
+    "@cirrodrive/backend#dev": {
+      "cache": false,
+      "dependsOn": ["@cirrodrive/database#db:seed"],
+      "env": ["DATABASE_URL"],
+      "persistent": true
+    },
     "@cirrodrive/database#build": {
       "env": ["DATABASE_URL"],
       "outputs": ["dist/**"]
     },
     "@cirrodrive/database#db:push": {
       "cache": false,
-      "dependsOn": ["@cirrodrive/database#healthcheck"]
+      "dependsOn": ["@cirrodrive/database#build"],
+      "env": ["DATABASE_URL"]
     },
     "@cirrodrive/database#db:seed": {
       "cache": false,
-      "dependsOn": ["@cirrodrive/database#db:push"]
-    },
-    "@cirrodrive/database#healthcheck": {
-      "cache": false
+      "dependsOn": [
+        "@cirrodrive/database#build",
+        "@cirrodrive/database#db:push"
+      ],
+      "env": ["DATABASE_URL"]
     },
     "build": {
       "dependsOn": ["^build"],
@@ -40,7 +48,7 @@
     },
     "dev": {
       "cache": false,
-      "dependsOn": ["@cirrodrive/database#db:seed"],
+      "env": ["DATABASE_URL"],
       "persistent": true
     },
     "format": {
@@ -48,11 +56,12 @@
       "outputs": [".cache/.prettiercache"]
     },
     "lint": {
-      "dependsOn": ["^topo", "^build"],
+      "dependsOn": ["^topo", "@cirrodrive/database#build"],
       "outputs": [".cache/.eslintcache"]
     },
     "test": {
-      "dependsOn": ["^test"],
+      "dependsOn": ["@cirrodrive/database#db:push", "^test"],
+      "env": ["DATABASE_URL"],
       "outputs": [".cache/vitest-report.json"]
     },
     "topo": {

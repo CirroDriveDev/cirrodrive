@@ -69,13 +69,13 @@
   "private": true,
   "scripts": {
     "build": "tsc -b && vite build --ssr src/server.ts",
-    "build:dev": "tsc -b && vite build --ssr src/server.ts --mode development",
     "clean": "git clean -xdf .cache .turbo node_modules",
-    "dev": "vite-node --watch src/server.ts",
+    "dev": "dotenvx run --quiet -f ../database/.env.development -- vite-node --watch src/server.ts",
     "format": "prettier --check . --ignore-path ../../.gitignore",
     "lint": "eslint",
     "start": "vite-node dist/server.js",
-    "test": "vitest",
+    "test": "dotenvx run --quiet -f ../database/.env.test -- vitest",
+    "test:ci": "dotenvx run --quiet -f ../database/.env.test -- vitest",
     "typecheck": "tsc --noEmit"
   },
   "type": "module",
