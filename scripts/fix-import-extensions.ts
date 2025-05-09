@@ -21,6 +21,7 @@ const tsconfigPaths = globSync("{apps,packages}/**/tsconfig.json", {
 tsconfigPaths.forEach((tsconfigPath) => {
   const baseDir = path.dirname(tsconfigPath);
   const srcDir = path.resolve(baseDir, "src");
+  const testDir = path.resolve(baseDir, "test");
 
   if (!fs.existsSync(tsconfigPath)) return;
 
@@ -33,8 +34,14 @@ tsconfigPaths.forEach((tsconfigPath) => {
   project.getSourceFiles().forEach((sourceFile) => {
     const filePath = path.normalize(sourceFile.getFilePath());
     const normalizedSrcDir = path.normalize(srcDir);
+    const normalizedTestDir = path.normalize(testDir);
 
-    if (!filePath.startsWith(normalizedSrcDir + path.sep)) return;
+    if (
+      !filePath.startsWith(normalizedSrcDir + path.sep) &&
+      !filePath.startsWith(normalizedTestDir + path.sep)
+    ) {
+      return;
+    }
 
     let changed = false;
     const changes: string[] = [];
