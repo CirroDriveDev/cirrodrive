@@ -1,6 +1,6 @@
 import { injectable, inject } from "inversify";
 import type { Prisma, User, FileMetadata } from "@cirrodrive/database";
-import { hash } from "@node-rs/argon2";
+import { hash, verify } from "@node-rs/argon2";
 import type { Logger } from "pino";
 import { TRPCError } from "@trpc/server";
 import { dayjs } from "@/loaders/dayjs.loader.ts";
@@ -779,8 +779,8 @@ export class AdminService {
         });
       }
 
-      // 비밀번호 검증 (예: bcrypt, argon2 등 사용)
-      const isPasswordValid = (await hash(password)) === user.hashedPassword;
+      // 비밀번호 검증
+      const isPasswordValid = await verify(user.hashedPassword, password);
 
       if (!isPasswordValid) {
         throw new TRPCError({
