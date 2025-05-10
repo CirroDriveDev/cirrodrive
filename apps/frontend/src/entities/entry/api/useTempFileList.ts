@@ -9,7 +9,7 @@ export type TempFile = EntryDTO & {
 export function useTempFileList(): {
   tempFiles: TempFile[];
   addTempFile: () => void;
-  deleteTempFile: (id: number) => void; // ✅ 반환 타입에 추가
+  deleteTempFile: (id: string) => void; // ✅ 반환 타입에 추가
   isLoading: boolean;
 } {
   const [tempFiles, setTempFiles] = useState<TempFile[]>([]);
@@ -54,7 +54,7 @@ export function useTempFileList(): {
     }, 500);
   };
 
-  const deleteTempFile = (id: number): void => {
+  const deleteTempFile = (id: string): void => {
     setTempFiles((prev) => prev.filter((file) => file.id !== id));
   };
 

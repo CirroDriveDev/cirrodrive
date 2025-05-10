@@ -14,7 +14,7 @@ interface UseUserForm {
 }
 
 // 사용자 생성 및 수정 폼을 위한 커스텀 훅
-export function useUserForm(userId?: number): UseUserForm {
+export function useUserForm(userId?: string): UseUserForm {
   const { getUserById } = useUserView();
   const { addUser } = useUserAdd();
   const { updateUser } = useUserEdit();

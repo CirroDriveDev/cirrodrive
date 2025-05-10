@@ -1,5 +1,5 @@
-import { Header } from "@/shared/ui/layout/Header.tsx";
-import { Layout } from "@/shared/ui/layout/Layout.tsx";
+import { Header } from "src/shared/ui/layout/Header";
+import { Layout } from "src/shared/ui/layout/Layout";
 import { FileUploadDropzone } from "@/features/fileUpload/ui/FileUploadDropzone.tsx";
 
 export function UploadByCodePage(): JSX.Element {

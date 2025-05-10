@@ -2,7 +2,7 @@
 import { useUserForm } from "@/widgets/adminUserForm/model.ts";
 
 interface UserFormProps {
-  userId?: number; // 수정 시 전달되는 기존 사용자
+  userId?: string; // 수정 시 전달되는 기존 사용자
 }
 
 // 폼 컴포넌트

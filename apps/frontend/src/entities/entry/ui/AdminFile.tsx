@@ -5,7 +5,7 @@ import type { SortOrder } from "@/entities/entry/api/useSortedList.ts";
 
 interface AdminFileListProps {
   files: TempFile[];
-  onDelete: (id: number) => void;
+  onDelete: (id: string) => void;
   sortKey: keyof TempFile;
   sortOrder: SortOrder;
   changeSort: (key: keyof TempFile) => void;
@@ -95,14 +95,15 @@ export function AdminFileList({
 
       {/* 리스트 */}
       <div className="flex h-[720px] w-full flex-col divide-y divide-muted-foreground overflow-auto border-y border-y-muted-foreground">
-        {filteredFiles.length > 0 ?
+        {filteredFiles.length > 0 ? (
           filteredFiles.map((file) => (
             <FileItem key={file.id} file={file} onDelete={onDelete} />
           ))
-        : <div className="px-16 py-4 text-muted-foreground">
+        ) : (
+          <div className="px-16 py-4 text-muted-foreground">
             검색 결과가 없습니다.
           </div>
-        }
+        )}
       </div>
     </div>
   );

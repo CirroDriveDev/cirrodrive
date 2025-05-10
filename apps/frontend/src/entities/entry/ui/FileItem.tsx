@@ -10,7 +10,7 @@ import {
 
 interface FileItemProps {
   file: TempFile;
-  onDelete: (id: number) => void;
+  onDelete: (id: string) => void;
 }
 
 export function FileItem({ file, onDelete }: FileItemProps): JSX.Element {

@@ -1,7 +1,7 @@
 import { z } from "zod";
 
 export const fileMetadataSchema = z.object({
-  id: z.number(),
+  id: z.string(),
   name: z
     .string()
     .min(1, { message: "파일 이름을 입력해주세요." })
@@ -13,8 +13,8 @@ export const fileMetadataSchema = z.object({
   createdAt: z.date(),
   updatedAt: z.date(),
   trashedAt: z.date().nullable(),
-  parentFolderId: z.number().nullable(),
-  ownerId: z.number().nullable(),
+  parentFolderId: z.string().nullable(),
+  ownerId: z.string().nullable(),
 });
 
 export const fileMetadataDTOSchema = fileMetadataSchema.omit({

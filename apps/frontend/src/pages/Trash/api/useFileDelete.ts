@@ -8,7 +8,7 @@ interface UseFileDelete {
   success: boolean | null; // 요청 성공 여부
 }
 
-export const useFileDelete = (fileId: number): UseFileDelete => {
+export const useFileDelete = (fileId: string): UseFileDelete => {
   const { entryUpdatedEvent } = useEntryUpdatedEvent();
   const [isMutatingFile, setIsMutatingFile] = useState(false);
   const [success, setSuccess] = useState<boolean | null>(null);

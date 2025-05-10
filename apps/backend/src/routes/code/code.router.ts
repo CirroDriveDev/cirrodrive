@@ -37,7 +37,7 @@ export const codeRouter = router({
   create: procedure
     .input(
       z.object({
-        fileId: z.number(), // 파일 ID를 입력으로 받음
+        fileId: z.string(), // 파일 ID를 입력으로 받음
         expiresAt: z.date().optional(), // 코드 만료 시간을 선택적으로 받음
       }),
     )

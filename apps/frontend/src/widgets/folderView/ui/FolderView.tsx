@@ -15,9 +15,10 @@ import { useFolderCreate } from "@/entities/file/api/useFolderCreate.ts";
 import { FileUploadDropzoneOverlay } from "@/features/fileUpload/ui/FileUploadDropzoneOverlay.tsx";
 import { useRenameStore } from "@/shared/store/useRenameStore.ts";
 import { selectFile } from "@/entities/file/lib/selectFile.ts";
+import { useUpload } from "@/features/fileUpload/model/useUpload.ts";
 
 interface FolderViewProps {
-  folderId: number;
+  folderId: string;
 }
 
 export function FolderView({ folderId }: FolderViewProps): JSX.Element {
@@ -47,9 +48,8 @@ export function FolderView({ folderId }: FolderViewProps): JSX.Element {
 
   const { query: folderPathQuery } = useFolderPath(folderId);
 
-  const sortedEntries =
-    entryListQuery.data ?
-      [...entryListQuery.data].sort((a, b) => {
+  const sortedEntries = entryListQuery.data
+    ? [...entryListQuery.data].sort((a, b) => {
         if (a.type === b.type) {
           return a.name.localeCompare(b.name);
         }
@@ -62,14 +62,14 @@ export function FolderView({ folderId }: FolderViewProps): JSX.Element {
       <div className="flex w-full flex-grow flex-col items-center">
         <div className="flex h-16 w-full items-center space-x-4 p-4">
           <FolderName folderId={user!.rootFolderId} folderName="내 파일" />
-          {folderPathQuery.data?.length && folderPathQuery.data.length > 3 ?
+          {folderPathQuery.data?.length && folderPathQuery.data.length > 3 ? (
             <div className="flex h-16 items-center space-x-4">
               <ChevronRight />
               <div className="flex items-center justify-center text-lg font-bold">
                 ···
               </div>
             </div>
-          : null}
+          ) : null}
           {folderPathQuery.data
             ?.slice(1)
             .slice(-2, folderPathQuery.data.length)
@@ -84,15 +84,19 @@ export function FolderView({ folderId }: FolderViewProps): JSX.Element {
             ))}
         </div>
         <div className="flex w-full space-x-4 p-4">
-          {isPending ?
+          {isPending ? (
             <LoadingSpinner />
-          : <Button onClick={handleFileSelect}>업로드</Button>}
+          ) : (
+            <Button onClick={handleFileSelect}>업로드</Button>
+          )}
           <Button onClick={createFolder}>폴더 생성</Button>
         </div>
         <div className="relative flex w-full px-4">
-          {entryListQuery.isLoading || !sortedEntries ?
+          {entryListQuery.isLoading || !sortedEntries ? (
             <LoadingSpinner />
-          : <EntryList entries={sortedEntries} />}
+          ) : (
+            <EntryList entries={sortedEntries} />
+          )}
 
           <div className="pointer-events-none absolute h-full w-full">
             <FileUploadDropzoneOverlay

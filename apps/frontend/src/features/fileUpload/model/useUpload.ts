@@ -5,9 +5,9 @@ import { trpc } from "@/shared/api/trpc.ts";
 interface UseUpload {
   upload: (
     file: File,
-    folderId?: number,
+    folderId?: string,
   ) => Promise<{
-    fileId: number;
+    fileId: string;
     code?: string;
   }>;
   isPending: boolean;
@@ -21,8 +21,8 @@ export const useUpload = (): UseUpload => {
 
   async function upload(
     file: File,
-    folderId?: number,
-  ): Promise<{ fileId: number; code?: string }> {
+    folderId?: string,
+  ): Promise<{ fileId: string; code?: string }> {
     const { presignedUploadURL, key } = await urlMutation.mutateAsync({
       fileName: file.name,
     });

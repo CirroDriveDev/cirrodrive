@@ -16,7 +16,7 @@ interface UseDownload {
 }
 
 export const useDownload = (
-  fileId: number,
+  fileId: string,
   opts?: UseDownloadOptions,
 ): UseDownload => {
   const [isDownloadClicked, setIsDownloadClicked] = useState<boolean>(false);
