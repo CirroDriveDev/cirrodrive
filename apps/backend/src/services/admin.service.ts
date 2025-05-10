@@ -766,31 +766,32 @@ export class AdminService {
   public async login(username: string, password: string): Promise<User> {
     try {
       this.logger.info({ methodName: "login", username }, "관리자 로그인 시도");
-
       // 관리자 정보를 조회합니다.
       const user = await this.userModel.findUnique({
         where: { username },
       });
-
       if (!user) {
         throw new TRPCError({
           code: "NOT_FOUND",
           message: "관리자를 찾을 수 없습니다.",
         });
       }
-
       // 비밀번호 검증
       const isPasswordValid = await verify(user.hashedPassword, password);
-
       if (!isPasswordValid) {
         throw new TRPCError({
           code: "UNAUTHORIZED",
           message: "비밀번호가 올바르지 않습니다.",
         });
       }
-
+      // 관리자 권한 확인
+      if (!user.isAdmin) {
+        throw new TRPCError({
+          code: "FORBIDDEN",
+          message: "관리자 권한이 없습니다.",
+        });
+      }
       this.logger.info({ username }, "관리자 로그인 성공");
-
       return user;
     } catch (error) {
       this.logger.error({ error, username }, "관리자 로그인 실패");
