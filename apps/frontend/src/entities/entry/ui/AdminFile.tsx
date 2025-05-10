@@ -5,7 +5,7 @@ import type { SortOrder } from "@/entities/entry/api/useSortedList.ts";
 
 interface AdminFileListProps {
   files: TempFile[];
-  onDelete: (id: number) => void;
+  onDelete: (id: string) => void;
   sortKey: keyof TempFile;
   sortOrder: SortOrder;
   changeSort: (key: keyof TempFile) => void;

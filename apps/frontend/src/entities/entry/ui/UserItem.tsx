@@ -10,7 +10,7 @@ import {
 
 interface UserItemProps {
   user: UserDTO;
-  onDelete: (id: number) => void;
+  onDelete: (id: string) => void;
 }
 
 export function UserItem({ user, onDelete }: UserItemProps): JSX.Element {

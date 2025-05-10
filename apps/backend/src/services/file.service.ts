@@ -34,7 +34,7 @@ export class FileService {
     ownerId,
   }: {
     metadata: S3Metadata;
-    ownerId?: number;
+    ownerId?: string;
   }): Promise<FileMetadata> {
     try {
       this.logger.info(
@@ -84,7 +84,7 @@ export class FileService {
   public async getFileById({
     fileId,
   }: {
-    fileId: number;
+    fileId: string;
   }): Promise<FileMetadata> {
     try {
       this.logger.info(
@@ -132,7 +132,7 @@ export class FileService {
   public async listFileMetadataByParentFolder({
     parentFolderId,
   }: {
-    parentFolderId: number;
+    parentFolderId: string;
   }): Promise<FileMetadata[]> {
     try {
       this.logger.info(
@@ -177,7 +177,7 @@ export class FileService {
   public async listTrashByUser({
     ownerId,
   }: {
-    ownerId: number;
+    ownerId: string;
   }): Promise<FileMetadata[]> {
     try {
       this.logger.info(
@@ -266,7 +266,7 @@ export class FileService {
    * @returns 파일이 존재하는지 여부입니다.
    * @throws 파일 조회 중 오류가 발생한 경우.
    */
-  public async fileExists({ fileId }: { fileId: number }): Promise<boolean> {
+  public async fileExists({ fileId }: { fileId: string }): Promise<boolean> {
     try {
       this.logger.info(
         {
@@ -315,7 +315,7 @@ export class FileService {
     parentFolderId,
   }: {
     name: string;
-    parentFolderId: number;
+    parentFolderId: string;
   }): Promise<boolean> {
     try {
       this.logger.info(
@@ -356,8 +356,8 @@ export class FileService {
     fileId,
     targetFolderId,
   }: {
-    fileId: number;
-    targetFolderId: number;
+    fileId: string;
+    targetFolderId: string;
   }): Promise<FileMetadata> {
     try {
       this.logger.info(
@@ -434,8 +434,8 @@ export class FileService {
     fileId,
     targetFolderId,
   }: {
-    fileId: number;
-    targetFolderId: number;
+    fileId: string;
+    targetFolderId: string;
   }): Promise<FileMetadata> {
     try {
       this.logger.info(
@@ -495,7 +495,7 @@ export class FileService {
   public async getFileMetadata({
     fileId,
   }: {
-    fileId: number;
+    fileId: string;
   }): Promise<FileMetadata | null> {
     try {
       const fileMetadata = await this.fileMetadataModel.findUnique({
@@ -527,8 +527,8 @@ export class FileService {
     fileId,
     userId,
   }: {
-    fileId: number;
-    userId: number;
+    fileId: string;
+    userId: string;
   }): Promise<FileMetadata> {
     try {
       this.logger.info(
@@ -577,7 +577,7 @@ export class FileService {
       throw new Error("파일을 휴지통으로 이동하는 중 오류가 발생했습니다.");
     }
   }
-  async deleteFile({ fileId }: { fileId: number }): Promise<void> {
+  async deleteFile({ fileId }: { fileId: string }): Promise<void> {
     const file = await this.fileMetadataModel.findUnique({
       where: { id: fileId },
     });
@@ -598,7 +598,7 @@ export class FileService {
     fileId,
     name,
   }: {
-    fileId: number;
+    fileId: string;
     name: string;
   }): Promise<FileMetadata> {
     const file = await this.fileMetadataModel.findUnique({
@@ -642,7 +642,7 @@ export class FileService {
     parentFolderId,
     name,
   }: {
-    parentFolderId: number;
+    parentFolderId: string;
     name: string;
   }): Promise<string> {
     this.logger.info(
@@ -691,7 +691,7 @@ export class FileService {
     return fileName;
   }
 
-  public async restoreFromTrash({ fileId }: { fileId: number }): Promise<void> {
+  public async restoreFromTrash({ fileId }: { fileId: string }): Promise<void> {
     try {
       this.logger.info(
         { methodName: "restoreFromTrash", fileId },

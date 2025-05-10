@@ -7,7 +7,7 @@ interface UseFolder {
   query: ReturnType<typeof trpc.folder.get.useQuery>;
 }
 
-export const useFolder = (folderId: number): UseFolder => {
+export const useFolder = (folderId: string): UseFolder => {
   const query = trpc.folder.get.useQuery({ folderId });
 
   return {

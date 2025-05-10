@@ -33,9 +33,9 @@ export class FolderService {
     name,
     parentFolderId,
   }: {
-    ownerId: number;
+    ownerId: string;
     name: string;
-    parentFolderId: number;
+    parentFolderId: string;
   }): Promise<Folder> {
     try {
       this.logger.info(
@@ -79,8 +79,8 @@ export class FolderService {
     ownerId,
     parentFolderId,
   }: {
-    ownerId: number;
-    parentFolderId?: number;
+    ownerId: string;
+    parentFolderId?: string;
   }): Promise<Folder[]> {
     try {
       this.logger.info(
@@ -120,7 +120,7 @@ export class FolderService {
   public async listByParentFolder({
     parentFolderId,
   }: {
-    parentFolderId: number;
+    parentFolderId: string;
   }): Promise<
     Prisma.FolderGetPayload<{
       include: {
@@ -170,7 +170,7 @@ export class FolderService {
   public async get({
     folderId,
   }: {
-    folderId: number;
+    folderId: string;
   }): Promise<Prisma.FolderGetPayload<{
     include: {
       subFolders: true;
@@ -217,7 +217,7 @@ export class FolderService {
     include = "folder",
     trashed = false,
   }: {
-    folderId: number;
+    folderId: string;
     include?: "entry" | "folder";
     trashed?: boolean;
   }): Promise<RecursiveEntryDTO> {
@@ -289,7 +289,7 @@ export class FolderService {
   public async getAllSubEntries({
     folderId,
   }: {
-    folderId: number;
+    folderId: string;
   }): Promise<EntryDTO[]> {
     const folder = await this.get({ folderId });
 
@@ -322,9 +322,9 @@ export class FolderService {
     return entries;
   }
 
-  public async getPath({ folderId }: { folderId: number }): Promise<
+  public async getPath({ folderId }: { folderId: string }): Promise<
     {
-      folderId: number | null;
+      folderId: string | null;
       name: string;
     }[]
   > {
@@ -338,7 +338,7 @@ export class FolderService {
       );
 
       const path: {
-        folderId: number;
+        folderId: string;
         name: string;
       }[] = [];
 
@@ -389,7 +389,7 @@ export class FolderService {
   public async listTrashByUser({
     ownerId,
   }: {
-    ownerId: number;
+    ownerId: string;
   }): Promise<Folder[]> {
     try {
       this.logger.info(
@@ -432,8 +432,8 @@ export class FolderService {
     userId,
     folderId,
   }: {
-    userId: number;
-    folderId: number;
+    userId: string;
+    folderId: string;
   }): Promise<boolean> {
     try {
       this.logger.info(
@@ -481,8 +481,8 @@ export class FolderService {
     folderId,
     userId,
   }: {
-    folderId: number;
-    userId: number;
+    folderId: string;
+    userId: string;
   }): Promise<void> {
     this.logger.info(
       { folderId, userId },
@@ -527,8 +527,8 @@ export class FolderService {
     folderId,
     userId,
   }: {
-    folderId: number;
-    userId: number;
+    folderId: string;
+    userId: string;
   }): Promise<void> {
     this.logger.info({ folderId, userId }, "폴더 복원 시작");
 
@@ -569,8 +569,8 @@ export class FolderService {
     folderId,
     userId,
   }: {
-    folderId: number;
-    userId: number;
+    folderId: string;
+    userId: string;
   }): Promise<void> {
     this.logger.info({ folderId, userId }, "폴더 삭제 시작");
 
@@ -619,9 +619,9 @@ export class FolderService {
     sourceFolderId,
     targetFolderId,
   }: {
-    ownerId: number;
-    sourceFolderId: number;
-    targetFolderId: number;
+    ownerId: string;
+    sourceFolderId: string;
+    targetFolderId: string;
   }): Promise<void> {
     try {
       this.logger.info(
@@ -706,7 +706,7 @@ export class FolderService {
     folderId,
     targetName,
   }: {
-    folderId: number;
+    folderId: string;
     targetName: string;
   }): Promise<void> {
     try {
@@ -775,7 +775,7 @@ export class FolderService {
     parentFolderId,
   }: {
     targetName: string;
-    parentFolderId?: number;
+    parentFolderId?: string;
   }): Promise<boolean> {
     try {
       this.logger.info(
@@ -828,7 +828,7 @@ export class FolderService {
     parentFolderId,
   }: {
     name: string;
-    parentFolderId: number;
+    parentFolderId: string;
   }): Promise<string> {
     try {
       this.logger.info(

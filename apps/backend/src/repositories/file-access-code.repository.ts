@@ -18,13 +18,13 @@ export class FileAccessCodeRepository extends BaseRepository {
     });
   }
 
-  public async findByFileId(fileId: number): Promise<FileAccessCode | null> {
+  public async findByFileId(fileId: string): Promise<FileAccessCode | null> {
     return this.prisma.fileAccessCode.findUnique({
       where: { fileId },
     });
   }
 
-  public async listByFileOwnerId(userId: number): Promise<FileAccessCode[]> {
+  public async listByFileOwnerId(userId: string): Promise<FileAccessCode[]> {
     return this.prisma.fileAccessCode.findMany({
       where: {
         file: {

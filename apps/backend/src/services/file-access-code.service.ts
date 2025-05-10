@@ -23,7 +23,7 @@ export interface FileAccessCodeServiceInterface {
     fileId,
     expiresAt,
   }: {
-    fileId: number;
+    fileId: string;
     expiresAt: Date;
   }) => Promise<FileAccessCode>;
 
@@ -35,7 +35,7 @@ export interface FileAccessCodeServiceInterface {
    * @param fileId - 파일 ID입니다.
    * @returns 조회된 코드입니다.
    */
-  getByFileId: (params: { fileId: number }) => Promise<FileAccessCode>;
+  getByFileId: (params: { fileId: string }) => Promise<FileAccessCode>;
 
   /**
    * 사용자 ID로 코드 목록을 조회합니다.
@@ -43,7 +43,7 @@ export interface FileAccessCodeServiceInterface {
    * @param userId - 사용자 ID입니다.
    * @returns 코드 목록입니다.
    */
-  listByFileOwnerId: (params: { userId: number }) => Promise<FileAccessCode[]>;
+  listByFileOwnerId: (params: { userId: string }) => Promise<FileAccessCode[]>;
 
   // update
 
@@ -75,7 +75,7 @@ export class FileAccessCodeService implements FileAccessCodeServiceInterface {
     fileId,
     expiresAt,
   }: {
-    fileId: number;
+    fileId: string;
     expiresAt?: Date;
   }): Promise<FileAccessCode> {
     const file = await this.fileMetadataModel.findUnique({
@@ -96,7 +96,7 @@ export class FileAccessCodeService implements FileAccessCodeServiceInterface {
   }
 
   // read
-  async getByFileId({ fileId }: { fileId: number }): Promise<FileAccessCode> {
+  async getByFileId({ fileId }: { fileId: string }): Promise<FileAccessCode> {
     const code = await this.fileAccessCodeRepository.findByFileId(fileId);
     if (!code) {
       throw new Error(`No access code found for fileId ${fileId}`);
@@ -125,7 +125,7 @@ export class FileAccessCodeService implements FileAccessCodeServiceInterface {
   async listByFileOwnerId({
     userId,
   }: {
-    userId: number;
+    userId: string;
   }): Promise<FileAccessCode[]> {
     return this.fileAccessCodeRepository.listByFileOwnerId(userId);
   }

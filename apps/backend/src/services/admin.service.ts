@@ -126,7 +126,7 @@ export class AdminService {
    * @returns 삭제 성공 여부
    * @throws 유저 삭제 중 오류 발생 시
    */
-  public async deleteUser(userId: number): Promise<boolean> {
+  public async deleteUser(userId: string): Promise<boolean> {
     try {
       this.logger.info({ methodName: "deleteUser", userId }, "유저 삭제 시작");
 
@@ -199,7 +199,7 @@ export class AdminService {
    * @returns 조회된 유저 정보
    * @throws 유저 조회 중 오류 발생 시
    */
-  public async getUserById(userId: number): Promise<User | null> {
+  public async getUserById(userId: string): Promise<User | null> {
     try {
       this.logger.info({ methodName: "getUserById", userId }, "유저 조회 시작");
 
@@ -228,7 +228,7 @@ export class AdminService {
    * @throws 유저 업데이트 중 오류 발생 시
    */
   public async updateUser(
-    userId: number,
+    userId: string,
     data: {
       username?: string;
       password?: string;
@@ -298,7 +298,7 @@ export class AdminService {
     offset: number;
     sortBy?: "uploadDate" | "owner";
     order?: "asc" | "desc";
-    currentUserId: number; // 현재 로그인된 사용자의 ID
+    currentUserId: string; // 현재 로그인된 사용자의 ID
   }): Promise<FileMetadata[]> {
     try {
       // 관리자 인증: 현재 사용자가 관리자 권한을 가지고 있는지 확인
@@ -351,8 +351,8 @@ export class AdminService {
     fileId,
     currentUserId,
   }: {
-    fileId: number;
-    currentUserId: number;
+    fileId: string;
+    currentUserId: string;
   }): Promise<boolean> {
     try {
       // 관리자 권한 확인
@@ -736,7 +736,7 @@ export class AdminService {
    * @returns 해당 사용자가 최근에 업로드한 파일 목록 (최신순 내림차순)
    */
   public async getRecentUserFiles(
-    currentUserId: number,
+    currentUserId: string,
     limit = 5,
   ): Promise<FileMetadata[]> {
     try {

@@ -15,7 +15,7 @@ export function FolderPage(): JSX.Element {
   }
 
   const { data: folderId, error } = z.coerce
-    .number()
+    .string()
     .safeParse(useParams<FolderPageParams>().folderId);
 
   if (error) {

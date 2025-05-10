@@ -20,7 +20,7 @@ enum PricingPlan {
 }
 
 model User {
-  id              Int         @id @default(autoincrement())
+  id              String      @id @default(uuid())
   username        String      @unique
   hashedPassword  String
   email           String      @unique
@@ -31,10 +31,10 @@ model User {
   updatedAt       DateTime    @updatedAt
   isAdmin         Boolean     @default(false)
 
-  rootFolderId Int    @unique
+  rootFolderId String @unique
   rootFolder   Folder @relation(name: "RootFolder", fields: [rootFolderId], references: [id], onDelete: Cascade)
 
-  trashFolderId Int    @unique
+  trashFolderId String @unique
   trashFolder   Folder @relation(name: "TrashFolder", fields: [trashFolderId], references: [id], onDelete: Cascade)
 
   sessions Session[]
@@ -46,12 +46,12 @@ model Session {
   id        String   @id
   expiresAt DateTime
 
-  userId Int
-  user   User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
 model FileMetadata {
-  id        Int       @id @default(autoincrement())
+  id        String    @id @default(uuid())
   name      String
   extension String
   size      Int
@@ -61,11 +61,11 @@ model FileMetadata {
   trashedAt DateTime?
   hash      String
 
-  parentFolderId  Int?
+  parentFolderId  String?
   parentFolder    Folder? @relation(fields: [parentFolderId], references: [id], onDelete: SetNull)
-  restoreFolderId Int?
+  restoreFolderId String?
   restoreFolder   Folder? @relation(name: "RestoreFolderToFile", fields: [restoreFolderId], references: [id], onDelete: SetNull)
-  ownerId         Int?
+  ownerId         String?
   owner           User?   @relation(fields: [ownerId], references: [id])
 
   codes FileAccessCode? @relation(name: "FileToAccessCode")
@@ -77,7 +77,7 @@ model FileAccessCode {
   id        Int          @id @default(autoincrement())
   code      String       @unique
   expiresAt DateTime
-  fileId    Int          @unique
+  fileId    String       @unique
   file      FileMetadata @relation(name: "FileToAccessCode", fields: [fileId], references: [id])
 }
 
@@ -90,17 +90,17 @@ model VerificationCode {
 }
 
 model Folder {
-  id        Int       @id @default(autoincrement())
+  id        String    @id @default(uuid())
   name      String
   createdAt DateTime  @default(now())
   trashedAt DateTime?
   updatedAt DateTime  @default(now()) @updatedAt
 
-  parentFolderId  Int?
+  parentFolderId  String?
   parentFolder    Folder? @relation(name: "ParentToSubFolder", fields: [parentFolderId], references: [id])
-  restoreFolderId Int?
+  restoreFolderId String?
   restoreFolder   Folder? @relation(name: "RestoreFolderToFolder", fields: [restoreFolderId], references: [id])
-  ownerId         Int?
+  ownerId         String?
   owner           User?   @relation(name: "OwnerToFolder", fields: [ownerId], references: [id], onDelete: SetNull)
 
   subFolders             Folder[]       @relation(name: "ParentToSubFolder")

@@ -24,7 +24,7 @@ export const useDownloadByCode = (
   const [codeString, setCodeString] = useState<string>(code ?? "");
   const [isDownloadClicked, setIsDownloadClicked] = useState<boolean>(false);
 
-  const query = trpc.file.download.useQuery({ fileId: 0 });
+  const query = trpc.file.download.useQuery({ fileId: "" });
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>): void => {
     setCodeString(e.target.value);

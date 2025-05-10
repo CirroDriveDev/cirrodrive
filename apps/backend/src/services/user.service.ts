@@ -157,7 +157,7 @@ export class UserService {
    * @param id - 사용자 ID
    * @returns 지정된 ID를 가진 사용자 또는 null
    */
-  public async get({ id }: { id: number }): Promise<User | null> {
+  public async get({ id }: { id: string }): Promise<User | null> {
     try {
       this.logger.info(
         {
@@ -250,7 +250,7 @@ export class UserService {
     password,
     email,
   }: {
-    id: number;
+    id: string;
     username: string;
     password: string;
     email: string;
@@ -293,7 +293,7 @@ export class UserService {
    * @param id - 사용자 ID
    * @returns 삭제된 사용자
    */
-  public async delete({ id }: { id: number }): Promise<User> {
+  public async delete({ id }: { id: string }): Promise<User> {
     try {
       this.logger.info(
         {

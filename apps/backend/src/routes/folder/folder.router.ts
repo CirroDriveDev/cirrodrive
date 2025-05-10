@@ -13,7 +13,7 @@ export const folderRouter = router({
     .input(
       z.object({
         name: z.string(),
-        parentFolderId: z.number(),
+        parentFolderId: z.string(),
       }),
     )
     .output(subFolderDTOSchema)
@@ -32,7 +32,7 @@ export const folderRouter = router({
   listByParentFolder: authedProcedure
     .input(
       z.object({
-        parentFolderId: z.number(),
+        parentFolderId: z.string(),
       }),
     )
     .output(folderDTOSchema.array())
@@ -50,8 +50,8 @@ export const folderRouter = router({
   listByUser: authedProcedure
     .input(
       z.object({
-        ownerId: z.number(),
-        parentFolderId: z.number().optional(),
+        ownerId: z.string(),
+        parentFolderId: z.string().optional(),
       }),
     )
     .query(async ({ input }) => {
@@ -76,7 +76,7 @@ export const folderRouter = router({
   get: authedProcedure
     .input(
       z.object({
-        folderId: z.number(),
+        folderId: z.string(),
       }),
     )
     .output(folderDTOSchema)
@@ -115,13 +115,13 @@ export const folderRouter = router({
   getPath: authedProcedure
     .input(
       z.object({
-        folderId: z.number(),
+        folderId: z.string(),
       }),
     )
     .output(
       z.array(
         z.object({
-          folderId: z.number().nullable(),
+          folderId: z.string().nullable(),
           name: z.string(),
         }),
       ),
@@ -140,7 +140,7 @@ export const folderRouter = router({
   rename: authedProcedure
     .input(
       z.object({
-        folderId: z.number(), // 이름을 변경할 폴더의 ID
+        folderId: z.string(), // 이름을 변경할 폴더의 ID
         name: z.string(), // 변경할 이름
       }),
     )
@@ -177,7 +177,7 @@ export const folderRouter = router({
   delete: authedProcedure
     .input(
       z.object({
-        folderId: z.number(), // 삭제할 폴더의 ID
+        folderId: z.string(), // 삭제할 폴더의 ID
       }),
     )
     .output(
@@ -209,7 +209,7 @@ export const folderRouter = router({
   trash: authedProcedure
     .input(
       z.object({
-        folderId: z.number(), // 휴지통으로 옮길 폴더의 ID
+        folderId: z.string(), // 휴지통으로 옮길 폴더의 ID
       }),
     )
     .output(
@@ -240,7 +240,7 @@ export const folderRouter = router({
   restoreFromTrash: authedProcedure
     .input(
       z.object({
-        folderId: z.number(), // 복원할 폴더의 ID
+        folderId: z.string(), // 복원할 폴더의 ID
       }),
     )
     .output(
@@ -271,8 +271,8 @@ export const folderRouter = router({
   move: authedProcedure
     .input(
       z.object({
-        sourceFolderId: z.number(), // 이동할 폴더 ID
-        targetFolderId: z.number(), // 타겟 폴더 ID
+        sourceFolderId: z.string(), // 이동할 폴더 ID
+        targetFolderId: z.string(), // 타겟 폴더 ID
       }),
     )
     .mutation(async ({ input, ctx }) => {

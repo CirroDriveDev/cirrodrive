@@ -10,7 +10,7 @@ interface UseEntryList {
   >;
 }
 
-export const useEntryList = (parentFolderId: number): UseEntryList => {
+export const useEntryList = (parentFolderId: string): UseEntryList => {
   const query = trpc.entry.list.useQuery({
     parentFolderId,
   });

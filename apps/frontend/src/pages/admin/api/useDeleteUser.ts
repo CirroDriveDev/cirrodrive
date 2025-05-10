@@ -4,7 +4,7 @@ import { useState, useCallback } from "react";
 import { trpc } from "@/shared/api/trpc.ts";
 
 interface UseUserDelete {
-  handleUserDelete: (userId: number) => void; // ✅ 여기에서만 userId 받음
+  handleUserDelete: (userId: string) => void; // ✅ 여기에서만 userId 받음
   isMutatingUser: boolean;
   success: boolean | null;
 }
@@ -30,7 +30,7 @@ export const useUserDelete = (): UseUserDelete => {
   });
 
   const handleUserDelete = useCallback(
-    (userId: number) => {
+    (userId: string) => {
       if (isMutatingUser) return;
       mutation.mutate({ userId });
     },

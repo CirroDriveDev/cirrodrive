@@ -6,7 +6,7 @@ export function FolderName({
   folderId,
   folderName,
 }: {
-  folderId: number | null;
+  folderId: string | null;
   folderName: string;
 }): JSX.Element {
   const { user } = useUserStore();

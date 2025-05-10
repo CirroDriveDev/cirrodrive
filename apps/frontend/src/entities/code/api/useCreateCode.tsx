@@ -15,13 +15,13 @@ interface UseGetCodeByFileId {
 }
 
 export const useGetCodeByFileId = (
-  fileId: number | null,
+  fileId: string | null,
 ): UseGetCodeByFileId => {
   const { openModal } = useModalStore();
   const [clicked, setClicked] = useState(false);
   const query = trpc.code.getByFileId.useQuery(
     {
-      fileId: fileId ?? -1,
+      fileId: fileId ?? "",
     },
     {
       enabled: false,

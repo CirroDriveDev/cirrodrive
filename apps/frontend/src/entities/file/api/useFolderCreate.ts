@@ -15,8 +15,8 @@ type UseFolderCreateOptions = UseTRPCMutationOptions<
 interface UseFolderManagement {
   folderName: string;
   setFolderName: (name: string) => void;
-  parentFolderId: number;
-  setParentFolderId: (id: number) => void;
+  parentFolderId: string;
+  setParentFolderId: (id: string) => void;
   createFolder: () => void;
 }
 
@@ -43,7 +43,7 @@ export const useFolderCreate = (
 
   const createFolder = (): void => {
     if (!folderName.trim()) return;
-    if (parentFolderId === -1) return;
+    if (parentFolderId === null) return;
     folderMutation.mutate({ name: folderName, parentFolderId });
   };
 

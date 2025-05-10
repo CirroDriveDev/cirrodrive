@@ -18,7 +18,7 @@ export const entryRouter = router({
   getRecursively: authedProcedure
     .input(
       z.object({
-        folderId: z.number(),
+        folderId: z.string(),
         includeFiles: z.boolean().default(false),
       }),
     )
@@ -83,7 +83,7 @@ export const entryRouter = router({
   list: authedProcedure
     .input(
       z.object({
-        parentFolderId: z.number(),
+        parentFolderId: z.string(),
       }),
     )
     .output(entryDTOSchema.array())

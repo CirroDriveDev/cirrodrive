@@ -50,12 +50,12 @@ export const fileRouter = router({
     .input(
       z.object({
         key: z.string(),
-        folderId: z.number().optional(),
+        folderId: z.string().optional(),
       }),
     )
     .output(
       z.object({
-        fileId: z.number(),
+        fileId: z.string(),
         code: z.string().optional(),
       }),
     )
@@ -98,7 +98,7 @@ export const fileRouter = router({
   download: procedure
     .input(
       z.object({
-        fileId: z.number(),
+        fileId: z.string(),
       }),
     )
     .output(
@@ -134,7 +134,7 @@ export const fileRouter = router({
   listByParentFolder: authedProcedure
     .input(
       z.object({
-        folderId: z.number(),
+        folderId: z.string(),
       }),
     )
     .output(fileMetadataDTOSchema.array())
@@ -158,7 +158,7 @@ export const fileRouter = router({
     .input(
       z.object({
         code: z.string(),
-        folderId: z.number().optional(),
+        folderId: z.string().optional(),
       }),
     )
     .mutation(async ({ input, ctx }) => {
@@ -196,7 +196,7 @@ export const fileRouter = router({
   trash: authedProcedure
     .input(
       z.object({
-        fileId: z.number(), // 휴지통으로 옮길 파일의 ID
+        fileId: z.string(), // 휴지통으로 옮길 파일의 ID
       }),
     )
     .output(
@@ -251,7 +251,7 @@ export const fileRouter = router({
   updateFileName: authedProcedure
     .input(
       z.object({
-        fileId: z.number(), // 수정할 파일 ID
+        fileId: z.string(), // 수정할 파일 ID
         name: z.string(), // 새로운 파일 이름
       }),
     )
@@ -281,7 +281,7 @@ export const fileRouter = router({
   listTrashedFiles: authedProcedure
     .input(
       z.object({
-        folderId: z.number(),
+        folderId: z.string(),
       }),
     )
     .output(fileMetadataDTOSchema.array())
@@ -303,7 +303,7 @@ export const fileRouter = router({
   restoreFromTrash: authedProcedure
     .input(
       z.object({
-        fileId: z.number(),
+        fileId: z.string(),
       }),
     )
     .output(
@@ -357,7 +357,7 @@ export const fileRouter = router({
   delete: authedProcedure
     .input(
       z.object({
-        fileId: z.number(), // 삭제할 파일의 ID
+        fileId: z.string(), // 삭제할 파일의 ID
       }),
     )
     .output(
@@ -410,8 +410,8 @@ export const fileRouter = router({
   move: authedProcedure
     .input(
       z.object({
-        fileId: z.number(),
-        targetFolderId: z.number(),
+        fileId: z.string(),
+        targetFolderId: z.string(),
       }),
     )
     .mutation(async ({ input }) => {
@@ -437,7 +437,7 @@ export const fileRouter = router({
   get: authedProcedure
     .input(
       z.object({
-        fileId: z.number(), // 조회할 파일 ID
+        fileId: z.string(), // 조회할 파일 ID
       }),
     )
     .output(fileMetadataDTOSchema) // 메타데이터를 반환하는 스키마

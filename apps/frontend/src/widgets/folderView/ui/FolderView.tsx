@@ -17,7 +17,7 @@ import { useRenameStore } from "@/shared/store/useRenameStore.ts";
 import { selectFile } from "@/entities/file/lib/selectFile.ts";
 
 interface FolderViewProps {
-  folderId: number;
+  folderId: string;
 }
 
 export function FolderView({ folderId }: FolderViewProps): JSX.Element {

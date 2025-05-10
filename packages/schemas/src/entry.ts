@@ -1,10 +1,10 @@
 import { z } from "zod";
 
 const baseEntrySchema = z.object({
-  id: z.number(),
+  id: z.string(),
   name: z.string(),
   type: z.enum(["file", "folder"]),
-  parentFolderId: z.number().nullable(),
+  parentFolderId: z.string().nullable(),
   createdAt: z.date(),
   updatedAt: z.date(),
   trashedAt: z.date().nullable(),
