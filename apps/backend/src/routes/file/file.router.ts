@@ -316,7 +316,7 @@ export const fileRouter = router({
       const { id: userId } = ctx.user;
 
       try {
-        // 파일 ���타데이터 조회
+        // 파일 메타데이터 조회
         const fileMetadata = await fileService.getFileMetadata({
           fileId,
         });
