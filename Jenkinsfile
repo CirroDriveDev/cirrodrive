@@ -96,7 +96,7 @@ pipeline {
         stage('Generate prisma client') {
             steps {
                 echo 'Generating Prisma client...'
-                sh 'pnpm run db:generate'
+                sh 'pnpm build -F @cirrodrive/database'
             }
         }
 

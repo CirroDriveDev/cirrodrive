@@ -11,7 +11,6 @@ export default defineConfig({
     globals: true,
     setupFiles: "./vitest-setup.ts",
     fileParallelism: false,
-    reporters: ["default", "json"],
     outputFile: ".cache/vitest-report.json",
   },
   optimizeDeps: {

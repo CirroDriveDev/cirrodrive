@@ -14,7 +14,6 @@ export default defineConfig({
     environment: "jsdom",
     globals: true,
     setupFiles: "./vitest-setup.ts",
-    reporters: ["default", "json"],
     outputFile: ".cache/vitest-report.json",
   },
   resolve: {

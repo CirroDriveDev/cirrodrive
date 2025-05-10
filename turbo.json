@@ -36,7 +36,6 @@
       "env": ["DATABASE_URL"]
     },
     "build": {
-      "dependsOn": ["^build"],
       "outputs": [".cache/tsbuildinfo.json", "dist/**"]
     },
     "clean": {
@@ -56,19 +55,31 @@
       "outputs": [".cache/.prettiercache"]
     },
     "lint": {
-      "dependsOn": ["^topo", "@cirrodrive/database#build"],
       "outputs": [".cache/.eslintcache"]
     },
     "test": {
-      "dependsOn": ["@cirrodrive/database#db:push", "^test"],
-      "env": ["DATABASE_URL"],
+      "cache": false,
+      "persistent": true
+    },
+    "test:ci": {
       "outputs": [".cache/vitest-report.json"]
     },
-    "topo": {
-      "dependsOn": ["^topo"]
+    "test:integration": {
+      "cache": false,
+      "persistent": true
+    },
+    "test:integration:ci": {
+      "outputs": [".cache/vitest-report.json"]
+    },
+    "test:unit": {
+      "cache": false,
+      "persistent": true
+    },
+    "test:unit:ci": {
+      "outputs": [".cache/vitest-report.json"]
     },
     "typecheck": {
-      "dependsOn": ["^topo", "^build"],
+      "dependsOn": ["^build"],
       "outputs": [".cache/tsbuildinfo.json"]
     },
     "ui-add": {

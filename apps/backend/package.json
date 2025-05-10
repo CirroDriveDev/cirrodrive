@@ -79,7 +79,11 @@
     "lint": "eslint",
     "start": "vite-node dist/server.js",
     "test": "dotenvx run --quiet -f ../database/.env.test -- vitest",
-    "test:ci": "dotenvx run --quiet -f ../database/.env.test -- vitest",
+    "test:ci": "dotenvx run --quiet -f ../database/.env.test -- vitest run --reporter=default --reporter=json ",
+    "test:integration": "dotenvx run --quiet -f ../database/.env.test -- vitest --dir test/integrations",
+    "test:integration:ci": "dotenvx run --quiet -f ../database/.env.test -- vitest run --dir test/integrations --reporter=default --reporter=json",
+    "test:unit": "dotenvx run --quiet -f ../database/.env.test -- vitest --dir test/units",
+    "test:unit:ci": "dotenvx run --quiet -f ../database/.env.test -- vitest run --dir test/units --reporter=default --reporter=json",
     "typecheck": "tsc --noEmit"
   },
   "type": "module",
