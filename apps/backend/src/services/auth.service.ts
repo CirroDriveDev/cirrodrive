@@ -170,7 +170,7 @@ export class AuthService {
     userId,
   }: {
     token: string;
-    userId: string;
+    userId: number;
   }): Promise<Session> {
     this.logger.info({ methodName: "createSession" }, "세션 생성 중");
     const sessionId = this.encodeToken(token);

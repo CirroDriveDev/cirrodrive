@@ -10,7 +10,7 @@ interface UseRestore {
   success: boolean | null; // 요청 성공 여부
 }
 
-export const useRestore = (id: string): UseRestore => {
+export const useRestore = (id: number): UseRestore => {
   const queryClient = useQueryClient();
   const [isMutating, setIsMutating] = useState(false);
   const [success, setSuccess] = useState<boolean | null>(null);

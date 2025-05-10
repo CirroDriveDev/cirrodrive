@@ -10,7 +10,7 @@ interface UseFolderGetPath {
   >;
 }
 
-export const useFolderPath = (folderId: string): UseFolderGetPath => {
+export const useFolderPath = (folderId: number): UseFolderGetPath => {
   const query = trpc.folder.getPath.useQuery({
     folderId,
   });

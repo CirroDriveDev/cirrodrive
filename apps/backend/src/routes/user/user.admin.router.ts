@@ -43,7 +43,7 @@ export const userAdminRouter = router({
   update: adminProcedure
     .input(
       userInputSchema.extend({
-        userId: z.string(),
+        userId: z.number(),
       }),
     )
     .mutation(async ({ input, ctx }) => {
@@ -89,7 +89,7 @@ export const userAdminRouter = router({
     }),
 
   delete: adminProcedure
-    .input(z.object({ userId: z.string() }))
+    .input(z.object({ userId: z.number() }))
     .mutation(async ({ input, ctx }) => {
       logger.info(
         { requestId: ctx.req.id },
@@ -123,7 +123,7 @@ export const userAdminRouter = router({
       }
     }),
   get: adminProcedure
-    .input(z.object({ userId: z.string() }))
+    .input(z.object({ userId: z.number() }))
     .query(async ({ input, ctx }) => {
       logger.info(
         { requestId: ctx.req.id },
@@ -234,7 +234,7 @@ export const userAdminRouter = router({
   deleteFile: adminProcedure
     .input(
       z.object({
-        fileId: z.string(),
+        fileId: z.number(),
       }),
     )
     .mutation(async ({ input, ctx }) => {

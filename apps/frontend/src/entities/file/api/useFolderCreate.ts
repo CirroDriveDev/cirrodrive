@@ -15,8 +15,8 @@ type UseFolderCreateOptions = UseTRPCMutationOptions<
 interface UseFolderManagement {
   folderName: string;
   setFolderName: (name: string) => void;
-  parentFolderId: string;
-  setParentFolderId: (id: string) => void;
+  parentFolderId: number;
+  setParentFolderId: (id: number) => void;
   createFolder: () => void;
 }
 

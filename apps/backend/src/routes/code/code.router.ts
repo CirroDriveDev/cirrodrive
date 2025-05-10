@@ -23,7 +23,7 @@ export const codeRouter = router({
   }),
 
   getByFileId: authedProcedure
-    .input(z.object({ fileId: z.string() }))
+    .input(z.object({ fileId: z.number() }))
     .query(async ({ input }) => {
       const { fileId } = input;
 
@@ -37,7 +37,7 @@ export const codeRouter = router({
   create: procedure
     .input(
       z.object({
-        fileId: z.string(), // 파일 ID를 입력으로 받음
+        fileId: z.number(), // 파일 ID를 입력으로 받음
         expiresAt: z.date().optional(), // 코드 만료 시간을 선택적으로 받음
       }),
     )
@@ -54,7 +54,7 @@ export const codeRouter = router({
       }
       // 코드 생성 시 만료 시간이 제공된 경우 처리
       const code = await fileAccessCodeService.create({
-        fileId: fileId.toString(),
+        fileId,
         expiresAt,
       });
 

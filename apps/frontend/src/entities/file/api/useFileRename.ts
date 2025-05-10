@@ -13,7 +13,7 @@ interface UseFileRename {
 }
 
 // useFileRename Hook 정의
-export const useFileRename = (id: string, _p0?: boolean): UseFileRename => {
+export const useFileRename = (id: number, _p0?: boolean): UseFileRename => {
   const queryClient = useQueryClient();
   const [isRenaming, setIsRenaming] = useState(false);
   const [success, setSuccess] = useState<boolean | null>(null);

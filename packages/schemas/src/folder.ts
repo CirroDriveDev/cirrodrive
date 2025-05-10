@@ -2,7 +2,7 @@ import { z } from "zod";
 import { fileMetadataDTOSchema } from "./file-metadata.ts";
 
 export const subFolderDTOSchema = z.object({
-  id: z.string(),
+  id: z.number(),
   name: z
     .string()
     .min(1, { message: "폴더 이름을 입력해주세요." })
@@ -10,8 +10,8 @@ export const subFolderDTOSchema = z.object({
   createdAt: z.date(),
   updatedAt: z.date(),
   trashedAt: z.date().nullable(),
-  parentFolderId: z.string().nullable(),
-  ownerId: z.string().nullable(),
+  parentFolderId: z.number().nullable(),
+  ownerId: z.number().nullable(),
 });
 
 export const folderDTOSchema = subFolderDTOSchema.extend({

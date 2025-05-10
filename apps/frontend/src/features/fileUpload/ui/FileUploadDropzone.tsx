@@ -62,16 +62,15 @@ export function FileUploadDropzone(): JSX.Element {
               dragOver ? "border-blue-500" : "border-gray-300"
             }`}
           >
-            {isPending ? (
+            {isPending ?
               <LoadingSpinner />
-            ) : (
-              <>
+            : <>
                 <FileIcon className="h-32 w-32 text-blue-500" />
                 <p className="text-gray-500">
                   파일을 여기에 드래그하거나 클릭하여 선택하세요.
                 </p>
               </>
-            )}
+            }
           </div>
         </label>
       </form>

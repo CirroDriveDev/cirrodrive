@@ -10,7 +10,7 @@ interface UseEntryGetRecursively {
   >;
 }
 export const useEntryGetRecursively = (
-  folderId: string,
+  folderId: number,
 ): UseEntryGetRecursively => {
   const query = trpc.entry.getRecursively.useQuery({
     folderId,

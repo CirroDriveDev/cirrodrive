@@ -8,7 +8,7 @@ interface UseFolderDelete {
   success: boolean | null; // 요청 성공 여부
 }
 
-export const useFolderDelete = (folderId: string): UseFolderDelete => {
+export const useFolderDelete = (folderId: number): UseFolderDelete => {
   const { entryUpdatedEvent } = useEntryUpdatedEvent();
   const [isMutatingFolder, setIsMutatingFolder] = useState(false);
   const [success, setSuccess] = useState<boolean | null>(null);

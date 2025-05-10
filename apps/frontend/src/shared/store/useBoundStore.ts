@@ -83,14 +83,14 @@ export interface RenameStore {
   /**
    * 폴더 ID
    */
-  folderId: string | null;
+  folderId: number | null;
 
   /**
    * 폴더 ID를 설정
    *
    * @param folderId - 폴더 ID
    */
-  setFolderId: (folderId: string) => void;
+  setFolderId: (folderId: number) => void;
 
   /**
    * 폴더 ID를 초기화

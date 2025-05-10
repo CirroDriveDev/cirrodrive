@@ -30,7 +30,7 @@ function RedirectAuthedUserToHome({
 }): React.ReactNode {
   const { user } = useBoundStore();
   return user ?
-      <Navigate to={`/folder/${user.rootDirId}`} replace />
+      <Navigate to={`/folder/${user.rootFolderId}`} replace />
     : children;
 }
 

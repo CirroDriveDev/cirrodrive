@@ -17,9 +17,9 @@ export const initialUsers: User[] = [
 ];
 
 export const useUserView = (): {
-  getUserById: (id: string) => User | undefined;
+  getUserById: (id: number) => User | undefined;
 } => {
-  const getUserById = (id: string): User | undefined => {
+  const getUserById = (id: number): User | undefined => {
     return initialUsers.find((user) => user.id === id);
   };
 

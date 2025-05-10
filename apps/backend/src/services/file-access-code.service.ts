@@ -1,10 +1,13 @@
 import { injectable, inject } from "inversify";
 import type { Logger } from "pino";
-import type { FileAccessCode } from "@cirrodrive/database";
+import type {
+  FileAccessCode,
+  FileMetadata,
+  Prisma,
+} from "@cirrodrive/database";
 import { Symbols } from "@/types/symbols.ts";
 import { FileAccessCodeRepository } from "@/repositories/file-access-code.repository.ts";
 import { generateCode } from "@/utils/generate-code.ts";
-import { FileRepository } from "@/repositories/file.repository.ts";
 
 export interface FileAccessCodeServiceInterface {
   // create
@@ -20,7 +23,7 @@ export interface FileAccessCodeServiceInterface {
     fileId,
     expiresAt,
   }: {
-    fileId: string;
+    fileId: number;
     expiresAt: Date;
   }) => Promise<FileAccessCode>;
 
@@ -32,7 +35,7 @@ export interface FileAccessCodeServiceInterface {
    * @param fileId - 파일 ID입니다.
    * @returns 조회된 코드입니다.
    */
-  getByFileId: (params: { fileId: string }) => Promise<FileAccessCode>;
+  getByFileId: (params: { fileId: number }) => Promise<FileAccessCode>;
 
   /**
    * 사용자 ID로 코드 목록을 조회합니다.
@@ -40,7 +43,7 @@ export interface FileAccessCodeServiceInterface {
    * @param userId - 사용자 ID입니다.
    * @returns 코드 목록입니다.
    */
-  listByFileOwnerId: (params: { userId: string }) => Promise<FileAccessCode[]>;
+  listByFileOwnerId: (params: { userId: number }) => Promise<FileAccessCode[]>;
 
   // update
 
@@ -51,6 +54,8 @@ export interface FileAccessCodeServiceInterface {
    * @param codeString - 삭제할 코드 문자열입니다.
    */
   deleteByCode: (params: { code: string }) => Promise<void>;
+
+  getCodeMetadata: (params: { code: string }) => Promise<FileMetadata>;
 }
 
 @injectable()
@@ -59,8 +64,8 @@ export class FileAccessCodeService implements FileAccessCodeServiceInterface {
     @inject(Symbols.Logger) private logger: Logger,
     @inject(FileAccessCodeRepository)
     private fileAccessCodeRepository: FileAccessCodeRepository,
-    @inject(FileRepository)
-    private fileRepository: FileRepository,
+    @inject(Symbols.FileMetadataModel)
+    private fileMetadataModel: Prisma.FileMetadataDelegate,
   ) {
     this.logger = logger.child({ serviceName: "FileAccessCodeService" });
   }
@@ -70,10 +75,12 @@ export class FileAccessCodeService implements FileAccessCodeServiceInterface {
     fileId,
     expiresAt,
   }: {
-    fileId: string;
+    fileId: number;
     expiresAt?: Date;
   }): Promise<FileAccessCode> {
-    const file = await this.fileRepository.get(fileId);
+    const file = await this.fileMetadataModel.findUnique({
+      where: { id: fileId },
+    });
     if (!file) {
       throw new Error(`File entry not found for fileId ${fileId}`);
     }
@@ -89,7 +96,7 @@ export class FileAccessCodeService implements FileAccessCodeServiceInterface {
   }
 
   // read
-  async getByFileId({ fileId }: { fileId: string }): Promise<FileAccessCode> {
+  async getByFileId({ fileId }: { fileId: number }): Promise<FileAccessCode> {
     const code = await this.fileAccessCodeRepository.findByFileId(fileId);
     if (!code) {
       throw new Error(`No access code found for fileId ${fileId}`);
@@ -97,10 +104,28 @@ export class FileAccessCodeService implements FileAccessCodeServiceInterface {
     return code;
   }
 
+  async getCodeMetadata({ code }: { code: string }): Promise<FileMetadata> {
+    const fileAccessCode = await this.fileAccessCodeRepository.getByCode(code);
+    if (!fileAccessCode) {
+      throw new Error(`No access code found for code ${code}`);
+    }
+
+    const fileMetadata = await this.fileMetadataModel.findUnique({
+      where: { id: fileAccessCode.fileId },
+    });
+    if (!fileMetadata) {
+      throw new Error(
+        `No file metadata found for fileId ${fileAccessCode.fileId}`,
+      );
+    }
+
+    return fileMetadata;
+  }
+
   async listByFileOwnerId({
     userId,
   }: {
-    userId: string;
+    userId: number;
   }): Promise<FileAccessCode[]> {
     return this.fileAccessCodeRepository.listByFileOwnerId(userId);
   }

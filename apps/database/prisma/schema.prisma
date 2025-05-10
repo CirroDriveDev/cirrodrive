@@ -14,119 +14,71 @@ datasource db {
 }
 
 enum PricingPlan {
-  FREE
-  BASIC
-  PREMIUM
-}
-
-enum FileStatus {
-  ACTIVE
-  TRASHED
-  ARCHIVED
-}
-
-enum FilePermission {
-  READ
-  WRITE
-  OWNER
+  free
+  basic
+  premium
 }
 
 model User {
-  id                String      @id @default(cuid())
-  // 사용자 정보
-  username          String      @unique
-  hashedPassword    String
-  email             String      @unique
-  pricingPlan       PricingPlan @default(FREE)
-  usedStorage       Int         @default(0)
-  profileImageUrl   String?     @unique
-  createdAt         DateTime    @default(now())
-  updatedAt         DateTime    @updatedAt
-  isAdmin           Boolean     @default(false)
-  // 루트 디렉터리
-  rootDirId         String      @unique
-  rootDir           File        @relation(name: "UserRootDir", fields: [rootDirId], references: [id])
-  // 세션
-  sessions          Session[]
-  // 소유한 파일/폴더
-  fileEntries       File[]      @relation(name: "UserOwnedEntries")
-  // 공유받은 항목
-  sharedFileEntries FileShare[] @relation(name: "UserToFileShares")
+  id              Int         @id @default(autoincrement())
+  username        String      @unique
+  hashedPassword  String
+  email           String      @unique
+  pricingPlan     PricingPlan @default(free)
+  usedStorage     Int         @default(0)
+  profileImageUrl String?     @unique
+  createdAt       DateTime    @default(now())
+  updatedAt       DateTime    @updatedAt
+  isAdmin         Boolean     @default(false)
+
+  rootFolderId Int    @unique
+  rootFolder   Folder @relation(name: "RootFolder", fields: [rootFolderId], references: [id], onDelete: Cascade)
+
+  trashFolderId Int    @unique
+  trashFolder   Folder @relation(name: "TrashFolder", fields: [trashFolderId], references: [id], onDelete: Cascade)
+
+  sessions Session[]
+  folders  Folder[]       @relation(name: "OwnerToFolder")
+  files    FileMetadata[]
 }
 
 model Session {
   id        String   @id
   expiresAt DateTime
-  userId    String
-  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  userId Int
+  user   User @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
-model File {
-  id         String          @id @default(cuid())
-  // 소유자
-  ownerId    String?
-  owner      User?           @relation(name: "UserOwnedEntries", fields: [ownerId], references: [id])
-  // 디렉터리 트리 구조
-  parentId   String?
-  parent     File?           @relation(name: "FileToChildren", fields: [parentId], references: [id])
-  children   File[]          @relation(name: "FileToChildren")
-  // 노드 정보
-  name       String
-  isDir      Boolean
-  createdAt  DateTime        @default(now())
-  updatedAt  DateTime        @updatedAt
-  // 파일 정보
-  s3Key      String?
-  size       Int?
-  mimeType   String?
-  hash       String?
-  // 경로 정보
-  fullPath   String
-  // 상태
-  status     FileStatus      @default(ACTIVE)
-  trashedAt  DateTime?
-  archivedAt DateTime?
-  refCount   Int?            @default(1)
-  // 공유 및 접근 코드
-  sharedWith FileShare[]     @relation(name: "FileToFileShares")
-  accessCode FileAccessCode? @relation(name: "FileToAccessCode")
-  // 루트 디렉터리
-  rootOwner  User?           @relation(name: "UserRootDir")
+model FileMetadata {
+  id        Int       @id @default(autoincrement())
+  name      String
+  extension String
+  size      Int
+  key       String
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  trashedAt DateTime?
+  hash      String
 
-  // 제약 조건
-  @@unique([fullPath, ownerId])
-  // 인덱스
-  @@index([ownerId])
-  @@index([parentId])
-  @@index([status])
-  @@index([fullPath, ownerId])
-}
+  parentFolderId  Int?
+  parentFolder    Folder? @relation(fields: [parentFolderId], references: [id], onDelete: SetNull)
+  restoreFolderId Int?
+  restoreFolder   Folder? @relation(name: "RestoreFolderToFile", fields: [restoreFolderId], references: [id], onDelete: SetNull)
+  ownerId         Int?
+  owner           User?   @relation(fields: [ownerId], references: [id])
 
-model FileShare {
-  id           String         @id @default(cuid())
-  // 공유된 파일 항목
-  fileId       String
-  file         File           @relation(name: "FileToFileShares", fields: [fileId], references: [id])
-  // 대상 사용자
-  targetUserId String
-  targetUser   User           @relation(name: "UserToFileShares", fields: [targetUserId], references: [id])
-  // 권한
-  permission   FilePermission
-  // 만료일
-  createdAt    DateTime       @default(now())
-  expiresAt    DateTime?
+  codes FileAccessCode? @relation(name: "FileToAccessCode")
 
-  // 인덱스
-  @@index([fileId])
-  @@index([targetUserId])
+  @@index([parentFolderId])
 }
 
 model FileAccessCode {
-  id        Int      @id @default(autoincrement())
-  code      String   @unique
+  id        Int          @id @default(autoincrement())
+  code      String       @unique
   expiresAt DateTime
-  fileId    String   @unique
-  file      File     @relation(name: "FileToAccessCode", fields: [fileId], references: [id])
+  fileId    Int          @unique
+  file      FileMetadata @relation(name: "FileToAccessCode", fields: [fileId], references: [id])
 }
 
 model VerificationCode {
@@ -135,6 +87,30 @@ model VerificationCode {
   code      String
   expiresAt DateTime
   createdAt DateTime @default(now())
+}
+
+model Folder {
+  id        Int       @id @default(autoincrement())
+  name      String
+  createdAt DateTime  @default(now())
+  trashedAt DateTime?
+  updatedAt DateTime  @default(now()) @updatedAt
+
+  parentFolderId  Int?
+  parentFolder    Folder? @relation(name: "ParentToSubFolder", fields: [parentFolderId], references: [id])
+  restoreFolderId Int?
+  restoreFolder   Folder? @relation(name: "RestoreFolderToFolder", fields: [restoreFolderId], references: [id])
+  ownerId         Int?
+  owner           User?   @relation(name: "OwnerToFolder", fields: [ownerId], references: [id], onDelete: SetNull)
+
+  subFolders             Folder[]       @relation(name: "ParentToSubFolder")
+  files                  FileMetadata[]
+  UserRootFolder         User?          @relation(name: "RootFolder")
+  UserTrashFolder        User?          @relation(name: "TrashFolder")
+  restoredFolderToFolder Folder[]       @relation(name: "RestoreFolderToFolder")
+  restoredFolderToFile   FileMetadata[] @relation(name: "RestoreFolderToFile")
+
+  @@index([parentFolderId])
 }
 
 model AdminUser {

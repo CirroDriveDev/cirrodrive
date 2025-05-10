@@ -46,11 +46,9 @@ export const userRouter = router({
       }
       try {
         const user = await userService.create({
-          data: {
-            username: input.username,
-            password: input.password,
-            email: input.email,
-          },
+          username: input.username,
+          password: input.password,
+          email: input.email,
           token: input.token, // 추가
         });
 

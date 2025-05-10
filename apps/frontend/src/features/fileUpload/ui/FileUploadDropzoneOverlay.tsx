@@ -5,7 +5,7 @@ import { useBoundStore } from "@/shared/store/useBoundStore.ts";
 import { UploadSuccessModal } from "@/features/fileUpload/ui/UploadSuccessModal.tsx";
 
 interface DragAndDropUploadOverlayProps {
-  folderId?: string; // 폴더 ID
+  folderId?: number; // 폴더 ID
   onUploadSuccess?: () => void; // 업로드 성공 시 호출할 함수
 }
 

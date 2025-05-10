@@ -1,17 +1,17 @@
 import { z } from "zod";
 
 const baseEntrySchema = z.object({
-  id: z.string(),
+  id: z.number(),
   name: z.string(),
   type: z.enum(["file", "folder"]),
-  parentFolderId: z.string().nullable(),
+  parentFolderId: z.number().nullable(),
   createdAt: z.date(),
   updatedAt: z.date(),
   trashedAt: z.date().nullable(),
   size: z.number(),
 });
 
-const fileSchema = baseEntrySchema.extend({
+const fileEntrySchema = baseEntrySchema.extend({
   type: z.literal("file"),
 });
 
@@ -20,7 +20,7 @@ const folderEntrySchema = baseEntrySchema.extend({
   size: z.null(),
 });
 
-export const entryDTOSchema = z.union([fileSchema, folderEntrySchema]);
+export const entryDTOSchema = z.union([fileEntrySchema, folderEntrySchema]);
 
 export type EntryDTO = z.infer<typeof entryDTOSchema>;
 

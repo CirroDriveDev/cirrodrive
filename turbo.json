@@ -55,6 +55,7 @@
       "outputs": [".cache/.prettiercache"]
     },
     "lint": {
+      "dependsOn": ["^build"],
       "outputs": [".cache/.eslintcache"]
     },
     "test": {
