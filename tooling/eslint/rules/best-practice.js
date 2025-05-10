@@ -20,7 +20,7 @@ export default {
      *
      * 🔧 Fixable - https://eslint.org/docs/rules/curly
      */
-    "curly": ["warn", "multi-line"],
+    curly: ["warn", "multi-line"],
     /**
      * Require default clauses in switch statements to be last (if used).
      *
@@ -32,7 +32,7 @@ export default {
      *
      * 🔧 Fixable - https://eslint.org/docs/rules/eqeqeq
      */
-    "eqeqeq": "error",
+    eqeqeq: "error",
     /**
      * Require grouped accessor pairs in object literals and classes.
      *
@@ -227,6 +227,6 @@ export default {
      *
      * 🔧 Fixable - https://eslint.org/docs/rules/yoda
      */
-    "yoda": "warn",
+    yoda: "warn",
   },
 };

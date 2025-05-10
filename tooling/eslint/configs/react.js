@@ -11,7 +11,7 @@ import rules from "../rules/index.js";
 export default tseslint.config({
   files: ["**/*.ts", "**/*.tsx"],
   plugins: {
-    "react": reactPlugin,
+    react: reactPlugin,
     "react-hooks": fixupPluginRules(hooksPlugin),
   },
   rules: {

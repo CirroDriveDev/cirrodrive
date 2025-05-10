@@ -82,7 +82,7 @@ export default {
     "import/order": [
       "warn",
       {
-        "groups": [
+        groups: [
           "builtin", // Node.js built-in modules
           "external", // Packages
           "internal", // Aliased modules
