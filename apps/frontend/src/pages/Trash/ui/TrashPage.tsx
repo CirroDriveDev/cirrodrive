@@ -1,8 +1,8 @@
 import { useNavigate } from "react-router-dom";
 import { useTrashEntryList } from "@/services/useTrashEntryList.ts";
 import { Header } from "@/components/layout/Header.tsx";
-import { Sidebar } from "@/components/SidebarLayout/Sidebar.tsx";
-import { SidebarLayout } from "@/components/SidebarLayout/SidebarLayout.tsx";
+import { Sidebar } from "@/components/layout/Sidebar.tsx";
+import { SidebarLayout } from "@/components/layout/SidebarLayout.tsx";
 import { useBoundStore } from "@/store/useBoundStore.ts";
 import { LoadingSpinner } from "@/components/shared/LoadingSpinner.tsx";
 import { useSearchBarStore } from "@/store/useSearchBarStore.ts";

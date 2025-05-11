@@ -1,9 +1,9 @@
 import { useNavigate } from "react-router-dom";
 import { useEffect } from "react";
 import { useBoundStore } from "@/store/useBoundStore.ts";
-import { SidebarLayout } from "@/components/SidebarLayout/SidebarLayout.tsx";
+import { SidebarLayout } from "@/components/layout/SidebarLayout.tsx";
 import { Header } from "@/components/layout/Header.tsx";
-import { Sidebar } from "@/components/SidebarLayout/Sidebar.tsx";
+import { Sidebar } from "@/components/layout/Sidebar.tsx";
 import { LoadingSpinner } from "@/components/shared/LoadingSpinner.tsx";
 import { UserList } from "@/components/UserList.tsx";
 import { useUserList } from "@/services/useUserList.ts";

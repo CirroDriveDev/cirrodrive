@@ -1,7 +1,7 @@
 import { FileIcon, ImageIcon, HistoryIcon, Trash2Icon } from "lucide-react";
 import { EntryTreeNode } from "@/components/EntryTreeNode.tsx";
 import { useUserStore } from "@/store/useUserStore.ts";
-import { SidebarItem } from "@/components/SidebarLayout/SidebarItem.tsx";
+import { SidebarItem } from "@/components/layout/SidebarItem.tsx";
 import { useEntryGetRecursively } from "@/services/useEntryGetRecursively.ts";
 
 export function MemberSidebar(): JSX.Element {

@@ -1,6 +1,6 @@
 import { Header } from "@/components/layout/Header.tsx";
-import { Sidebar } from "@/components/SidebarLayout/Sidebar.tsx";
-import { SidebarLayout } from "@/components/SidebarLayout/SidebarLayout.tsx";
+import { Sidebar } from "@/components/layout/Sidebar.tsx";
+import { SidebarLayout } from "@/components/layout/SidebarLayout.tsx";
 import { WeeklyActivityChart } from "@/components/statistics/WeeklyActivityChart.tsx";
 import { MonthlyActivityChart } from "@/components/statistics/MonthlyActivityChart.tsx";
 import { RecentUploadedFiles } from "@/components/statistics/RecentUploadedFiles.tsx";

@@ -1,9 +1,9 @@
 import { useNavigate } from "react-router-dom";
 import type { EntryDTO } from "@cirrodrive/schemas";
 import { useBoundStore } from "@/store/useBoundStore.ts";
-import { SidebarLayout } from "@/components/SidebarLayout/SidebarLayout.tsx";
+import { SidebarLayout } from "@/components/layout/SidebarLayout.tsx";
 import { Header } from "@/components/layout/Header.tsx";
-import { Sidebar } from "@/components/SidebarLayout/Sidebar.tsx";
+import { Sidebar } from "@/components/layout/Sidebar.tsx";
 import { FolderName } from "@/components/FolderName.tsx";
 import { LoadingSpinner } from "@/components/shared/LoadingSpinner.tsx";
 import { EntryList } from "@/components/EntryList.tsx";
