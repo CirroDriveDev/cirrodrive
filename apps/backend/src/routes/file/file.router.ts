@@ -3,6 +3,8 @@ import { TRPCError } from "@trpc/server";
 import {
   fileMetadataDTOSchema,
   fileMetadataPublicDTOSchema,
+  folderDTOSchema,
+  fileAccessCodeSchema,
 } from "@cirrodrive/schemas";
 import { router, procedure, authedProcedure } from "@/loaders/trpc.loader.ts";
 import { logger } from "@/loaders/logger.loader.ts";
@@ -25,7 +27,7 @@ export const fileRouter = router({
   getS3PresignedUploadURL: procedure
     .input(
       z.object({
-        fileName: z.string(),
+        fileName: fileMetadataDTOSchema.shape.name,
       }),
     )
     .output(
@@ -50,13 +52,13 @@ export const fileRouter = router({
     .input(
       z.object({
         key: z.string(),
-        folderId: z.string().optional(),
+        folderId: folderDTOSchema.shape.id.optional(),
       }),
     )
     .output(
       z.object({
-        fileId: z.string(),
-        code: z.string().optional(),
+        fileId: fileMetadataDTOSchema.shape.id,
+        code: fileAccessCodeSchema.shape.code.optional(),
       }),
     )
     .mutation(async ({ input, ctx }) => {
@@ -98,7 +100,7 @@ export const fileRouter = router({
   download: procedure
     .input(
       z.object({
-        fileId: z.string(),
+        fileId: fileMetadataDTOSchema.shape.id,
       }),
     )
     .output(
@@ -114,7 +116,11 @@ export const fileRouter = router({
    * 파일 메타데이터 조회
    */
   getByCode: procedure
-    .input(z.object({ code: z.string() }))
+    .input(
+      z.object({
+        code: fileAccessCodeSchema.shape.code,
+      }),
+    )
     .output(fileMetadataPublicDTOSchema)
     .query(async ({ input }) => {
       const metadata = await codeService.getCodeMetadata({
@@ -134,7 +140,7 @@ export const fileRouter = router({
   listByParentFolder: authedProcedure
     .input(
       z.object({
-        folderId: z.string(),
+        folderId: folderDTOSchema.shape.id,
       }),
     )
     .output(fileMetadataDTOSchema.array())
@@ -157,8 +163,8 @@ export const fileRouter = router({
   saveToAccount: authedProcedure
     .input(
       z.object({
-        code: z.string(),
-        folderId: z.string().optional(),
+        code: fileAccessCodeSchema.shape.code,
+        folderId: folderDTOSchema.shape.id.optional(),
       }),
     )
     .mutation(async ({ input, ctx }) => {
@@ -196,7 +202,7 @@ export const fileRouter = router({
   trash: authedProcedure
     .input(
       z.object({
-        fileId: z.string(), // 휴지통으로 옮길 파일의 ID
+        fileId: fileMetadataDTOSchema.shape.id, // 휴지통으로 옮길 파일의 ID
       }),
     )
     .output(
@@ -251,8 +257,8 @@ export const fileRouter = router({
   updateFileName: authedProcedure
     .input(
       z.object({
-        fileId: z.string(), // 수정할 파일 ID
-        name: z.string(), // 새로운 파일 이름
+        fileId: fileMetadataDTOSchema.shape.id, // 수정할 파일 ID
+        name: fileMetadataDTOSchema.shape.name, // 새로운 파일 이름
       }),
     )
     .mutation(async ({ input, ctx }) => {
@@ -281,7 +287,7 @@ export const fileRouter = router({
   listTrashedFiles: authedProcedure
     .input(
       z.object({
-        folderId: z.string(),
+        folderId: folderDTOSchema.shape.id,
       }),
     )
     .output(fileMetadataDTOSchema.array())
@@ -303,7 +309,7 @@ export const fileRouter = router({
   restoreFromTrash: authedProcedure
     .input(
       z.object({
-        fileId: z.string(),
+        fileId: fileMetadataDTOSchema.shape.id,
       }),
     )
     .output(
@@ -357,7 +363,7 @@ export const fileRouter = router({
   delete: authedProcedure
     .input(
       z.object({
-        fileId: z.string(), // 삭제할 파일의 ID
+        fileId: fileMetadataDTOSchema.shape.id, // 삭제할 파일의 ID
       }),
     )
     .output(
@@ -410,8 +416,8 @@ export const fileRouter = router({
   move: authedProcedure
     .input(
       z.object({
-        fileId: z.string(),
-        targetFolderId: z.string(),
+        fileId: fileMetadataDTOSchema.shape.id,
+        targetFolderId: folderDTOSchema.shape.id,
       }),
     )
     .mutation(async ({ input }) => {
@@ -437,7 +443,7 @@ export const fileRouter = router({
   get: authedProcedure
     .input(
       z.object({
-        fileId: z.string(), // 조회할 파일 ID
+        fileId: fileMetadataDTOSchema.shape.id, // 조회할 파일 ID
       }),
     )
     .output(fileMetadataDTOSchema) // 메타데이터를 반환하는 스키마

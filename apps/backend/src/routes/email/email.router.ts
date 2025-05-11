@@ -1,5 +1,6 @@
 import { z } from "zod";
 import { TRPCError } from "@trpc/server";
+import { userSchema } from "@cirrodrive/schemas";
 import { container } from "@/loaders/inversify.loader.ts";
 import { logger } from "@/loaders/logger.loader.ts";
 import { router, procedure } from "@/loaders/trpc.loader.ts";
@@ -10,7 +11,7 @@ const emailService = container.get<EmailService>(EmailService);
 export const emailRouter = router({
   // 이메일 인증 코드 발송
   sendVerification: procedure
-    .input(z.object({ email: z.string().email() }))
+    .input(z.object({ email: userSchema.shape.email }))
     .output(
       z.object({
         success: z.boolean(),

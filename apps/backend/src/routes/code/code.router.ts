@@ -1,5 +1,9 @@
 import { z } from "zod"; // zod 임포트
 import { TRPCError } from "@trpc/server"; // TRPCError 임포트
+import {
+  fileAccessCodeSchema,
+  fileMetadataDTOSchema,
+} from "@cirrodrive/schemas";
 import { router, procedure, authedProcedure } from "@/loaders/trpc.loader.ts"; // tRPC 설정 임포트
 import { container } from "@/loaders/inversify.loader.ts";
 import { FileAccessCodeService } from "@/services/file-access-code.service.ts";
@@ -37,8 +41,8 @@ export const codeRouter = router({
   create: procedure
     .input(
       z.object({
-        fileId: z.string(), // 파일 ID를 입력으로 받음
-        expiresAt: z.date().optional(), // 코드 만료 시간을 선택적으로 받음
+        fileId: fileMetadataDTOSchema.shape.id,
+        expiresAt: fileAccessCodeSchema.shape.expiresAt.optional(),
       }),
     )
     .output(z.object({ codeString: z.string() })) // 생성된 코드 문자열을 반환

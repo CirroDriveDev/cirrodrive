@@ -12,8 +12,8 @@ export const folderRouter = router({
   create: authedProcedure
     .input(
       z.object({
-        name: z.string(),
-        parentFolderId: z.string(),
+        name: subFolderDTOSchema.shape.name,
+        parentFolderId: subFolderDTOSchema.shape.id,
       }),
     )
     .output(subFolderDTOSchema)
