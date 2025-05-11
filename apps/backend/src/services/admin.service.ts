@@ -6,6 +6,7 @@ import { TRPCError } from "@trpc/server";
 import { sign } from "jsonwebtoken";
 import { dayjs } from "@/loaders/dayjs.loader.ts";
 import { Symbols } from "@/types/symbols.ts";
+import { env } from "@/loaders/env.loader.ts";
 
 @injectable()
 export class AdminService {
@@ -843,7 +844,7 @@ export class AdminService {
 
       const token = sign(
         { id: user.id, email: user.email, isAdmin: user.isAdmin },
-        process.env.JWT_SECRET!, // non-null 단정 사용
+        env.JWT_SECRET, // non-null 단정 사용
         { expiresIn: "1h" },
       );
 
