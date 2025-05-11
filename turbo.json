@@ -5,6 +5,7 @@
     "BASE_URL",
     "PROD",
     "DEV",
+    "TEST",
     "SSR",
     "NODE_ENV",
     "VITE_EC2_PUBLIC_URL",

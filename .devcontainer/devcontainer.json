@@ -67,6 +67,7 @@
   "forwardPorts": [
     5173, // Vite
     3000, // Express
+    9000, // Minio API
     5555 // Prisma Studio
   ],
   "name": "Cirrodrive Dev",
