@@ -1,14 +1,12 @@
+import bcrypt from "bcrypt";
 import { injectable, inject } from "inversify";
 import type { Prisma, User, FileMetadata } from "@cirrodrive/database";
-import { hash, verify } from "@node-rs/argon2";
+import { hash } from "@node-rs/argon2";
 import type { Logger } from "pino";
 import { TRPCError } from "@trpc/server";
 import { dayjs } from "@/loaders/dayjs.loader.ts";
 import { Symbols } from "@/types/symbols.ts";
 
-/**
- * 관리자 서비스입니다.
- */
 @injectable()
 export class AdminService {
   constructor(
@@ -757,44 +755,49 @@ export class AdminService {
     }
   }
   /**
-   * 관리자가 로그인할 수 있는 메서드입니다.
+   * 이메일로 관리자 로그인 처리
    *
-   * @param username - 관리자 사용자명
-   * @param password - 관리자 비밀번호
-   * @returns 로그인된 관리자 정보 또는 오류
+   * @param email - 관리자 이메일
+   * @param password - 비밀번호
+   * @returns 관리자 유저 객체
    */
-  public async login(username: string, password: string): Promise<User> {
+  public async login(email: string, password: string): Promise<User> {
     try {
-      this.logger.info({ methodName: "login", username }, "관리자 로그인 시도");
-      // 관리자 정보를 조회합니다.
+      this.logger.info({ methodName: "login", email }, "관리자 로그인 시도");
+
       const user = await this.userModel.findUnique({
-        where: { username },
+        where: { email },
       });
+
       if (!user) {
         throw new TRPCError({
           code: "NOT_FOUND",
           message: "관리자를 찾을 수 없습니다.",
         });
       }
-      // 비밀번호 검증
-      const isPasswordValid = await verify(user.hashedPassword, password);
+
+      const isPasswordValid = await bcrypt.compare(
+        password,
+        user.hashedPassword,
+      );
       if (!isPasswordValid) {
         throw new TRPCError({
           code: "UNAUTHORIZED",
           message: "비밀번호가 올바르지 않습니다.",
         });
       }
-      // 관리자 권한 확인
+
       if (!user.isAdmin) {
         throw new TRPCError({
           code: "FORBIDDEN",
           message: "관리자 권한이 없습니다.",
         });
       }
-      this.logger.info({ username }, "관리자 로그인 성공");
+
+      this.logger.info({ email }, "관리자 로그인 성공");
       return user;
     } catch (error) {
-      this.logger.error({ error, username }, "관리자 로그인 실패");
+      this.logger.error({ error, email }, "관리자 로그인 실패");
       throw error;
     }
   }
