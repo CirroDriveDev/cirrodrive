@@ -1,6 +1,10 @@
 import { spawn } from "cross-spawn";
 import which from "npm-which";
-import { prisma } from "@/loaders/prisma.loader.ts";
+import { PrismaClient } from "@cirrodrive/database";
+
+const prisma = new PrismaClient({
+  datasources: { db: { url: process.env.DATABASE_URL } },
+});
 
 async function runPrismaCommand(command: string): Promise<void> {
   if (process.env.NODE_ENV !== "test") {
