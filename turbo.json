@@ -10,7 +10,8 @@
     "NODE_ENV",
     "VITE_EC2_PUBLIC_URL",
     "VITE_CLIENT_PORT",
-    "VITE_SERVER_PORT"
+    "VITE_SERVER_PORT",
+    "JWT_SECRET"
   ],
   "tasks": {
     "@cirrodrive/backend#dev": {

@@ -4,6 +4,7 @@ import type { Prisma, User, FileMetadata } from "@cirrodrive/database";
 import { hash } from "@node-rs/argon2";
 import type { Logger } from "pino";
 import { TRPCError } from "@trpc/server";
+import { sign } from "jsonwebtoken";
 import { dayjs } from "@/loaders/dayjs.loader.ts";
 import { Symbols } from "@/types/symbols.ts";
 
@@ -796,6 +797,65 @@ export class AdminService {
 
       this.logger.info({ email }, "관리자 로그인 성공");
       return user;
+    } catch (error) {
+      this.logger.error({ error, email }, "관리자 로그인 실패");
+      throw error;
+    }
+  }
+  /**
+   * 관리자 세션 생성
+   *
+   * @param email - 관리자 이메일
+   * @param password - 관리자 비밀번호
+   * @returns 세션 토큰
+   */
+  public async loginAndCreateSession(
+    email: string,
+    password: string,
+  ): Promise<string> {
+    try {
+      this.logger.info(
+        { methodName: "loginAndCreateSession", email },
+        "관리자 로그인 시도",
+      );
+
+      const user = await this.userModel.findUnique({
+        where: { email },
+      });
+
+      if (!user) {
+        throw new TRPCError({
+          code: "NOT_FOUND",
+          message: "관리자를 찾을 수 없습니다.",
+        });
+      }
+
+      const isPasswordValid = await bcrypt.compare(
+        password,
+        user.hashedPassword,
+      );
+      if (!isPasswordValid) {
+        throw new TRPCError({
+          code: "UNAUTHORIZED",
+          message: "비밀번호가 올바르지 않습니다.",
+        });
+      }
+
+      if (!user.isAdmin) {
+        throw new TRPCError({
+          code: "FORBIDDEN",
+          message: "관리자 권한이 없습니다.",
+        });
+      }
+
+      const token = sign(
+        { id: user.id, email: user.email, isAdmin: user.isAdmin },
+        process.env.JWT_SECRET!, // non-null 단정 사용
+        { expiresIn: "1h" },
+      );
+
+      this.logger.info({ email }, "관리자 로그인 성공");
+      return token;
     } catch (error) {
       this.logger.error({ error, email }, "관리자 로그인 실패");
       throw error;
