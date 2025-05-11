@@ -1,8 +1,8 @@
 import { Link } from "react-router-dom";
-import { Layout } from "@/shared/ui/layout/Layout.tsx";
-import { Header } from "@/shared/ui/layout/Header.tsx";
-import { FormInputField } from "@/shared/components/FormInputField.tsx";
-import { Button } from "@/shared/components/shadcn/Button.tsx";
+import { Layout } from "@/components/layout/Layout.tsx";
+import { Header } from "@/components/layout/Header.tsx";
+import { FormInputField } from "@/components/shared/FormInputField.tsx";
+import { Button } from "@/shadcn/components/Button.tsx";
 import { useFindPassword } from "@/pages/find/api/useFindPassword.ts";
 
 // 비밀번호 찾기 페이지 컴포넌트

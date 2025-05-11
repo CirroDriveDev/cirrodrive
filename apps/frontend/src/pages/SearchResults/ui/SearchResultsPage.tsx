@@ -1,11 +1,11 @@
 import { useSearchParams } from "react-router-dom";
-import { EntryList } from "@/entities/entry/ui/EntryList.tsx";
-import { LoadingSpinner } from "@/shared/components/LoadingSpinner.tsx";
-import { useEntryByUserList } from "@/entities/entry/api/useEntryListByUser.ts";
-import { SidebarLayout } from "@/shared/ui/SidebarLayout/SidebarLayout.tsx";
-import { Header } from "@/shared/ui/layout/Header.tsx";
-import { Sidebar } from "@/shared/ui/SidebarLayout/Sidebar.tsx";
-import { FolderName } from "@/widgets/folderView/ui/FolderName.tsx";
+import { EntryList } from "@/components/EntryList.tsx";
+import { LoadingSpinner } from "@/components/shared/LoadingSpinner.tsx";
+import { useEntryByUserList } from "@/services/useEntryListByUser.ts";
+import { SidebarLayout } from "@/components/SidebarLayout/SidebarLayout.tsx";
+import { Header } from "@/components/layout/Header.tsx";
+import { Sidebar } from "@/components/SidebarLayout/Sidebar.tsx";
+import { FolderName } from "@/components/FolderName.tsx";
 
 export function SearchResultsPage(): JSX.Element {
   const [searchParams] = useSearchParams();

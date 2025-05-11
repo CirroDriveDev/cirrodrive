@@ -1,16 +1,16 @@
 import { useParams } from "react-router-dom";
-import { Header } from "@/shared/ui/layout/Header.tsx";
-import { Layout } from "@/shared/ui/layout/Layout.tsx";
+import { Header } from "@/components/layout/Header.tsx";
+import { Layout } from "@/components/layout/Layout.tsx";
 import { NotFoundPage } from "@/pages/notFound/ui/NotFoundPage.tsx";
-import { LoadingSpinner } from "@/shared/components/LoadingSpinner.tsx";
-import { useGetFileByCode } from "@/entities/file/api/useGetFileByCode.ts";
-import { useDownloadByCode } from "@/entities/file/api/useDownloadByCode.ts";
-import { Button } from "@/shared/components/shadcn/Button.tsx";
-import { EntryIcon } from "@/entities/entry/ui/EntryIcon.tsx";
-import { inferFileType } from "@/shared/lib/inferFileType.ts";
-import { formatSize } from "@/entities/entry/lib/formatSize.ts";
-import { useBoundStore } from "@/shared/store/useBoundStore.ts";
-import { useSaveToAccount } from "@/entities/file/api/useSaveToAccount.ts";
+import { LoadingSpinner } from "@/components/shared/LoadingSpinner.tsx";
+import { useGetFileByCode } from "@/services/file/useGetFileByCode.ts";
+import { useDownloadByCode } from "@/services/file/useDownloadByCode.ts";
+import { Button } from "@/shadcn/components/Button.tsx";
+import { EntryIcon } from "@/components/EntryIcon.tsx";
+import { inferFileType } from "@/utils/inferFileType.ts";
+import { formatSize } from "@/utils/formatSize.ts";
+import { useBoundStore } from "@/store/useBoundStore.ts";
+import { useSaveToAccount } from "@/services/file/useSaveToAccount.ts";
 
 interface CodePageParams extends Record<string, string> {
   code: string;

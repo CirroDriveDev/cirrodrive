@@ -1,13 +1,13 @@
 import { useNavigate } from "react-router-dom";
 import type { EntryDTO } from "@cirrodrive/schemas";
-import { useBoundStore } from "@/shared/store/useBoundStore.ts";
-import { SidebarLayout } from "@/shared/ui/SidebarLayout/SidebarLayout.tsx";
-import { Header } from "@/shared/ui/layout/Header.tsx";
-import { Sidebar } from "@/shared/ui/SidebarLayout/Sidebar.tsx";
-import { FolderName } from "@/widgets/folderView/ui/FolderName.tsx";
-import { LoadingSpinner } from "@/shared/components/LoadingSpinner.tsx";
-import { EntryList } from "@/entities/entry/ui/EntryList.tsx";
-import { useEntryByUserList } from "@/entities/entry/api/useEntryListByUser.ts";
+import { useBoundStore } from "@/store/useBoundStore.ts";
+import { SidebarLayout } from "@/components/SidebarLayout/SidebarLayout.tsx";
+import { Header } from "@/components/layout/Header.tsx";
+import { Sidebar } from "@/components/SidebarLayout/Sidebar.tsx";
+import { FolderName } from "@/components/FolderName.tsx";
+import { LoadingSpinner } from "@/components/shared/LoadingSpinner.tsx";
+import { EntryList } from "@/components/EntryList.tsx";
+import { useEntryByUserList } from "@/services/useEntryListByUser.ts";
 
 export function RecentPage(): JSX.Element {
   const navigate = useNavigate();

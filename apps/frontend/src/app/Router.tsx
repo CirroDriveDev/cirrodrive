@@ -8,20 +8,20 @@ import { RegisterPage } from "@/pages/register/ui/RegisterPage.tsx";
 import { LandingPage } from "@/pages/landing/ui/LandingPage.tsx";
 import { UploadByCodePage } from "@/pages/uploadByCode/ui/UploadByCodePage.tsx";
 import { DownloadByCodePage } from "@/pages/downloadByCode/ui/DownloadByCodePage.tsx";
-import { useBoundStore } from "@/shared/store/useBoundStore.ts";
+import { useBoundStore } from "@/store/useBoundStore.ts";
 import { TrashPage } from "@/pages/Trash/ui/TrashPage.tsx";
 import { CodePage } from "@/pages/code/ui/CodePage.tsx";
 import { NotFoundPage } from "@/pages/notFound/ui/NotFoundPage.tsx";
 import { FolderPage } from "@/pages/folder/ui/FolderPage.tsx";
-import { Modal } from "@/shared/ui/modal/Modal.tsx";
+import { Modal } from "@/components/modal/Modal.tsx";
 import { DocumentsPage } from "@/pages/documents/ui/DocumentsPage.tsx";
 import { PhotosPage } from "@/pages/photos/ui/PhotosPage.tsx";
 import { RecentPage } from "@/pages/recent/ui/RecentPage.tsx";
-import { trpc } from "@/shared/api/trpc.ts";
+import { trpc } from "@/services/trpc.ts";
 import { SearchResultsPage } from "@/pages/SearchResults/ui/SearchResultsPage.tsx";
 import { FindPasswordPage } from "@/pages/find/ui/FindPasswordPage.tsx";
 import { FindUsernamePage } from "@/pages/find/ui/FindUsernamePage.tsx";
-import { AdminLoginPage } from "@/pages/admin/login/ui/AdminLoginPage.tsx";
+import { AdminLoginPage } from "@/pages/admin/login/AdminLoginPage.tsx";
 
 function RedirectAuthedUserToHome({
   children,

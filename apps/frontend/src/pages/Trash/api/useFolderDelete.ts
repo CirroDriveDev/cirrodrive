@@ -1,6 +1,6 @@
 import { useState } from "react";
-import { trpc } from "@/shared/api/trpc.ts";
-import { useEntryUpdatedEvent } from "@/entities/entry/api/useEntryUpdatedEvent.ts";
+import { trpc } from "@/services/trpc.ts";
+import { useEntryUpdatedEvent } from "@/services/useEntryUpdatedEvent.ts";
 
 interface UseFolderDelete {
   handleFolderDelete: () => void; // 폴더 삭제 함수

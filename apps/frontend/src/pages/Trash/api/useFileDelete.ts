@@ -1,6 +1,6 @@
 import { useState } from "react";
-import { trpc } from "@/shared/api/trpc.ts";
-import { useEntryUpdatedEvent } from "@/entities/entry/api/useEntryUpdatedEvent.ts";
+import { trpc } from "@/services/trpc.ts";
+import { useEntryUpdatedEvent } from "@/services/useEntryUpdatedEvent.ts";
 
 interface UseFileDelete {
   handleFileDelete: () => void; // 삭제하기 함수

@@ -5,9 +5,9 @@ import type { TRPCClientErrorLike } from "@trpc/client";
 import type { UseTRPCMutationOptions } from "@trpc/react-query/shared";
 import { userSchema } from "@cirrodrive/schemas";
 import { z, type ZodFormattedError } from "zod";
-import { trpc } from "@/shared/api/trpc.ts";
-import { useModalStore } from "@/shared/store/useModalStore.ts";
-import { useBoundStore } from "@/shared/store/useBoundStore.ts";
+import { trpc } from "@/services/trpc.ts";
+import { useModalStore } from "@/store/useModalStore.ts";
+import { useBoundStore } from "@/store/useBoundStore.ts";
 
 const formSchema = z
   .object({

@@ -1,7 +1,7 @@
 import { Link } from "react-router-dom";
-import { Header } from "@/shared/ui/layout/Header.tsx";
-import { Layout } from "@/shared/ui/layout/Layout.tsx";
-import { Button } from "@/shared/components/shadcn/Button.tsx";
+import { Header } from "@/components/layout/Header.tsx";
+import { Layout } from "@/components/layout/Layout.tsx";
+import { Button } from "@/shadcn/components/Button.tsx";
 
 export function NotFoundPage(): JSX.Element {
   return (

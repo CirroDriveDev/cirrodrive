@@ -1,8 +1,8 @@
 import { useState } from "react";
 import { useQueryClient } from "@tanstack/react-query";
-import { trpc } from "@/shared/api/trpc.ts";
-import { entryListQueryKey } from "@/entities/entry/api/useEntryList.ts";
-import { trashEntryListQueryKey } from "@/entities/entry/api/useTrashEntryList.ts";
+import { trpc } from "@/services/trpc.ts";
+import { entryListQueryKey } from "@/services/useEntryList.ts";
+import { trashEntryListQueryKey } from "@/services/useTrashEntryList.ts";
 
 interface UseRestore {
   handleRestore: (type: "file" | "folder") => void; // 복원 함수 (파일/폴더 구분)

@@ -1,10 +1,10 @@
-import { Header } from "@/shared/ui/layout/Header.tsx";
-import { Sidebar } from "@/shared/ui/SidebarLayout/Sidebar.tsx";
-import { SidebarLayout } from "@/shared/ui/SidebarLayout/SidebarLayout.tsx";
-import { WeeklyActivityChart } from "@/features/statistics/ui/WeeklyActivityChart.tsx";
-import { MonthlyActivityChart } from "@/features/statistics/ui/MonthlyActivityChart.tsx";
-import { RecentUploadedFiles } from "@/features/folderContent/ui/statistics/ui/RecentUploadedFiles.tsx";
-import { KpiOverview } from "@/features/statistics/ui/KpiOverview.tsx";
+import { Header } from "@/components/layout/Header.tsx";
+import { Sidebar } from "@/components/SidebarLayout/Sidebar.tsx";
+import { SidebarLayout } from "@/components/SidebarLayout/SidebarLayout.tsx";
+import { WeeklyActivityChart } from "@/components/statistics/WeeklyActivityChart.tsx";
+import { MonthlyActivityChart } from "@/components/statistics/MonthlyActivityChart.tsx";
+import { RecentUploadedFiles } from "@/components/statistics/RecentUploadedFiles.tsx";
+import { KpiOverview } from "@/components/statistics/KpiOverview.tsx";
 
 // 관리자 대시보드 메인 페이지
 export function AdminDashboardPage(): JSX.Element {

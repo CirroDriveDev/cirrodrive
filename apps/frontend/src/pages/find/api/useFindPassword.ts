@@ -1,9 +1,9 @@
 import React, { useState } from "react";
 import { userSchema } from "@cirrodrive/schemas";
 import { useEmailCode } from "@/pages/register/api/useEmailCode.ts";
-import { trpc } from "@/shared/api/trpc.ts";
-import { useModalStore } from "@/shared/store/useModalStore.ts";
-import { useBoundStore } from "@/shared/store/useBoundStore.ts";
+import { trpc } from "@/services/trpc.ts";
+import { useModalStore } from "@/store/useModalStore.ts";
+import { useBoundStore } from "@/store/useBoundStore.ts";
 
 export interface UseFindPasswordReturn {
   email: string;

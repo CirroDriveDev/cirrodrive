@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { useEmailCode } from "@/pages/register/api/useEmailCode.ts";
-import { trpc } from "@/shared/api/trpc.ts";
-import { useModalStore } from "@/shared/store/useModalStore.ts";
+import { trpc } from "@/services/trpc.ts";
+import { useModalStore } from "@/store/useModalStore.ts";
 
 export interface UseFindUsernameReturn {
   email: string;

@@ -5,7 +5,7 @@ import {
   splitLink,
 } from "@trpc/client";
 import { SuperJSON } from "superjson";
-import { trpc, TRPC_URL } from "@/shared/api/trpc.ts";
+import { trpc, TRPC_URL } from "@/services/trpc.ts";
 
 export const trpcClient = trpc.createClient({
   links: [

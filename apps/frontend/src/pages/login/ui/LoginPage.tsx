@@ -1,9 +1,9 @@
 import { Link, useNavigate } from "react-router-dom";
-import { Button } from "@/shared/components/shadcn/Button.tsx";
+import { Button } from "@/shadcn/components/Button.tsx";
 import { useLogin } from "@/pages/login/api/useLogin.ts";
-import { FormInputField } from "@/shared/components/FormInputField.tsx";
-import { Layout } from "@/shared/ui/layout/Layout.tsx";
-import { Header } from "@/shared/ui/layout/Header.tsx";
+import { FormInputField } from "@/components/shared/FormInputField.tsx";
+import { Layout } from "@/components/layout/Layout.tsx";
+import { Header } from "@/components/layout/Header.tsx";
 //import { useUserStore } from "@/shared/store/useUserStore.ts";
 //import { mockAdminUser } from "@/pages/admin/api/mockAdminUser.ts";
 

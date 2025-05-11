@@ -1,13 +1,13 @@
 import { useNavigate } from "react-router-dom";
-import { useTrashEntryList } from "@/entities/entry/api/useTrashEntryList.ts";
-import { Header } from "@/shared/ui/layout/Header.tsx";
-import { Sidebar } from "@/shared/ui/SidebarLayout/Sidebar.tsx";
-import { SidebarLayout } from "@/shared/ui/SidebarLayout/SidebarLayout.tsx";
-import { useBoundStore } from "@/shared/store/useBoundStore.ts";
-import { LoadingSpinner } from "@/shared/components/LoadingSpinner.tsx";
-import { useSearchBarStore } from "@/shared/store/useSearchBarStore.ts";
-import { TrashEntryList } from "@/entities/entry/ui/TrashEntryList.tsx";
-import { FolderName } from "@/widgets/folderView/ui/FolderName.tsx";
+import { useTrashEntryList } from "@/services/useTrashEntryList.ts";
+import { Header } from "@/components/layout/Header.tsx";
+import { Sidebar } from "@/components/SidebarLayout/Sidebar.tsx";
+import { SidebarLayout } from "@/components/SidebarLayout/SidebarLayout.tsx";
+import { useBoundStore } from "@/store/useBoundStore.ts";
+import { LoadingSpinner } from "@/components/shared/LoadingSpinner.tsx";
+import { useSearchBarStore } from "@/store/useSearchBarStore.ts";
+import { TrashEntryList } from "@/components/TrashEntryList.tsx";
+import { FolderName } from "@/components/FolderName.tsx";
 
 export function TrashPage(): JSX.Element {
   const navigate = useNavigate();
