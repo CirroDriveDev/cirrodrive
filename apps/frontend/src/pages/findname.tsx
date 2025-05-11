@@ -3,7 +3,7 @@ import { Layout } from "@/components/layout/Layout.tsx";
 import { Header } from "@/components/layout/Header.tsx";
 import { FormInputField } from "@/components/shared/FormInputField.tsx";
 import { Button } from "@/shadcn/components/Button.tsx";
-import { useFindUsername } from "@/pages/find/api/useFindUsername.ts";
+import { useFindUsername } from "@/services/useFindUsername.ts";
 
 // 아이디 찾기 페이지 컴포넌트
 export function FindUsernamePage(): JSX.Element {

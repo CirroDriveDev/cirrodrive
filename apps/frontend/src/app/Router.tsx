@@ -1,27 +1,27 @@
-import { createBrowserRouter, Navigate, Outlet } from "react-router-dom";
-import type { RouteObject } from "react-router-dom";
 import { useEffect } from "react";
-import { AdminUserPage } from "@/pages/admin/ui/AdminUserPage.tsx";
-import { AdminFilePage } from "@/pages/admin/ui/AdminFilePage.tsx";
-import { LoginPage } from "@/pages/login/ui/LoginPage.tsx";
-import { RegisterPage } from "@/pages/register/ui/RegisterPage.tsx";
-import { LandingPage } from "@/pages/landing/ui/LandingPage.tsx";
-import { UploadByCodePage } from "@/pages/uploadByCode/ui/UploadByCodePage.tsx";
-import { DownloadByCodePage } from "@/pages/downloadByCode/ui/DownloadByCodePage.tsx";
-import { useBoundStore } from "@/store/useBoundStore.ts";
-import { TrashPage } from "@/pages/Trash/ui/TrashPage.tsx";
-import { CodePage } from "@/pages/code/ui/CodePage.tsx";
-import { NotFoundPage } from "@/pages/notFound/ui/NotFoundPage.tsx";
-import { FolderPage } from "@/pages/folder/ui/FolderPage.tsx";
+import type { RouteObject } from "react-router-dom";
+import { createBrowserRouter, Navigate, Outlet } from "react-router-dom";
 import { Modal } from "@/components/modal/Modal.tsx";
-import { DocumentsPage } from "@/pages/documents/ui/DocumentsPage.tsx";
-import { PhotosPage } from "@/pages/photos/ui/PhotosPage.tsx";
-import { RecentPage } from "@/pages/recent/ui/RecentPage.tsx";
+import { AdminFilePage } from "@/pages/admin/file.tsx";
+import { AdminLoginPage } from "@/pages/admin/login.tsx";
+import { AdminUserPage } from "@/pages/admin/user.tsx";
+import { CodePage } from "@/pages/c/[code].tsx";
+import { DocumentsPage } from "@/pages/documents.tsx";
+import { DownloadByCodePage } from "@/pages/download.tsx";
+import { FindUsernamePage } from "@/pages/findname.tsx";
+import { FindPasswordPage } from "@/pages/findpassword.tsx";
+import { FolderPage } from "@/pages/folder/[folder-id].tsx";
+import { LandingPage } from "@/pages/index.tsx";
+import { LoginPage } from "@/pages/login.tsx";
+import { NotFoundPage } from "@/pages/not-found.tsx";
+import { PhotosPage } from "@/pages/photos.tsx";
+import { RecentPage } from "@/pages/recent.tsx";
+import { RegisterPage } from "@/pages/register.tsx";
+import { SearchResultsPage } from "@/pages/search.tsx";
+import { TrashPage } from "@/pages/trash.tsx";
+import { UploadByCodePage } from "@/pages/upload.tsx";
 import { trpc } from "@/services/trpc.ts";
-import { SearchResultsPage } from "@/pages/SearchResults/ui/SearchResultsPage.tsx";
-import { FindPasswordPage } from "@/pages/find/ui/FindPasswordPage.tsx";
-import { FindUsernamePage } from "@/pages/find/ui/FindUsernamePage.tsx";
-import { AdminLoginPage } from "@/pages/admin/login/AdminLoginPage.tsx";
+import { useBoundStore } from "@/store/useBoundStore.ts";
 
 function RedirectAuthedUserToHome({
   children,

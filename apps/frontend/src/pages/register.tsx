@@ -1,6 +1,6 @@
 import { useNavigate, Link } from "react-router-dom";
-import { useRegister } from "@/pages/register/api/useRegister.tsx";
-import { useEmailCode } from "@/pages/register/api/useEmailCode.ts";
+import { useRegister } from "@/services/useRegister.tsx";
+import { useEmailCode } from "@/services/useEmailCode.ts";
 import { FormInputField } from "@/components/shared/FormInputField.tsx";
 import { Layout } from "@/components/layout/Layout.tsx";
 import { Header } from "@/components/layout/Header.tsx";

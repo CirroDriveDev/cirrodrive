@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { userSchema } from "@cirrodrive/schemas";
-import { useEmailCode } from "@/pages/register/api/useEmailCode.ts";
+import { useEmailCode } from "@/services/useEmailCode.ts";
 import { trpc } from "@/services/trpc.ts";
 import { useModalStore } from "@/store/useModalStore.ts";
 import { useBoundStore } from "@/store/useBoundStore.ts";

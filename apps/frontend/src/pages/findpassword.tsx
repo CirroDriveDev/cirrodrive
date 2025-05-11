@@ -3,7 +3,7 @@ import { Layout } from "@/components/layout/Layout.tsx";
 import { Header } from "@/components/layout/Header.tsx";
 import { FormInputField } from "@/components/shared/FormInputField.tsx";
 import { Button } from "@/shadcn/components/Button.tsx";
-import { useFindPassword } from "@/pages/find/api/useFindPassword.ts";
+import { useFindPassword } from "@/services/useFindPassword.ts";
 
 // 비밀번호 찾기 페이지 컴포넌트
 export function FindPasswordPage(): JSX.Element {

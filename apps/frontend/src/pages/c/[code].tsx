@@ -1,7 +1,7 @@
 import { useParams } from "react-router-dom";
 import { Header } from "@/components/layout/Header.tsx";
 import { Layout } from "@/components/layout/Layout.tsx";
-import { NotFoundPage } from "@/pages/notFound/ui/NotFoundPage.tsx";
+import { NotFoundPage } from "@/pages/not-found.tsx";
 import { LoadingSpinner } from "@/components/shared/LoadingSpinner.tsx";
 import { useGetFileByCode } from "@/services/file/useGetFileByCode.ts";
 import { useDownloadByCode } from "@/services/file/useDownloadByCode.ts";

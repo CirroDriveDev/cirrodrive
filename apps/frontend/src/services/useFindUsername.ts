@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { useEmailCode } from "@/pages/register/api/useEmailCode.ts";
+import { useEmailCode } from "@/services/useEmailCode.ts";
 import { trpc } from "@/services/trpc.ts";
 import { useModalStore } from "@/store/useModalStore.ts";
 

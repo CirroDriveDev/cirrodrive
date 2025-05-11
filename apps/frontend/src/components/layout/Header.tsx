@@ -5,7 +5,7 @@ import { ModeToggle } from "@/shadcn/components/ModeToggle.tsx";
 import { useBoundStore } from "@/store/useBoundStore.ts";
 import { useLogout } from "@/services/useLogout.ts";
 import { NavButton } from "@/components/layout/NavButton.tsx";
-import { useDeleteAccount } from "@/pages/settings/api/useDeleteAccount.ts";
+import { useDeleteAccount } from "@/services/useDeleteAccount.ts";
 
 export function Header(): JSX.Element {
   const { user } = useBoundStore();

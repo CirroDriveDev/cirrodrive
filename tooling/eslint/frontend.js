@@ -40,6 +40,19 @@ export default tseslint.config(
     },
   },
   {
+    files: ["**/pages/**/*.tsx"],
+    rules: {
+      "unicorn/filename-case": [
+        "error",
+        {
+          cases: {
+            kebabCase: true,
+          },
+        },
+      ],
+    },
+  },
+  {
     files: ["**/*.d.ts"],
     rules: {
       "unicorn/filename-case": ["off"],
