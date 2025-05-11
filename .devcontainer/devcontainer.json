@@ -64,10 +64,14 @@
       "version": "none"
     }
   },
-  // "forwardPorts": [],
+  "forwardPorts": [
+    5173, // Vite
+    3000, // Express
+    5555 // Prisma Studio
+  ],
   "name": "Cirrodrive Dev",
-  "postCreateCommand": "pnpm install",
+  "postCreateCommand": "pnpm install && pnpm dev",
   "remoteUser": "node",
   "service": "app",
-  "workspaceFolder": "/workspaces/${localWorkspaceFolderBasename}"
+  "workspaceFolder": "/workspaces/cirrodrive"
 }
