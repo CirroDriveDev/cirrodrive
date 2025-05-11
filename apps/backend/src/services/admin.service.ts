@@ -1,7 +1,6 @@
-import bcrypt from "bcrypt";
 import { injectable, inject } from "inversify";
 import type { Prisma, User, FileMetadata } from "@cirrodrive/database";
-import { hash } from "@node-rs/argon2";
+import { hash, verify } from "@node-rs/argon2";
 import type { Logger } from "pino";
 import { TRPCError } from "@trpc/server";
 import { sign } from "jsonwebtoken";
@@ -777,10 +776,7 @@ export class AdminService {
         });
       }
 
-      const isPasswordValid = await bcrypt.compare(
-        password,
-        user.hashedPassword,
-      );
+      const isPasswordValid = await verify(user.hashedPassword, password);
       if (!isPasswordValid) {
         throw new TRPCError({
           code: "UNAUTHORIZED",
@@ -830,10 +826,7 @@ export class AdminService {
         });
       }
 
-      const isPasswordValid = await bcrypt.compare(
-        password,
-        user.hashedPassword,
-      );
+      const isPasswordValid = await verify(user.hashedPassword, password);
       if (!isPasswordValid) {
         throw new TRPCError({
           code: "UNAUTHORIZED",
