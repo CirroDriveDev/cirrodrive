@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router";
 import { Header } from "@/components/layout/Header.tsx";
 import { Button } from "@/shadcn/components/Button.tsx";
 import { Layout } from "@/components/layout/Layout.tsx";
@@ -25,7 +25,7 @@ export function DownloadByCodePage(): JSX.Element {
       setErrorMessage(error.message);
       return;
     }
-    navigate(`/c/${code}`);
+    void navigate(`/c/${code}`);
   };
 
   return (

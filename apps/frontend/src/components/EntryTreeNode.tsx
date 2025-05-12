@@ -6,7 +6,7 @@ import {
   FolderOpenIcon,
 } from "lucide-react";
 import { useState } from "react";
-import { useNavigate, useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router";
 import { Button } from "@/shadcn/components/Button.tsx";
 import { useUserStore } from "@/store/useUserStore.ts";
 
@@ -59,7 +59,7 @@ export function EntryTreeNode({
           if (onClick) {
             onClick(e, entry);
           } else {
-            navigate(`/folder/${entry.id}`);
+            void navigate(`/folder/${entry.id}`);
           }
         }}
       >

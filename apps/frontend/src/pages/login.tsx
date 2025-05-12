@@ -1,4 +1,4 @@
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router";
 import { Button } from "@/shadcn/components/Button.tsx";
 import { FormInputField } from "@/components/shared/FormInputField.tsx";
 import { Layout } from "@/components/layout/Layout.tsx";
@@ -21,9 +21,9 @@ export function LoginPage(): JSX.Element {
     onSuccess: (data) => {
       // 로그인 성공 시 받은 user data 활용
       if (data.isAdmin) {
-        navigate("/admin/user");
+        void navigate("/admin/user");
       } else {
-        navigate(`/folder/${data.rootFolderId}`);
+        void navigate(`/folder/${data.rootFolderId}`);
       }
     },
     retry: 0,
@@ -82,7 +82,7 @@ export function LoginPage(): JSX.Element {
               {/* {import.meta.env.DEV ? <Button
                   onClick={() => {
                     setUser(mockAdminUser);
-                    navigate("/admin/user");
+                  void navigate("/admin/user");
                   }}
                   className="rounded bg-green-600 px-4 py-2 text-white"
                 >

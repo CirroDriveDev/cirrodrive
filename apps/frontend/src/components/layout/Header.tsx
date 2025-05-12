@@ -1,4 +1,4 @@
-import { Link } from "react-router-dom";
+import { Link } from "react-router";
 import { Logo } from "@/components/layout/Logo.tsx";
 import { SearchBar } from "@/components/layout/SearchBar.tsx";
 import { ModeToggle } from "@/shadcn/components/ModeToggle.tsx";

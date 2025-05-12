@@ -1,5 +1,5 @@
 import type React from "react";
-import { useNavigate, useLocation } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router";
 import { Button } from "@/shadcn/components/Button.tsx";
 
 interface SidebarItemProps {
@@ -15,7 +15,7 @@ export function SidebarItem({
   const navigate = useNavigate();
   const location = useLocation();
   const handleClick = (): void => {
-    navigate(path);
+    void navigate(path);
   };
 
   return (

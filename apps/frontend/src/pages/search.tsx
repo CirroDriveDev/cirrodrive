@@ -1,4 +1,4 @@
-import { useSearchParams } from "react-router-dom";
+import { useSearchParams } from "react-router";
 import { EntryList } from "@/components/EntryList.tsx";
 import { LoadingSpinner } from "@/components/shared/LoadingSpinner.tsx";
 import { useEntryByUserList } from "@/services/useEntryListByUser.ts";

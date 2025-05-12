@@ -1,4 +1,4 @@
-import { useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router";
 import { useTrashEntryList } from "@/services/useTrashEntryList.ts";
 import { Header } from "@/components/layout/Header.tsx";
 import { Sidebar } from "@/components/layout/Sidebar.tsx";
@@ -14,7 +14,7 @@ export function TrashPage(): JSX.Element {
   const { user } = useBoundStore();
 
   if (user === null) {
-    navigate("/login");
+    void navigate("/login");
   }
 
   const { query: trashEntryListQuery } = useTrashEntryList();

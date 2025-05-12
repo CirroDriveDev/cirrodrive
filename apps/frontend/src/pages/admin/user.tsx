@@ -1,4 +1,4 @@
-import { useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router";
 import { useEffect } from "react";
 import { useBoundStore } from "@/store/useBoundStore.ts";
 import { SidebarLayout } from "@/components/layout/SidebarLayout.tsx";
@@ -16,7 +16,7 @@ export function AdminUserPage(): JSX.Element {
   // 로그인 & 관리자 권한 확인
   useEffect(() => {
     if (!user?.isAdmin) {
-      navigate("/login");
+      void navigate("/login");
     }
   }, [navigate, user]);
 

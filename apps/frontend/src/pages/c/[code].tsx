@@ -1,4 +1,4 @@
-import { useParams } from "react-router-dom";
+import { useParams } from "react-router";
 import { Header } from "@/components/layout/Header.tsx";
 import { Layout } from "@/components/layout/Layout.tsx";
 import { NotFoundPage } from "@/pages/not-found.tsx";

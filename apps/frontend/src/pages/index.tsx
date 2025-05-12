@@ -1,4 +1,4 @@
-import { Link } from "react-router-dom";
+import { Link } from "react-router";
 import { Button } from "@/shadcn/components/Button.tsx";
 import { LandingContainer } from "@/components/layout/LandingContainer.tsx";
 import { Fileupload } from "@/components/FileUploadImage.tsx";

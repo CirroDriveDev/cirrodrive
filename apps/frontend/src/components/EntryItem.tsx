@@ -10,7 +10,7 @@ import {
 } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import type { EntryDTO } from "@cirrodrive/schemas";
-import { useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router";
 import { inferFileType } from "@/utils/inferFileType.ts";
 import { formatSize } from "@/utils/formatSize.ts";
 import { EntryIcon } from "@/components/EntryIcon.tsx";
@@ -126,7 +126,7 @@ export function EntryItem({
     if (onDoubleClick) {
       onDoubleClick(e);
     } else if (type === "folder") {
-      navigate(`/folder/${id}`);
+      void navigate(`/folder/${id}`);
     } else {
       downloadEntry();
     }

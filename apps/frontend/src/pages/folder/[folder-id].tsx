@@ -1,4 +1,4 @@
-import { useNavigate, useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router";
 import { z } from "zod";
 import { FolderView } from "@/components/FolderView.tsx";
 import { useBoundStore } from "@/store/useBoundStore.ts";
@@ -11,7 +11,7 @@ export function FolderPage(): JSX.Element {
   const navigate = useNavigate();
   const { user } = useBoundStore();
   if (user === null) {
-    navigate("/login");
+    void navigate("/login");
   }
 
   const { data: folderId, error } = z.coerce

@@ -1,5 +1,5 @@
 import { useEffect } from "react";
-import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Navigate } from "react-router";
 import { Modal } from "@/components/modal/Modal.tsx";
 import { AdminFilePage } from "@/pages/admin/file.tsx";
 import { AdminLoginPage } from "@/pages/admin/login.tsx";

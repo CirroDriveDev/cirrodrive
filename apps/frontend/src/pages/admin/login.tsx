@@ -1,4 +1,4 @@
-import { useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router";
 import { Button } from "@/shadcn/components/Button.tsx";
 import { useLogin } from "@/services/useLogin.ts";
 import { FormInputField } from "@/components/shared/FormInputField.tsx";
@@ -10,7 +10,7 @@ export function AdminLoginPage(): JSX.Element {
   // const { input, handleInputChange, handleFormSubmit } = useLogin({
   const { handleInputChange, handleFormSubmit } = useLogin({
     onSuccess: () => {
-      navigate("/admin/user");
+      void navigate("/admin/user");
     },
     retry: 0,
   });

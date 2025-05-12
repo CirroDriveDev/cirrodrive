@@ -1,4 +1,4 @@
-import { useNavigate, Link } from "react-router-dom";
+import { useNavigate, Link } from "react-router";
 import { useRegister } from "@/services/useRegister.tsx";
 import { useEmailCode } from "@/services/useEmailCode.ts";
 import { FormInputField } from "@/components/shared/FormInputField.tsx";

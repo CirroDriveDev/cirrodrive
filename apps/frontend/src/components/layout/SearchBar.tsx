@@ -1,6 +1,6 @@
 import { Search } from "lucide-react";
 import { useState, type ChangeEvent, type KeyboardEvent } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router";
 import { useSearchBarStore } from "@/store/useSearchBarStore.ts";
 
 export function SearchBar(): JSX.Element {
@@ -24,7 +24,7 @@ export function SearchBar(): JSX.Element {
 
   const handleKeyDown = (event: KeyboardEvent<HTMLInputElement>): void => {
     if (event.key === "Enter" && searchTerm.trim() !== "") {
-      navigate(`/search?q=${encodeURIComponent(searchTerm.trim())}`); // 검색어를 URL에 추가
+      void navigate(`/search?q=${encodeURIComponent(searchTerm.trim())}`); // 검색어를 URL에 추가
     }
   };
 

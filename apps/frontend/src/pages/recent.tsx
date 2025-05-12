@@ -1,4 +1,4 @@
-import { useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router";
 import type { EntryDTO } from "@cirrodrive/schemas";
 import { useBoundStore } from "@/store/useBoundStore.ts";
 import { SidebarLayout } from "@/components/layout/SidebarLayout.tsx";
@@ -13,7 +13,7 @@ export function RecentPage(): JSX.Element {
   const navigate = useNavigate();
   const { user } = useBoundStore();
   if (user === null) {
-    navigate("/login");
+    void navigate("/login");
   }
 
   const { query: entryListByUserQuery } = useEntryByUserList();
