@@ -7,7 +7,9 @@ services:
       dockerfile: Dockerfile
 
     volumes:
-      - ..:/workspaces/cirrodrive:cached
+      - ..:/workspace/cirrodrive:cached
+      - node-modules:/workspace/cirrodrive/node_modules
+      - pnpm-store:/workspace/cirrodrive/.pnpm-store
 
     # Overrides default command so things don't shut down after the process ends.
     command: sleep infinity
@@ -48,3 +50,5 @@ services:
 volumes:
   mariadb-data:
   minio-data:
+  node-modules:
+  pnpm-store:
