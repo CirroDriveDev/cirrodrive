@@ -1,6 +1,5 @@
 import { useEffect } from "react";
-import type { RouteObject } from "react-router-dom";
-import { createBrowserRouter, Navigate, Outlet } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { Modal } from "@/components/modal/Modal.tsx";
 import { AdminFilePage } from "@/pages/admin/file.tsx";
 import { AdminLoginPage } from "@/pages/admin/login.tsx";
@@ -64,106 +63,59 @@ function CheckAuth(): React.ReactNode {
   return null;
 }
 
-const routeTree: RouteObject[] = [
-  {
-    element: (
-      <>
-        <Modal />
-        <CheckAuth />
-        <Outlet />
-      </>
-    ),
-    children: [
-      {
-        path: "/",
-        element: (
-          <RedirectAuthedUserToHome>
-            <LandingPage />
-          </RedirectAuthedUserToHome>
-        ),
-      },
-      {
-        path: "/login",
-        element: (
-          <RedirectAuthedUserToHome>
-            <LoginPage />
-          </RedirectAuthedUserToHome>
-        ),
-      },
-      {
-        path: "/register",
-        element: (
-          <RedirectAuthedUserToHome>
-            <RegisterPage />
-          </RedirectAuthedUserToHome>
-        ),
-      },
-      {
-        path: "/upload",
-        element: <UploadByCodePage />,
-      },
-      {
-        path: "/download",
-        element: <DownloadByCodePage />,
-      },
-      {
-        path: "/c/:code",
-        element: <CodePage />,
-      },
-      {
-        path: "/folder/:folderId",
-        element: (
-          <RequireAuth>
-            <FolderPage />
-          </RequireAuth>
-        ),
-      },
-      {
-        path: "/trash",
-        element: <TrashPage />,
-      },
-      {
-        path: "/documents",
-        element: <DocumentsPage />,
-      },
-      {
-        path: "/photos",
-        element: <PhotosPage />,
-      },
-      {
-        path: "/recent",
-        element: <RecentPage />,
-      },
-      {
-        path: "/search",
-        element: <SearchResultsPage />,
-      },
-      {
-        path: "/admin/user",
-        element: <AdminUserPage />,
-      },
-      {
-        path: "/admin/file",
-        element: <AdminFilePage />,
-      },
-      {
-        path: "*",
-        element: <NotFoundPage />,
-      },
-      {
-        path: "/findpassword",
-        element: <FindPasswordPage />,
-      },
-      {
-        path: "/findname",
-        element: <FindUsernamePage />,
-      },
-      {
-        path: "/admin/login",
-        element: <AdminLoginPage />,
-      },
-    ],
-  },
-];
-
-export const router = createBrowserRouter(routeTree);
+export function Router(): JSX.Element {
+  return (
+    <BrowserRouter>
+      <Modal />
+      <CheckAuth />
+      <Routes>
+        <Route
+          path="/"
+          element={
+            <RedirectAuthedUserToHome>
+              <LandingPage />
+            </RedirectAuthedUserToHome>
+          }
+        />
+        <Route
+          path="/login"
+          element={
+            <RedirectAuthedUserToHome>
+              <LoginPage />
+            </RedirectAuthedUserToHome>
+          }
+        />
+        <Route
+          path="/register"
+          element={
+            <RedirectAuthedUserToHome>
+              <RegisterPage />
+            </RedirectAuthedUserToHome>
+          }
+        />
+        <Route path="/upload" element={<UploadByCodePage />} />
+        <Route path="/download" element={<DownloadByCodePage />} />
+        <Route path="/c/:code" element={<CodePage />} />
+        <Route
+          path="/folder/:folderId"
+          element={
+            <RequireAuth>
+              <FolderPage />
+            </RequireAuth>
+          }
+        />
+        <Route path="/trash" element={<TrashPage />} />
+        <Route path="/documents" element={<DocumentsPage />} />
+        <Route path="/photos" element={<PhotosPage />} />
+        <Route path="/recent" element={<RecentPage />} />
+        <Route path="/search" element={<SearchResultsPage />} />
+        <Route path="/admin/user" element={<AdminUserPage />} />
+        <Route path="/admin/file" element={<AdminFilePage />} />
+        <Route path="*" element={<NotFoundPage />} />
+        <Route path="/findpassword" element={<FindPasswordPage />} />
+        <Route path="/findname" element={<FindUsernamePage />} />
+        <Route path="/admin/login" element={<AdminLoginPage />} />
+      </Routes>
+    </BrowserRouter>
+  );
+}
