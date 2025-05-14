@@ -71,7 +71,7 @@
     5555 // Prisma Studio
   ],
   "name": "Cirrodrive Dev",
-  "postCreateCommand": "pnpm install",
+  "postCreateCommand": "sudo chown node:node * && sudo chown node:node .pnpm-store && pnpm install",
   "remoteUser": "node",
   "service": "app",
   "workspaceFolder": "/workspace/cirrodrive"
