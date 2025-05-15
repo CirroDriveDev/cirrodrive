@@ -47,7 +47,14 @@
           ".env*": "dotenv"
         },
         "files.eol": "\n",
-        "redhat.telemetry.enabled": false
+        "javascript.preferences.importModuleSpecifier": "non-relative",
+        "javascript.preferences.importModuleSpecifierEnding": "js",
+        "javascript.updateImportsOnFileMove.enabled": "always",
+        "redhat.telemetry.enabled": false,
+        "typescript.preferences.importModuleSpecifier": "non-relative",
+        "typescript.preferences.importModuleSpecifierEnding": "js",
+        "typescript.preferences.preferTypeOnlyAutoImports": true,
+        "typescript.updateImportsOnFileMove.enabled": "always"
       }
     }
   },
