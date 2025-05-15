@@ -1,7 +1,7 @@
 import { z } from "zod";
 import { TRPCError } from "@trpc/server";
 import { adminProcedure, router } from "@/loaders/trpc.loader.ts";
-import { userAdminRouter } from "@/routes/user/user.admin.router.ts";
+import { userAdminRouter } from "@/routes/user.admin.router.ts";
 import { container } from "@/loaders/inversify.loader.ts";
 import { AdminService } from "@/services/admin.service.ts";
 import { logger } from "@/loaders/logger.loader.ts";

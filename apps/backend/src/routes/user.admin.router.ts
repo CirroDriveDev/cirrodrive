@@ -4,7 +4,7 @@ import { router, adminProcedure } from "@/loaders/trpc.loader.ts";
 import { container } from "@/loaders/inversify.loader.ts";
 import { AdminService } from "@/services/admin.service.ts";
 import { logger } from "@/loaders/logger.loader.ts";
-import { userInputSchema } from "@/routes/user/user.admin.schema.ts";
+import { userInputSchema } from "@/routes/user.admin.schema.ts";
 
 const adminService = container.get<AdminService>(AdminService);
 
