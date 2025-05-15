@@ -2,7 +2,7 @@ import { trpc } from "@/services/trpc.ts";
 
 export function RecentUploadedFiles(): JSX.Element {
   // 새롭게 추가한 recentFiles 엔드포인트를 사용하여 최근 업로드 파일을 가져옵니다.
-  const { data, isLoading, error } = trpc.admin.user.recentFiles.useQuery();
+  const { data, isLoading, error } = trpc.protected.user.recentFiles.useQuery();
 
   if (isLoading) return <div>로딩 중...</div>;
   // 에러가 있거나 데이터가 없는 경우, 에러 메시지를 안전하게 보여줍니다.

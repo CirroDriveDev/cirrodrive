@@ -6,49 +6,49 @@ export function KpiOverview(): JSX.Element {
     data: totalUsersData,
     isLoading: isLoadingTotalUsers,
     error: errorTotalUsers,
-  } = trpc.admin.getTotalUsers.useQuery();
+  } = trpc.protected.stat.getTotalUsers.useQuery();
 
   const {
     data: totalFilesData,
     isLoading: isLoadingTotalFiles,
     error: errorTotalFiles,
-  } = trpc.admin.getTotalFiles.useQuery();
+  } = trpc.protected.stat.getTotalFiles.useQuery();
 
   const {
     data: todayUploadsData,
     isLoading: isLoadingTodayUploads,
     error: errorTodayUploads,
-  } = trpc.admin.getUploadCount.useQuery({ period: "1d" });
+  } = trpc.protected.stat.getUploadCount.useQuery({ period: "1d" });
 
   const {
     data: weeklyUploadsData,
     isLoading: isLoadingWeeklyUploads,
     error: errorWeeklyUploads,
-  } = trpc.admin.getUploadCount.useQuery({ period: "1w" });
+  } = trpc.protected.stat.getUploadCount.useQuery({ period: "1w" });
 
   const {
     data: todaySignupsData,
     isLoading: isLoadingTodaySignups,
     error: errorTodaySignups,
-  } = trpc.admin.getNewUsersCount.useQuery({ period: "1d" });
+  } = trpc.protected.stat.getNewUsersCount.useQuery({ period: "1d" });
 
   const {
     data: weeklySignupsData,
     isLoading: isLoadingWeeklySignups,
     error: errorWeeklySignups,
-  } = trpc.admin.getNewUsersCount.useQuery({ period: "1w" });
+  } = trpc.protected.stat.getNewUsersCount.useQuery({ period: "1w" });
 
   const {
     data: todayWithdrawalsData,
     isLoading: isLoadingTodayWithdrawals,
     error: errorTodayWithdrawals,
-  } = trpc.admin.listDeletedUsers.useQuery({ period: "1d" });
+  } = trpc.protected.stat.listDeletedUsers.useQuery({ period: "1d" });
 
   const {
     data: weeklyWithdrawalsData,
     isLoading: isLoadingWeeklyWithdrawals,
     error: errorWeeklyWithdrawals,
-  } = trpc.admin.listDeletedUsers.useQuery({ period: "1w" });
+  } = trpc.protected.stat.listDeletedUsers.useQuery({ period: "1w" });
 
   // 모든 쿼리가 로딩 중이면 로딩 메시지 출력
   const isLoading =

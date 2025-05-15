@@ -4,15 +4,15 @@ import { router, adminProcedure } from "@/loaders/trpc.loader.ts";
 import { container } from "@/loaders/inversify.loader.ts";
 import { AdminService } from "@/services/admin.service.ts";
 import { logger } from "@/loaders/logger.loader.ts";
-import { userInputSchema } from "@/routes/user.admin.schema.ts";
+import { userInputSchema } from "@/schemas/user.admin.schema.ts";
 
 const adminService = container.get<AdminService>(AdminService);
 
-export const userAdminRouter = router({
+export const protectedUserRouter = router({
   create: adminProcedure
     .input(userInputSchema)
     .mutation(async ({ input, ctx }) => {
-      logger.info({ requestId: ctx.req.id }, "admin.user.create 요청 시작");
+      logger.info({ requestId: ctx.req.id }, "protected.user.create 요청 시작");
 
       try {
         const user = await adminService.create({
@@ -25,12 +25,15 @@ export const userAdminRouter = router({
           isAdmin: false,
         });
 
-        logger.info({ requestId: ctx.req.id }, "admin.user.create 요청 성공");
+        logger.info(
+          { requestId: ctx.req.id },
+          "protected.user.create 요청 성공",
+        );
         return user;
       } catch (error) {
         logger.error(
           { requestId: ctx.req.id, error },
-          "admin.user.create 요청 실패",
+          "protected.user.create 요청 실패",
         );
 
         throw new TRPCError({
@@ -49,7 +52,7 @@ export const userAdminRouter = router({
     .mutation(async ({ input, ctx }) => {
       logger.info(
         { requestId: ctx.req.id },
-        `admin.user.update 요청 시작: ${input.userId}`,
+        `protected.user.update 요청 시작: ${input.userId}`,
       );
 
       try {
@@ -72,13 +75,13 @@ export const userAdminRouter = router({
 
         logger.info(
           { requestId: ctx.req.id },
-          `admin.user.update 요청 성공: ${input.userId}`,
+          `protected.user.update 요청 성공: ${input.userId}`,
         );
         return updatedUser;
       } catch (error) {
         logger.error(
           { requestId: ctx.req.id, error },
-          `admin.user.update 요청 실패: ${input.userId}`,
+          `protected.user.update 요청 실패: ${input.userId}`,
         );
 
         throw new TRPCError({
@@ -93,7 +96,7 @@ export const userAdminRouter = router({
     .mutation(async ({ input, ctx }) => {
       logger.info(
         { requestId: ctx.req.id },
-        `admin.user.delete 요청 시작: ${input.userId}`,
+        `protected.user.delete 요청 시작: ${input.userId}`,
       );
 
       try {
@@ -107,13 +110,13 @@ export const userAdminRouter = router({
 
         logger.info(
           { requestId: ctx.req.id },
-          `admin.user.delete 요청 성공: ${input.userId}`,
+          `protected.user.delete 요청 성공: ${input.userId}`,
         );
         return { success: true };
       } catch (error) {
         logger.error(
           { requestId: ctx.req.id, error },
-          `admin.user.delete 요청 실패: ${input.userId}`,
+          `protected.user.delete 요청 실패: ${input.userId}`,
         );
 
         throw new TRPCError({
@@ -127,7 +130,7 @@ export const userAdminRouter = router({
     .query(async ({ input, ctx }) => {
       logger.info(
         { requestId: ctx.req.id },
-        `admin.user.get 요청 시작: ${input.userId}`,
+        `protected.user.get 요청 시작: ${input.userId}`,
       );
 
       try {
@@ -141,13 +144,13 @@ export const userAdminRouter = router({
 
         logger.info(
           { requestId: ctx.req.id },
-          `admin.user.get 요청 성공: ${input.userId}`,
+          `protected.user.get 요청 성공: ${input.userId}`,
         );
         return user;
       } catch (error) {
         logger.error(
           { requestId: ctx.req.id, error },
-          `admin.user.get 요청 실패: ${input.userId}`,
+          `protected.user.get 요청 실패: ${input.userId}`,
         );
 
         throw new TRPCError({
@@ -165,7 +168,7 @@ export const userAdminRouter = router({
       }),
     )
     .query(async ({ input, ctx }) => {
-      logger.info({ requestId: ctx.req.id }, "admin.user.list 요청 시작");
+      logger.info({ requestId: ctx.req.id }, "protected.user.list 요청 시작");
 
       try {
         const users = await adminService.getUsers({
@@ -173,12 +176,12 @@ export const userAdminRouter = router({
           offset: input.offset,
         });
 
-        logger.info({ requestId: ctx.req.id }, "admin.user.list 요청 성공");
+        logger.info({ requestId: ctx.req.id }, "protected.user.list 요청 성공");
         return users;
       } catch (error) {
         logger.error(
           { requestId: ctx.req.id, error },
-          "admin.user.list 요청 실패",
+          "protected.user.list 요청 실패",
         );
 
         throw new TRPCError({
@@ -200,7 +203,10 @@ export const userAdminRouter = router({
       }),
     )
     .query(async ({ input, ctx }) => {
-      logger.info({ requestId: ctx.req.id }, "admin.user.listFiles 요청 시작");
+      logger.info(
+        { requestId: ctx.req.id },
+        "protected.user.listFiles 요청 시작",
+      );
 
       try {
         // currentUserId를 인증 정보에서 가져온다고 가정
@@ -216,13 +222,13 @@ export const userAdminRouter = router({
 
         logger.info(
           { requestId: ctx.req.id },
-          "admin.user.listFiles 요청 성공",
+          "protected.user.listFiles 요청 성공",
         );
         return files;
       } catch (error) {
         logger.error(
           { requestId: ctx.req.id, error },
-          "admin.user.listFiles 요청 실패",
+          "protected.user.listFiles 요청 실패",
         );
 
         throw new TRPCError({
@@ -273,7 +279,7 @@ export const userAdminRouter = router({
     .query(async ({ input, ctx }) => {
       logger.info(
         { requestId: ctx.req.id },
-        `admin.user.listNewUsers 요청 시작: ${input.period}`,
+        `protected.user.listNewUsers 요청 시작: ${input.period}`,
       );
 
       try {
@@ -281,13 +287,13 @@ export const userAdminRouter = router({
 
         logger.info(
           { requestId: ctx.req.id },
-          `admin.user.listNewUsers 요청 성공: ${input.period}`,
+          `protected.user.listNewUsers 요청 성공: ${input.period}`,
         );
         return { newUsersCount };
       } catch (error) {
         logger.error(
           { requestId: ctx.req.id, error },
-          "admin.user.listNewUsers 요청 실패",
+          "protected.user.listNewUsers 요청 실패",
         );
         throw new TRPCError({
           code: "INTERNAL_SERVER_ERROR",
@@ -300,7 +306,7 @@ export const userAdminRouter = router({
     .query(async ({ input, ctx }) => {
       logger.info(
         { requestId: ctx.req.id },
-        `admin.user.listUploads 요청 시작: ${input.period}`,
+        `protected.user.listUploads 요청 시작: ${input.period}`,
       );
 
       try {
@@ -308,13 +314,13 @@ export const userAdminRouter = router({
 
         logger.info(
           { requestId: ctx.req.id },
-          `admin.user.listUploads 요청 성공: ${input.period}`,
+          `protected.user.listUploads 요청 성공: ${input.period}`,
         );
         return { uploadCount };
       } catch (error) {
         logger.error(
           { requestId: ctx.req.id, error },
-          "admin.user.listUploads 요청 실패",
+          "protected.user.listUploads 요청 실패",
         );
         throw new TRPCError({
           code: "INTERNAL_SERVER_ERROR",
@@ -325,7 +331,7 @@ export const userAdminRouter = router({
   getTotalFiles: adminProcedure.query(async ({ ctx }) => {
     logger.info(
       { requestId: ctx.req.id },
-      "admin.user.getTotalFiles 요청 시작",
+      "protected.user.getTotalFiles 요청 시작",
     );
 
     try {
@@ -333,13 +339,13 @@ export const userAdminRouter = router({
 
       logger.info(
         { requestId: ctx.req.id },
-        "admin.user.getTotalFiles 요청 성공",
+        "protected.user.getTotalFiles 요청 성공",
       );
       return { totalFiles };
     } catch (error) {
       logger.error(
         { requestId: ctx.req.id, error },
-        "admin.user.getTotalFiles 요청 실패",
+        "protected.user.getTotalFiles 요청 실패",
       );
       throw new TRPCError({
         code: "INTERNAL_SERVER_ERROR",
@@ -350,7 +356,7 @@ export const userAdminRouter = router({
   getTotalUsers: adminProcedure.query(async ({ ctx }) => {
     logger.info(
       { requestId: ctx.req.id },
-      "admin.user.getTotalUsers 요청 시작",
+      "protected.user.getTotalUsers 요청 시작",
     );
 
     try {
@@ -358,13 +364,13 @@ export const userAdminRouter = router({
 
       logger.info(
         { requestId: ctx.req.id },
-        "admin.user.getTotalUsers 요청 성공",
+        "protected.user.getTotalUsers 요청 성공",
       );
       return { totalUsers };
     } catch (error) {
       logger.error(
         { requestId: ctx.req.id, error },
-        "admin.user.getTotalUsers 요청 실패",
+        "protected.user.getTotalUsers 요청 실패",
       );
       throw new TRPCError({
         code: "INTERNAL_SERVER_ERROR",
@@ -377,7 +383,7 @@ export const userAdminRouter = router({
     .query(async ({ input, ctx }) => {
       logger.info(
         { requestId: ctx.req.id },
-        `admin.user.listDeletedUsers 요청 시작: ${input.period}`,
+        `protected.user.listDeletedUsers 요청 시작: ${input.period}`,
       );
 
       try {
@@ -387,13 +393,13 @@ export const userAdminRouter = router({
 
         logger.info(
           { requestId: ctx.req.id },
-          `admin.user.listDeletedUsers 요청 성공: ${input.period}`,
+          `protected.user.listDeletedUsers 요청 성공: ${input.period}`,
         );
         return { deletedUsersCount };
       } catch (error) {
         logger.error(
           { requestId: ctx.req.id, error },
-          "admin.user.listDeletedUsers 요청 실패",
+          "protected.user.listDeletedUsers 요청 실패",
         );
         throw new TRPCError({
           code: "INTERNAL_SERVER_ERROR",

@@ -5,11 +5,23 @@ import { type Response } from "express";
 import { container } from "@/loaders/inversify.loader.ts";
 import { logger } from "@/loaders/logger.loader.ts";
 import { AuthService } from "@/services/auth.service.ts";
-import { router, authedProcedure } from "@/loaders/trpc.loader.ts";
+import {
+  router,
+  authedProcedure,
+  adminProcedure,
+} from "@/loaders/trpc.loader.ts";
+import { requireAdminSession } from "@/middlewares/admin-middleware.ts";
 
 const authService = container.get<AuthService>(AuthService);
 
-export const adminSessionRouter = router({
+export const protectedSessionRouter = router({
+  /**
+   * 관리자 인증을 위한 API입니다.
+   */
+  verify: adminProcedure.use(requireAdminSession).query(() => {
+    return { authorized: true };
+  }),
+
   login: authedProcedure
     .input(
       z.object({

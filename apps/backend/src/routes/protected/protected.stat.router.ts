@@ -1,26 +1,13 @@
 import { z } from "zod";
 import { TRPCError } from "@trpc/server";
 import { adminProcedure, router } from "@/loaders/trpc.loader.ts";
-import { userAdminRouter } from "@/routes/user.admin.router.ts";
 import { container } from "@/loaders/inversify.loader.ts";
 import { AdminService } from "@/services/admin.service.ts";
 import { logger } from "@/loaders/logger.loader.ts";
-import { requireAdminSession } from "@/loaders/admin-middleware.ts";
+import { requireAdminSession } from "@/middlewares/admin-middleware.ts";
 
 const adminService = container.get<AdminService>(AdminService);
-
-export const adminRouter = router({
-  user: userAdminRouter,
-  // file: fileAdminRouter,
-  // stat: statAdminRouter,
-
-  /**
-   * 관리자 인증을 위한 API입니다.
-   */
-  verify: adminProcedure.use(requireAdminSession).query(() => {
-    return { authorized: true };
-  }),
-
+export const protectedStatRouter = router({
   /**
    * 가입한 회원 수를 반환하는 프로시저입니다. 입력값: period: "1d" | "1w" | "6m"
    */
@@ -34,7 +21,7 @@ export const adminRouter = router({
     .query(async ({ input, ctx }) => {
       logger.info(
         { requestId: ctx.req.id, period: input.period },
-        "admin.getNewUsersCount 요청 시작",
+        "protected.getNewUsersCount 요청 시작",
       );
       return await adminService.getNewUsersCount(input.period);
     }),
@@ -52,7 +39,7 @@ export const adminRouter = router({
     .query(async ({ input, ctx }) => {
       logger.info(
         { requestId: ctx.req.id, period: input.period },
-        "admin.getUploadCount 요청 시작",
+        "protected.getUploadCount 요청 시작",
       );
       return await adminService.getUploadCount(input.period);
     }),
@@ -65,10 +52,13 @@ export const adminRouter = router({
     .query(async ({ ctx }) => {
       logger.info(
         { requestId: ctx.req.id },
-        "admin.getTotalFiles 요청 시작 (휴지통 포함)",
+        "protected.getTotalFiles 요청 시작 (휴지통 포함)",
       );
       const totalFiles = await adminService.getTotalFiles();
-      logger.info({ requestId: ctx.req.id }, "admin.getTotalFiles 요청 성공");
+      logger.info(
+        { requestId: ctx.req.id },
+        "protected.getTotalFiles 요청 성공",
+      );
       return { totalFiles };
     }),
 
@@ -78,9 +68,15 @@ export const adminRouter = router({
   getTotalUsers: adminProcedure
     .use(requireAdminSession)
     .query(async ({ ctx }) => {
-      logger.info({ requestId: ctx.req.id }, "admin.getTotalUsers 요청 시작");
+      logger.info(
+        { requestId: ctx.req.id },
+        "protected.getTotalUsers 요청 시작",
+      );
       const totalUsers = await adminService.getTotalUsers();
-      logger.info({ requestId: ctx.req.id }, "admin.getTotalUsers 요청 성공");
+      logger.info(
+        { requestId: ctx.req.id },
+        "protected.getTotalUsers 요청 성공",
+      );
       return { totalUsers };
     }),
 
@@ -93,14 +89,14 @@ export const adminRouter = router({
     .query(async ({ input, ctx }) => {
       logger.info(
         { requestId: ctx.req.id, period: input.period },
-        "admin.listDeletedUsers 요청 시작",
+        "protected.listDeletedUsers 요청 시작",
       );
       const deletedUsersCount = await adminService.getDeletedUsersCount(
         input.period,
       );
       logger.info(
         { requestId: ctx.req.id, period: input.period },
-        "admin.listDeletedUsers 요청 성공",
+        "protected.listDeletedUsers 요청 성공",
       );
       return { deletedUsersCount };
     }),
@@ -120,12 +116,5 @@ export const adminRouter = router({
       }
       const files = await adminService.getRecentUserFiles(currentUserId, 5);
       return files;
-    }),
-
-  login: adminProcedure
-    .input(z.object({ email: z.string().email(), password: z.string().min(8) }))
-    .mutation(async ({ input }) => {
-      const { email, password } = input;
-      return adminService.login(email, password);
     }),
 });

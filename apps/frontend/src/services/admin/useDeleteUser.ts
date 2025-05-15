@@ -13,7 +13,7 @@ export const useUserDelete = (): UseUserDelete => {
   const [isMutatingUser, setIsMutatingUser] = useState(false);
   const [success, setSuccess] = useState<boolean | null>(null);
 
-  const mutation = trpc.admin.user.delete.useMutation({
+  const mutation = trpc.protected.user.delete.useMutation({
     onMutate: () => {
       setIsMutatingUser(true);
       setSuccess(null);

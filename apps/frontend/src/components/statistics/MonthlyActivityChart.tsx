@@ -40,34 +40,30 @@ export function MonthlyActivityChart(): JSX.Element {
     data: signupData,
     isLoading: isLoadingSignups,
     error: errorSignups,
-  } = trpc.admin.getNewUsersCount.useQuery({ period: "6m" });
+  } = trpc.protected.stat.getNewUsersCount.useQuery({ period: "6m" });
 
   // 파일 업로드 API 호출
   const {
     data: uploadData,
     isLoading: isLoadingUploads,
     error: errorUploads,
-  } = trpc.admin.getUploadCount.useQuery({ period: "6m" });
+  } = trpc.protected.stat.getUploadCount.useQuery({ period: "6m" });
 
   if (isLoadingSignups || isLoadingUploads) return <div>로딩 중...</div>;
 
   if (errorSignups || errorUploads || !signupData || !uploadData) {
     const errMsgSignups =
-      (
-        errorSignups &&
-        typeof errorSignups === "object" &&
-        "message" in errorSignups
-      ) ?
-        (errorSignups as { message: string }).message
-      : "";
+      errorSignups &&
+      typeof errorSignups === "object" &&
+      "message" in errorSignups
+        ? (errorSignups as { message: string }).message
+        : "";
     const errMsgUploads =
-      (
-        errorUploads &&
-        typeof errorUploads === "object" &&
-        "message" in errorUploads
-      ) ?
-        (errorUploads as { message: string }).message
-      : "";
+      errorUploads &&
+      typeof errorUploads === "object" &&
+      "message" in errorUploads
+        ? (errorUploads as { message: string }).message
+        : "";
     return (
       <div>
         오류 발생: {errMsgSignups} {errMsgUploads}

@@ -39,14 +39,14 @@ export function WeeklyActivityChart(): JSX.Element {
     data: signupData,
     isLoading: isLoadingSignups,
     error: errorSignups,
-  } = trpc.admin.getNewUsersCount.useQuery({ period: "1w" });
+  } = trpc.protected.stat.getNewUsersCount.useQuery({ period: "1w" });
 
   // 관리자 API를 사용하여 최근 7일간의 파일 업로드 수 데이터를 가져옵니다.
   const {
     data: uploadData,
     isLoading: isLoadingUploads,
     error: errorUploads,
-  } = trpc.admin.getUploadCount.useQuery({ period: "1w" });
+  } = trpc.protected.stat.getUploadCount.useQuery({ period: "1w" });
 
   // 두 API 호출 중 하나라도 로딩 중이면 로딩 메시지를 표시합니다.
   if (isLoadingSignups || isLoadingUploads) return <div>로딩 중...</div>;
@@ -54,21 +54,17 @@ export function WeeklyActivityChart(): JSX.Element {
   // 에러가 발생한 경우 각각의 오류 메시지를 합쳐서 표시합니다.
   if (errorSignups || errorUploads || !signupData || !uploadData) {
     const errMsgSignups =
-      (
-        errorSignups &&
-        typeof errorSignups === "object" &&
-        "message" in errorSignups
-      ) ?
-        (errorSignups as { message: string }).message
-      : "";
+      errorSignups &&
+      typeof errorSignups === "object" &&
+      "message" in errorSignups
+        ? (errorSignups as { message: string }).message
+        : "";
     const errMsgUploads =
-      (
-        errorUploads &&
-        typeof errorUploads === "object" &&
-        "message" in errorUploads
-      ) ?
-        (errorUploads as { message: string }).message
-      : "";
+      errorUploads &&
+      typeof errorUploads === "object" &&
+      "message" in errorUploads
+        ? (errorUploads as { message: string }).message
+        : "";
     return (
       <div>
         오류 발생: {errMsgSignups} {errMsgUploads}

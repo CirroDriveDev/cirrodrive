@@ -5,20 +5,20 @@ import { trpc } from "@/services/trpc.ts";
 
 interface UseUserList {
   query: UseTRPCQueryResult<
-    RouterOutput["admin"]["user"]["list"],
+    RouterOutput["protected"]["user"]["list"],
     TRPCClientErrorLike<AppRouter>
   >;
 }
 
 /**
- * 관리자 전용 전체 사용자 목록을 조회하는 커스텀 훅입니다. 서버의 `admin.user.list` 절차를 호출합니다.
+ * 관리자 전용 전체 사용자 목록을 조회하는 커스텀 훅입니다. 서버의 `protected.user.list` 절차를 호출합니다.
  */
 export const useUserList = (): UseUserList => {
-  const query = trpc.admin.user.list.useQuery({});
+  const query = trpc.protected.user.list.useQuery({});
   return { query };
 };
 
 /**
  * React Query에서 사용 가능한 쿼리 키 (캐싱/리패칭 등에 사용)
  */
-export const userListQueryKey = getQueryKey(trpc.admin.user.list);
+export const userListQueryKey = getQueryKey(trpc.protected.user.list);
