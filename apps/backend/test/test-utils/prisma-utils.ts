@@ -1,6 +1,10 @@
 import { spawn } from "cross-spawn";
 import which from "npm-which";
 import { PrismaClient } from "@cirrodrive/database";
+import { getProjectRoot } from "@/utils/get-project-root.ts";
+
+const projectRoot = getProjectRoot();
+const databasePath = `${projectRoot}/apps/database/`;
 
 const prisma = new PrismaClient({
   datasources: { db: { url: process.env.DATABASE_URL } },
@@ -12,7 +16,7 @@ async function runPrismaCommand(command: string): Promise<void> {
   }
 
   const prismaBin = which(process.cwd()).sync("pnpx");
-  const args = `${command} --schema ../database/prisma/schema.prisma`.split(
+  const args = `${command} --schema ${databasePath}/prisma/schema.prisma`.split(
     " ",
   );
   await new Promise((res, rej) => {

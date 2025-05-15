@@ -1,13 +1,23 @@
 import { config } from "@dotenvx/dotenvx";
 import { z } from "zod";
 import { logger as baseLogger } from "@/loaders/logger.loader.ts";
+import { getProjectRoot } from "@/utils/get-project-root.ts";
 
 const logger = baseLogger.child({ prefix: "env" });
+const projectRoot = getProjectRoot();
+const backendPath = `${projectRoot}/apps/backend/`;
+const databasePath = `${projectRoot}/apps/database/`;
 
 const envFilePaths = {
-  production: [".env.production", "../database/.env.production"],
-  development: [".env.development", "../database/.env.development"],
-  test: [".env.test", "../database/.env.test"],
+  production: [
+    `${backendPath}/.env.production`,
+    `${databasePath}/.env.production`,
+  ],
+  development: [
+    `${backendPath}/.env.development`,
+    `${databasePath}/.env.development`,
+  ],
+  test: [`${backendPath}/.env.test`, `${databasePath}/.env.test`],
 }[import.meta.env.MODE]!;
 
 logger.info(
