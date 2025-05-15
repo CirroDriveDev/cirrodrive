@@ -1,6 +1,7 @@
 import path from "node:path";
-import { injectable } from "inversify";
+import { inject, injectable } from "inversify";
 import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
+import { createPresignedPost, PresignedPost } from "@aws-sdk/s3-presigned-post";
 import {
   HeadObjectCommand,
   PutObjectCommand,
@@ -8,8 +9,10 @@ import {
   DeleteObjectsCommand,
   CopyObjectCommand,
 } from "@aws-sdk/client-s3";
+import type { Logger } from "pino";
 import { s3Client } from "@/loaders/aws.loader.ts";
 import { env } from "@/loaders/env.loader.ts";
+import { Symbols } from "@/types/symbols.ts";
 
 const BUCKET_NAME = env.AWS_S3_BUCKET;
 export const S3_KEY_PREFIX = {
@@ -26,6 +29,58 @@ export interface S3Metadata {
 
 @injectable()
 export class S3Service {
+  constructor(@inject(Symbols.Logger) private logger: Logger) {
+    this.logger = logger.child({ serviceName: "S3Service" });
+  }
+
+  /**
+   * S3에 파일을 직접 업로드할 수 있도록 presigned POST 정책을 생성합니다.
+   *
+   * @param params - presigned POST 생성을 위한 파라미터
+   * @param key - 업로드할 S3 객체의 키
+   * @param expires - (선택) presigned POST의 만료 시간(초). 기본값은 60초입니다.
+   * @param contentType - (선택) 업로드할 파일의 Content-Type
+   * @param maxSizeInBytes - (선택) 업로드 파일의 최대 허용 크기(바이트). 기본값은 10MB입니다.
+   * @returns 업로드에 필요한 URL과 form 필드가 포함된 `PresignedPost` 객체를 반환하는 Promise
+   */
+  public async generatePresignedPost({
+    key,
+    expires = 60, // 초 단위, 기본 1분
+    contentType,
+    maxSizeInBytes,
+  }: {
+    key: string;
+    expires?: number;
+    contentType?: string;
+    maxSizeInBytes?: number;
+  }): Promise<PresignedPost> {
+    this.logger.debug("generatePresignedPost", {
+      key,
+      expires,
+      contentType,
+      maxSizeInBytes,
+    });
+
+    const presignedPost = await createPresignedPost(s3Client, {
+      Bucket: env.AWS_S3_BUCKET,
+      Key: key,
+      Expires: expires,
+      Conditions: [
+        ["starts-with", "$Content-Type", contentType ?? ""],
+        ["content-length-range", 0, maxSizeInBytes ?? 10 * 1024 * 1024], // 10MB
+      ],
+      Fields: {
+        "Content-Type": contentType ?? "application/octet-stream",
+      },
+    });
+
+    this.logger.debug("generatePresignedPost", {
+      presignedPost,
+    });
+
+    return presignedPost;
+  }
+
   /**
    * S3 PutObject Signed URL을 생성합니다.
    *
