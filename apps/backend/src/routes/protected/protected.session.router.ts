@@ -1,4 +1,4 @@
-import { userDTOSchema } from "@cirrodrive/schemas";
+import { adminUserDTOSchema } from "@cirrodrive/schemas";
 import { TRPCError } from "@trpc/server";
 import { z } from "zod";
 import { type Response } from "express";
@@ -29,7 +29,7 @@ export const protectedSessionRouter = router({
         password: z.string(),
       }),
     )
-    .output(userDTOSchema)
+    .output(adminUserDTOSchema)
     .mutation(async ({ input, ctx }) => {
       logger.info({ requestId: ctx.req.id }, "admin login 요청 시작");
 
