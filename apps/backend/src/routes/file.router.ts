@@ -12,59 +12,14 @@ import { container } from "@/loaders/inversify.loader.ts";
 import { FileService } from "@/services/file.service.ts";
 import { FileAccessCodeService } from "@/services/file-access-code.service.ts";
 import { S3Service, S3_KEY_PREFIX } from "@/services/s3.service.ts";
-import { s3PresignedPostSchema } from "@/schemas/s3.schema.ts";
+import { fileUploadRouter } from "@/routes/file.upload.router.ts";
 
-const MAX_POST_FILE_SIZE = 1024 * 1024 * 1024; // 1GB
 const fileService = container.get<FileService>(FileService);
 const codeService = container.get<FileAccessCodeService>(FileAccessCodeService);
 const s3Service = container.get<S3Service>(S3Service);
 
 export const fileRouter = router({
-  upload: router({
-    /**
-     * S3 Presigned Post를 생성합니다.
-     *
-     * @param fileName - 업로드할 파일의 이름
-     * @param fileType - 업로드할 파일의 MIME 타입
-     * @param fileSize - 업로드할 파일의 크기
-     */
-    getS3PresignedPost: procedure
-      .input(
-        z.object({
-          fileName: fileMetadataDTOSchema.shape.name,
-          fileType: z.string(),
-          fileSize: fileMetadataDTOSchema.shape.size,
-        }),
-      )
-      .output(
-        z.object({
-          presignedPost: s3PresignedPostSchema,
-        }),
-      )
-      .mutation(async ({ input }) => {
-        const { fileName, fileType, fileSize } = input;
-
-        if (fileSize > MAX_POST_FILE_SIZE) {
-          throw new TRPCError({
-            code: "BAD_REQUEST",
-            message: `파일 크기가 ${MAX_POST_FILE_SIZE / 1024 / 1024}MB를 초과할 수 없습니다.`,
-          });
-        }
-
-        const prefix = S3_KEY_PREFIX.PUBLIC_UPLOADS;
-        const key = s3Service.generateS3ObjectKey(prefix, fileName);
-        const presignedPost = await s3Service.generatePresignedPost({
-          key,
-          contentType: fileType,
-          expires: 120,
-          maxSizeInBytes: fileSize,
-        });
-
-        return {
-          presignedPost: s3PresignedPostSchema.parse(presignedPost),
-        };
-      }),
-  }),
+  upload: fileUploadRouter,
 
   /**
    * S3 Presigned Upload URL을 생성합니다.
