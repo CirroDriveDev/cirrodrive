@@ -47,6 +47,9 @@ export const inferFileType = (name: string): EntryMIMEType => {
     case "docx":
     case "xlsx":
       return "text";
+    case undefined: {
+      throw new Error("Not implemented yet: undefined case");
+    }
     default:
       return "file";
   }
