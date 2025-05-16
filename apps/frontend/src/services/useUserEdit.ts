@@ -1,4 +1,4 @@
-import type { User } from "@/types/types.ts";
+import type { User } from "@/types/user.ts";
 
 export const useUserEdit = (): {
   updateUser: (id: string, updated: Omit<User, "id">) => void;
