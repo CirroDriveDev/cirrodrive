@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { trpc } from "@/services/trpc.ts";
-import { useEntryUpdatedEvent } from "@/services/useEntryUpdatedEvent.ts";
+import { entryUpdatedEvent } from "@/services/entryUpdatedEvent";
 
 interface UseFolderDelete {
   handleFolderDelete: () => void; // 폴더 삭제 함수
@@ -9,7 +9,6 @@ interface UseFolderDelete {
 }
 
 export const useFolderDelete = (folderId: string): UseFolderDelete => {
-  const { entryUpdatedEvent } = useEntryUpdatedEvent();
   const [isMutatingFolder, setIsMutatingFolder] = useState(false);
   const [success, setSuccess] = useState<boolean | null>(null);
 

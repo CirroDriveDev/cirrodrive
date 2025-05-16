@@ -1,7 +1,7 @@
 /* eslint-disable unicorn/filename-case -- Todo */
 import type { EntryDTO } from "@cirrodrive/schemas";
 import { trpc } from "@/services/trpc.ts";
-import { useEntryUpdatedEvent } from "@/services/useEntryUpdatedEvent.ts";
+import { entryUpdatedEvent } from "@/services/entryUpdatedEvent";
 import { useModalStore } from "@/store/useModalStore.ts";
 import { useUserStore } from "@/store/useUserStore.ts";
 import { EntryTreeNode } from "@/components/EntryTreeNode.tsx";
@@ -12,7 +12,6 @@ interface UseMoveEntry {
 }
 
 export const useMoveEntry = (entry: EntryDTO): UseMoveEntry => {
-  const { entryUpdatedEvent } = useEntryUpdatedEvent();
   const { user } = useUserStore();
   const { query: recursiveEntryQuery } = useEntryGetRecursively(
     user!.rootFolderId,
