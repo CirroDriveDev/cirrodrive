@@ -53,6 +53,7 @@
     "vitest": "catalog:"
   },
   "name": "@cirrodrive/frontend",
+  "prettier": "@cirrodrive/prettier-config",
   "private": true,
   "scripts": {
     "build": "tsc -b && vite build",

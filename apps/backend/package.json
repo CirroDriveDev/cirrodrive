@@ -74,6 +74,7 @@
       "rollup": "npm:@rollup/wasm-node"
     }
   },
+  "prettier": "@cirrodrive/prettier-config",
   "private": true,
   "scripts": {
     "build": "tsc -b && vite build --ssr src/server.ts",

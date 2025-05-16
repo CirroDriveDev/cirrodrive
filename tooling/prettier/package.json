@@ -9,9 +9,7 @@
     "@types/node": "^20.17.1",
     "typescript": "catalog:"
   },
-  "exports": {
-    ".": "./index.js"
-  },
+  "exports": "./index.js",
   "name": "@cirrodrive/prettier-config",
   "prettier": "@cirrodrive/prettier-config",
   "private": true,
