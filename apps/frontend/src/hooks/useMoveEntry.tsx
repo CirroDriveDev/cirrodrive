@@ -1,7 +1,7 @@
 /* eslint-disable unicorn/filename-case -- Todo */
 import type { EntryDTO } from "@cirrodrive/schemas";
 import { trpc } from "@/services/trpc.ts";
-import { entryUpdatedEvent } from "@/services/entryUpdatedEvent";
+import { entryUpdatedEvent } from "@/services/entryUpdatedEvent.ts";
 import { useModalStore } from "@/store/useModalStore.ts";
 import { useUserStore } from "@/store/useUserStore.ts";
 import { EntryTreeNode } from "@/components/EntryTreeNode.tsx";
