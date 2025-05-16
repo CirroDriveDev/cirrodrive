@@ -1,12 +1,12 @@
 {
   "dependencies": {
     "prettier": "catalog:",
-    "prettier-plugin-jsdoc": "^1.3.0",
-    "prettier-plugin-tailwindcss": "^0.6.8"
+    "prettier-plugin-jsdoc": "^1.3.2",
+    "prettier-plugin-tailwindcss": "^0.6.11"
   },
   "devDependencies": {
     "@cirrodrive/tsconfig": "workspace:*",
-    "@types/node": "^20.17.1",
+    "@types/node": "^20.17.47",
     "typescript": "catalog:"
   },
   "exports": "./index.js",
