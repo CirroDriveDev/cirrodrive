@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { trpc } from "@/services/trpc.ts";
-import { useEntryUpdatedEvent } from "@/services/useEntryUpdatedEvent.ts";
+import { entryUpdatedEvent } from "@/services/entryUpdatedEvent.ts";
 
 interface UseFileDelete {
   handleFileDelete: () => void; // 삭제하기 함수
@@ -9,7 +9,6 @@ interface UseFileDelete {
 }
 
 export const useFileDelete = (fileId: string): UseFileDelete => {
-  const { entryUpdatedEvent } = useEntryUpdatedEvent();
   const [isMutatingFile, setIsMutatingFile] = useState(false);
   const [success, setSuccess] = useState<boolean | null>(null);
 

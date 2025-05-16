@@ -4,7 +4,7 @@ import type { TRPCClientErrorLike } from "@trpc/client";
 import type { UseTRPCMutationOptions } from "@trpc/react-query/shared";
 import { trpc } from "@/services/trpc.ts";
 import { useBoundStore } from "@/store/useBoundStore.ts";
-import { useEntryUpdatedEvent } from "@/services/useEntryUpdatedEvent.ts";
+import { entryUpdatedEvent } from "@/services/entryUpdatedEvent.ts";
 
 type UseFolderCreateOptions = UseTRPCMutationOptions<
   RouterInput["folder"]["create"],
@@ -25,7 +25,6 @@ export const useFolderCreate = (
 ): UseFolderManagement => {
   const { user } = useBoundStore();
   const [folderName, setFolderName] = useState("새 폴더");
-  const { entryUpdatedEvent } = useEntryUpdatedEvent();
 
   if (user === null) {
     throw new Error("User must be defined");

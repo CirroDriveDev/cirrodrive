@@ -8,13 +8,13 @@ import { trpcClient } from "@/app/provider/trpcClient.ts";
 
 export function Provider(): JSX.Element {
   return (
-    <trpc.Provider client={trpcClient} queryClient={queryClient}>
-      <QueryClientProvider client={queryClient}>
+    <QueryClientProvider client={queryClient}>
+      <trpc.Provider client={trpcClient} queryClient={queryClient}>
         <ThemeProvider>
           <Router />
           <ReactQueryDevtools initialIsOpen={false} />
         </ThemeProvider>
-      </QueryClientProvider>
-    </trpc.Provider>
+      </trpc.Provider>
+    </QueryClientProvider>
   );
 }
