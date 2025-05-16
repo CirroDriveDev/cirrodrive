@@ -4,7 +4,7 @@ import { fileURLToPath } from "url";
  * @typedef {import("prettier").Config} PrettierConfig
  */
 /**
- * @typedef {import("prettier-plugin-jsdoc").AllOptions} JSDocConfig
+ * @typedef {import("prettier-plugin-jsdoc").Options} JSDocConfig
  */
 /**
  * @typedef {import("prettier-plugin-tailwindcss").PluginOptions} TailwindConfig
