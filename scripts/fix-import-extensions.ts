@@ -53,16 +53,50 @@ tsconfigPaths.forEach((tsconfigPath) => {
       if (!isHandledImportPath(text)) return;
       if (hasFileExtension(text)) return;
 
-      const resolvedPath = importDecl
+      let resolvedPath = importDecl
         .getModuleSpecifierSourceFile()
-        ?.getFilePath();
+        ?.getFilePath()
+        .toString();
 
-      if (!resolvedPath) return;
+      // resolvedPath가 없거나 디렉터리라면 index 파일을 찾음
+      if (
+        !resolvedPath ||
+        (fs.existsSync(resolvedPath) && fs.statSync(resolvedPath).isDirectory())
+      ) {
+        // 상대 경로를 실제 파일 시스템 경로로 변환
+        let dirPath: string;
+        if (path.isAbsolute(text)) {
+          dirPath = text;
+        } else {
+          dirPath = path.resolve(path.dirname(filePath), text);
+        }
+        // index.ts, index.tsx 우선순위로 검색
+        for (const ext of extensionsToAdd) {
+          const indexFile = path.join(dirPath, `index${ext}`);
+          if (fs.existsSync(indexFile)) {
+            resolvedPath = indexFile;
+            break;
+          }
+        }
+        // index 파일이 없으면 skip
+        if (!resolvedPath || fs.statSync(resolvedPath).isDirectory()) return;
+      }
 
       const ext = path.extname(resolvedPath);
       if (!extensionsToAdd.includes(ext)) return;
 
-      const newText = `${text}${ext}`;
+      // 디렉터리 import였다면 index 확장자를 붙여줌
+      let newText: string;
+      if (text.endsWith("/")) {
+        newText = `${text}index${ext}`;
+      } else if (
+        fs.existsSync(resolvedPath) &&
+        path.basename(resolvedPath).startsWith("index.")
+      ) {
+        newText = `${text}/index${ext}`;
+      } else {
+        newText = `${text}${ext}`;
+      }
       spec.setLiteralValue(newText);
       changed = true;
 
