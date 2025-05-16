@@ -27,6 +27,7 @@ export default tseslint.config(
           },
         },
       ],
+      "@typescript-eslint/explicit-function-return-type": "off",
     },
   },
   {
