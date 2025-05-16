@@ -7,7 +7,7 @@ import { fileRouter } from "@/routes/file.router.ts";
 import { folderRouter } from "@/routes/folder.router.ts";
 import { entryRouter } from "@/routes/entry.router.ts";
 import { emailRouter } from "@/routes/email.router.ts";
-import { protectedRouter } from "@/routes/protected/protected.router";
+import { protectedRouter } from "@/routes/protected/protected.router.ts";
 
 export const appRouter = router({
   protected: protectedRouter,
