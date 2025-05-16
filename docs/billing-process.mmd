@@ -1,0 +1,85 @@
+---
+title: billing process
+config:
+  theme: dark
+---
+sequenceDiagram
+  autonumber
+  participant User
+  participant F_Page as Frontend:Page
+  participant F_View as Frontend:Component
+  participant F_Hook as Frontend:Hook
+  participant B_Router as Backend:Router
+  participant B_Service as Backend:Service
+  participant B_Repo as Backend:Repository
+  participant TossPayments
+
+  %% Step 0: 요금제 결제 페이지 진입
+  User->>F_Page: /subscribe 경로로 접근
+  note left of F_Page: 요금제 정보 동적 로딩<br>/pages/subscribe.tsx<br>- usePlanList 훅을 통해 요금제 목록 API 호출<br>- 응답: Plan[]<br>- 로딩 중 스피너, 오류 처리 포함<br>- 하위 컴포넌트: PlanCard, SubscribeButton 포함
+  F_Page->>F_Hook: usePlanList()
+  note left of B_Repo: Plan 테이블 스키마<br>/prisma/schema.prisma<br>- id (string, uuid): 요금제 ID (PK)<br>- name (string): 요금제 이름 (예: BASIC, PRO)<br>- description (string): 요금제 설명<br>- price (int): 금액 (원 단위)<br>- currency (string): 통화 (기본값 KRW)<br>- interval (string): 결제 주기 (예: month)<br>- intervalCount (int): 주기 반복 횟수 (예: 1개월 = 1)<br>- isActive (boolean): 사용 여부<br>- createdAt / updatedAt (DateTime): 생성 및 수정 시각
+F_Hook->>B_Router: trpc.plan.list.query()
+  B_Router->>B_Service: planService.getAll()
+  B_Service->>B_Repo: planRepository.findAll()
+  B_Repo-->>B_Service: Plan[]
+  B_Service-->>B_Router: Plan[]
+  note left of F_Hook: Plan DTO 스키마<br>/packages/schemas/src/plan.ts<br>- id: string<br>- name: string<br>- description?: string<br>- price: number<br>- interval: 'month' | 'year'<br>- intervalCount: number
+B_Router-->>F_Hook: Plan[]
+  F_Hook-->>F_Page: Plan[] 수신 후 상태 업데이트
+  F_Page->>F_View: 요금제 컴포넌트 렌더링
+    note left of F_View: 요금제 컴포넌트 렌더링<br>/components/PlanCard.tsx<br>- props: planName, amount 등<br>- 결제 버튼과 연동됨<br>- 선택된 요금제 스타일링 처리
+  F_View-->>User: 요금제 이름, 가격 렌더링
+
+  %% Step 1: 결제 인증 요청 (requestBillingAuth)
+  User->>F_View: 결제 버튼 클릭
+  note left of F_View: 결제 버튼 클릭 핸들러 구성<br>/components/SubscribeButton.tsx<br>- useBillingAuth 훅 호출
+  F_View->>F_Hook: useBillingAuth(customerKey)
+  note left of F_Hook: 카드 등록창 호출 및 렌더링<br>/services/payment/useBillingAuth.ts<br>- tossPayments.requestBillingAuth(customerKey, successUrl, failUrl) 호출
+
+  F_Hook->>TossPayments: requestBillingAuth(...)
+  TossPayments->>User: 카드 등록창 렌더링
+  User->>TossPayments: 카드 입력 및 본인 인증
+
+  alt 인증 성공
+    TossPayments-->>F_Page: 리디렉션 → /subscribe/success?authKey=...&customerKey=...
+
+    F_Page->>F_Hook: useConfirmBillingAuthorization(authKey, customerKey)
+    note right of F_Page: successUrl 데이터로 billingKey 발급 요청<br>/pages/subscribe/success.tsx<br>- 쿼리스트링에서 authKey, customerKey 추출<br>- useConfirmBillingAuthorization 호출
+
+    note left of F_Hook: billingKey 발급 요청<br>/services/payment/useConfirmBillingAuthorization.ts<br>- trpc.billing.confirm.mutation 호출<br>- 응답: { success: boolean }
+    F_Hook->>B_Router: trpc.billing.confirm.mutation({ authKey, customerKey })
+
+    note left of B_Router: 인증 완료 처리 라우터<br>/routers/billing.router.ts<br>- authKey, customerKey 유효성 검사<br>- billingService.confirmAgreement 호출
+    B_Router->>B_Service: billingService.confirmAgreement()
+
+    note left of B_Service: TossPayments billingKey 발급<br>/services/billing.service.ts<br>- POST /v1/billing/authorizations/issue 호출<br>- 응답: { billingKey, customerKey, 여러 정보 }
+    B_Service->>TossPayments: POST /v1/billing/authorizations/issue
+    TossPayments-->>B_Service: 응답: { billingKey, customerKey, 여러 정보 }
+
+    note over B_Service,B_Repo: billingKey 저장<br>/repositories/billing.repository.ts<br>- billingRepository.saveAgreement 호출<br>- BillingAgreement 테이블 스키마<br>  - id (string, uuid): 식별자<br>  - userId (string): 사용자 ID<br>  - customerKey (string): 사용자 식별용 키<br>  - billingKey (string): 자동결제용 키<br>  - cardCompany (string): 카드사 이름<br>  - cardNumberMasked (string): 마스킹된 카드 번호<br>  - cardType (string): 카드 종류 (신용/체크)<br>  - cardOwnerType (string): 개인/법인<br>  - authenticatedAt (DateTime): 인증 시각<br>  - status (string): 상태 (예: ACTIVE, CANCELED)<br>  - createdAt / updatedAt (DateTime): 생성 및 갱신 시각
+    B_Service->>B_Repo: billingRepository.saveAgreement(...)
+    B_Repo-->>B_Service: 저장 완료
+
+    B_Service-->>B_Router: 응답: { success }
+    B_Router-->>F_Hook: 응답: { success }
+    F_Hook-->>F_Page: success 수신 후 완료 처리
+
+    note left of F_Page: 결제 완료 메시지 출력<br>/components/SubscribeResult.tsx<br>- 구독 완료 안내 표시
+    F_Page-->>User: 구독 완료 안내 메시지
+
+    %% Step 2: 정기 결제 실행 (billingKey 기반)
+    note left of B_Service: 정기 결제 트리거<br>/services/billing.service.ts<br>- 매일 0시에 node-cron으로 실행<br>- 결제 예정일이 오늘인 사용자만 조회<br>- billingKey 기반 자동 결제 실행<br>- POST /v1/billing/payments 호출
+    B_Service->>TossPayments: POST /v1/billing/payments
+    TossPayments-->>B_Service: 응답: { paymentKey, status, approvedAt }
+    note right of B_Service: 결제 내역 저장<br>/repositories/payment.repository.ts<br>- 자동 결제 내역 저장 처리
+    B_Service->>B_Repo: paymentRepository.save(...)
+    B_Repo-->>B_Service: 저장 완료
+  end
+
+  alt 인증 실패 또는 사용자 중단
+    TossPayments-->>User: 리디렉션 → /subscribe/fail
+    User->>F_Page: 실패 페이지 접근
+    note left of F_Page: 결제 실패 메시지 출력<br>/components/SubscribeResult.tsx<br>- 결제 실패 메시지 렌더링<br>- 응답: 실패 메시지 표시
+    F_Page-->>User: 구독 실패 안내 메시지
+  end
