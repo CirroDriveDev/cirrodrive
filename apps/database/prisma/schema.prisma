@@ -19,6 +19,21 @@ enum PricingPlan {
   premium
 }
 
+enum BillingStatus {
+  ACTIVE
+  CANCELED
+}
+
+enum CardType {
+  CREDIT
+  DEBIT
+}
+
+enum CardOwnerType {
+  PERSONAL
+  CORPORATE
+}
+
 model User {
   id              String      @id @default(uuid())
   username        String      @unique
@@ -37,9 +52,10 @@ model User {
   trashFolderId String @unique
   trashFolder   Folder @relation(name: "TrashFolder", fields: [trashFolderId], references: [id], onDelete: Cascade)
 
-  sessions Session[]
-  folders  Folder[]       @relation(name: "OwnerToFolder")
-  files    FileMetadata[]
+  sessions         Session[]
+  folders          Folder[]           @relation(name: "OwnerToFolder")
+  files            FileMetadata[]
+  BillingAgreement BillingAgreement[]
 }
 
 model Session {
@@ -119,4 +135,21 @@ model AdminUser {
   password  String
   name      String
   createdAt DateTime @default(now())
+}
+
+model BillingAgreement {
+  id               String        @id @default(uuid())
+  userId           String
+  customerKey      String        @unique
+  billingKey       String        @unique
+  cardCompany      String
+  cardNumberMasked String
+  cardType         CardType
+  cardOwnerType    CardOwnerType
+  authenticatedAt  DateTime
+  status           BillingStatus
+  createdAt        DateTime      @default(now())
+  updatedAt        DateTime      @updatedAt
+  // 관계
+  user             User          @relation(fields: [userId], references: [id])
 }
