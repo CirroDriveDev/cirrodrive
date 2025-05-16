@@ -47,7 +47,7 @@ B_Router-->>F_Hook: Plan[]
     F_Page->>F_Hook: useConfirmBillingAuthorization(authKey, customerKey)
     note right of F_Page: successUrl 데이터로 billingKey 발급 요청<br>/pages/subscribe/success.tsx<br>- 쿼리스트링에서 authKey, customerKey 추출<br>- useConfirmBillingAuthorization 호출
 
-    note left of F_Hook: billingKey 발급 요청<br>/services/payment/useConfirmBillingAuthorization.ts<br>- trpc.billing.confirm.mutation 호출<br>- 응답: { success: boolean }
+    note left of F_Hook: 결제 수단 추가 요청<br>/services/payment/useConfirmBillingAuthorization.ts<br>- trpc.billing.confirm.mutation 호출<br>- 응답: { success: boolean }
     F_Hook->>B_Router: trpc.billing.confirm.mutation({ authKey, customerKey })
 
     note left of B_Router: 인증 완료 처리 라우터<br>/routers/billing.router.ts<br>- authKey, customerKey 유효성 검사<br>- billingService.confirmAgreement 호출
