@@ -42,9 +42,8 @@ export const fileRouter = router({
     .mutation(async ({ input, ctx }) => {
       const { fileName } = input;
       const { user } = ctx;
-      const prefix = user
-        ? S3_KEY_PREFIX.USER_UPLOADS
-        : S3_KEY_PREFIX.PUBLIC_UPLOADS;
+      const prefix =
+        user ? S3_KEY_PREFIX.USER_UPLOADS : S3_KEY_PREFIX.PUBLIC_UPLOADS;
 
       const key = s3Service.generateS3ObjectKey(prefix, fileName);
       const presignedUploadURL = await s3Service.getPutObjectSignedURL(key);

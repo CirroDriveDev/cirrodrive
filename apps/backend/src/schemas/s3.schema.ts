@@ -7,7 +7,7 @@ export const s3PresignedPostSchema = z.object({
       .min(1)
       .describe("업로드 파일의 Content-Type (예: image/png)")
       .regex(/^[-\w.]+\/[\w.+-]+$/, "유효한 MIME 타입이어야 합니다."),
-    Policy: z
+    "Policy": z
       .string()
       .min(1)
       .describe("Base64로 인코딩된 S3 정책")
@@ -31,8 +31,8 @@ export const s3PresignedPostSchema = z.object({
       .string()
       .describe("SHA256 해시 서명")
       .regex(/^[a-f0-9]{64}$/, "64자리 16진수 문자열이어야 합니다."),
-    bucket: z.string().min(1).describe("S3 버킷 이름"),
-    key: z.string().min(1).describe("업로드될 객체의 키(경로 포함)"),
+    "bucket": z.string().min(1).describe("S3 버킷 이름"),
+    "key": z.string().min(1).describe("업로드될 객체의 키(경로 포함)"),
   }),
   url: z.string().url().describe("S3 Presigned POST 요청을 보낼 URL"),
 });

@@ -8,7 +8,7 @@ export default {
      *
      * 🚫 Not fixable - https://eslint.org/docs/rules/camelcase
      */
-    camelcase: [
+    "camelcase": [
       "error",
       {
         allow: ["^UNSAFE_"],

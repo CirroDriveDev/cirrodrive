@@ -29,13 +29,13 @@ describe("S3Service", () => {
     const mockPresignedPost: PresignedPost = {
       fields: {
         "Content-Type": "image/png",
-        Policy: policyMatcher, // "eyJleWFnZS ... RtaWjn1dfQ=="
+        "Policy": policyMatcher, // "eyJleWFnZS ... RtaWjn1dfQ=="
         "X-Amz-Algorithm": "AWS4-HMAC-SHA256",
         "X-Amz-Credential": credentialMatcher, // "minioadmin/20230515/ap-northeast-2/s3/aws4_request"
         "X-Amz-Date": dateMatcher, // "20250515T103841Z"
         "X-Amz-Signature": signatureMatcher, // "522711314a5545f1f687e0d3b64fea55ed9516664af25e1cbb1123b95cbf7688"
-        bucket: "test-bucket",
-        key: "user-uploads/2025-05-15/mockfile.png",
+        "bucket": "test-bucket",
+        "key": "user-uploads/2025-05-15/mockfile.png",
       },
       url: "http://minio:9000/test-bucket",
     };

@@ -1,9 +1,8 @@
 // These share identical configuration options, so we want to keep them in sync.
 import variablesConfig from "../variables.js";
 
-const noUnusedVarsConfig = variablesConfig.rules
-  ? variablesConfig.rules["no-unused-vars"]
-  : undefined;
+const noUnusedVarsConfig =
+  variablesConfig.rules ? variablesConfig.rules["no-unused-vars"] : undefined;
 
 /**
  * @type {import("typescript-eslint").ConfigWithExtends}

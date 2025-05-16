@@ -54,17 +54,21 @@ export function WeeklyActivityChart(): JSX.Element {
   // 에러가 발생한 경우 각각의 오류 메시지를 합쳐서 표시합니다.
   if (errorSignups || errorUploads || !signupData || !uploadData) {
     const errMsgSignups =
-      errorSignups &&
-      typeof errorSignups === "object" &&
-      "message" in errorSignups
-        ? (errorSignups as { message: string }).message
-        : "";
+      (
+        errorSignups &&
+        typeof errorSignups === "object" &&
+        "message" in errorSignups
+      ) ?
+        (errorSignups as { message: string }).message
+      : "";
     const errMsgUploads =
-      errorUploads &&
-      typeof errorUploads === "object" &&
-      "message" in errorUploads
-        ? (errorUploads as { message: string }).message
-        : "";
+      (
+        errorUploads &&
+        typeof errorUploads === "object" &&
+        "message" in errorUploads
+      ) ?
+        (errorUploads as { message: string }).message
+      : "";
     return (
       <div>
         오류 발생: {errMsgSignups} {errMsgUploads}

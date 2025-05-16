@@ -36,7 +36,7 @@ export class S3Service {
   /**
    * S3에 파일을 직접 업로드할 수 있도록 presigned POST 정책을 생성합니다.
    *
-   * @param params - presigned POST 생성을 위한 파라미터
+   * @param params - Presigned POST 생성을 위한 파라미터
    * @param key - 업로드할 S3 객체의 키
    * @param expires - (선택) presigned POST의 만료 시간(초). 기본값은 60초입니다.
    * @param contentType - (선택) 업로드할 파일의 Content-Type
