@@ -9,6 +9,7 @@
     "@tanstack/react-query-devtools": "catalog:",
     "@trpc/client": "catalog:",
     "@trpc/react-query": "catalog:",
+    "@trpc/tanstack-react-query": "^11.1.2",
     "@vitest/coverage-v8": "catalog:",
     "axios": "^1.9.0",
     "chart.js": "^4.4.9",

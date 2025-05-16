@@ -4,9 +4,10 @@ packages:
   - tooling/*
 
 catalog:
-  "@trpc/client": next
-  "@trpc/react-query": next
-  "@trpc/server": next
+  "@trpc/client": ^11.1.2
+  "@trpc/react-query": ^11.1.2
+  "@trpc/server": ^11.1.2
+  "@trpc/tanstack-react-query": ^11.1.2
   "@tanstack/react-query": ^5.67.1
   "@tanstack/react-query-devtools": ^5.67.1
   eslint: ^9.12.0

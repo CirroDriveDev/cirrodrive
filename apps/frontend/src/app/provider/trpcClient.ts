@@ -3,11 +3,13 @@ import {
   httpLink,
   isNonJsonSerializable,
   splitLink,
+  createTRPCClient,
 } from "@trpc/client";
 import { SuperJSON } from "superjson";
-import { trpc, TRPC_URL } from "@/services/trpc.ts";
+import { type AppRouter } from "@cirrodrive/backend";
+import { TRPC_URL } from "@/services/trpc.ts";
 
-export const trpcClient = trpc.createClient({
+export const trpcClient = createTRPCClient<AppRouter>({
   links: [
     splitLink({
       condition: (op) => isNonJsonSerializable(op.input),

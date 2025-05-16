@@ -1,3 +1,4 @@
+import { createTRPCContext } from "@trpc/tanstack-react-query";
 import { createTRPCReact } from "@trpc/react-query";
 import type { AppRouter } from "@cirrodrive/backend";
 
@@ -9,6 +10,8 @@ import type { AppRouter } from "@cirrodrive/backend";
  * @see \@/src/app/provider/trpcClient.ts
  */
 export const trpc = createTRPCReact<AppRouter>();
+
+export const { useTRPC, useTRPCClient } = createTRPCContext<AppRouter>();
 
 export const TRPC_PATH = "/trpc";
 export const TRPC_URL = `http://${import.meta.env.VITE_EC2_PUBLIC_URL}:${import.meta.env.VITE_SERVER_PORT}${TRPC_PATH}`;
