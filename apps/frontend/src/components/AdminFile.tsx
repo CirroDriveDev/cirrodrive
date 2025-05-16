@@ -1,6 +1,6 @@
 import { FileItem } from "./FileItem.tsx";
 import { useAdminSearchBarStore } from "@/store/useAdminSearchBarStore.ts";
-import type { TempFile } from "@/services/useTempFileList.ts";
+import type { TempFile } from "@/hooks/useTempFileList.ts";
 import type { SortOrder } from "@/services/useSortedList.ts";
 
 interface AdminFileListProps {

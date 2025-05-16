@@ -2,7 +2,7 @@ import { useState } from "react";
 import { FileIcon } from "lucide-react";
 import { useBoundStore } from "@/store/useBoundStore.ts";
 import { LoadingSpinner } from "@/components/shared/LoadingSpinner.tsx";
-import { useUpload } from "@/services/useUpload.ts";
+import { useUpload } from "@/services/file/useUpload.ts";
 import { FileUploadSuccessModal } from "@/components/FileUploadSuccessModal.tsx";
 
 export function FileUploadDropzone(): JSX.Element {

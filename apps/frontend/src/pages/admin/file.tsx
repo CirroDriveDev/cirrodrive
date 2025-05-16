@@ -5,7 +5,7 @@ import { SidebarLayout } from "@/components/layout/SidebarLayout.tsx";
 import { Header } from "@/components/layout/Header.tsx";
 import { Sidebar } from "@/components/layout/Sidebar.tsx";
 import { LoadingSpinner } from "@/components/shared/LoadingSpinner.tsx";
-import { useTempFileList } from "@/services/useTempFileList.ts";
+import { useTempFileList } from "@/hooks/useTempFileList.ts";
 import { useSortedList } from "@/services/useSortedList.ts";
 import { AdminFileList } from "@/components/AdminFile.tsx"; // ✅ AdminFileList 사용
 import { Button } from "@/shadcn/components/Button.tsx";

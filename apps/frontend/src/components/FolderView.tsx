@@ -6,7 +6,7 @@ import { Sidebar } from "@/components/layout/Sidebar.tsx";
 import { SidebarLayout } from "@/components/layout/SidebarLayout.tsx";
 import { LoadingSpinner } from "@/components/shared/LoadingSpinner.tsx";
 import { Button } from "@/shadcn/components/Button.tsx";
-import { useUpload } from "@/services/useUpload.ts";
+import { useUpload } from "@/services/file/useUpload.ts";
 import { useEntryList } from "@/services/useEntryList.ts";
 import { useFolderPath } from "@/services/useFolderPath.ts";
 import { FolderName } from "@/components/FolderName.tsx";
