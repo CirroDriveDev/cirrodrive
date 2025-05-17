@@ -11,7 +11,6 @@ const authService = container.get<AuthService>(AuthService);
 export const createContext = async ({
   req,
   res,
-  // eslint-disable-next-line @typescript-eslint/explicit-function-return-type -- 타입은 자동으로 추론됩니다.
 }: CreateExpressContextOptions) => {
   const ctx = {
     req,
