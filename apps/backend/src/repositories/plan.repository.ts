@@ -1,17 +1,30 @@
 import { injectable } from "inversify";
-import { type Plan } from "@cirrodrive/database";
+import { Prisma, Plan } from "@cirrodrive/database";
 import { BaseRepository } from "@/repositories/base.repository.ts";
 
 @injectable()
 export class PlanRepository extends BaseRepository {
-  // create
+  // Create
+  async create(data: Prisma.PlanUncheckedCreateInput): Promise<Plan> {
+    return this.prisma.plan.create({ data });
+  }
 
-  // read
-  public async listAllPlans(): Promise<Plan[]> {
+  // Read
+  async findById(id: string): Promise<Plan | null> {
+    return this.prisma.plan.findUnique({ where: { id } });
+  }
+
+  async listAll(): Promise<Plan[]> {
     return this.prisma.plan.findMany();
   }
 
-  // update
+  // Update
+  async updateById(id: string, data: Prisma.PlanUpdateInput): Promise<Plan> {
+    return this.prisma.plan.update({ where: { id }, data });
+  }
 
-  // delete
+  // Delete
+  async deleteById(id: string): Promise<Plan> {
+    return this.prisma.plan.delete({ where: { id } });
+  }
 }

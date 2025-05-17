@@ -97,7 +97,7 @@ export class FileAccessCodeService implements FileAccessCodeServiceInterface {
 
   // read
   async getByFileId({ fileId }: { fileId: string }): Promise<FileAccessCode> {
-    const code = await this.fileAccessCodeRepository.findByFileId(fileId);
+    const code = await this.fileAccessCodeRepository.getByFileId(fileId);
     if (!code) {
       throw new Error(`No access code found for fileId ${fileId}`);
     }

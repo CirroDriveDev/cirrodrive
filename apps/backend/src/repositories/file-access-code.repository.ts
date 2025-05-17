@@ -1,31 +1,36 @@
 import { injectable } from "inversify";
 import { FileAccessCode, Prisma } from "@cirrodrive/database";
 import { BaseRepository } from "@/repositories/base.repository.ts";
+import { NotFoundError } from "@/errors/error-classes.ts";
 
 @injectable()
 export class FileAccessCodeRepository extends BaseRepository {
-  // create
+  // Create
   public async create(
     data: Prisma.FileAccessCodeUncheckedCreateInput,
   ): Promise<FileAccessCode> {
-    return this.prisma.fileAccessCode.create({ data });
+    return await this.prisma.fileAccessCode.create({ data });
   }
 
-  // read
-  public async getByCode(code: string): Promise<FileAccessCode | null> {
-    return this.prisma.fileAccessCode.findUnique({
+  // Read
+  public async getByCode(code: string): Promise<FileAccessCode> {
+    const result = await this.prisma.fileAccessCode.findUnique({
       where: { code },
     });
+    if (!result) throw new NotFoundError("FileAccessCode (code)", { code });
+    return result;
   }
 
-  public async findByFileId(fileId: string): Promise<FileAccessCode | null> {
-    return this.prisma.fileAccessCode.findUnique({
+  public async getByFileId(fileId: string): Promise<FileAccessCode> {
+    const result = await this.prisma.fileAccessCode.findUnique({
       where: { fileId },
     });
+    if (!result) throw new NotFoundError("FileAccessCode (fileId)", { fileId });
+    return result;
   }
 
   public async listByFileOwnerId(userId: string): Promise<FileAccessCode[]> {
-    return this.prisma.fileAccessCode.findMany({
+    return await this.prisma.fileAccessCode.findMany({
       where: {
         file: {
           ownerId: userId,
@@ -34,11 +39,11 @@ export class FileAccessCodeRepository extends BaseRepository {
     });
   }
 
-  // update
+  // Update
 
-  // delete
+  // Delete
   public async deleteByCode(code: string): Promise<FileAccessCode> {
-    return this.prisma.fileAccessCode.delete({
+    return await this.prisma.fileAccessCode.delete({
       where: { code },
     });
   }

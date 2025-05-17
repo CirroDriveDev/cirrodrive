@@ -17,6 +17,6 @@ export class PlanService {
 
   public async getAllPlans() {
     this.logger.debug("Fetching all plans");
-    return this.planRepotitory.listAllPlans();
+    return this.planRepotitory.listAll();
   }
 }

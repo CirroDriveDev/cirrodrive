@@ -12,6 +12,7 @@ export class AppError extends Error {
     public message: string,
     public code: TRPC_ERROR_CODE_KEY = "INTERNAL_SERVER_ERROR",
     public details?: Record<string, unknown>,
+    public layer?: string, // 에러 발생 레이어 정보 추가
   ) {
     super(message);
     this.name = this.constructor.name;
@@ -81,5 +82,15 @@ export class ValidationError extends AppError {
 export class UnauthorizedError extends AppError {
   constructor(message = "Unauthorized", details?: Record<string, unknown>) {
     super(message, "UNAUTHORIZED", details);
+  }
+}
+
+export class ServiceError extends AppError {
+  constructor(
+    message: string,
+    code: TRPC_ERROR_CODE_KEY = "INTERNAL_SERVER_ERROR",
+    details?: Record<string, unknown>,
+  ) {
+    super(message, code, details, "service");
   }
 }
