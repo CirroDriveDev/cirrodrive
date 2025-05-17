@@ -5,8 +5,8 @@ import { getProjectRoot } from "@/utils/get-project-root.ts";
 
 const logger = baseLogger.child({ prefix: "env" });
 const projectRoot = getProjectRoot();
-const backendPath = `${projectRoot}/apps/backend/`;
-const databasePath = `${projectRoot}/apps/database/`;
+const backendPath = `${projectRoot}/apps/backend`;
+const databasePath = `${projectRoot}/apps/database`;
 
 const envFilePaths = {
   production: [
