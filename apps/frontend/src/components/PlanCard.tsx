@@ -1,9 +1,11 @@
-interface PlanCardProps {
-  price: string;
+import { Button } from "@/shadcn/components/Button.tsx";
+
+export interface PlanCardProps {
+  price: "무료" | "4,900원" | "9,900원";
   features: string[];
   backgroundColor: string;
   onSubscribe: () => void;
-  currentUserLevel: string;
+  currentUserLevel: "무료" | "4,900원" | "9,900원";
 }
 
 export function PlanCard({
@@ -13,41 +15,13 @@ export function PlanCard({
   onSubscribe,
   currentUserLevel,
 }: PlanCardProps): JSX.Element {
-  const isFreePlan = price === "무료";
-  const isPremiumPlan = price === "4,900원";
-  const isVipPlan = price === "9,900원";
+  const isCurrentPlan = price === currentUserLevel; // 현재 요금제인지 확인
 
-  let buttonLabel = "구매하기";
-  let buttonDisabled = false;
-  let buttonStyle = "bg-white text-gray-800 hover:bg-gray-200";
-
-  if (currentUserLevel === "무료") {
-    if (isFreePlan) {
-      buttonLabel = "현재 등급";
-      buttonDisabled = true;
-      buttonStyle = "bg-gray-300 text-gray-700 cursor-default";
-    }
-  } else if (currentUserLevel === "4,900원") {
-    if (isFreePlan) {
-      buttonLabel = "X";
-      buttonDisabled = true;
-      buttonStyle = "bg-gray-300 text-gray-700 cursor-default";
-    } else if (isPremiumPlan) {
-      buttonLabel = "현재 등급";
-      buttonDisabled = true;
-      buttonStyle = "bg-gray-300 text-gray-700 cursor-default";
-    }
-  } else if (currentUserLevel === "9,900원") {
-    if (isFreePlan || isPremiumPlan) {
-      buttonLabel = "X";
-      buttonDisabled = true;
-      buttonStyle = "bg-gray-300 text-gray-700 cursor-default";
-    } else if (isVipPlan) {
-      buttonLabel = "현재 등급";
-      buttonDisabled = true;
-      buttonStyle = "bg-gray-300 text-gray-700 cursor-default";
-    }
-  }
+  // 현재 요금제보다 낮은 요금제의 버튼은 렌더링하지 않음
+  const shouldRenderButton =
+    !isCurrentPlan &&
+    ["무료", "4,900원", "9,900원"].indexOf(price) >
+      ["무료", "4,900원", "9,900원"].indexOf(currentUserLevel);
 
   return (
     <div
@@ -61,7 +35,7 @@ export function PlanCard({
       {/* 가격 */}
       <div className="mb-6 text-3xl font-extrabold">월/{price}</div>
 
-      {/* 설명 */}
+      {/* 요금제 설명 */}
       <ul className="mb-8 flex flex-grow flex-col justify-center space-y-3 text-lg">
         {features.map((feature) => (
           <li key={feature} className="flex items-center space-x-2">
@@ -70,17 +44,27 @@ export function PlanCard({
         ))}
       </ul>
 
-      {/* 버튼 */}
-      <button
-        type="button"
-        className={`rounded-full px-6 py-3 font-bold ${buttonStyle}`}
-        onClick={() => {
-          if (!buttonDisabled) onSubscribe();
-        }}
-        disabled={buttonDisabled}
-      >
-        {buttonLabel}
-      </button>
+      {/* 현재 요금제 표시 */}
+      {isCurrentPlan ?
+        <Button
+          variant="secondary"
+          disabled // 현재 사용 중인 요금제라서 비활성화
+          className="rounded-full px-6 py-3 font-bold"
+        >
+          현재 요금제
+        </Button>
+      : null}
+
+      {/* 버튼 렌더링 여부에 따라 표시 */}
+      {shouldRenderButton ?
+        <Button
+          variant="default"
+          onClick={onSubscribe}
+          className="rounded-full px-6 py-3 font-bold"
+        >
+          구매하기
+        </Button>
+      : null}
     </div>
   );
 }
