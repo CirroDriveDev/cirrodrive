@@ -5,6 +5,13 @@ enum PricingPlan {
   premium // 프리미엄 플랜
 }
 
+enum PlanInterval {
+  DAY // 일 단위
+  WEEK // 주 단위
+  MONTH // 월 단위
+  YEAR // 년 단위
+}
+
 model Plan {
   // 도메인 데이터
   id                String         @id @default(uuid())
@@ -14,7 +21,7 @@ model Plan {
   price             Int
   trialPeriodDays   Int?
   currency          String
-  interval          String
+  interval          PlanInterval
   intervalCount     Int
   isActive          Boolean        @default(true)
   // 메타데이터
