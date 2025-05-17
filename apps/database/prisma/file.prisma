@@ -1,0 +1,54 @@
+model FileMetadata {
+  id        String    @id @default(uuid())
+  name      String
+  extension String
+  size      Int
+  key       String
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  trashedAt DateTime?
+  hash      String
+
+  parentFolderId  String?
+  parentFolder    Folder? @relation(fields: [parentFolderId], references: [id], onDelete: SetNull)
+  restoreFolderId String?
+  restoreFolder   Folder? @relation(name: "RestoreFolderToFile", fields: [restoreFolderId], references: [id], onDelete: SetNull)
+  ownerId         String?
+  owner           User?   @relation(fields: [ownerId], references: [id])
+
+  codes FileAccessCode? @relation(name: "FileToAccessCode")
+
+  @@index([parentFolderId])
+}
+
+model FileAccessCode {
+  id        Int          @id @default(autoincrement())
+  code      String       @unique
+  expiresAt DateTime
+  fileId    String       @unique
+  file      FileMetadata @relation(name: "FileToAccessCode", fields: [fileId], references: [id])
+}
+
+model Folder {
+  id        String    @id @default(uuid())
+  name      String
+  createdAt DateTime  @default(now())
+  trashedAt DateTime?
+  updatedAt DateTime  @default(now()) @updatedAt
+
+  parentFolderId  String?
+  parentFolder    Folder? @relation(name: "ParentToSubFolder", fields: [parentFolderId], references: [id])
+  restoreFolderId String?
+  restoreFolder   Folder? @relation(name: "RestoreFolderToFolder", fields: [restoreFolderId], references: [id])
+  ownerId         String?
+  owner           User?   @relation(name: "OwnerToFolder", fields: [ownerId], references: [id], onDelete: SetNull)
+
+  subFolders             Folder[]       @relation(name: "ParentToSubFolder")
+  files                  FileMetadata[]
+  UserRootFolder         User?          @relation(name: "RootFolder")
+  UserTrashFolder        User?          @relation(name: "TrashFolder")
+  restoredFolderToFolder Folder[]       @relation(name: "RestoreFolderToFolder")
+  restoredFolderToFile   FileMetadata[] @relation(name: "RestoreFolderToFile")
+
+  @@index([parentFolderId])
+}

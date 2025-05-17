@@ -1,0 +1,39 @@
+model User {
+  id              String      @id @default(uuid())
+  username        String      @unique
+  hashedPassword  String
+  email           String      @unique
+  pricingPlan     PricingPlan @default(free)
+  usedStorage     Int         @default(0)
+  profileImageUrl String?     @unique
+  createdAt       DateTime    @default(now())
+  updatedAt       DateTime    @updatedAt
+  isAdmin         Boolean     @default(false)
+
+  rootFolderId String @unique
+  rootFolder   Folder @relation(name: "RootFolder", fields: [rootFolderId], references: [id], onDelete: Cascade)
+
+  trashFolderId String @unique
+  trashFolder   Folder @relation(name: "TrashFolder", fields: [trashFolderId], references: [id], onDelete: Cascade)
+
+  sessions         Session[]
+  folders          Folder[]           @relation(name: "OwnerToFolder")
+  files            FileMetadata[]
+  BillingAgreement BillingAgreement[]
+}
+
+model Session {
+  id        String   @id
+  expiresAt DateTime
+
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model VerificationCode {
+  id        String   @id @default(uuid())
+  email     String   @unique
+  code      String
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+}

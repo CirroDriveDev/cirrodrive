@@ -16,7 +16,8 @@
   "name": "@cirrodrive/database",
   "prettier": "@cirrodrive/prettier-config",
   "prisma": {
-    "seed": "vite-node prisma/seed.ts"
+    "schema": "./prisma",
+    "seed": "vite-node src/seed.ts"
   },
   "private": true,
   "scripts": {

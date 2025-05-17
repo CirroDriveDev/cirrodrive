@@ -1,0 +1,48 @@
+enum PricingPlan {
+  free
+  basic
+  premium
+}
+
+enum BillingStatus {
+  ACTIVE
+  CANCELED
+}
+
+enum CardType {
+  CREDIT
+  DEBIT
+}
+
+enum CardOwnerType {
+  PERSONAL
+  CORPORATE
+}
+
+model BillingAgreement {
+  id               String        @id @default(uuid())
+  userId           String
+  customerKey      String        @unique
+  billingKey       String        @unique
+  cardCompany      String
+  cardNumberMasked String
+  cardType         CardType
+  cardOwnerType    CardOwnerType
+  authenticatedAt  DateTime
+  status           BillingStatus
+  createdAt        DateTime      @default(now())
+  updatedAt        DateTime      @updatedAt
+  // 관계
+  user             User          @relation(fields: [userId], references: [id])
+}
+
+model Plan {
+  id          String   @id @default(uuid())
+  name        String
+  description String?
+  price       Int // 단위: 원
+  duration    Int // 단위: 일수
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
