@@ -15,6 +15,12 @@ import { FileAccessCodeRepository } from "@/repositories/file-access-code.reposi
 import { FileAccessCodeService } from "@/services/file-access-code.service.ts";
 import { PlanRepository } from "@/repositories/plan.repository.ts";
 import { PlanService } from "@/services/plan.service.ts";
+import { SubscriptionRepository } from "@/repositories/subscription.repository.ts";
+import { CardRepository } from "@/repositories/card.repository.ts";
+import { TransactionRepository } from "@/repositories/transaction.repository.ts";
+import { BillingService } from "@/services/billing.service.ts";
+import { TossPaymentsService } from "@/services/toss-payments-service.ts";
+import { SubscriptionHistoryRepository } from "@/repositories/subscription-history.repository.ts";
 
 const inversifyLogger = logger.child({ prefix: "Inversify" });
 
@@ -38,6 +44,10 @@ container.bind(PrismaClient).toConstantValue(prisma);
 // Repositories
 container.bind(FileAccessCodeRepository).toSelf();
 container.bind(PlanRepository).toSelf();
+container.bind(SubscriptionRepository).toSelf();
+container.bind(CardRepository).toSelf();
+container.bind(TransactionRepository).toSelf();
+container.bind(SubscriptionHistoryRepository).toSelf();
 
 // Services
 container.bind(UserService).toSelf();
@@ -49,6 +59,8 @@ container.bind(EmailService).toSelf();
 container.bind(AdminService).toSelf();
 container.bind(S3Service).toSelf();
 container.bind(PlanService).toSelf();
+container.bind(BillingService).toSelf();
+container.bind(TossPaymentsService).toSelf();
 
 inversifyLogger.info("Inversify loaded successfully");
 

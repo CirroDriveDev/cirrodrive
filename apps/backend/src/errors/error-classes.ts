@@ -94,3 +94,19 @@ export class ServiceError extends AppError {
     super(message, code, details, "service");
   }
 }
+
+/**
+ * Name: ExternalPaymentError
+ *
+ * Code: BAD_GATEWAY
+ *
+ * Description: 외부 결제 서비스(Toss 등)와의 통신에서 발생하는 에러에 사용합니다.
+ */
+export class ExternalPaymentError extends AppError {
+  constructor(
+    message = "External payment service error",
+    details?: Record<string, unknown>,
+  ) {
+    super(message, "BAD_GATEWAY", details, "external-payment");
+  }
+}

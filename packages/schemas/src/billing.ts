@@ -21,6 +21,32 @@ export const PaymentStatusEnum = z.enum([
 export const CardTypeEnum = z.enum(["CREDIT", "DEBIT", "GIFT"]);
 export const CardOwnerTypeEnum = z.enum(["PERSONAL", "CORPORATE"]);
 
+export const MethodK2ESchema = z.enum(["카드"]).transform((val) => {
+  if (val === "카드") return "CARD" as const;
+  throw new Error("지원하지 않는 결제 방식입니다.");
+});
+
+export const CardTypeK2ESchema = z
+  .enum(["신용", "체크", "기프트"])
+  .transform((val) => {
+    switch (val) {
+      case "신용":
+        return "CREDIT" as const;
+      case "체크":
+        return "DEBIT" as const;
+      case "기프트":
+        return "GIFT" as const;
+      default:
+        throw new Error("지원하지 않는 카드 타입입니다.");
+    }
+  });
+
+export const OwnerTypeK2ESchema = z.enum(["개인", "법인"]).transform((val) => {
+  if (val === "개인") return "PERSONAL" as const;
+  if (val === "법인") return "CORPORATE" as const;
+  throw new Error("지원하지 않는 소유자 타입입니다.");
+});
+
 export const PlanSchema = z.object({
   id: z.string().uuid(),
   name: z.string(),

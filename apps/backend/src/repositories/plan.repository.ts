@@ -14,6 +14,14 @@ export class PlanRepository extends BaseRepository {
     return this.prisma.plan.findUnique({ where: { id } });
   }
 
+  async getById(id: string): Promise<Plan> {
+    const plan = await this.prisma.plan.findUnique({ where: { id } });
+    if (!plan) {
+      throw new Error(`Plan with ID ${id} not found`);
+    }
+    return plan;
+  }
+
   async listAll(): Promise<Plan[]> {
     return this.prisma.plan.findMany();
   }
