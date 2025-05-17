@@ -62,12 +62,12 @@ model Subscription {
   user                  User                  @relation(fields: [userId], references: [id])
   card                  Card                  @relation(fields: [cardId], references: [id])
   plan                  Plan                  @relation(fields: [planId], references: [id])
-  Payment               Payment[]
+  Payment               Transaction[]
   SubscriptionHistories SubscriptionHistory[]
 }
 
 // 결제 트랜잭션의 상태를 나타냄
-enum PaymentStatus {
+enum TransactionStatus {
   SUCCEEDED // 결제 성공
   FAILED // 결제 실패
   CANCELED // 결제 취소
@@ -75,12 +75,12 @@ enum PaymentStatus {
   PENDING // 결제 대기 중
 }
 
-model Payment {
+model Transaction {
   // 도메인 데이터
-  id             String        @id @default(uuid())
+  id             String            @id @default(uuid())
   amount         Int
   method         BillingMethod
-  status         PaymentStatus
+  status         TransactionStatus
   transactionId  String
   refundedAt     DateTime?
   canceledAt     DateTime?
@@ -88,13 +88,13 @@ model Payment {
   receiptUrl     String?
   rawResponse    Json?
   // 메타데이터
-  createdAt      DateTime      @default(now())
-  updatedAt      DateTime      @updatedAt
+  createdAt      DateTime          @default(now())
+  updatedAt      DateTime          @updatedAt
   // 관계
   userId         String
   subscriptionId String
-  user           User          @relation(fields: [userId], references: [id])
-  subscription   Subscription  @relation(fields: [subscriptionId], references: [id])
+  user           User              @relation(fields: [userId], references: [id])
+  subscription   Subscription      @relation(fields: [subscriptionId], references: [id])
 }
 
 model SubscriptionHistory {

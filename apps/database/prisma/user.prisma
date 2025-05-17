@@ -23,7 +23,7 @@ model User {
 
   Cards Card[]
 
-  Payment Payment[]
+  Transaction Transaction[]
 }
 
 model Session {
