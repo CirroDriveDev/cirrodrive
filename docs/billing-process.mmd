@@ -18,7 +18,6 @@ sequenceDiagram
   User->>F_Page: /subscribe 경로로 접근
   note left of F_Page: 요금제 정보 동적 로딩<br>/pages/subscribe.tsx<br>- usePlanList 훅을 통해 요금제 목록 API 호출<br>- 응답: Plan[]<br>- 로딩 중 스피너, 오류 처리 포함<br>- 하위 컴포넌트: PlanCard, SubscribeButton 포함
   F_Page->>F_Hook: usePlanList()
-  note left of B_Repo: Plan 테이블 스키마<br>/prisma/schema.prisma<br>- id (string, uuid): 요금제 ID (PK)<br>- name (string): 요금제 이름 (예: BASIC, PRO)<br>- description (string): 요금제 설명<br>- price (int): 금액 (원 단위)<br>- currency (string): 통화 (기본값 KRW)<br>- interval (string): 결제 주기 (예: month)<br>- intervalCount (int): 주기 반복 횟수 (예: 1개월 = 1)<br>- isActive (boolean): 사용 여부<br>- createdAt / updatedAt (DateTime): 생성 및 수정 시각
   F_Hook->>B_Router: trpc.plan.list.query()
   B_Router->>B_Service: planService.getAll()
   B_Service->>B_Repo: planRepository.findAll()
@@ -56,7 +55,7 @@ sequenceDiagram
     B_Service->>TossPayments: POST /v1/billing/authorizations/issue
     TossPayments-->>B_Service: 응답: { billingKey, customerKey, 여러 정보 }
 
-    note over B_Service,B_Repo: billingKey 저장<br>/repositories/billing.repository.ts<br>- billingRepository.saveAgreement 호출<br>- BillingAgreement 테이블 스키마<br>  - id (string, uuid): 식별자<br>  - userId (string): 사용자 ID<br>  - customerKey (string): 사용자 식별용 키<br>  - billingKey (string): 자동결제용 키<br>  - planId (string): 선택한 요금제 ID<br>  - cardCompany (string): 카드사 이름<br>  - cardNumberMasked (string): 마스킹된 카드 번호<br>  - cardType (string): 카드 종류 (신용/체크)<br>  - cardOwnerType (string): 개인/법인<br>  - authenticatedAt (DateTime): 인증 시각<br>  - status (string): 상태 (예: ACTIVE, CANCELED)<br>  - startedAt (DateTime): 구독 시작일<br>  - nextBillingAt (DateTime): 다음 결제 예정일<br>  - interval (string): 결제 주기<br>  - intervalCount (int): 주기 반복 횟수<br>  - createdAt / updatedAt (DateTime): 생성 및 갱신 시각
+    note over B_Service,B_Repo: billingKey 저장<br>/repositories/billing.repository.ts<br>- billingRepository.saveAgreement 호출
     B_Service->>B_Repo: billingRepository.saveAgreement(...)
     B_Repo-->>B_Service: 저장 완료
 
