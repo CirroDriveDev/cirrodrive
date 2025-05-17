@@ -16,10 +16,14 @@ model User {
   trashFolderId String @unique
   trashFolder   Folder @relation(name: "TrashFolder", fields: [trashFolderId], references: [id], onDelete: Cascade)
 
-  sessions         Session[]
-  folders          Folder[]           @relation(name: "OwnerToFolder")
-  files            FileMetadata[]
-  BillingAgreement BillingAgreement[]
+  sessions     Session[]
+  folders      Folder[]       @relation(name: "OwnerToFolder")
+  files        FileMetadata[]
+  Subscription Subscription[]
+
+  Cards Card[]
+
+  Payment Payment[]
 }
 
 model Session {

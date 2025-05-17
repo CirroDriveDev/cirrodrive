@@ -1,48 +1,137 @@
+// 요금제 유형(비즈니스 플랜 구분)
 enum PricingPlan {
-  free
-  basic
-  premium
-}
-
-enum BillingStatus {
-  ACTIVE
-  CANCELED
-}
-
-enum CardType {
-  CREDIT
-  DEBIT
-}
-
-enum CardOwnerType {
-  PERSONAL
-  CORPORATE
-}
-
-model BillingAgreement {
-  id               String        @id @default(uuid())
-  userId           String
-  customerKey      String        @unique
-  billingKey       String        @unique
-  cardCompany      String
-  cardNumberMasked String
-  cardType         CardType
-  cardOwnerType    CardOwnerType
-  authenticatedAt  DateTime
-  status           BillingStatus
-  createdAt        DateTime      @default(now())
-  updatedAt        DateTime      @updatedAt
-  // 관계
-  user             User          @relation(fields: [userId], references: [id])
+  free // 무료 플랜
+  basic // 기본 플랜
+  premium // 프리미엄 플랜
 }
 
 model Plan {
-  id          String   @id @default(uuid())
-  name        String
-  description String?
-  price       Int // 단위: 원
-  duration    Int // 단위: 일수
-  isActive    Boolean  @default(true)
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  // 도메인 데이터
+  id                String         @id @default(uuid())
+  name              String
+  description       String?
+  features          Json?
+  price             Int
+  trialPeriodDays   Int?
+  currency          String
+  interval          String
+  intervalCount     Int
+  isActive          Boolean        @default(true)
+  // 메타데이터
+  createdAt         DateTime       @default(now())
+  updatedAt         DateTime       @updatedAt
+  // 관계
+  BillingAgreements Subscription[]
+}
+
+// 구독/자동결제의 상태를 나타냄
+enum BillingStatus {
+  ACTIVE // 정상 구독 중
+  CANCELED // 사용자가 취소함
+  TRIALING // 체험 기간 중
+  PAST_DUE // 결제 연체
+  PAUSED // 일시정지
+  INCOMPLETE // 결제 미완료(예: 카드 인증 실패 등)
+  EXPIRED // 만료됨(기간 종료 등)
+}
+
+// 결제수단 종류
+enum BillingMethod {
+  CARD // 카드 결제
+}
+
+model Subscription {
+  // 도메인 데이터
+  id                    String                @id @default(uuid())
+  mId                   String
+  customerKey           String                @unique
+  authenticatedAt       DateTime
+  method                BillingMethod         @default(CARD)
+  billingKey            String                @unique
+  startedAt             DateTime
+  nextBillingAt         DateTime
+  status                BillingStatus         @default(ACTIVE)
+  canceledAt            DateTime?
+  // 메타데이터
+  createdAt             DateTime              @default(now())
+  updatedAt             DateTime              @updatedAt
+  // 관계
+  userId                String
+  cardId                String
+  planId                String
+  user                  User                  @relation(fields: [userId], references: [id])
+  card                  Card                  @relation(fields: [cardId], references: [id])
+  plan                  Plan                  @relation(fields: [planId], references: [id])
+  Payment               Payment[]
+  SubscriptionHistories SubscriptionHistory[]
+}
+
+// 결제 트랜잭션의 상태를 나타냄
+enum PaymentStatus {
+  SUCCEEDED // 결제 성공
+  FAILED // 결제 실패
+  CANCELED // 결제 취소
+  REFUNDED // 환불 완료
+  PENDING // 결제 대기 중
+}
+
+model Payment {
+  // 도메인 데이터
+  id             String        @id @default(uuid())
+  amount         Int
+  method         BillingMethod
+  status         PaymentStatus
+  transactionId  String
+  refundedAt     DateTime?
+  canceledAt     DateTime?
+  failedAt       DateTime?
+  receiptUrl     String?
+  rawResponse    Json?
+  // 메타데이터
+  createdAt      DateTime      @default(now())
+  updatedAt      DateTime      @updatedAt
+  // 관계
+  userId         String
+  subscriptionId String
+  user           User          @relation(fields: [userId], references: [id])
+  subscription   Subscription  @relation(fields: [subscriptionId], references: [id])
+}
+
+model SubscriptionHistory {
+  id             String       @id @default(uuid())
+  subscriptionId String
+  oldPlanId      String
+  newPlanId      String
+  changedAt      DateTime     @default(now())
+  subscription   Subscription @relation(fields: [subscriptionId], references: [id])
+}
+
+// 카드 유형
+enum CardType {
+  CREDIT // 신용카드
+  DEBIT // 체크카드
+  GIFT // 기프트카드
+}
+
+// 카드 소유자 유형
+enum CardOwnerType {
+  PERSONAL // 개인
+  CORPORATE // 법인
+}
+
+model Card {
+  // 도메인 데이터
+  id           String         @id @default(uuid())
+  cardCompany  String
+  issuerCode   String
+  acquirerCode String
+  number       String         @unique
+  cardType     CardType
+  ownerType    CardOwnerType
+  // 메타데이터
+  createdAt    DateTime       @default(now())
+  // 관계
+  userId       String
+  user         User           @relation(fields: [userId], references: [id])
+  Subscription Subscription[]
 }

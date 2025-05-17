@@ -22,10 +22,4 @@ export const billingRouter = router({
     .mutation(() => {
       throw new Error("Not implemented");
     }),
-
-  getCurrentPlan: procedure
-    .input(z.object({ userId: z.string() }))
-    .query(() => {
-      throw new Error("Not implemented");
-    }),
 });
