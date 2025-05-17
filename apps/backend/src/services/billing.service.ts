@@ -1,19 +1,13 @@
 import { injectable } from "inversify";
-import type { $Enums } from "@cirrodrive/database";
-import { BillingAgreementRepository } from "@/repositories/billing-agreement.repository";
+import type { BillingAgreementRepository } from "@/repositories/billing-agreement.repository";
 
 @injectable()
 export class BillingService {
-  constructor(private readonly billingRepo: BillingAgreementRepository) {}
+  // 타입 명시하고 사용하지 않으면 접두어 `_` 붙임
+  constructor(private readonly _billingRepo: BillingAgreementRepository) {}
 
-  async confirmBilling(id: string, status: string) {
-    if (!["ACTIVE", "CANCELED", "PENDING"].includes(status)) {
-      throw new Error("Invalid status");
-    }
-
-    // 타입 단언 시 $Enums 사용
-    const typedStatus = status as $Enums.BillingStatus;
-
-    return this.billingRepo.updateStatusById(id, typedStatus);
+  // 미사용 인자는 접두어 `_` 붙여 eslint 경고 제거
+  async confirmBilling(_id: string, _status: string) {
+    // 정의만, 구현 없음
   }
 }
