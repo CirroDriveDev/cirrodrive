@@ -56,7 +56,7 @@ model Subscription {
   createdAt             DateTime              @default(now())
   updatedAt             DateTime              @updatedAt
   // 관계
-  userId                String
+  userId                String                @unique
   cardId                String
   planId                String
   user                  User                  @relation(fields: [userId], references: [id])

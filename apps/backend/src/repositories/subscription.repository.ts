@@ -23,10 +23,14 @@ export class SubscriptionRepository extends BaseRepository {
     return result;
   }
 
-  public async listByUserId(userId: string): Promise<Subscription[]> {
-    return this.prisma.subscription.findMany({
+  public async getByUserId(userId: string): Promise<Subscription> {
+    const result = await this.prisma.subscription.findUnique({
       where: { userId },
     });
+    if (!result) {
+      throw new DBNotFoundError("Subscription (userId)", { userId });
+    }
+    return result;
   }
 
   // Update

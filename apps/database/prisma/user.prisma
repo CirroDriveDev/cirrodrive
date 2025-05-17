@@ -19,7 +19,7 @@ model User {
   sessions     Session[]
   folders      Folder[]       @relation(name: "OwnerToFolder")
   files        FileMetadata[]
-  Subscription Subscription[]
+  Subscription Subscription?
 
   Cards Card[]
 
