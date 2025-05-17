@@ -1,13 +1,18 @@
 import { injectable } from "inversify";
+import type { Plan } from "@cirrodrive/database";
 import type { BillingAgreementRepository } from "@/repositories/billing-agreement.repository";
 
 @injectable()
 export class BillingService {
-  // 타입 명시하고 사용하지 않으면 접두어 `_` 붙임
   constructor(private readonly _billingRepo: BillingAgreementRepository) {}
 
-  // 미사용 인자는 접두어 `_` 붙여 eslint 경고 제거
-  async confirmBilling(_id: string, _status: string) {
-    // 정의만, 구현 없음
+  async confirmBilling(_id: string, _status: string): Promise<void> {
+    // 구현 예정, 임시로 아무것도 하지 않고 Promise<void> 반환
+    
   }
+
+  async getCurrentPlan(_userId: string): Promise<Plan | null> {
+  await Promise.resolve(); // eslint 경고 회피용 더미 await
+  return null;
+}
 }

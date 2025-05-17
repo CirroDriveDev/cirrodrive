@@ -16,4 +16,10 @@ export const billingRouter = router({
     .mutation(async ({ input }) => {
       return billingService.confirmBilling(input.id, input.status);
     }),
+
+  getCurrentPlan: procedure
+    .input(z.object({ userId: z.string() }))
+    .query(async ({ input }) => {
+      return billingService.getCurrentPlan(input.userId);
+    }),
 });
