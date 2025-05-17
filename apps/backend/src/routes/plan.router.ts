@@ -1,8 +1,8 @@
 import { router, procedure } from "@/loaders/trpc.loader";
 import { PlanService } from "@/services/plan.service.ts";
-import { prisma } from "@/loaders/prisma.loader.ts";  
+import { container } from "@/loaders/inversify.loader.ts";
 
-const planService = new PlanService(prisma.plan); 
+const planService = container.get<PlanService>(PlanService);
 
 export const planRouter = router({
   list: procedure.query(async () => {

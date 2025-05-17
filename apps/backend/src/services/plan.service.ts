@@ -1,18 +1,22 @@
 // plan.service.ts
 import { injectable, inject } from "inversify";
-import type { Prisma, Plan } from "@cirrodrive/database";
+import type { Logger } from "pino";
 import { Symbols } from "@/types/symbols.ts";
+import { PlanRepository } from "@/repositories/plan.repository.ts";
 
 @injectable()
 export class PlanService {
   constructor(
+    @inject(Symbols.Logger)
     private logger: Logger,
-    private planModel: Prisma.PlanDelegate,
+    @inject(PlanRepository)
+    private planRepotitory: PlanRepository,
   ) {
     this.logger = logger.child({ prefix: "PlanService" });
   }
 
   public async getAllPlans() {
-    return this.planModel.findMany();
+    this.logger.debug("Fetching all plans");
+    return this.planRepotitory.listAllPlans();
   }
 }

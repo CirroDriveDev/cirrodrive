@@ -13,6 +13,8 @@ import { AdminService } from "@/services/admin.service.ts";
 import { S3Service } from "@/services/s3.service.ts";
 import { FileAccessCodeRepository } from "@/repositories/file-access-code.repository.ts";
 import { FileAccessCodeService } from "@/services/file-access-code.service.ts";
+import { PlanRepository } from "@/repositories/plan.repository.ts";
+import { PlanService } from "@/services/plan.service.ts";
 
 const inversifyLogger = logger.child({ prefix: "Inversify" });
 
@@ -32,8 +34,12 @@ container
   .toConstantValue(prisma.verificationCode);
 
 container.bind(PrismaClient).toConstantValue(prisma);
-container.bind(FileAccessCodeRepository).toSelf();
 
+// Repositories
+container.bind(FileAccessCodeRepository).toSelf();
+container.bind(PlanRepository).toSelf();
+
+// Services
 container.bind(UserService).toSelf();
 container.bind(AuthService).toSelf();
 container.bind(FileAccessCodeService).toSelf();
@@ -42,6 +48,7 @@ container.bind(FolderService).toSelf();
 container.bind(EmailService).toSelf();
 container.bind(AdminService).toSelf();
 container.bind(S3Service).toSelf();
+container.bind(PlanService).toSelf();
 
 inversifyLogger.info("Inversify loaded successfully");
 
