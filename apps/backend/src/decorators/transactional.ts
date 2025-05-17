@@ -1,6 +1,5 @@
 import { AsyncLocalStorage } from "node:async_hooks";
-import { PrismaClient } from "@cirrodrive/database";
-import type { PrismaTx } from "@/loaders/prisma.loader.ts";
+import { prisma, type PrismaTx } from "@/loaders/prisma.loader.ts";
 
 const txStorage = new AsyncLocalStorage<{ tx: PrismaTx }>();
 
@@ -43,8 +42,6 @@ export function Transactional(): MethodDecorator {
         return await originalMethod.apply(this, args);
       }
 
-      const { container } = await import("@/loaders/inversify.loader.ts");
-      const prisma = container.get<PrismaClient>(PrismaClient);
       // 새로운 트랜잭션 컨텍스트에서 실행
       return await prisma.$transaction(async (tx) => {
         return await TxContext.run(tx, async () => {
