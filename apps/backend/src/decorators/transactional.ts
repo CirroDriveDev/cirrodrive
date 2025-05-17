@@ -1,5 +1,20 @@
+import { AsyncLocalStorage } from "node:async_hooks";
 import { PrismaClient } from "@cirrodrive/database";
-import { TxContext } from "@/contexts/tx-context.ts";
+import type { PrismaTx } from "@/loaders/prisma.loader.ts";
+
+const txStorage = new AsyncLocalStorage<{ tx: PrismaTx }>();
+
+export class TxContext {
+  // 트랜잭션 컨텍스트 내에서 콜백을 실행
+  static run<T>(tx: PrismaTx, fn: () => Promise<T>): Promise<T> {
+    return txStorage.run({ tx }, fn);
+  }
+
+  // 현재 비동기 컨텍스트의 트랜잭션 반환
+  static get(): PrismaTx | undefined {
+    return txStorage.getStore()?.tx;
+  }
+}
 
 /**
  * Transactional 데코레이터
@@ -24,18 +39,17 @@ export function Transactional(): MethodDecorator {
       const existingTx = TxContext.get();
 
       if (existingTx) {
+        // 이미 트랜잭션 컨텍스트가 있으면 그대로 실행
         return await originalMethod.apply(this, args);
       }
 
       const { container } = await import("@/loaders/inversify.loader.ts");
       const prisma = container.get<PrismaClient>(PrismaClient);
+      // 새로운 트랜잭션 컨텍스트에서 실행
       return await prisma.$transaction(async (tx) => {
-        TxContext.set(tx);
-        try {
+        return await TxContext.run(tx, async () => {
           return await originalMethod.apply(this, args);
-        } finally {
-          TxContext.clear();
-        }
+        });
       });
     };
 
