@@ -13,7 +13,6 @@ const sessionStore: Record<string, { username: string }> = {};
 const generateSessionId = (): string =>
   Math.random().toString(36).substring(2, 15);
 
-// eslint-disable-next-line @typescript-eslint/explicit-function-return-type -- 타입은 자동으로 추론됩니다.
 const createContext = ({ req, res }: CreateExpressContextOptions) => {
   const sessionId = req.cookies["session-id"] as string; // 쿠키에서 세션 ID 가져오기
   const session = sessionId ? sessionStore[sessionId] : null;
