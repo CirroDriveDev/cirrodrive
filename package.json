@@ -49,6 +49,7 @@
     "postinstall": "turbo run -F @cirrodrive/database build",
     "prepare": "husky",
     "test": "turbo run test",
+    "test:ci": "turbo run test:ci",
     "typecheck": "turbo run typecheck",
     "ui-add": "turbo run ui-add"
   },

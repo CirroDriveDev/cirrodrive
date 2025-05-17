@@ -8,13 +8,11 @@ runs:
 
     - name: Install pnpm
       uses: pnpm/action-setup@v4
-      with:
-        version: 10
 
-    - name: Use Node.js 22
+    - name: Use Node.js 20
       uses: actions/setup-node@v4
       with:
-        node-version: 22
+        node-version: 20.19.1
         cache: "pnpm"
 
     - name: Restore turbo cache
@@ -26,5 +24,5 @@ runs:
           turbo-${{ runner.os }}-
 
     - name: Install dependencies
-      run: pnpm install
+      run: pnpm install --frozen-lockfile --prefer-offline
       shell: bash

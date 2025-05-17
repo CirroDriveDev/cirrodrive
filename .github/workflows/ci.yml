@@ -4,18 +4,7 @@ on:
   # Trigger the workflow on push or pull request events to the main branch,
   # but only when changes are made in specified paths (apps, packages, tooling, etc.)
   push:
-    branches: [main]
-    paths:
-      - "apps/**/src/**"
-      - "apps/**/test/**"
-      - "packages/**"
-      - "tooling/**"
-      - "eslint.config.js"
-      - "pnpm-workspace.yaml"
-      - "turbo.json"
-      - "pnpm-lock.yaml"
-  pull_request:
-    branches: [main]
+    branches: [main, develop]
     paths:
       - "apps/**/src/**"
       - "apps/**/test/**"
@@ -32,18 +21,22 @@ jobs:
     runs-on: ubuntu-22.04
     steps:
       - uses: ./.github/actions/setup
-      - run: pnpx turbo run lint
+      - run: pnpm lint
 
   typecheck:
     name: CI (TypeCheck)
     runs-on: ubuntu-22.04
     steps:
       - uses: ./.github/actions/setup
-      - run: pnpx turbo run typecheck
+      - run: pnpm typecheck
 
-  backend-test:
+  test:
     name: CI (Test)
     runs-on: ubuntu-22.04
     steps:
+      - name: Run tests in devcontainer
+        uses: devcontainers/ci@v0.3
+        with:
+          runCmd: pnpm test
       - uses: ./.github/actions/setup
-      - run: pnpx turbo run test
+      - run: pnpm test
