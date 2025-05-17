@@ -7,4 +7,5 @@ export const Symbols = {
   FolderModel: Symbol.for("FolderModel"),
   FileAccessCodeModel: Symbol.for("FileAccessCodeModel"),
   VerificationCodeModel: Symbol("VerificationCodeModel"),
+ PlanModel: Symbol.for("PlanModel"),
 };

@@ -153,3 +153,14 @@ model BillingAgreement {
   // 관계
   user             User          @relation(fields: [userId], references: [id])
 }
+
+model Plan {
+  id          String   @id @default(uuid())
+  name        String
+  description String?
+  price       Int      // 단위: 원
+  duration    Int      // 단위: 일수
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
