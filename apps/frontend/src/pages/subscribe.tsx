@@ -1,8 +1,6 @@
 import { PlanCard } from "@/components/PlanCard.tsx";
 
 export function Subscribe(): JSX.Element {
-  const currentUserLevel: "무료" | "4,900원" | "9,900원" = "9,900원"; // 현재 회원의 요금제 설정
-
   const plans: {
     id: string;
     price: "무료" | "4,900원" | "9,900원";
@@ -42,7 +40,6 @@ export function Subscribe(): JSX.Element {
           features={plan.features}
           backgroundColor={plan.backgroundColor}
           onSubscribe={() => handleSubscribe()} // 결제
-          currentUserLevel={currentUserLevel}
         />
       ))}
     </div>

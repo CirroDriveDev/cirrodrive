@@ -19,7 +19,7 @@ export const protectedUserRouter = router({
           username: input.username,
           password: input.password,
           email: input.email,
-          pricingPlan: input.pricingPlan,
+          planId: input.currentPlanId,
           profileImageUrl: input.profileImageUrl,
           usedStorage: input.usedStorage,
           isAdmin: false,
@@ -68,7 +68,7 @@ export const protectedUserRouter = router({
           username: input.username,
           password: input.password,
           email: input.email,
-          pricingPlan: input.pricingPlan,
+          planId: input.currentPlanId,
           profileImageUrl: input.profileImageUrl,
           usedStorage: input.usedStorage,
         });

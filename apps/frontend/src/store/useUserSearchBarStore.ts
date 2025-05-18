@@ -7,7 +7,7 @@ interface UserSearchBarState {
     username: boolean;
     email: boolean;
     createdAt: boolean;
-    pricingPlan: boolean;
+    currentPlanId: boolean;
   };
   setSearchTerm: (term: string) => void;
   toggleSearchField: (field: keyof UserSearchBarState["searchFields"]) => void;
@@ -21,7 +21,7 @@ export const useUserSearchBarStore = create<UserSearchBarState>((set) => ({
     username: false,
     email: false,
     createdAt: false,
-    pricingPlan: false,
+    currentPlanId: false,
   },
   setSearchTerm: (term) => set({ searchTerm: term }),
   toggleSearchField: (field) =>
@@ -39,7 +39,7 @@ export const useUserSearchBarStore = create<UserSearchBarState>((set) => ({
         username: false,
         email: false,
         createdAt: false,
-        pricingPlan: false,
+        currentPlanId: false,
       },
     }),
 }));

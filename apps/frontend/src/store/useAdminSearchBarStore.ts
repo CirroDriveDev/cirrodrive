@@ -4,7 +4,7 @@ interface AdminSearchBarState {
   searchTerms: {
     name: string;
     ownerName: string;
-    pricingPlan: string;
+    currentPlanId: string;
     createdAt: string;
   };
   setSearchTerm: (
@@ -18,7 +18,7 @@ export const useAdminSearchBarStore = create<AdminSearchBarState>((set) => ({
   searchTerms: {
     name: "",
     ownerName: "",
-    pricingPlan: "",
+    currentPlanId: "",
     createdAt: "",
   },
   setSearchTerm: (field, value) =>
@@ -30,7 +30,7 @@ export const useAdminSearchBarStore = create<AdminSearchBarState>((set) => ({
       searchTerms: {
         name: "",
         ownerName: "",
-        pricingPlan: "",
+        currentPlanId: "",
         createdAt: "",
       },
     }),

@@ -1,6 +1,5 @@
 import { z } from "zod";
 
-export const PricingPlanEnum = z.enum(["free", "basic", "premium"]);
 export const BillingStatusEnum = z.enum([
   "ACTIVE",
   "CANCELED",

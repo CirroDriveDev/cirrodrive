@@ -15,12 +15,12 @@ export function AdminFileSearchBar(): JSX.Element {
   const [searchFields, setSearchFields] = useState<{
     name: boolean;
     ownerName: boolean;
-    pricingPlan: boolean;
+    currentPlanId: boolean;
     createdAt: boolean;
   }>({
     name: true,
     ownerName: false,
-    pricingPlan: false,
+    currentPlanId: false,
     createdAt: false,
   });
 
@@ -34,7 +34,7 @@ export function AdminFileSearchBar(): JSX.Element {
 
     setSearchTerm("name", searchFields.name ? value : "");
     setSearchTerm("ownerName", searchFields.ownerName ? value : "");
-    setSearchTerm("pricingPlan", searchFields.pricingPlan ? value : "");
+    setSearchTerm("currentPlanId", searchFields.currentPlanId ? value : "");
     setSearchTerm("createdAt", searchFields.createdAt ? value : "");
   };
 
@@ -44,7 +44,7 @@ export function AdminFileSearchBar(): JSX.Element {
     setSearchFields({
       name: true,
       ownerName: false,
-      pricingPlan: false,
+      currentPlanId: false,
       createdAt: false,
     });
   };
@@ -82,8 +82,8 @@ export function AdminFileSearchBar(): JSX.Element {
             유저명
           </DropdownMenuCheckboxItem>
           <DropdownMenuCheckboxItem
-            checked={searchFields.pricingPlan}
-            onCheckedChange={() => toggleField("pricingPlan")}
+            checked={searchFields.currentPlanId}
+            onCheckedChange={() => toggleField("currentPlanId")}
           >
             요금제
           </DropdownMenuCheckboxItem>

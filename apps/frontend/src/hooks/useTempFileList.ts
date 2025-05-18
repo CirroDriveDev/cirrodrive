@@ -3,7 +3,7 @@ import type { EntryDTO } from "@cirrodrive/schemas";
 
 export type TempFile = EntryDTO & {
   ownerName: string;
-  pricingPlan: string;
+  currentPlanId: string;
 };
 
 export function useTempFileList(): {
@@ -20,7 +20,7 @@ export function useTempFileList(): {
     return parseFloat(randomBytes.toFixed(2));
   };
 
-  const randomOwner = (): { ownerName: string; pricingPlan: string } => {
+  const randomOwner = (): { ownerName: string; currentPlanId: string } => {
     const owners = [
       { name: "Alice", plan: "free" },
       { name: "Bob", plan: "basic" },
@@ -29,14 +29,14 @@ export function useTempFileList(): {
       { name: "Eve", plan: "free" },
     ];
     const picked = owners[Math.floor(Math.random() * owners.length)]!;
-    return { ownerName: picked.name, pricingPlan: picked.plan };
+    return { ownerName: picked.name, currentPlanId: picked.plan };
   };
 
   const addTempFile = (): void => {
     setIsLoading(true);
     setTimeout(() => {
       const now = new Date();
-      const { ownerName, pricingPlan } = randomOwner();
+      const { ownerName, currentPlanId } = randomOwner();
       const tempFile: TempFile = {
         id: Date.now().toString(),
         type: "file",
@@ -47,7 +47,7 @@ export function useTempFileList(): {
         trashedAt: null,
         parentFolderId: null,
         ownerName,
-        pricingPlan,
+        currentPlanId,
       };
       setTempFiles((prev) => [...prev, tempFile]);
       setIsLoading(false);

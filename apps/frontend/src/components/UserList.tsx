@@ -8,11 +8,23 @@ interface UserListProps {
   users: UserDTO[];
 }
 
-type SortKey = "id" | "username" | "email" | "createdAt" | "pricingPlan";
+type SortKey = "id" | "username" | "email" | "createdAt" | "currentPlanId";
 type SortOrder = "asc" | "desc";
 
+// searchFields 타입 정의에 currentPlanId 추가
+interface SearchFields {
+  id: boolean;
+  username: boolean;
+  email: boolean;
+  createdAt: boolean;
+  currentPlanId: boolean;
+}
+
 export function UserList({ users }: UserListProps): JSX.Element {
-  const { searchTerm, searchFields } = useUserSearchBarStore();
+  const { searchTerm, searchFields } = useUserSearchBarStore() as {
+    searchTerm: string;
+    searchFields: SearchFields;
+  };
   const [sortKey, setSortKey] = useState<SortKey>("id");
   const [sortOrder, setSortOrder] = useState<SortOrder>("asc");
 
@@ -45,8 +57,8 @@ export function UserList({ users }: UserListProps): JSX.Element {
     if (searchFields.createdAt) {
       matches.push(user.createdAt.toLocaleDateString().includes(keyword));
     }
-    if (searchFields.pricingPlan) {
-      matches.push(user.pricingPlan.toLowerCase().includes(keyword));
+    if (searchFields.currentPlanId) {
+      matches.push((user.currentPlanId ?? "").toLowerCase().includes(keyword));
     }
 
     return matches.some(Boolean);
@@ -61,11 +73,15 @@ export function UserList({ users }: UserListProps): JSX.Element {
       if (aValue === null && bValue === null) return 0;
       if (aValue === null) return 1;
       if (bValue === null) return -1;
-
-      if (sortOrder === "asc") {
-        return aValue > bValue ? 1 : -1;
+      if (typeof aValue === "string" && typeof bValue === "string") {
+        return sortOrder === "asc" ?
+            aValue.localeCompare(bValue)
+          : bValue.localeCompare(aValue);
       }
-      return aValue < bValue ? 1 : -1;
+      if (typeof aValue === "number" && typeof bValue === "number") {
+        return sortOrder === "asc" ? aValue - bValue : bValue - aValue;
+      }
+      return 0;
     });
   }, [filteredUsers, sortKey, sortOrder]);
 
@@ -104,9 +120,9 @@ export function UserList({ users }: UserListProps): JSX.Element {
         </div>
         <div
           className="w-24 cursor-pointer"
-          onClick={() => handleSort("pricingPlan")}
+          onClick={() => handleSort("currentPlanId")}
         >
-          등급 {renderArrow("pricingPlan")}
+          등급 {renderArrow("currentPlanId")}
         </div>
         <div className="w-8 shrink-0 text-center">⋯</div>
       </div>

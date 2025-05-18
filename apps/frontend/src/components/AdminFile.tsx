@@ -32,11 +32,11 @@ export function AdminFileList({
         file.ownerName.toLowerCase().includes(keyword(searchTerms.ownerName)),
       );
     }
-    if (searchTerms.pricingPlan) {
+    if (searchTerms.currentPlanId) {
       matches.push(
-        file.pricingPlan
+        file.currentPlanId
           .toLowerCase()
-          .includes(keyword(searchTerms.pricingPlan)),
+          .includes(keyword(searchTerms.currentPlanId)),
       );
     }
     if (searchTerms.createdAt) {
@@ -86,9 +86,9 @@ export function AdminFileList({
         </div>
         <div
           className="w-24 cursor-pointer text-center"
-          onClick={() => changeSort("pricingPlan")}
+          onClick={() => changeSort("currentPlanId")}
         >
-          등급 {renderArrow("pricingPlan")}
+          등급 {renderArrow("currentPlanId")}
         </div>
         <div className="w-8 shrink-0 text-center">⋯</div>
       </div>

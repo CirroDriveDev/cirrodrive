@@ -17,13 +17,13 @@ export function UserSearchBar(): JSX.Element {
     username: boolean;
     email: boolean;
     createdAt: boolean;
-    pricingPlan: boolean;
+    currentPlanId: boolean;
   }>({
     id: true,
     username: false,
     email: false,
     createdAt: false,
-    pricingPlan: false,
+    currentPlanId: false,
   });
 
   const toggleField = (field: keyof typeof searchFields): void => {
@@ -45,7 +45,7 @@ export function UserSearchBar(): JSX.Element {
       username: false,
       email: false,
       createdAt: false,
-      pricingPlan: false,
+      currentPlanId: false,
     });
   };
 
@@ -94,8 +94,8 @@ export function UserSearchBar(): JSX.Element {
             가입일
           </DropdownMenuCheckboxItem>
           <DropdownMenuCheckboxItem
-            checked={searchFields.pricingPlan}
-            onCheckedChange={() => toggleField("pricingPlan")}
+            checked={searchFields.currentPlanId}
+            onCheckedChange={() => toggleField("currentPlanId")}
           >
             등급
           </DropdownMenuCheckboxItem>

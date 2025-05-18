@@ -4,7 +4,7 @@ export const mockAdminUser: UserDTO = {
   id: "9999",
   username: "admin-mock",
   email: "admin@example.com",
-  pricingPlan: "premium",
+  currentPlanId: "premium",
   usedStorage: 0,
   profileImageUrl: null,
   rootFolderId: "1",

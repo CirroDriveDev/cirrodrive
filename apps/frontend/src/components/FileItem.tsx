@@ -24,7 +24,7 @@ export function FileItem({ file, onDelete }: FileItemProps): JSX.Element {
         {file.size !== null ? (file.size / 1024).toFixed(2) : "-"}
       </div>
       <div className="w-40 text-center">{file.ownerName}</div>
-      <div className="w-24 text-center">{file.pricingPlan}</div>
+      <div className="w-24 text-center">{file.currentPlanId}</div>
       <div className="flex w-8 shrink-0 items-center justify-center">
         <DropdownMenu>
           <DropdownMenuTrigger asChild>

@@ -28,7 +28,7 @@ export class AdminService {
    * @param username - 관리자 이름
    * @param password - 비밀번호
    * @param email - 이메일
-   * @param pricingPlan - 관리자 요금제
+   * @param planId - 요금제 ID
    * @param profileImageUrl - 프로필 이미지 URL
    * @param usedStorage - 사용된 저장 공간
    * @returns 생성된 관리자
@@ -38,7 +38,7 @@ export class AdminService {
     username,
     password,
     email,
-    pricingPlan,
+    planId,
     profileImageUrl,
     usedStorage,
     isAdmin,
@@ -46,7 +46,7 @@ export class AdminService {
     username: string;
     password: string;
     email: string;
-    pricingPlan: "free" | "basic" | "premium";
+    planId: string;
     profileImageUrl: string | null;
     usedStorage: number;
     isAdmin: boolean;
@@ -245,7 +245,7 @@ export class AdminService {
       username?: string;
       password?: string;
       email?: string;
-      pricingPlan?: "free" | "basic" | "premium";
+      planId?: string;
       profileImageUrl?: string | null;
       usedStorage?: number;
     },
@@ -268,6 +268,7 @@ export class AdminService {
       const updateData: Prisma.UserUpdateInput = {
         username: data.username ?? existingUser.username,
         email: data.email ?? existingUser.email,
+        currentPlan: data.planId ? { connect: { id: data.planId } } : undefined,
         profileImageUrl: data.profileImageUrl ?? existingUser.profileImageUrl,
         usedStorage: data.usedStorage ?? existingUser.usedStorage,
       };
