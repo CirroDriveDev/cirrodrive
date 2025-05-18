@@ -21,6 +21,8 @@ import { TransactionRepository } from "@/repositories/transaction.repository.ts"
 import { BillingService } from "@/services/billing.service.ts";
 import { TossPaymentsService } from "@/services/toss-payments.service.ts";
 import { SubscriptionHistoryRepository } from "@/repositories/subscription-history.repository.ts";
+import { PaymentRepository } from "@/repositories/payment.repository.ts";
+import { UserRepository } from "@/repositories/user.repository.ts";
 
 const inversifyLogger = logger.child({ prefix: "Inversify" });
 
@@ -48,6 +50,8 @@ container.bind(SubscriptionRepository).toSelf();
 container.bind(CardRepository).toSelf();
 container.bind(TransactionRepository).toSelf();
 container.bind(SubscriptionHistoryRepository).toSelf();
+container.bind(PaymentRepository).toSelf();
+container.bind(UserRepository).toSelf();
 
 // Services
 container.bind(UserService).toSelf();
