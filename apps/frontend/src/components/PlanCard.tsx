@@ -1,11 +1,10 @@
 import { Button } from "@/shadcn/components/Button.tsx";
 
 export interface PlanCardProps {
-  price: "무료" | "4,900원" | "9,900원";
+  price: string;
   features: string[];
   backgroundColor: string;
   onSubscribe: () => void;
-  currentUserLevel: "무료" | "4,900원" | "9,900원";
 }
 
 export function PlanCard({
@@ -13,16 +12,7 @@ export function PlanCard({
   features,
   backgroundColor,
   onSubscribe,
-  currentUserLevel,
 }: PlanCardProps): JSX.Element {
-  const isCurrentPlan = price === currentUserLevel; // 현재 요금제인지 확인
-
-  // 현재 요금제보다 낮은 요금제의 버튼은 렌더링하지 않음
-  const shouldRenderButton =
-    !isCurrentPlan &&
-    ["무료", "4,900원", "9,900원"].indexOf(price) >
-      ["무료", "4,900원", "9,900원"].indexOf(currentUserLevel);
-
   return (
     <div
       className="flex flex-col items-center rounded-xl p-8 text-white shadow-xl"
@@ -44,27 +34,14 @@ export function PlanCard({
         ))}
       </ul>
 
-      {/* 현재 요금제 표시 */}
-      {isCurrentPlan ?
-        <Button
-          variant="secondary"
-          disabled // 현재 사용 중인 요금제라서 비활성화
-          className="rounded-full px-6 py-3 font-bold"
-        >
-          현재 요금제
-        </Button>
-      : null}
-
-      {/* 버튼 렌더링 여부에 따라 표시 */}
-      {shouldRenderButton ?
-        <Button
-          variant="default"
-          onClick={onSubscribe}
-          className="rounded-full px-6 py-3 font-bold"
-        >
-          구매하기
-        </Button>
-      : null}
+      {/* 구매 버튼 */}
+      <Button
+        variant="default"
+        onClick={onSubscribe}
+        className="rounded-full px-6 py-3 font-bold"
+      >
+        구매하기
+      </Button>
     </div>
   );
 }
