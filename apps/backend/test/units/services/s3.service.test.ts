@@ -9,6 +9,10 @@ const credentialMatcher = expect.stringMatching(
 const dateMatcher = expect.stringMatching(/^[0-9]{8}T[0-9]{6}Z$/) as string;
 const signatureMatcher = expect.stringMatching(/^[a-f0-9]{64}$/) as string;
 
+const urlMatcher = expect.stringMatching(
+  /^https?:\/\/(?:minio|localhost):9000\/test-bucket$/,
+) as string;
+
 describe("S3Service", () => {
   const mockLogger = createMockLogger();
   const s3Service = new S3Service(mockLogger);
@@ -37,7 +41,7 @@ describe("S3Service", () => {
         "bucket": "test-bucket",
         "key": "user-uploads/2025-05-15/mockfile.png",
       },
-      url: "http://minio:9000/test-bucket",
+      url: urlMatcher,
     };
 
     // act

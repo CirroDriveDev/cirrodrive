@@ -1,16 +1,28 @@
 name: CI Pipeline
 
 on:
-  workflow_dispatch:
   push:
     branches: [main, develop]
     paths:
       - ".github/workflows/**"
       - ".github/actions/**"
-      - "apps/**/src/**"
-      - "apps/**/test/**"
-      - "packages/**"
-      - "tooling/**"
+      - "**/src/**"
+      - "**/test/**"
+      - "**/package.json"
+      - "**/tsconfig.json"
+      - "**/vitest.config.*"
+      - "**/.env*"
+      - "env/**"
+      - "compose.yaml"
+      - "vitest.config.ts"
+      - ".nvmrc"
+      - ".npmrc"
+      - ".devcontainer/**"
+      - "**/.nvmrc"
+      - "**/.npmrc"
+      - "**/.prettier*"
+      - "**/.eslintrc*"
+      - "**/.lintstagedrc*"
       - "eslint.config.js"
       - "pnpm-workspace.yaml"
       - "turbo.json"
@@ -24,8 +36,16 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Setup
-        uses: ./.github/actions/setup
+      - name: Setup Node, pnpm, turbo cache, and dependencies
+        uses: ./.github/actions/setup-node-pnpm
+
+      - name: Restore eslint cache
+        uses: actions/cache@v4
+        with:
+          path: "**/.cache/.eslintcache"
+          key: eslint-${{ runner.os }}-${{ hashFiles('**/package.json', '**/pnpm-lock.yaml', '**/eslint.config.js') }}
+          restore-keys: |
+            eslint-${{ runner.os }}-
 
       - name: Run lint
         run: pnpm lint
@@ -37,8 +57,16 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Setup
-        uses: ./.github/actions/setup
+      - name: Setup Node, pnpm, turbo cache, and dependencies
+        uses: ./.github/actions/setup-node-pnpm
+
+      - name: Restore typecheck cache
+        uses: actions/cache@v4
+        with:
+          path: "**/.cache/tsbuildinfo.json"
+          key: typecheck-${{ runner.os }}-${{ hashFiles('**/tsconfig.json', '**/package.json', '**/pnpm-lock.yaml') }}
+          restore-keys: |
+            typecheck-${{ runner.os }}-
 
       - name: Run typecheck
         run: pnpm typecheck
@@ -50,10 +78,79 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Setup
-        uses: ./.github/actions/setup
+      - name: Setup Node, pnpm, turbo cache, and dependencies
+        uses: ./.github/actions/setup-node-pnpm
 
-      - name: Run tests in devcontainer
-        uses: devcontainers/ci@v0.3
+      - name: Restore test cache
+        uses: actions/cache@v4
         with:
-          runCmd: pnpm test
+          path: "**/.cache/vitest-report.json"
+          key: test-${{ runner.os }}-${{ hashFiles('**/vitest.config.ts', '**/package.json', '**/pnpm-lock.yaml') }}
+          restore-keys: |
+            test-${{ runner.os }}-
+
+      - name: Start compose services
+        run: docker compose -f docker-compose-ci.yml up -d
+
+      - name: Wait for MariaDB healthcheck
+        run: |
+          for i in {1..30}; do
+            status=$(docker inspect --format='{{.State.Health.Status}}' $(docker compose -f docker-compose-ci.yml ps -q db))
+            echo "MariaDB health status: $status"
+            if [ "$status" = "healthy" ]; then
+              echo "MariaDB is healthy!"
+              exit 0
+            fi
+            sleep 2
+          done
+          echo "MariaDB did not become healthy in time" && exit 1
+
+      - name: Copy .env.test to .env
+        run: |
+          cp -f env/database.env.test.ci apps/database/.env.test
+          cp -f env/backend.env.test.ci apps/backend/.env.test
+
+      - name: Run tests
+        run: pnpm test:ci
+
+  lint_notify:
+    name: Notify Discord (Lint)
+    runs-on: ubuntu-22.04
+    needs: [lint]
+    if: ${{ needs.lint.result != 'success' }}
+    steps:
+      - name: Notify discord (lint)
+        uses: th0th/notify-discord@v0.4.1
+        env:
+          DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
+          GITHUB_ACTOR: ${{ github.actor }}
+          GITHUB_JOB_NAME: "CI (Lint 실패)"
+          GITHUB_JOB_STATUS: "failure"
+
+  typecheck_notify:
+    name: Notify Discord (TypeCheck)
+    runs-on: ubuntu-22.04
+    needs: [typecheck]
+    if: ${{ needs.typecheck.result != 'success' }}
+    steps:
+      - name: Notify discord (typecheck)
+        uses: th0th/notify-discord@v0.4.1
+        env:
+          DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
+          GITHUB_ACTOR: ${{ github.actor }}
+          GITHUB_JOB_NAME: "CI (TypeCheck 실패)"
+          GITHUB_JOB_STATUS: "failure"
+
+  test_notify:
+    name: Notify Discord (Test)
+    runs-on: ubuntu-22.04
+    needs: [test]
+    if: ${{ needs.test.result != 'success' }}
+    steps:
+      - name: Notify discord (test)
+        uses: th0th/notify-discord@v0.4.1
+        env:
+          DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
+          GITHUB_ACTOR: ${{ github.actor }}
+          GITHUB_JOB_NAME: "CI (Test 실패)"
+          GITHUB_JOB_STATUS: "failure"

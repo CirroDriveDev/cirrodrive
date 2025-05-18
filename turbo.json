@@ -58,7 +58,6 @@
       "outputs": [".cache/.prettiercache"]
     },
     "lint": {
-      "dependsOn": ["^build"],
       "outputs": [".cache/.eslintcache"]
     },
     "test": {
@@ -83,7 +82,6 @@
       "outputs": [".cache/vitest-report.json"]
     },
     "typecheck": {
-      "dependsOn": ["^build"],
       "outputs": [".cache/tsbuildinfo.json"]
     },
     "ui-add": {

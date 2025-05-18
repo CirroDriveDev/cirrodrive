@@ -6,19 +6,42 @@ const projectRoot = getProjectRoot();
 const databasePath = `${projectRoot}/apps/database`;
 
 async function runPrismaCommand(command: string): Promise<void> {
-  if (process.env.NODE_ENV !== "test") {
+  if (import.meta.env.MODE !== "test") {
     throw new Error("This function should only be used in test environment");
   }
-  const prismaBin = which(process.cwd()).sync("pnpx");
+  const prismaBin = which(process.cwd()).sync("dotenvx");
 
-  const args = `${command} --schema ${databasePath}/prisma`.split(" ");
+  const args = [
+    "run",
+    "-f",
+    `${databasePath}/.env.test`,
+    "--",
+    "pnpx",
+    ...command.split(" "),
+    "--schema",
+    `${databasePath}/prisma`,
+  ];
   await new Promise((res, rej) => {
     const prismaProcess = spawn(prismaBin, args, {
       stdio: "inherit",
     });
-    prismaProcess.on("exit", (code) =>
-      code === 0 ? res(0) : rej(new Error(String(code))),
-    );
+    prismaProcess.on("exit", (code) => {
+      if (code === 0) {
+        res(0);
+      } else {
+        const error = new Error(
+          `Prisma command failed with exit code ${code}\nCommand: ${prismaBin} ${args.join(" ")}`,
+        );
+        rej(error);
+      }
+    });
+    prismaProcess.on("error", (err) => {
+      rej(
+        new Error(
+          `Failed to spawn Prisma process: ${err.message}\nCommand: ${prismaBin} ${args.join(" ")}`,
+        ),
+      );
+    });
   });
 }
 

@@ -12,12 +12,12 @@ if (import.meta.env.DEV || import.meta.env.TEST) {
 
 export const s3Client = new S3Client({
   region: env.AWS_REGION,
-  ...(import.meta.env.DEV && {
+  ...(!import.meta.env.PROD && {
     credentials: {
-      accessKeyId: "minioadmin",
-      secretAccessKey: "minioadmin",
+      accessKeyId: env.AWS_S3_ACCESS_KEY!,
+      secretAccessKey: env.AWS_S3_SECRET_KEY!,
     },
-    endpoint: "http://minio:9000",
+    endpoint: env.AWS_S3_ENDPOINT!,
     forcePathStyle: true,
   }),
 });

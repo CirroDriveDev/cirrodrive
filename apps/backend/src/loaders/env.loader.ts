@@ -47,7 +47,10 @@ const envSchema = z.object({
   AWS_REGION: z.string(),
   AWS_SES_SOURCE_EMAIL: z.string().email(),
   AWS_S3_BUCKET: z.string(),
-  TOSS_SECRET_KEY: z.string(),  
+  TOSS_SECRET_KEY: z.string(),
+  AWS_S3_ACCESS_KEY: z.string().optional(),
+  AWS_S3_SECRET_KEY: z.string().optional(),
+  AWS_S3_ENDPOINT: z.string().url().optional(),
 });
 
 export const env = envSchema.parse(process.env);
