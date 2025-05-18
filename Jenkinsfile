@@ -178,9 +178,9 @@ pipeline {
                             export RDS_PORT="${RDS_PORT}"
                             export DATABASE_URL="${DATABASE_URL}"
                             export SHADOW_DATABASE_URL="${SHADOW_DATABASE_URL}"
-                            export VITE_CLIENT_PORT="${VITE_CLIENT_PORT}"
-                            export VITE_SERVER_PORT="${VITE_SERVER_PORT}"
-                            export VITE_SES_SOURCE_EMAIL="${VITE_SES_SOURCE_EMAIL}"
+                            export CLIENT_PORT="${CLIENT_PORT}"
+                            export SERVER_PORT="${SERVER_PORT}"
+                            export SES_SOURCE_EMAIL="${SES_SOURCE_EMAIL}"
                             docker-compose -f ${DEPLOY_PATH}/compose.yaml up -d --remove-orphans --renew-anon-volumes ${FRONTEND_CONTAINER_NAME} ${BACKEND_CONTAINER_NAME}
                             """
                     }
