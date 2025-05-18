@@ -28,6 +28,7 @@ import { TrashPage } from "@/pages/trash.tsx";
 import { UploadByCodePage } from "@/pages/upload.tsx";
 import { trpc } from "@/services/trpc.ts";
 import { useBoundStore } from "@/store/useBoundStore.ts";
+import { MyPlanPage } from "@/pages/subscribe/myplanpage.tsx";
 
 function GuestRoute(): JSX.Element {
   const { user } = useBoundStore();
@@ -99,6 +100,7 @@ export function Router(): JSX.Element {
           <Route path="photos" element={<PhotosPage />} />
           <Route path="recent" element={<RecentPage />} />
           <Route path="search" element={<SearchResultsPage />} />
+          <Route path="myplan" element={<MyPlanPage />} />
         </Route>
         <Route path="admin">
           <Route path="user" element={<AdminUserPage />} />
