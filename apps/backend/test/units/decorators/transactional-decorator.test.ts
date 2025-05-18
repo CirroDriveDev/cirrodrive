@@ -5,11 +5,21 @@ import { prisma } from "@/loaders/prisma.loader.ts";
 class TestService {
   private readonly planRepo = new PlanRepository();
 
+  async beforeEach() {
+    // Arrange: 테스트 전 정리
+    await prisma.plan.deleteMany({});
+  }
+
+  async afterAll() {
+    // 테스트 후 정리
+    await prisma.plan.deleteMany({});
+  }
+
   @Transactional()
   async createPlan(id: string) {
     await this.planRepo.create({
       id,
-      name: "test-plan",
+      name: `test-plan-${id}`,
       description: "desc",
       price: 1000,
       interval: "MONTH",
@@ -23,7 +33,7 @@ class TestService {
   async createPlanAndFail(id: string) {
     await this.planRepo.create({
       id,
-      name: "fail-plan",
+      name: `fail-plan-${id}`,
       description: "desc",
       price: 1000,
       interval: "MONTH",
@@ -38,7 +48,7 @@ class TestService {
     await this.createPlan(`${id}-nested`);
     await this.planRepo.create({
       id,
-      name: "nested-plan",
+      name: `nested-plan-${id}`,
       description: "desc",
       price: 1000,
       interval: "MONTH",
@@ -73,7 +83,7 @@ describe("Transactional 데코레이터(DB 통합, PlanRepository)", () => {
     // Assert
     const plan = await prisma.plan.findUnique({ where: { id } });
     expect(plan).not.toBeNull();
-    expect(plan?.name).toBe("test-plan");
+    expect(plan?.name).toBe(`test-plan-${id}`);
   });
 
   test("예외 발생 시 롤백되어야 한다", async () => {
