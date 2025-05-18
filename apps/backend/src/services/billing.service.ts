@@ -14,6 +14,7 @@ import { CardRepository } from "@/repositories/card.repository.ts";
 import { PlanService } from "@/services/plan.service.ts";
 import { Transactional } from "@/decorators/transactional.ts";
 import { ExternalPaymentError } from "@/errors/error-classes.ts";
+import { PaymentRepository } from "@/repositories/payment.repository.ts";
 
 @injectable()
 export class BillingService {
@@ -25,6 +26,8 @@ export class BillingService {
     private readonly subscriptionRepository: SubscriptionRepository,
     @inject(CardRepository)
     private readonly cardRepository: CardRepository,
+    @inject(PaymentRepository)
+    private readonly paymentRepository: PaymentRepository,
   ) {
     this.logger = logger.child({ serviceName: "BillingService" });
   }
@@ -58,7 +61,7 @@ export class BillingService {
       const card = await this.createCardFromBilling(billing);
 
       // 구독 정보 생성 및 저장
-      await this.createSubscriptionWithBilling({
+      const subscription = await this.createSubscriptionWithBilling({
         billing,
         nextBillingAt: this.planService.calculateNextBillingAt({
           interval: plan.interval,
@@ -68,8 +71,41 @@ export class BillingService {
         planId,
       });
 
-      // TODO: 결제 시도
-      // TODO: 결제 성공 시 구독 상태를 ACTIVE로 변경
+      // 결제 시도
+      try {
+        const payment = await this.toss.approveBillingPayment({
+          billingKey: billing.billingKey,
+          amount: plan.price,
+          customerKey: billing.customerKey,
+          orderId: `${planId}-${Date.now()}`,
+          orderName: plan.name,
+        });
+
+        // 결제 정보 저장
+        await this.paymentRepository.createFromPayment(
+          payment,
+          billing.customerKey,
+          subscription.id,
+          planId,
+        );
+
+        // 결제 성공 시 구독 상태를 ACTIVE로 변경
+        await this.subscriptionRepository.updateStatusById(
+          subscription.id,
+          $Enums.BillingStatus.ACTIVE,
+        );
+      } catch (paymentError) {
+        this.logger.error(
+          { err: paymentError, planId, customerKey },
+          "Payment attempt failed",
+        );
+        throw new ExternalPaymentError(
+          paymentError instanceof Error ?
+            paymentError.message
+          : "Unknown payment error",
+          { cause: paymentError, planId, customerKey },
+        );
+      }
 
       return { success: true };
     } catch (error) {

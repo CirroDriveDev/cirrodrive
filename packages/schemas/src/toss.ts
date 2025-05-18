@@ -40,8 +40,8 @@ export const TossPaymentSchema = z.object({
     "ABORTED",
     "EXPIRED",
   ]),
-  requestedAt: z.string().datetime(),
-  approvedAt: z.string().datetime().nullable(),
+  requestedAt: z.coerce.date(),
+  approvedAt: z.coerce.date().nullable(),
   useEscrow: z.boolean(),
   cultureExpense: z.boolean(),
   card: z

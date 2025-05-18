@@ -142,11 +142,13 @@ model Card {
 
 // 결제 승인 내역
 model Payment {
-  id                  String       @id @default(uuid())
-  paymentKey          String       @unique
+  id                  String        @id @default(uuid())
+  mId                 String
+  lastTransactionKey  String?
+  paymentKey          String        @unique
   orderId             String
   orderName           String
-  mId                 String
+  taxExemptionAmount  Int
   status              String
   requestedAt         DateTime
   approvedAt          DateTime?
@@ -175,19 +177,17 @@ model Payment {
   suppliedAmount      Int
   vat                 Int
   taxFreeAmount       Int
-  taxExemptionAmount  Int
   metadata            Json?
   method              String
   version             String
-  lastTransactionKey  String?
-  planId              String
-  plan                Plan         @relation(fields: [planId], references: [id])
   // 메타데이터
-  createdAt           DateTime     @default(now())
-  updatedAt           DateTime     @updatedAt
+  createdAt           DateTime      @default(now())
+  updatedAt           DateTime      @updatedAt
   // 관계
   userId              String
-  subscriptionId      String
-  user                User         @relation(fields: [userId], references: [id])
-  subscription        Subscription @relation(fields: [subscriptionId], references: [id])
+  user                User          @relation(fields: [userId], references: [id])
+  planId              String
+  plan                Plan          @relation(fields: [planId], references: [id])
+  subscriptionId      String?
+  Subscription        Subscription? @relation(fields: [subscriptionId], references: [id])
 }
