@@ -29,6 +29,10 @@ import { UploadByCodePage } from "@/pages/upload.tsx";
 import { trpc } from "@/services/trpc.ts";
 import { useBoundStore } from "@/store/useBoundStore.ts";
 import { MyPlanPage } from "@/pages/subscribe/myplanpage.tsx";
+import { AdminDashboardPage } from "@/pages/admin/dashboard.tsx";
+import { Success } from "@/pages/subscribe/success.tsx";
+import { Fail } from "@/pages/subscribe/fail.tsx";
+import { Subscribe } from "@/pages/subscribe.tsx";
 
 function GuestRoute(): JSX.Element {
   const { user } = useBoundStore();
@@ -106,6 +110,12 @@ export function Router(): JSX.Element {
           <Route path="user" element={<AdminUserPage />} />
           <Route path="file" element={<AdminFilePage />} />
           <Route path="login" element={<AdminLoginPage />} />
+          <Route path="dashboard" element={<AdminDashboardPage />} />
+        </Route>
+        <Route path="subscribe">
+          <Route index element={<Subscribe />} />
+          <Route path="success" element={<Success />} />
+          <Route path="fail" element={<Fail />} />
         </Route>
         <Route path="*" element={<NotFoundPage />} />
       </Routes>
