@@ -115,3 +115,5 @@ export const CardSchema = z.object({
   createdAt: z.coerce.date(),
   userId: z.string(),
 });
+
+export type Plan = z.infer<typeof PlanSchema>;

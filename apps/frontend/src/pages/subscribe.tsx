@@ -1,47 +1,53 @@
 import { PlanCard } from "@/components/PlanCard.tsx";
+import { useCurrentPlan } from "@/services/billing/useCurrentPlan.ts";
+import { usePlanList } from "@/services/billing/usePlanList.ts";
+import type { PlanCardData } from "@/types/plan-card.ts";
 
 export function Subscribe(): JSX.Element {
-  const plans: {
-    id: string;
-    price: "무료" | "4,900원" | "9,900원";
-    features: string[];
-    backgroundColor: string;
-  }[] = [
-    {
-      id: "basic",
-      price: "무료",
-      features: ["기본 저장소", "기본 업로드 속도", "기본 다운로드 속도"],
-      backgroundColor: "#6c757d",
-    },
-    {
-      id: "premium",
-      price: "4,900원",
-      features: ["많은 저장소", "향상된 업로드 속도", "향상된 다운로드 속도"],
-      backgroundColor: "#5bc0de",
-    },
-    {
-      id: "vip",
-      price: "9,900원",
-      features: ["압도적 저장소", "빠른 업로드 속도", "빠른 다운로드 속도"],
-      backgroundColor: "#007bff",
-    },
-  ];
+  const { plans, isPending, error } = usePlanList();
+  const { plan: currentPlan } = useCurrentPlan();
 
-  const handleSubscribe = () => {
-    //결제
+  const handleSubscribe = (_planId: string) => {
+    // 결제
   };
+
+  if (isPending) {
+    return (
+      <div className="flex min-h-screen items-center justify-center">
+        요금제 정보를 불러오는 중...
+      </div>
+    );
+  }
+  if (error) {
+    return (
+      <div className="flex min-h-screen items-center justify-center text-red-500">
+        요금제 정보를 불러오지 못했습니다.
+      </div>
+    );
+  }
+  if (!plans || plans.length === 0) {
+    return (
+      <div className="flex min-h-screen items-center justify-center">
+        이용 가능한 요금제가 없습니다.
+      </div>
+    );
+  }
+
+  const order = ["Free", "Standard", "Pro"];
 
   return (
     <div className="flex min-h-screen flex-row items-center justify-center gap-8">
-      {plans.map((plan) => (
-        <PlanCard
-          key={plan.id}
-          price={plan.price}
-          features={plan.features}
-          backgroundColor={plan.backgroundColor}
-          onSubscribe={() => handleSubscribe()} // 결제
-        />
-      ))}
+      {(plans as PlanCardData[])
+        .slice()
+        .sort((a, b) => order.indexOf(a.name) - order.indexOf(b.name))
+        .map((plan) => (
+          <PlanCard
+            key={plan.id}
+            plan={plan}
+            onChangePlan={handleSubscribe}
+            isCurrentPlan={currentPlan?.id === plan.id}
+          />
+        ))}
     </div>
   );
 }
