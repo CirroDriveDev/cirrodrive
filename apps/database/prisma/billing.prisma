@@ -23,7 +23,8 @@ model Plan {
   // 관계
   BillingAgreements Subscription[]
 
-  User User[]
+  User     User[]
+  payments Payment[]
 }
 
 // 구독/자동결제의 상태를 나타냄
@@ -65,6 +66,7 @@ model Subscription {
   card                  Card                  @relation(fields: [cardId], references: [id])
   plan                  Plan                  @relation(fields: [planId], references: [id])
   Payment               Transaction[]
+  payments              Payment[]
   SubscriptionHistories SubscriptionHistory[]
 }
 
@@ -136,4 +138,56 @@ model Card {
   userId       String
   user         User           @relation(fields: [userId], references: [id])
   Subscription Subscription[]
+}
+
+// 결제 승인 내역
+model Payment {
+  id                  String       @id @default(uuid())
+  paymentKey          String       @unique
+  orderId             String
+  orderName           String
+  mId                 String
+  status              String
+  requestedAt         DateTime
+  approvedAt          DateTime?
+  useEscrow           Boolean
+  cultureExpense      Boolean
+  card                Json?
+  virtualAccount      Json?
+  transfer            Json?
+  mobilePhone         Json?
+  giftCertificate     Json?
+  cashReceipt         Json?
+  cashReceipts        Json?
+  discount            Json?
+  cancels             Json?
+  secret              String?
+  type                String
+  easyPay             Json?
+  country             String
+  failure             Json?
+  isPartialCancelable Boolean
+  receipt             Json?
+  checkout            Json?
+  currency            String
+  totalAmount         Int
+  balanceAmount       Int
+  suppliedAmount      Int
+  vat                 Int
+  taxFreeAmount       Int
+  taxExemptionAmount  Int
+  metadata            Json?
+  method              String
+  version             String
+  lastTransactionKey  String?
+  planId              String
+  plan                Plan         @relation(fields: [planId], references: [id])
+  // 메타데이터
+  createdAt           DateTime     @default(now())
+  updatedAt           DateTime     @updatedAt
+  // 관계
+  userId              String
+  subscriptionId      String
+  user                User         @relation(fields: [userId], references: [id])
+  subscription        Subscription @relation(fields: [subscriptionId], references: [id])
 }
