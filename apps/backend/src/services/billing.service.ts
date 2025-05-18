@@ -7,7 +7,7 @@ import {
   CardTypeK2ESchema,
   OwnerTypeK2ESchema,
 } from "@cirrodrive/schemas";
-import { TossPaymentsService } from "@/services/toss-payments-service.ts";
+import { TossPaymentsService } from "@/services/toss-payments.service.ts";
 import { SubscriptionRepository } from "@/repositories/subscription.repository.ts";
 import { Symbols } from "@/types/symbols.ts";
 import { CardRepository } from "@/repositories/card.repository.ts";

@@ -19,7 +19,7 @@ import { SubscriptionRepository } from "@/repositories/subscription.repository.t
 import { CardRepository } from "@/repositories/card.repository.ts";
 import { TransactionRepository } from "@/repositories/transaction.repository.ts";
 import { BillingService } from "@/services/billing.service.ts";
-import { TossPaymentsService } from "@/services/toss-payments-service.ts";
+import { TossPaymentsService } from "@/services/toss-payments.service.ts";
 import { SubscriptionHistoryRepository } from "@/repositories/subscription-history.repository.ts";
 
 const inversifyLogger = logger.child({ prefix: "Inversify" });
