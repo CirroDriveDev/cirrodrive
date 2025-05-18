@@ -113,13 +113,13 @@ jobs:
       - name: Run tests
         run: pnpm test:ci
 
-  lint_notify:
-    name: Notify Discord (Lint)
+  notify:
+    name: Notify Discord
     runs-on: ubuntu-22.04
-    needs: [lint]
-    if: ${{ needs.lint.result == 'failure' }}
+    needs: [lint, typecheck, test]
     steps:
       - name: Notify discord (lint)
+        if: ${{ needs.lint.result == 'failure' }}
         uses: th0th/notify-discord@v0.4.1
         env:
           DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
@@ -127,13 +127,8 @@ jobs:
           GITHUB_JOB_NAME: "CI (Lint) 실패"
           GITHUB_JOB_STATUS: "failure"
 
-  typecheck_notify:
-    name: Notify Discord (TypeCheck)
-    runs-on: ubuntu-22.04
-    needs: [typecheck]
-    if: ${{ needs.typecheck.result == 'failure' }}
-    steps:
       - name: Notify discord (typecheck)
+        if: ${{ needs.typecheck.result == 'failure' }}
         uses: th0th/notify-discord@v0.4.1
         env:
           DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
@@ -141,13 +136,8 @@ jobs:
           GITHUB_JOB_NAME: "CI (TypeCheck) 실패"
           GITHUB_JOB_STATUS: "failure"
 
-  test_notify:
-    name: Notify Discord (Test)
-    runs-on: ubuntu-22.04
-    needs: [test]
-    if: ${{ needs.test.result == 'failure' }}
-    steps:
       - name: Notify discord (test)
+        if: ${{ needs.test.result == 'failure' }}
         uses: th0th/notify-discord@v0.4.1
         env:
           DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
