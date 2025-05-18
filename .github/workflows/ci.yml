@@ -5,6 +5,8 @@ on:
   push:
     branches: [main, develop]
     paths:
+      - ".github/workflows/**"
+      - ".github/actions/**"
       - "apps/**/src/**"
       - "apps/**/test/**"
       - "packages/**"
