@@ -70,7 +70,6 @@ export class AdminService {
           username,
           email,
           hashedPassword,
-          pricingPlan,
           profileImageUrl,
           usedStorage,
           isAdmin, // 관리자 여부 설정
@@ -269,7 +268,6 @@ export class AdminService {
       const updateData: Prisma.UserUpdateInput = {
         username: data.username ?? existingUser.username,
         email: data.email ?? existingUser.email,
-        pricingPlan: data.pricingPlan ?? existingUser.pricingPlan,
         profileImageUrl: data.profileImageUrl ?? existingUser.profileImageUrl,
         usedStorage: data.usedStorage ?? existingUser.usedStorage,
       };
