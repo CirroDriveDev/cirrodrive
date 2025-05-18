@@ -1,8 +1,6 @@
 name: CI Pipeline
 
 on:
-  # Trigger the workflow on push or pull request events to the main branch,
-  # but only when changes are made in specified paths (apps, packages, tooling, etc.)
   push:
     branches: [main, develop]
     paths:
@@ -20,23 +18,39 @@ jobs:
     name: CI (Lint)
     runs-on: ubuntu-22.04
     steps:
-      - uses: ./.github/actions/setup
-      - run: pnpm lint
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup
+        uses: ./.github/actions/setup
+
+      - name: Run lint
+        run: pnpm lint
 
   typecheck:
     name: CI (TypeCheck)
     runs-on: ubuntu-22.04
     steps:
-      - uses: ./.github/actions/setup
-      - run: pnpm typecheck
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup
+        uses: ./.github/actions/setup
+
+      - name: Run typecheck
+        run: pnpm typecheck
 
   test:
     name: CI (Test)
     runs-on: ubuntu-22.04
     steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup
+        uses: ./.github/actions/setup
+
       - name: Run tests in devcontainer
         uses: devcontainers/ci@v0.3
         with:
           runCmd: pnpm test
-      - uses: ./.github/actions/setup
-      - run: pnpm test

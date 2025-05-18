@@ -3,9 +3,6 @@ description: Common environment setup for all jobs
 runs:
   using: "composite"
   steps:
-    - name: Checkout repository
-      uses: actions/checkout@v4
-
     - name: Install pnpm
       uses: pnpm/action-setup@v4
 
