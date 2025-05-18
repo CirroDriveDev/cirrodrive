@@ -134,40 +134,40 @@ export class AdminService {
    * @throws 유저 삭제 중 오류 발생 시
    */
   public async deleteUser(userId: string): Promise<boolean> {
-  try {
-    this.logger.info({ methodName: "deleteUser", userId }, "유저 삭제 시작");
+    try {
+      this.logger.info({ methodName: "deleteUser", userId }, "유저 삭제 시작");
 
-    const user = await this.userModel.findUnique({
-      where: { id: userId },
-      include: { rootFolder: true, trashFolder: true },
-    });
+      const user = await this.userModel.findUnique({
+        where: { id: userId },
+        include: { rootFolder: true, trashFolder: true },
+      });
 
-    if (!user) {
-      this.logger.warn({ userId }, "삭제할 유저를 찾을 수 없음");
-      return false;
+      if (!user) {
+        this.logger.warn({ userId }, "삭제할 유저를 찾을 수 없음");
+        return false;
+      }
+
+      // 1) 연관된 파일 등도 삭제 (필요하다면)
+      await this.fileModel.deleteMany({ where: { ownerId: userId } });
+
+      // 2) 폴더 삭제 (ID를 rootFolder.id, trashFolder.id로 접근)
+      if (user.rootFolder) {
+        await this.folderModel.delete({ where: { id: user.rootFolder.id } });
+      }
+      if (user.trashFolder) {
+        await this.folderModel.delete({ where: { id: user.trashFolder.id } });
+      }
+
+      // 3) 유저 삭제
+      await this.userModel.delete({ where: { id: userId } });
+
+      this.logger.info({ userId }, "유저 삭제 완료");
+      return true;
+    } catch (error) {
+      this.logger.error({ error, userId }, "유저 삭제 실패");
+      throw error;
     }
-
-    // 1) 연관된 파일 등도 삭제 (필요하다면)
-    await this.fileModel.deleteMany({ where: { ownerId: userId } });
-
-    // 2) 폴더 삭제 (ID를 rootFolder.id, trashFolder.id로 접근)
-    if (user.rootFolder) {
-      await this.folderModel.delete({ where: { id: user.rootFolder.id } });
-    }
-    if (user.trashFolder) {
-      await this.folderModel.delete({ where: { id: user.trashFolder.id } });
-    }
-
-    // 3) 유저 삭제
-    await this.userModel.delete({ where: { id: userId } });
-
-    this.logger.info({ userId }, "유저 삭제 완료");
-    return true;
-  } catch (error) {
-    this.logger.error({ error, userId }, "유저 삭제 실패");
-    throw error;
   }
-}
 
   /**
    * 유저 목록을 조회합니다.

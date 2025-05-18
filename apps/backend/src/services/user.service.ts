@@ -62,7 +62,7 @@ export class UserService {
       const hashedPassword = await hash(password);
 
       const plan = await this.planService.getDefaultPlan();
-      
+
       const user = await this.userModel.create({
         data: {
           username,

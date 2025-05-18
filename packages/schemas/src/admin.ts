@@ -13,10 +13,9 @@ export const userInputSchema = z.object({
 
 // 관리자용 DTO 스키마 (출력용)
 export const adminUserDTOSchema = z.object({
-  id: z.string(),        
+  id: z.string(),
   email: z.string().email(),
-  name: z.string().optional(), 
+  name: z.string().optional(),
   isAdmin: z.boolean().default(true),
   createdAt: z.date(),
 });
-
