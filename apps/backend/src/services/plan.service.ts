@@ -25,6 +25,11 @@ export class PlanService {
     return this.planRepotitory.getById(planId);
   }
 
+  public async getDefaultPlan() {
+    this.logger.debug("Fetching default plan");
+    return await this.planRepotitory.getByName("Free");
+  }
+
   /**
    * 주어진 요금제 정보와 시작일을 기반으로 다음 결제일을 계산합니다.
    *

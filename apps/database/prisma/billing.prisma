@@ -1,10 +1,3 @@
-// 요금제 유형(비즈니스 플랜 구분)
-enum PricingPlan {
-  free // 무료 플랜
-  basic // 기본 플랜
-  premium // 프리미엄 플랜
-}
-
 enum PlanInterval {
   DAY // 일 단위
   WEEK // 주 단위
@@ -15,7 +8,7 @@ enum PlanInterval {
 model Plan {
   // 도메인 데이터
   id                String         @id @default(uuid())
-  name              String
+  name              String         @unique
   description       String?
   features          Json?
   price             Int
@@ -29,6 +22,8 @@ model Plan {
   updatedAt         DateTime       @updatedAt
   // 관계
   BillingAgreements Subscription[]
+
+  User User[]
 }
 
 // 구독/자동결제의 상태를 나타냄

@@ -3,7 +3,8 @@ model User {
   username        String      @unique
   hashedPassword  String
   email           String      @unique
-  pricingPlan     PricingPlan @default(free)
+  currentPlanId   String
+  currentPlan     Plan        @relation(fields: [currentPlanId], references: [id], onDelete: Cascade)
   usedStorage     Int         @default(0)
   profileImageUrl String?     @unique
   createdAt       DateTime    @default(now())

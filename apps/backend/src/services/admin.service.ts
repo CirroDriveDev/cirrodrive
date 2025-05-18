@@ -7,6 +7,7 @@ import { sign } from "jsonwebtoken";
 import { dayjs } from "@/loaders/dayjs.loader.ts";
 import { Symbols } from "@/types/symbols.ts";
 import { env } from "@/loaders/env.loader.ts";
+import { PlanService } from "@/services/plan.service.ts";
 
 @injectable()
 export class AdminService {
@@ -16,6 +17,7 @@ export class AdminService {
     @inject(Symbols.FolderModel) private folderModel: Prisma.FolderDelegate,
     @inject(Symbols.FileMetadataModel)
     private fileModel: Prisma.FileMetadataDelegate,
+    @inject(PlanService) private planService: PlanService,
   ) {
     this.logger = logger.child({ serviceName: "AdminService" });
   }
@@ -61,6 +63,8 @@ export class AdminService {
 
       const hashedPassword = await hash(password);
 
+      const plan = await this.planService.getDefaultPlan();
+
       const admin = await this.userModel.create({
         data: {
           username,
@@ -78,6 +82,11 @@ export class AdminService {
           trashFolder: {
             create: {
               name: "trash",
+            },
+          },
+          currentPlan: {
+            connect: {
+              id: plan.id,
             },
           },
         },

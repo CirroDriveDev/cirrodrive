@@ -5,6 +5,7 @@ import { jwtVerify } from "jose";
 import type { Logger } from "pino";
 import { Symbols } from "@/types/symbols.ts";
 import { createSecretKey } from "@/utils/jwt.ts";
+import { PlanService } from "@/services/plan.service.ts";
 
 /**
  * 사용자 서비스입니다.
@@ -15,6 +16,7 @@ export class UserService {
     @inject(Symbols.Logger) private logger: Logger,
     @inject(Symbols.UserModel) private userModel: Prisma.UserDelegate,
     @inject(Symbols.FolderModel) private folderModel: Prisma.FolderDelegate,
+    @inject(PlanService) private planService: PlanService,
   ) {
     this.logger = logger.child({ serviceName: "UserService" });
   }
@@ -59,6 +61,8 @@ export class UserService {
 
       const hashedPassword = await hash(password);
 
+      const plan = await this.planService.getDefaultPlan();
+      
       const user = await this.userModel.create({
         data: {
           username,
@@ -72,6 +76,11 @@ export class UserService {
           trashFolder: {
             create: {
               name: "trash",
+            },
+          },
+          currentPlan: {
+            connect: {
+              id: plan.id,
             },
           },
         },
