@@ -117,6 +117,7 @@ jobs:
     name: Notify Discord
     runs-on: ubuntu-22.04
     needs: [lint, typecheck, test]
+    if: always()
     steps:
       - name: Notify discord (lint)
         if: ${{ needs.lint.result == 'failure' }}
