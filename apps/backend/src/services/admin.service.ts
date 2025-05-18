@@ -28,7 +28,6 @@ export class AdminService {
    * @param username - 관리자 이름
    * @param password - 비밀번호
    * @param email - 이메일
-   * @param planId - 요금제 ID
    * @param profileImageUrl - 프로필 이미지 URL
    * @param usedStorage - 사용된 저장 공간
    * @returns 생성된 관리자
@@ -38,7 +37,6 @@ export class AdminService {
     username,
     password,
     email,
-    planId,
     profileImageUrl,
     usedStorage,
     isAdmin,
