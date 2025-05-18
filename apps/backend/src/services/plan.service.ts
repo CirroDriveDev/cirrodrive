@@ -20,12 +20,12 @@ export class PlanService {
 
   public async getAllPlans() {
     this.logger.debug("Fetching all plans");
-    return this.planRepotitory.listAll();
+    return await this.planRepotitory.listAll();
   }
 
   public async getPlan(planId: string) {
     this.logger.debug(`Fetching plan with ID: ${planId}`);
-    return this.planRepotitory.getById(planId);
+    return await this.planRepotitory.getById(planId);
   }
 
   public async getCurrentPlanByUserId(userId: string) {
