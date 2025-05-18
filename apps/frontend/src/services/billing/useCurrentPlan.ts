@@ -15,9 +15,9 @@ export function useCurrentPlan() {
      */
     plan: query.data,
     /**
-     * 로딩 중 여부
+     * 인증 요청 로딩 상태
      */
-    isLoading: query.isLoading,
+    isPending: query.isPending,
     /**
      * 에러 발생 여부
      */
