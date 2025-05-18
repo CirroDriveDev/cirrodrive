@@ -50,4 +50,13 @@ export class SubscriptionRepository extends BaseRepository {
       where: { id },
     });
   }
+  //get
+  public async findActiveByUserId(userId: string): Promise<Subscription | null> {
+  return this.prisma.subscription.findFirst({
+    where: {
+      userId,
+      status: 'ACTIVE',
+      },
+    });
+  }
 }
