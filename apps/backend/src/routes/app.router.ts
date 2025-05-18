@@ -9,8 +9,10 @@ import { entryRouter } from "@/routes/entry.router.ts";
 import { emailRouter } from "@/routes/email.router.ts";
 import { protectedRouter } from "@/routes/protected/protected.router.ts";
 import { planRouter } from "@/routes/plan.router.ts";
+import { billingRouter } from "@/routes/billing.router.ts";
 
 export const appRouter = router({
+  billing: billingRouter,
   protected: protectedRouter,
   code: codeRouter,
   email: emailRouter,
