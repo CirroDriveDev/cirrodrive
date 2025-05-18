@@ -33,6 +33,16 @@ export class SubscriptionRepository extends BaseRepository {
     return result;
   }
 
+  public async findActiveByUserId(
+    userId: string,
+  ): Promise<Subscription | null> {
+    return this.prisma.subscription.findFirst({
+      where: {
+        userId,
+        status: "ACTIVE",
+      },
+    });
+  }
   // Update
   public async updateStatusById(
     id: string,
@@ -48,15 +58,6 @@ export class SubscriptionRepository extends BaseRepository {
   public async deleteById(id: string): Promise<Subscription> {
     return this.prisma.subscription.delete({
       where: { id },
-    });
-  }
-  //get
-  public async findActiveByUserId(userId: string): Promise<Subscription | null> {
-  return this.prisma.subscription.findFirst({
-    where: {
-      userId,
-      status: 'ACTIVE',
-      },
     });
   }
 }
