@@ -108,3 +108,21 @@ export const TossPaymentSchema = z.object({
 });
 
 export type TossPayment = z.infer<typeof TossPaymentSchema>;
+
+// TossPayments API V1/V2 에러 스키마
+export const TossApiErrorV1Schema = z.object({
+  code: z.string(),
+  message: z.string(),
+});
+
+export const TossApiErrorV2Schema = z.object({
+  version: z.string(),
+  traceId: z.string(),
+  error: z.object({
+    code: z.string(),
+    message: z.string(),
+  }),
+});
+
+export type TossApiErrorV1 = z.infer<typeof TossApiErrorV1Schema>;
+export type TossApiErrorV2 = z.infer<typeof TossApiErrorV2Schema>;
