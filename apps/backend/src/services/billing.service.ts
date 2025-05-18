@@ -151,18 +151,4 @@ export class BillingService {
     });
     return card;
   }
-  public async getCurrentPlan(userId: string): Promise<{ planId: string; name: string } | null> {
-  // 구독 정보 조회
-  const subscription = await this.subscriptionRepository.findActiveByUserId(userId);
-  if (!subscription) return null;
-
-  // 요금제 정보 조회
-  const plan = await this.planService.getPlan(subscription.planId);
-
-  return {
-    planId: plan.id,
-    name: plan.name,
-  };
-}
-
 }

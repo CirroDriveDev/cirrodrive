@@ -3,6 +3,7 @@ import type { Logger } from "pino";
 import { $Enums } from "@cirrodrive/database";
 import { Symbols } from "@/types/symbols.ts";
 import { PlanRepository } from "@/repositories/plan.repository.ts";
+import { UserRepository } from "@/repositories/user.repository.ts";
 
 @injectable()
 export class PlanService {
@@ -11,6 +12,8 @@ export class PlanService {
     private logger: Logger,
     @inject(PlanRepository)
     private planRepotitory: PlanRepository,
+    @inject(UserRepository)
+    private userRepository: UserRepository,
   ) {
     this.logger = logger.child({ prefix: "PlanService" });
   }
@@ -23,6 +26,11 @@ export class PlanService {
   public async getPlan(planId: string) {
     this.logger.debug(`Fetching plan with ID: ${planId}`);
     return this.planRepotitory.getById(planId);
+  }
+
+  public async getCurrentPlanByUserId(userId: string) {
+    this.logger.debug(`Fetching current plan for user ID: ${userId}`);
+    return await this.userRepository.getCurrentPlanByUserId(userId);
   }
 
   public async getDefaultPlan() {
