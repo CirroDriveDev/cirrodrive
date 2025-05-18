@@ -11,7 +11,7 @@
   "style": "default",
   "tailwind": {
     "baseColor": "zinc",
-    "config": "tailwind.config.js",
+    "config": "tailwind.config.ts",
     "css": "src/app/index.css",
     "cssVariables": true,
     "prefix": ""
