@@ -53,21 +53,22 @@ jobs:
           push: true
           tags: ${{ secrets.DOCKERHUB_USERNAME }}/cirrodrive:frontend
 
-  # deploy:
-  #   runs-on: ubuntu-22.04
-  #   needs: build-and-push
-  #   steps:
-  #     - name: Deploy to server via SSH
-  #       uses: appleboy/ssh-action@v1
-  #       with:
-  #         host: ${{ secrets.SERVER_HOST }}
-  #         username: ${{ secrets.SERVER_USER }}
-  #         key: ${{ secrets.SERVER_SSH_KEY }}
-  #         script: |
-  #           cd /home/${{ secrets.SERVER_USER }}/cirrodrive-ci
-  #           git pull origin main
-  #           pnpm install
-  #           pnpm build
-  #           docker compose down -v
-  #           docker compose pull
-  #           docker compose up -d --remove-orphans --renew-anon-volumes
+  deploy:
+    runs-on: ubuntu-22.04
+    needs: build-and-push
+    steps:
+      - name: Deploy to server via SSH
+        uses: appleboy/ssh-action@v1
+        with:
+          host: ${{ secrets.SERVER_HOST }}
+          username: ${{ secrets.SERVER_USER }}
+          key: ${{ secrets.SERVER_SSH_KEY }}
+          script: |
+            cd /home/${{ secrets.SERVER_USER }}/cirrodrive-ci
+            git pull origin main
+            pnpm install
+            pnpm db:push
+            pnpm db:seed
+            pnpm build
+            pnpm docker:down
+            pnpm docker:up
