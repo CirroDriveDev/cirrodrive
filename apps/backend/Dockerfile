@@ -16,7 +16,7 @@ WORKDIR /cirrodrive
 COPY . .
 
 # 의존성 설치
-RUN --mount=type=cache,id=pnpm,target=/pnpm/store pnpm install --prod --ignore-scripts
+RUN --mount=type=cache,id=pnpm,target=/pnpm/store pnpm install --frozen-lockfile --prod --ignore-scripts
 
 # 실행 명령어
 CMD [ "pnpm", "-F", "@cirrodrive/backend", "run", "start" ]
