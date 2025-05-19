@@ -13,8 +13,8 @@ export class SubscriptionRepository extends BaseRepository {
   }
 
   // Read
-  public async getByUserId(userId: string): Promise<Subscription> {
-    const result = await this.prisma.subscription.findUnique({
+  public async listByUserId(userId: string): Promise<Subscription[]> {
+    const result = await this.prisma.subscription.findMany({
       where: { userId },
     });
     if (!result) {
