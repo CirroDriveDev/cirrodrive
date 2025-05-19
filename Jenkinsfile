@@ -168,25 +168,6 @@ pipeline {
             }
         }
 
-        stage('Build') {
-            when {
-                branch MAIN
-            }
-            steps {
-                echo 'Building...'
-                sh 'pnpm run build'
-            }
-        }
-
-        stage('Build Docker image') {
-            when {
-                branch MAIN
-            }
-            steps {
-                echo 'Building Docker image...'
-                sh 'pnpm run docker:build'
-            }
-        }
 
         stage('Deploy') {
             when {
@@ -202,10 +183,11 @@ pipeline {
 
                     sshagent(credentials: ['EC2_SSH_CREDENTIAL_ID']) {
                         // 원격 디렉토리 생성
-                        sh 'ssh -o StrictHostKeyChecking=no "${SSH_CREDS_USR}@${EC2_PRIVATE_IP}" "mkdir -p ${DEPLOY_PATH}"'
+                        sh 'ssh -o StrictHostKeyChecking=no "${SSH_CREDS_USR}@${EC2_PRIVATE_IP}" "mkdir -p ${DEPLOY_PATH}/env"'
 
-                        // compose 파일 전송
+                        // compose 파일 및 env 파일 전송
                         sh 'scp -o StrictHostKeyChecking=no ./compose.yaml "${SSH_CREDS_USR}@${EC2_PRIVATE_IP}:${DEPLOY_PATH}/"'
+                        sh 'scp -o StrictHostKeyChecking=no ./apps/backend/.env.production "${SSH_CREDS_USR}@${EC2_PRIVATE_IP}:${DEPLOY_PATH}/env/backend.env"'
 
                         // 도커 컴포즈 실행
                         sh """
@@ -226,12 +208,6 @@ pipeline {
                     }
                 }
             }
-        }
-    }
-    post {
-        always {
-            echo 'Cleaning up...'
-            cleanWs(deleteDirs: true)
         }
     }
 }
