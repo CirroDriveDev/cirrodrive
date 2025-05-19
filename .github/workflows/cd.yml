@@ -8,6 +8,7 @@ on:
 jobs:
   build-and-push:
     runs-on: ubuntu-22.04
+    environment: production
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -23,6 +24,15 @@ jobs:
 
       - name: Setup Node, pnpm, turbo cache, and dependencies
         uses: ./.github/actions/setup-node-pnpm
+
+      - name: Write backend .env.production
+        run: echo "${{ secrets.BACKEND_ENV }}" > ./apps/backend/.env.production
+
+      - name: Write frontend .env.production
+        run: echo "${{ secrets.FRONTEND_ENV }}" > ./apps/frontend/.env.production
+
+      - name: Write database .env.production
+        run: echo "${{ secrets.DATABASE_ENV }}" > ./apps/database/.env.production
 
       - name: Build pnpm
         run: pnpm build
