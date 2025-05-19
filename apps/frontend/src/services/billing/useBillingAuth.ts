@@ -1,6 +1,7 @@
 import { useState } from "react";
-import { tossPayments } from "@/services/billing/toss.ts";
+import { loadTossPayments } from "@tosspayments/tosspayments-sdk";
 import { useBoundStore } from "@/store/useBoundStore.ts";
+import { TOSS_CLIENT_KEY } from "@/services/billing/toss.ts";
 
 export function useBillingAuth(successUrl: string, failUrl: string) {
   const [isLoading, setIsLoading] = useState(false);
@@ -11,6 +12,7 @@ export function useBillingAuth(successUrl: string, failUrl: string) {
       if (!user) {
         throw new Error("User is not logged in");
       }
+      const tossPayments = await loadTossPayments(TOSS_CLIENT_KEY);
       const payment = tossPayments.payment({ customerKey: user.id });
 
       setIsLoading(true);
