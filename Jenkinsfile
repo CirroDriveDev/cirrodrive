@@ -132,6 +132,42 @@ pipeline {
             }
         }
 
+        stage('Generate .env.production') {
+            when {
+                branch MAIN
+            }
+            steps {
+                echo 'Generating .env.production for backend and frontend...'
+                script {
+                    def envProdContentBackend = """
+                    CIRRODRIVE_HOME=${CIRRODRIVE_HOME}
+                    RDS_USER=${RDS_USER}
+                    RDS_PASSWORD=${RDS_PASSWORD}
+                    RDS_HOST=${RDS_HOST}
+                    RDS_PORT=${RDS_PORT}
+                    RDS_DATABASE=${RDS_DATABASE}
+                    DATABASE_URL=${DATABASE_URL}
+                    CLIENT_PORT=${CLIENT_PORT}
+                    SERVER_PORT=${SERVER_PORT}
+                    SES_SOURCE_EMAIL=${SES_SOURCE_EMAIL}
+                    TOSS_SECRET_KEY=${TOSS_SECRET_KEY}
+                    JWT_SECRET=${JWT_SECRET}
+                    AWS_REGION=${AWS_REGION}
+                    AWS_S3_BUCKET=${AWS_S3_BUCKET}
+                    EC2_PUBLIC_URL=${EC2_PUBLIC_URL}
+                    AWS_SES_SOURCE_EMAIL=${SES_SOURCE_EMAIL}
+                    """.stripIndent()
+                    writeFile file: './apps/backend/.env.production', text: envProdContentBackend
+
+                    def envProdContentFrontend = """
+                    VITE_EC2_PUBLIC_URL=${EC2_PUBLIC_URL}
+                    VITE_SERVER_PORT=${SERVER_PORT}
+                    """.stripIndent()
+                    writeFile file: './apps/frontend/.env.production', text: envProdContentFrontend
+                }
+            }
+        }
+
         stage('Build') {
             when {
                 branch MAIN
