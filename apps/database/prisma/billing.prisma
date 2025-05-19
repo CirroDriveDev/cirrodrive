@@ -47,10 +47,10 @@ model Subscription {
   // 도메인 데이터
   id                    String                @id @default(uuid())
   mId                   String
-  customerKey           String                @unique
+  customerKey           String
   authenticatedAt       DateTime
   method                BillingMethod         @default(CARD)
-  billingKey            String                @unique
+  billingKey            String
   startedAt             DateTime
   nextBillingAt         DateTime
   status                BillingStatus         @default(ACTIVE)
@@ -129,7 +129,7 @@ model Card {
   cardCompany  String
   issuerCode   String
   acquirerCode String
-  number       String         @unique
+  number       String
   cardType     CardType
   ownerType    CardOwnerType
   // 메타데이터

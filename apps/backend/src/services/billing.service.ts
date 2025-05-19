@@ -60,6 +60,19 @@ export class BillingService {
       // Billing 정보로 카드 생성
       const card = await this.createCardFromBilling(billing);
 
+      const previousSubscription =
+        await this.subscriptionRepository.findActiveByUserId(
+          billing.customerKey,
+        );
+
+      if (previousSubscription) {
+        // 기존 구독이 있는 경우, 구독 상태를 CANCELED로 변경
+        await this.subscriptionRepository.updateStatusById(
+          previousSubscription.id,
+          $Enums.BillingStatus.CANCELED,
+        );
+      }
+
       // 구독 정보 생성 및 저장
       const subscription = await this.createSubscriptionWithBilling({
         billing,

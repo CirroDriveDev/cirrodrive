@@ -1,7 +1,7 @@
 import { z } from "zod";
 
 export const TossBillingSchema = z.object({
-  mId: z.string().min(1).max(14),
+  mId: z.string().min(1).max(16),
   customerKey: z
     .string()
     .min(2)
@@ -24,7 +24,7 @@ export const TossBillingSchema = z.object({
 export type TossBilling = z.infer<typeof TossBillingSchema>;
 
 export const TossPaymentSchema = z.object({
-  mId: z.string().max(14),
+  mId: z.string().max(16),
   lastTransactionKey: z.string().max(64).nullable(),
   paymentKey: z.string().max(200),
   orderId: z.string().min(6).max(64),

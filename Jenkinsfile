@@ -49,6 +49,9 @@ pipeline {
         // 관리자 계정
         ADMIN_USERNAME = credentials('ADMIN_USERNAME_CREDENTIAL_ID')
         ADMIN_PASSWORD = credentials('ADMIN_PASSWORD_CREDENTIAL_ID')
+
+        // Toss 결제
+        TOSS_SECRET_KEY = credentials('TOSS_SECRET_KEY_ID')
     }
 
     stages {
@@ -181,6 +184,7 @@ pipeline {
                             export CLIENT_PORT="${CLIENT_PORT}"
                             export SERVER_PORT="${SERVER_PORT}"
                             export SES_SOURCE_EMAIL="${SES_SOURCE_EMAIL}"
+                            export TOSS_SECRET_KEY_ID="${TOSS_SECRET_KEY}"
                             docker-compose -f ${DEPLOY_PATH}/compose.yaml up -d --remove-orphans --renew-anon-volumes ${FRONTEND_CONTAINER_NAME} ${BACKEND_CONTAINER_NAME}
                             """
                     }

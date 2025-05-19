@@ -30,8 +30,8 @@ import { trpc } from "@/services/trpc.ts";
 import { useBoundStore } from "@/store/useBoundStore.ts";
 import { MyPlanPage } from "@/pages/subscribe/myplanpage.tsx";
 import { AdminDashboardPage } from "@/pages/admin/dashboard.tsx";
-import { Success } from "@/pages/subscribe/success.tsx";
-import { Fail } from "@/pages/subscribe/fail.tsx";
+import { Success } from "@/pages/billing/success/[plan-id].tsx";
+import { Fail } from "@/pages/billing/fail.tsx";
 import { Subscribe } from "@/pages/subscribe.tsx";
 
 function GuestRoute(): JSX.Element {
@@ -114,7 +114,9 @@ export function Router(): JSX.Element {
         </Route>
         <Route path="subscribe">
           <Route index element={<Subscribe />} />
-          <Route path="success" element={<Success />} />
+        </Route>
+        <Route path="billing">
+          <Route path="success/:planId" element={<Success />} />
           <Route path="fail" element={<Fail />} />
         </Route>
         <Route path="*" element={<NotFoundPage />} />

@@ -1,4 +1,5 @@
 import { PlanCard } from "@/components/PlanCard.tsx";
+import { useBillingAuth } from "@/services/billing/useBillingAuth.ts";
 import { useCurrentPlan } from "@/services/billing/useCurrentPlan.ts";
 import { usePlanList } from "@/services/billing/usePlanList.ts";
 import type { PlanCardData } from "@/types/plan-card.ts";
@@ -6,9 +7,13 @@ import type { PlanCardData } from "@/types/plan-card.ts";
 export function Subscribe(): JSX.Element {
   const { plans, isPending, error } = usePlanList();
   const { plan: currentPlan } = useCurrentPlan();
+  const { requestBillingAuth } = useBillingAuth(
+    "billing/success",
+    "billing/fail",
+  );
 
-  const handleSubscribe = (_planId: string) => {
-    // 결제
+  const handleSubscribe = (planId: string) => {
+    void requestBillingAuth(planId);
   };
 
   if (isPending) {

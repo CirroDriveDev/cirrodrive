@@ -4,6 +4,10 @@ interface ConfirmBillingInput {
   authKey: string;
   customerKey: string;
   planId: string;
+  options?: {
+    onSuccess?: () => void;
+    onError?: (error: unknown) => void;
+  };
 }
 
 /**
@@ -22,8 +26,8 @@ export function useConfirmBillingAuthorization() {
      * @param customerKey - 고객 키
      * @param planId - 요금제 ID
      */
-    confirm: ({ authKey, customerKey, planId }: ConfirmBillingInput) => {
-      mutation.mutate({ authKey, customerKey, planId });
+    confirm: async ({ authKey, customerKey, planId }: ConfirmBillingInput) => {
+      return await mutation.mutateAsync({ authKey, customerKey, planId });
     },
     /**
      * 인증 요청 로딩 상태

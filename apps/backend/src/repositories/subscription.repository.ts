@@ -13,16 +13,6 @@ export class SubscriptionRepository extends BaseRepository {
   }
 
   // Read
-  public async getByCustomerKey(customerKey: string): Promise<Subscription> {
-    const result = await this.prisma.subscription.findUnique({
-      where: { customerKey },
-    });
-    if (!result) {
-      throw new DBNotFoundError("Subscription (customerKey)", { customerKey });
-    }
-    return result;
-  }
-
   public async getByUserId(userId: string): Promise<Subscription> {
     const result = await this.prisma.subscription.findUnique({
       where: { userId },
