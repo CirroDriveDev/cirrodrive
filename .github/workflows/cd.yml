@@ -30,7 +30,7 @@ jobs:
       - name: Build and push backend image
         uses: docker/build-push-action@v5
         with:
-          context: ./apps/backend
+          context: ./
           file: ./apps/backend/Dockerfile
           push: true
           tags: ${{ secrets.DOCKERHUB_USERNAME }}/cirrodrive:backend
@@ -38,7 +38,7 @@ jobs:
       - name: Build and push frontend image
         uses: docker/build-push-action@v5
         with:
-          context: ./apps/frontend
+          context: ./
           file: ./apps/frontend/Dockerfile
           push: true
           tags: ${{ secrets.DOCKERHUB_USERNAME }}/cirrodrive:frontend
