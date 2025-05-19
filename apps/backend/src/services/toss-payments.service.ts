@@ -55,6 +55,7 @@ export class TossPaymentsService {
             ...this.authHeader,
             "Content-Type": "application/json",
           },
+          validateStatus: () => true,
         },
       );
 
@@ -121,6 +122,7 @@ export class TossPaymentsService {
             "Content-Type": "application/json",
           },
           timeout: 30000, // 30초 타임아웃 권장
+          validateStatus: () => true,
         },
       );
 
