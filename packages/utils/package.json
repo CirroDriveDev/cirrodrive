@@ -1,0 +1,68 @@
+{
+  "name": "@cirrodrive/utils",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "imports": {
+    "#env": {
+      "types": "./src/env.ts",
+      "import": "./dist/env.js"
+    },
+    "#seed": {
+      "types": "./src/seed.ts",
+      "import": "./dist/seed.js"
+    },
+    "#src/*": {
+      "types": [
+        "./src/*",
+        "./src/*.ts"
+      ],
+      "import": [
+        "./dist/*",
+        "./dist/*.js"
+      ]
+    },
+    "#test/*": [
+      "./test/*",
+      "./test/*.ts"
+    ]
+  },
+  "exports": {
+    "./env": {
+      "types": "./dist/env.d.ts",
+      "import": "./dist/env.js"
+    }
+  },
+  "scripts": {
+    "build": "tsc -p tsconfig.build.json",
+    "clean": "git clean -xdf .cache .turbo node_modules dist",
+    "format": "prettier --check .",
+    "lint": "eslint",
+    "test": "vitest",
+    "test:coverage": "vitest run --coverage",
+    "typecheck": "tsc --noEmit"
+  },
+  "prettier": "@cirrodrive/prettier-config",
+  "dependencies": {
+    "@dotenvx/dotenvx": "catalog:",
+    "zod": "catalog:"
+  },
+  "devDependencies": {
+    "@cirrodrive/eslint-config": "workspace:*",
+    "@cirrodrive/prettier-config": "workspace:*",
+    "@cirrodrive/typescript-config": "workspace:^",
+    "@types/node": "^20.17.47",
+    "@vitest/coverage-v8": "catalog:",
+    "eslint": "catalog:",
+    "prettier": "catalog:",
+    "prettier-plugin-jsdoc": "catalog:",
+    "prettier-plugin-packagejson": "catalog:",
+    "prettier-plugin-sort-json": "catalog:",
+    "vite-node": "^2.1.9",
+    "vitest": "catalog:"
+  },
+  "prisma": {
+    "schema": "./prisma",
+    "seed": "vite-node src/seed.ts"
+  }
+}

@@ -1,7 +1,7 @@
 import { injectable } from "inversify";
-import { FileAccessCode, Prisma } from "@cirrodrive/database";
-import { BaseRepository } from "@/repositories/base.repository.ts";
-import { NotFoundError } from "@/errors/error-classes.ts";
+import { type FileAccessCode, Prisma } from "@cirrodrive/database/prisma";
+import { BaseRepository } from "#repositories/base.repository.js";
+import { NotFoundError } from "#errors/error-classes.js";
 
 @injectable()
 export class FileAccessCodeRepository extends BaseRepository {

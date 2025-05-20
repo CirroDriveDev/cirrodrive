@@ -1,10 +1,10 @@
 /* eslint-disable unicorn/filename-case -- Todo */
 import { getQueryKey, type TRPCClientErrorLike } from "@trpc/react-query";
 import type { UseTRPCQueryResult } from "@trpc/react-query/shared";
-import type { AppRouter, RouterOutput } from "@cirrodrive/backend";
+import type { AppRouter, RouterOutput } from "@cirrodrive/backend/app-router";
 import { useEffect, useState } from "react";
-import { trpc } from "@/services/trpc.ts";
-import { useModalStore } from "@/store/useModalStore.ts";
+import { trpc } from "#services/trpc.js";
+import { useModalStore } from "#store/useModalStore.js";
 
 interface UseGetCodeByFileId {
   query: UseTRPCQueryResult<

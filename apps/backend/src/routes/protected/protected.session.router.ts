@@ -1,16 +1,16 @@
-import { adminUserDTOSchema } from "@cirrodrive/schemas";
+import { adminUserDTOSchema } from "@cirrodrive/schemas/admin.js";
 import { TRPCError } from "@trpc/server";
 import { z } from "zod";
 import { type Response } from "express";
-import { container } from "@/loaders/inversify.loader.ts";
-import { logger } from "@/loaders/logger.loader.ts";
-import { AuthService } from "@/services/auth.service.ts";
+import { container } from "#loaders/inversify.loader.js";
+import { logger } from "#loaders/logger.loader.js";
+import { AuthService } from "#services/auth.service.js";
 import {
   router,
   authedProcedure,
   adminProcedure,
-} from "@/loaders/trpc.loader.ts";
-import { requireAdminSession } from "@/middlewares/admin-middleware.ts";
+} from "#loaders/trpc.loader.js";
+import { requireAdminSession } from "#middlewares/admin-middleware.js";
 
 const authService = container.get<AuthService>(AuthService);
 

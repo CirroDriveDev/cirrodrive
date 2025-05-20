@@ -1,9 +1,9 @@
 import { injectable, inject } from "inversify";
 import type { Logger } from "pino";
-import { $Enums } from "@cirrodrive/database";
-import { Symbols } from "@/types/symbols.ts";
-import { PlanRepository } from "@/repositories/plan.repository.ts";
-import { UserRepository } from "@/repositories/user.repository.ts";
+import { $Enums } from "@cirrodrive/database/prisma";
+import { Symbols } from "#types/symbols.js";
+import { PlanRepository } from "#repositories/plan.repository.js";
+import { UserRepository } from "#repositories/user.repository.js";
 
 @injectable()
 export class PlanService {

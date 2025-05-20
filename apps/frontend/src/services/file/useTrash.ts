@@ -1,8 +1,8 @@
 import { useState } from "react";
 import { useQueryClient } from "@tanstack/react-query";
-import { trpc } from "@/services/trpc.ts";
-import { entryListQueryKey } from "@/services/useEntryList.ts";
-import { trashEntryListQueryKey } from "@/services/useTrashEntryList.ts";
+import { trpc } from "#services/trpc.js";
+import { entryListQueryKey } from "#services/useEntryList.js";
+import { trashEntryListQueryKey } from "#services/useTrashEntryList.js";
 
 interface UseTrash {
   handleTrash: (type: "file" | "folder") => void; // 휴지통으로 이동 함수 (파일/폴더 구분)

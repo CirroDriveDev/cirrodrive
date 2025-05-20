@@ -1,5 +1,5 @@
 import { XIcon } from "lucide-react";
-import { useModalStore } from "@/store/useModalStore.ts";
+import { useModalStore } from "#store/useModalStore.js";
 
 export function Modal(): JSX.Element | null {
   const { isOpen, title, content, closeModal } = useModalStore();

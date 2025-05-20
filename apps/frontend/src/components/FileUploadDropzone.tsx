@@ -1,9 +1,9 @@
 import { useState } from "react";
 import { FileIcon } from "lucide-react";
-import { useBoundStore } from "@/store/useBoundStore.ts";
-import { LoadingSpinner } from "@/components/shared/LoadingSpinner.tsx";
-import { useUpload } from "@/services/file/useUpload.ts";
-import { FileUploadSuccessModal } from "@/components/FileUploadSuccessModal.tsx";
+import { useBoundStore } from "#store/useBoundStore.js";
+import { LoadingSpinner } from "#components/shared/LoadingSpinner.js";
+import { useUpload } from "#services/file/useUpload.js";
+import { FileUploadSuccessModal } from "#components/FileUploadSuccessModal.js";
 
 export function FileUploadDropzone(): JSX.Element {
   const { upload, isPending, error: uploadError } = useUpload();

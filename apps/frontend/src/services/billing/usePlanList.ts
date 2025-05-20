@@ -1,4 +1,4 @@
-import { trpc } from "@/services/trpc.ts";
+import { trpc } from "#services/trpc.js";
 
 /**
  * 요금제 목록을 조회하는 커스텀 훅

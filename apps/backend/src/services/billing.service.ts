@@ -1,20 +1,20 @@
 import { injectable, inject } from "inversify";
 import type { Logger } from "pino";
-import type { TossBilling } from "@cirrodrive/schemas";
-import { $Enums, Card } from "@cirrodrive/database";
+import { $Enums, type Card } from "@cirrodrive/database/prisma";
+import type { TossBilling } from "@cirrodrive/schemas/toss.js";
 import {
-  MethodK2ESchema,
   CardTypeK2ESchema,
+  MethodK2ESchema,
   OwnerTypeK2ESchema,
-} from "@cirrodrive/schemas";
-import { TossPaymentsService } from "@/services/toss-payments.service.ts";
-import { SubscriptionRepository } from "@/repositories/subscription.repository.ts";
-import { Symbols } from "@/types/symbols.ts";
-import { CardRepository } from "@/repositories/card.repository.ts";
-import { PlanService } from "@/services/plan.service.ts";
-import { Transactional } from "@/decorators/transactional.ts";
-import { ExternalPaymentError } from "@/errors/error-classes.ts";
-import { PaymentRepository } from "@/repositories/payment.repository.ts";
+} from "@cirrodrive/schemas/billing.js";
+import { TossPaymentsService } from "#services/toss-payments.service.js";
+import { SubscriptionRepository } from "#repositories/subscription.repository.js";
+import { Symbols } from "#types/symbols.js";
+import { CardRepository } from "#repositories/card.repository.js";
+import { PlanService } from "#services/plan.service.js";
+import { Transactional } from "#decorators/transactional.js";
+import { ExternalPaymentError } from "#errors/error-classes.js";
+import { PaymentRepository } from "#repositories/payment.repository.js";
 
 @injectable()
 export class BillingService {

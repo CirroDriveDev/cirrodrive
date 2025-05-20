@@ -1,5 +1,5 @@
 import { useState } from "react";
-import type { EntryDTO } from "@cirrodrive/schemas";
+import type { EntryDTO } from "@cirrodrive/schemas/entry.js";
 
 export type TempFile = EntryDTO & {
   ownerName: string;
@@ -28,7 +28,7 @@ export function useTempFileList(): {
       { name: "Dave", plan: "basic" },
       { name: "Eve", plan: "free" },
     ];
-    const picked = owners[Math.floor(Math.random() * owners.length)]!;
+    const picked = owners[Math.floor(Math.random() * owners.length)];
     return { ownerName: picked.name, currentPlanId: picked.plan };
   };
 

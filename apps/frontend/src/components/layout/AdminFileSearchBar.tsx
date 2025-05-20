@@ -1,13 +1,13 @@
 import { useState } from "react";
 import { ChevronDown } from "lucide-react";
-import { useAdminSearchBarStore } from "@/store/useAdminSearchBarStore.ts";
+import { useAdminSearchBarStore } from "#store/useAdminSearchBarStore.js";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuCheckboxItem,
   DropdownMenuTrigger,
-} from "@/shadcn/components/DropdownMenu.tsx";
-import { Button } from "@/shadcn/components/Button.tsx";
+} from "#shadcn/components/DropdownMenu.js";
+import { Button } from "#shadcn/components/Button.js";
 
 export function AdminFileSearchBar(): JSX.Element {
   const { setSearchTerm, resetSearchTerms } = useAdminSearchBarStore();

@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { fileMetadataDTOSchema } from "./file-metadata.ts";
+import { fileMetadataDTOSchema } from "#schemas/file-metadata.js";
 
 export const subFolderDTOSchema = z.object({
   id: z.string(),

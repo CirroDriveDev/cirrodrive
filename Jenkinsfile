@@ -160,8 +160,8 @@ pipeline {
                     writeFile file: './apps/backend/.env.production', text: envProdContentBackend
 
                     def envProdContentFrontend = """
-                    VITE_EC2_PUBLIC_URL=${EC2_PUBLIC_URL}
-                    VITE_SERVER_PORT=${SERVER_PORT}
+                    VITE_API_HOST=${EC2_PUBLIC_URL}
+                    VITE_API_PORT=${SERVER_PORT}
                     """.stripIndent()
                     writeFile file: './apps/frontend/.env.production', text: envProdContentFrontend
                 }

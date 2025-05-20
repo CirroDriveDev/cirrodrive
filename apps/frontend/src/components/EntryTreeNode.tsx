@@ -1,4 +1,4 @@
-import type { RecursiveEntryDTO } from "@cirrodrive/schemas";
+import type { RecursiveEntryDTO } from "@cirrodrive/schemas/entry.js";
 import {
   ChevronDown,
   ChevronUp,
@@ -7,8 +7,8 @@ import {
 } from "lucide-react";
 import { useState } from "react";
 import { useNavigate, useParams } from "react-router";
-import { Button } from "@/shadcn/components/Button.tsx";
-import { useUserStore } from "@/store/useUserStore.ts";
+import { Button } from "#shadcn/components/Button.js";
+import { useUserStore } from "#store/useUserStore.js";
 
 interface EntryTreeNodeProps {
   entry: RecursiveEntryDTO;

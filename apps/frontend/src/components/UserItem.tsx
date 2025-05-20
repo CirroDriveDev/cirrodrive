@@ -1,12 +1,12 @@
 import { MoreVertical } from "lucide-react";
-import type { UserDTO } from "@cirrodrive/schemas";
+import type { UserDTO } from "@cirrodrive/schemas/user.js";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuGroup,
   DropdownMenuItem,
   DropdownMenuTrigger,
-} from "@/shadcn/components/DropdownMenu.tsx";
+} from "#shadcn/components/DropdownMenu.js";
 
 interface UserItemProps {
   user: UserDTO;

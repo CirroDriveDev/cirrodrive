@@ -39,8 +39,7 @@
         },
         "aws.telemetry": false,
         "editor.codeActionsOnSave": {
-          "source.fixAll.eslint": "always",
-          "source.sort.json": "always"
+          "source.fixAll.eslint": "always"
         },
         "editor.defaultFormatter": "esbenp.prettier-vscode",
         "editor.tabSize": 2,
@@ -49,12 +48,9 @@
         },
         "files.eol": "\n",
         "javascript.preferences.importModuleSpecifier": "non-relative",
-        "javascript.preferences.importModuleSpecifierEnding": "js",
         "javascript.updateImportsOnFileMove.enabled": "always",
         "redhat.telemetry.enabled": false,
         "typescript.preferences.importModuleSpecifier": "non-relative",
-        "typescript.preferences.importModuleSpecifierEnding": "js",
-        "typescript.preferences.preferTypeOnlyAutoImports": true,
         "typescript.updateImportsOnFileMove.enabled": "always"
       }
     }
@@ -70,6 +66,9 @@
     },
     "ghcr.io/devcontainers/features/node:1": {
       "version": "none"
+    },
+    "ghcr.io/devcontainers/features/docker-outside-of-docker:1": {
+      "version": "latest"
     }
   },
   "forwardPorts": [

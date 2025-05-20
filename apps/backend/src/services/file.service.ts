@@ -1,11 +1,11 @@
 import path from "node:path";
 import { injectable, inject } from "inversify";
-import type { Prisma, FileMetadata } from "@cirrodrive/database";
+import type { Prisma, FileMetadata } from "@cirrodrive/database/prisma";
 import type { Logger } from "pino";
-import { Symbols } from "@/types/symbols.ts";
-import { FileAccessCodeService } from "@/services/file-access-code.service.ts";
-import { UserService } from "@/services/user.service.ts";
-import { type S3Metadata } from "@/services/s3.service.ts";
+import { Symbols } from "#types/symbols.js";
+import { FileAccessCodeService } from "#services/file-access-code.service.js";
+import { UserService } from "#services/user.service.js";
+import { type S3Metadata } from "#services/s3.service.js";
 /**
  * 파일 서비스입니다.
  */

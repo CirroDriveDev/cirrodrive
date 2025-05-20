@@ -1,4 +1,4 @@
-import { generateLink } from "@/utils/generateLink.ts";
+import { generateLink } from "#utils/generateLink.js";
 
 export function FileUploadSuccessModal(
   fileName: string,

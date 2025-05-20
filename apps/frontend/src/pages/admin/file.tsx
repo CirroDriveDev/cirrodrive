@@ -1,15 +1,15 @@
 import { useNavigate } from "react-router";
 import { useEffect } from "react";
-import { useBoundStore } from "@/store/useBoundStore.ts";
-import { SidebarLayout } from "@/components/layout/SidebarLayout.tsx";
-import { Header } from "@/components/layout/Header.tsx";
-import { Sidebar } from "@/components/layout/Sidebar.tsx";
-import { LoadingSpinner } from "@/components/shared/LoadingSpinner.tsx";
-import { useTempFileList } from "@/hooks/useTempFileList.ts";
-import { useSortedList } from "@/services/useSortedList.ts";
-import { AdminFileList } from "@/components/AdminFile.tsx"; // ✅ AdminFileList 사용
-import { Button } from "@/shadcn/components/Button.tsx";
-import { AdminFileSearchBar } from "@/components/layout/AdminFileSearchBar.tsx";
+import { useBoundStore } from "#store/useBoundStore.js";
+import { SidebarLayout } from "#components/layout/SidebarLayout.js";
+import { Header } from "#components/layout/Header.js";
+import { Sidebar } from "#components/layout/Sidebar.js";
+import { LoadingSpinner } from "#components/shared/LoadingSpinner.js";
+import { useTempFileList } from "#hooks/useTempFileList.js";
+import { useSortedList } from "#services/useSortedList.js";
+import { AdminFileList } from "#components/AdminFile.js"; // ✅ AdminFileList 사용
+import { Button } from "#shadcn/components/Button.js";
+import { AdminFileSearchBar } from "#components/layout/AdminFileSearchBar.js";
 
 export function AdminFilePage(): JSX.Element {
   const navigate = useNavigate();

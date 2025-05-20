@@ -1,6 +1,6 @@
-import backendConfig from "@cirrodrive/eslint-config/backend";
+import nodeConfig from "@cirrodrive/eslint-config/node";
 
 /**
  * @type {import("typescript-eslint").Config}
  */
-export default [...backendConfig];
+export default [...nodeConfig];

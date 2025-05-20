@@ -1,6 +1,7 @@
 import path from "node:path";
 import { type TransportTargetOptions } from "pino";
-import pino from "pino-http";
+import { pinoHttp } from "pino-http";
+import { env } from "#loaders/env.loader.js";
 
 const logFilePath = path.join("logs", "app.log");
 
@@ -40,9 +41,9 @@ const loggerConfig = {
   },
 };
 
-export const loggerMiddleware = pino(loggerConfig);
+export const loggerMiddleware = pinoHttp(loggerConfig);
 export const logger = loggerMiddleware.logger;
 
-if (import.meta.env.DEV) {
+if (env.DEV) {
   logger.level = "debug";
 }

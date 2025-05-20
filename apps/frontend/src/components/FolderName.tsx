@@ -1,6 +1,6 @@
 import { useNavigate } from "react-router";
-import { Button } from "@/shadcn/components/Button.tsx";
-import { useUserStore } from "@/store/useUserStore.ts";
+import { Button } from "#shadcn/components/Button.js";
+import { useUserStore } from "#store/useUserStore.js";
 
 export function FolderName({
   folderId,

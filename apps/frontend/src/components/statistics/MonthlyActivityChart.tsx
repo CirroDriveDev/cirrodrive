@@ -9,7 +9,7 @@ import {
   Tooltip,
   Legend,
 } from "chart.js";
-import { trpc } from "@/services/trpc.ts";
+import { trpc } from "#services/trpc.js";
 
 // Chart.js 구성 요소 등록
 ChartJS.register(

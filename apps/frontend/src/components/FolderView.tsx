@@ -1,20 +1,20 @@
 import { ChevronRight } from "lucide-react";
 import { useEffect } from "react";
-import { EntryList } from "@/components/EntryList.tsx";
-import { Header } from "@/components/layout/Header.tsx";
-import { Sidebar } from "@/components/layout/Sidebar.tsx";
-import { SidebarLayout } from "@/components/layout/SidebarLayout.tsx";
-import { LoadingSpinner } from "@/components/shared/LoadingSpinner.tsx";
-import { Button } from "@/shadcn/components/Button.tsx";
-import { useUpload } from "@/services/file/useUpload.ts";
-import { useEntryList } from "@/services/useEntryList.ts";
-import { useFolderPath } from "@/services/useFolderPath.ts";
-import { FolderName } from "@/components/FolderName.tsx";
-import { useBoundStore } from "@/store/useBoundStore.ts";
-import { useFolderCreate } from "@/services/file/useFolderCreate.ts";
-import { FileUploadDropzoneOverlay } from "@/components/FileUploadDropzoneOverlay.tsx";
-import { useRenameStore } from "@/store/useRenameStore.ts";
-import { selectFile } from "@/utils/selectFile.ts";
+import { EntryList } from "#components/EntryList.js";
+import { Header } from "#components/layout/Header.js";
+import { Sidebar } from "#components/layout/Sidebar.js";
+import { SidebarLayout } from "#components/layout/SidebarLayout.js";
+import { LoadingSpinner } from "#components/shared/LoadingSpinner.js";
+import { Button } from "#shadcn/components/Button.js";
+import { useUpload } from "#services/file/useUpload.js";
+import { useEntryList } from "#services/useEntryList.js";
+import { useFolderPath } from "#services/useFolderPath.js";
+import { FolderName } from "#components/FolderName.js";
+import { useBoundStore } from "#store/useBoundStore.js";
+import { useFolderCreate } from "#services/file/useFolderCreate.js";
+import { FileUploadDropzoneOverlay } from "#components/FileUploadDropzoneOverlay.js";
+import { useRenameStore } from "#store/useRenameStore.js";
+import { selectFile } from "#utils/selectFile.js";
 
 interface FolderViewProps {
   folderId: string;

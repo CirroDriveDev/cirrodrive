@@ -1,11 +1,11 @@
 import { Link } from "react-router";
-import { Logo } from "@/components/layout/Logo.tsx";
-import { SearchBar } from "@/components/layout/SearchBar.tsx";
-import { ModeToggle } from "@/shadcn/components/ModeToggle.tsx";
-import { useBoundStore } from "@/store/useBoundStore.ts";
-import { useLogout } from "@/services/useLogout.ts";
-import { NavButton } from "@/components/layout/NavButton.tsx";
-import { useDeleteAccount } from "@/services/useDeleteAccount.ts";
+import { Logo } from "#components/layout/Logo.js";
+import { SearchBar } from "#components/layout/SearchBar.js";
+import { ModeToggle } from "#shadcn/components/ModeToggle.js";
+import { useBoundStore } from "#store/useBoundStore.js";
+import { useLogout } from "#services/useLogout.js";
+import { NavButton } from "#components/layout/NavButton.js";
+import { useDeleteAccount } from "#services/useDeleteAccount.js";
 
 export function Header(): JSX.Element {
   const { user } = useBoundStore();
@@ -17,7 +17,7 @@ export function Header(): JSX.Element {
       <div className="flex w-[250px] items-center p-4">
         <Link className="flex items-center space-x-2" to="/">
           <Logo />
-          <div className="font-orbitron font-700 text-2xl text-white">
+          <div className="font-orbitron text-2xl font-700 text-white">
             Cirrodrive
           </div>
         </Link>

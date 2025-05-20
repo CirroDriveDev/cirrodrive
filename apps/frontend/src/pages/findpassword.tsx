@@ -1,9 +1,9 @@
 import { Link } from "react-router";
-import { Layout } from "@/components/layout/Layout.tsx";
-import { Header } from "@/components/layout/Header.tsx";
-import { FormInputField } from "@/components/shared/FormInputField.tsx";
-import { Button } from "@/shadcn/components/Button.tsx";
-import { useFindPassword } from "@/services/useFindPassword.ts";
+import { Layout } from "#components/layout/Layout.js";
+import { Header } from "#components/layout/Header.js";
+import { FormInputField } from "#components/shared/FormInputField.js";
+import { Button } from "#shadcn/components/Button.js";
+import { useFindPassword } from "#services/useFindPassword.js";
 
 // 비밀번호 찾기 페이지 컴포넌트
 export function FindPasswordPage(): JSX.Element {

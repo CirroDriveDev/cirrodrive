@@ -1,10 +1,10 @@
 import { injectable, inject } from "inversify";
-import type { Prisma, Folder } from "@cirrodrive/database";
+import type { Prisma, Folder } from "@cirrodrive/database/prisma";
 import type { Logger } from "pino";
-import type { EntryDTO, RecursiveEntryDTO } from "@cirrodrive/schemas";
-import { Symbols } from "@/types/symbols.ts";
-import { FileService } from "@/services/file.service.ts";
-import { UserService } from "@/services/user.service.ts";
+import type { EntryDTO, RecursiveEntryDTO } from "@cirrodrive/schemas/entry.js";
+import { Symbols } from "#types/symbols.js";
+import { FileService } from "#services/file.service.js";
+import { UserService } from "#services/user.service.js";
 /**
  * 폴더 서비스입니다.
  */

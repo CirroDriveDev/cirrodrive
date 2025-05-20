@@ -6,8 +6,8 @@ import {
   createTRPCClient,
 } from "@trpc/client";
 import { SuperJSON } from "superjson";
-import { type AppRouter } from "@cirrodrive/backend";
-import { TRPC_URL } from "@/services/trpc.ts";
+import { type AppRouter } from "@cirrodrive/backend/app-router";
+import { TRPC_URL } from "#services/trpc.js";
 
 export const trpcClient = createTRPCClient<AppRouter>({
   links: [

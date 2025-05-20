@@ -1,9 +1,9 @@
-import { protectedStatRouter } from "@/routes/protected/protected.stat.router.ts";
-import { router } from "@/loaders/trpc.loader.ts";
-import { protectedUserRouter } from "@/routes/protected/protected.user.router.ts";
-import { protectedFileRouter } from "@/routes/protected/protected.file.router.ts";
-import { protectedAdminRouter } from "@/routes/protected/protected.admin.router.ts";
-import { protectedSessionRouter } from "@/routes/protected/protected.session.router.ts";
+import { protectedStatRouter } from "#routes/protected/protected.stat.router.js";
+import { router } from "#loaders/trpc.loader.js";
+import { protectedUserRouter } from "#routes/protected/protected.user.router.js";
+import { protectedFileRouter } from "#routes/protected/protected.file.router.js";
+import { protectedAdminRouter } from "#routes/protected/protected.admin.router.js";
+import { protectedSessionRouter } from "#routes/protected/protected.session.router.js";
 
 export const protectedRouter = router({
   admin: protectedAdminRouter,

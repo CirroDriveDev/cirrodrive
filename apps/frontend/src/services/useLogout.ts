@@ -1,9 +1,13 @@
 import { useState } from "react";
-import type { AppRouter, RouterInput, RouterOutput } from "@cirrodrive/backend";
+import type {
+  AppRouter,
+  RouterInput,
+  RouterOutput,
+} from "@cirrodrive/backend/app-router";
 import type { UseTRPCMutationOptions } from "@trpc/react-query/shared";
 import type { TRPCClientErrorLike } from "@trpc/client";
-import { trpc } from "@/services/trpc.ts";
-import { useBoundStore } from "@/store/useBoundStore.ts";
+import { trpc } from "#services/trpc.js";
+import { useBoundStore } from "#store/useBoundStore.js";
 
 type UseLogoutOptions = UseTRPCMutationOptions<
   RouterInput["session"]["logout"],

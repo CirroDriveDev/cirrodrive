@@ -1,8 +1,8 @@
 import { useEffect, useState } from "react";
 import { FileIcon } from "lucide-react";
-import { useUpload } from "@/services/file/useUpload.ts";
-import { useBoundStore } from "@/store/useBoundStore.ts";
-import { FileUploadSuccessModal } from "@/components/FileUploadSuccessModal.tsx";
+import { useUpload } from "#services/file/useUpload.js";
+import { useBoundStore } from "#store/useBoundStore.js";
+import { FileUploadSuccessModal } from "#components/FileUploadSuccessModal.js";
 
 interface DragAndDropUploadOverlayProps {
   folderId?: string; // 폴더 ID

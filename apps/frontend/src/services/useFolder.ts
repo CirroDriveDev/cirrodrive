@@ -1,5 +1,5 @@
-import type { RouterOutput } from "@cirrodrive/backend";
-import { trpc } from "@/services/trpc.ts";
+import type { RouterOutput } from "@cirrodrive/backend/app-router";
+import { trpc } from "#services/trpc.js";
 
 interface UseFolder {
   data: RouterOutput["folder"]["get"] | undefined;

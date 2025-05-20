@@ -1,7 +1,7 @@
 import { Search } from "lucide-react";
 import { useState, type ChangeEvent, type KeyboardEvent } from "react";
 import { useNavigate } from "react-router";
-import { useSearchBarStore } from "@/store/useSearchBarStore.ts";
+import { useSearchBarStore } from "#store/useSearchBarStore.js";
 
 export function SearchBar(): JSX.Element {
   const { searchTerm, setSearchTerm } = useSearchBarStore();

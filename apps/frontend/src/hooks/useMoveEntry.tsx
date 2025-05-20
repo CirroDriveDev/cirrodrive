@@ -1,11 +1,11 @@
 /* eslint-disable unicorn/filename-case -- Todo */
-import type { EntryDTO } from "@cirrodrive/schemas";
-import { trpc } from "@/services/trpc.ts";
-import { entryUpdatedEvent } from "@/services/entryUpdatedEvent.ts";
-import { useModalStore } from "@/store/useModalStore.ts";
-import { useUserStore } from "@/store/useUserStore.ts";
-import { EntryTreeNode } from "@/components/EntryTreeNode.tsx";
-import { useEntryGetRecursively } from "@/services/useEntryGetRecursively.ts";
+import type { EntryDTO } from "@cirrodrive/schemas/entry.js";
+import { trpc } from "#services/trpc.js";
+import { entryUpdatedEvent } from "#services/entryUpdatedEvent.js";
+import { useModalStore } from "#store/useModalStore.js";
+import { useUserStore } from "#store/useUserStore.js";
+import { EntryTreeNode } from "#components/EntryTreeNode.js";
+import { useEntryGetRecursively } from "#services/useEntryGetRecursively.js";
 
 interface UseMoveEntry {
   openMoveModal: () => void;

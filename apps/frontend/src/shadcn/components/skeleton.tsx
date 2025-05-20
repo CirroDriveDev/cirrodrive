@@ -1,5 +1,5 @@
 /* eslint-disable -- shadcn */
-import { cn } from "@/shadcn/lib/utils.ts";
+import { cn } from "#shadcn/lib/utils.js";
 
 function Skeleton({
   className,

@@ -1,16 +1,16 @@
 import { useParams } from "react-router";
-import { Header } from "@/components/layout/Header.tsx";
-import { Layout } from "@/components/layout/Layout.tsx";
-import { NotFoundPage } from "@/pages/not-found.tsx";
-import { LoadingSpinner } from "@/components/shared/LoadingSpinner.tsx";
-import { useGetFileByCode } from "@/services/file/useGetFileByCode.ts";
-import { useDownloadByCode } from "@/services/file/useDownloadByCode.ts";
-import { Button } from "@/shadcn/components/Button.tsx";
-import { EntryIcon } from "@/components/EntryIcon.tsx";
-import { inferFileType } from "@/utils/inferFileType.ts";
-import { formatSize } from "@/utils/formatSize.ts";
-import { useBoundStore } from "@/store/useBoundStore.ts";
-import { useSaveToAccount } from "@/services/file/useSaveToAccount.ts";
+import { Header } from "#components/layout/Header.js";
+import { Layout } from "#components/layout/Layout.js";
+import { NotFoundPage } from "#pages/not-found.js";
+import { LoadingSpinner } from "#components/shared/LoadingSpinner.js";
+import { useGetFileByCode } from "#services/file/useGetFileByCode.js";
+import { useDownloadByCode } from "#services/file/useDownloadByCode.js";
+import { Button } from "#shadcn/components/Button.js";
+import { EntryIcon } from "#components/EntryIcon.js";
+import { inferFileType } from "#utils/inferFileType.js";
+import { formatSize } from "#utils/formatSize.js";
+import { useBoundStore } from "#store/useBoundStore.js";
+import { useSaveToAccount } from "#services/file/useSaveToAccount.js";
 
 interface CodePageParams extends Record<string, string> {
   code: string;

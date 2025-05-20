@@ -1,9 +1,9 @@
 import { Link } from "react-router";
-import { Button } from "@/shadcn/components/Button.tsx";
-import { LandingContainer } from "@/components/layout/LandingContainer.tsx";
-import { Fileupload } from "@/components/FileUploadImage.tsx";
-import { Upload } from "@/components/UploadImage.tsx";
-import { Header } from "@/components/layout/Header.tsx";
+import { Button } from "#shadcn/components/Button.js";
+import { LandingContainer } from "#components/layout/LandingContainer.js";
+import { Fileupload } from "#components/FileUploadImage.js";
+import { Upload } from "#components/UploadImage.js";
+import { Header } from "#components/layout/Header.js";
 
 export function LandingPage(): JSX.Element {
   return (

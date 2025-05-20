@@ -1,7 +1,7 @@
-import type { FileMetadataPublicDTO } from "@cirrodrive/schemas";
+import type { FileMetadataPublicDTO } from "@cirrodrive/schemas/file-metadata.js";
 import type { TRPCClientErrorLike } from "@trpc/client";
-import type { AppRouter } from "@cirrodrive/backend";
-import { trpc } from "@/services/trpc.ts";
+import type { AppRouter } from "@cirrodrive/backend/app-router";
+import { trpc } from "#services/trpc.js";
 
 interface GetFileByCode {
   file: FileMetadataPublicDTO | undefined;

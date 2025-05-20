@@ -1,6 +1,6 @@
 import { useMutation } from "@tanstack/react-query";
-import { useTRPC } from "@/services/trpc.ts";
-import { entryUpdatedEvent } from "@/services/entryUpdatedEvent.ts";
+import { useTRPC } from "#services/trpc.js";
+import { entryUpdatedEvent } from "#services/entryUpdatedEvent.js";
 
 /**
  * S3 Presigned Post를 요청하는 커스텀 훅

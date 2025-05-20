@@ -1,24 +1,12 @@
 {
-  "extends": "@cirrodrive/tsconfig/tsconfig.base.json",
+  "$schema": "https://json.schemastore.org/tsconfig",
+  "extends": "@cirrodrive/typescript-config/tsconfig.base.json",
+  "include": ["src", "test", "*.ts"],
+  "exclude": ["node_modules"],
   "compilerOptions": {
-    "module": "ESNext",
-    "lib": ["ES2022"],
-    "baseUrl": ".",
-    "paths": {
-      "@/*": ["./src/*"]
-    },
-    "useDefineForClassFields": true,
-    "moduleDetection": "force",
-    "types": ["reflect-metadata", "vitest/globals"],
+    "rootDir": "./",
+    "types": ["node", "reflect-metadata", "vitest/globals"],
     "experimentalDecorators": true,
-    "emitDecoratorMetadata": true,
-    "resolveJsonModule": true
-  },
-  "include": [
-    "**/*.ts",
-    "**/*.tsx",
-    "src/server.ts",
-    "src/loaders/prisma.cts",
-    "testfile.ts"
-  ]
+    "emitDecoratorMetadata": true
+  }
 }

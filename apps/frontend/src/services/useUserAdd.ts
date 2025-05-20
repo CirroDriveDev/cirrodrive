@@ -1,4 +1,4 @@
-import type { User } from "@/types/user.ts";
+import type { User } from "#types/user.js";
 
 export const useUserAdd = (): {
   addUser: (user: Omit<User, "id">) => void;

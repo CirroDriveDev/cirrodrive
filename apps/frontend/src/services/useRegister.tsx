@@ -1,13 +1,17 @@
 /* eslint-disable unicorn/filename-case -- Todo */
 import { useState } from "react";
-import type { RouterOutput, RouterInput, AppRouter } from "@cirrodrive/backend";
+import type {
+  RouterOutput,
+  RouterInput,
+  AppRouter,
+} from "@cirrodrive/backend/app-router";
 import type { TRPCClientErrorLike } from "@trpc/client";
 import type { UseTRPCMutationOptions } from "@trpc/react-query/shared";
-import { userSchema } from "@cirrodrive/schemas";
+import { userSchema } from "@cirrodrive/schemas/user.js";
 import { z, type ZodFormattedError } from "zod";
-import { trpc } from "@/services/trpc.ts";
-import { useModalStore } from "@/store/useModalStore.ts";
-import { useBoundStore } from "@/store/useBoundStore.ts";
+import { trpc } from "#services/trpc.js";
+import { useModalStore } from "#store/useModalStore.js";
+import { useBoundStore } from "#store/useBoundStore.js";
 
 const formSchema = z
   .object({

@@ -1,6 +1,6 @@
 import type React from "react";
 import { useNavigate, useLocation } from "react-router";
-import { Button } from "@/shadcn/components/Button.tsx";
+import { Button } from "#shadcn/components/Button.js";
 
 interface SidebarItemProps {
   label: string;

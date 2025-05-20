@@ -1,4 +1,4 @@
-import { trpc } from "@/services/trpc.ts";
+import { trpc } from "#services/trpc.js";
 
 export function RecentUploadedFiles(): JSX.Element {
   // 새롭게 추가한 recentFiles 엔드포인트를 사용하여 최근 업로드 파일을 가져옵니다.

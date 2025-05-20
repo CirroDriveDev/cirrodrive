@@ -1,5 +1,5 @@
-import { useBoundStore } from "@/store/useBoundStore.ts";
-import type { ModalStore } from "@/store/useBoundStore.ts";
+import { useBoundStore } from "#store/useBoundStore.js";
+import type { ModalStore } from "#store/useBoundStore.js";
 
 export const useModalStore = (): ModalStore => {
   const { isOpen, title, content, openModal, closeModal } = useBoundStore();

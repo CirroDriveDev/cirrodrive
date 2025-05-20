@@ -1,6 +1,6 @@
-import { Header } from "@/components/layout/Header.tsx";
-import { Sidebar } from "@/components/layout/Sidebar.tsx";
-import { SidebarLayout } from "@/components/layout/SidebarLayout.tsx";
+import { Header } from "#components/layout/Header.js";
+import { Sidebar } from "#components/layout/Sidebar.js";
+import { SidebarLayout } from "#components/layout/SidebarLayout.js";
 
 // 관리자 대시보드 메인 페이지
 export function MyPlanPage(): JSX.Element {

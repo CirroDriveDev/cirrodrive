@@ -1,7 +1,7 @@
 import { getQueryKey, type TRPCClientErrorLike } from "@trpc/react-query";
 import type { UseTRPCQueryResult } from "@trpc/react-query/shared";
-import type { AppRouter, RouterOutput } from "@cirrodrive/backend";
-import { trpc } from "@/services/trpc.ts";
+import type { AppRouter, RouterOutput } from "@cirrodrive/backend/app-router";
+import { trpc } from "#services/trpc.js";
 
 interface UseFolderGetPath {
   query: UseTRPCQueryResult<

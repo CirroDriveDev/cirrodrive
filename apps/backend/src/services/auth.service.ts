@@ -1,5 +1,5 @@
 import { injectable, inject } from "inversify";
-import type { Prisma, User, Session } from "@cirrodrive/database";
+import type { Prisma, User, Session } from "@cirrodrive/database/prisma";
 import { verify } from "@node-rs/argon2";
 import type { Logger } from "pino";
 import {
@@ -8,8 +8,8 @@ import {
 } from "@oslojs/encoding";
 import { sha256 } from "@oslojs/crypto/sha2";
 import type { Response } from "express";
-import { Symbols } from "@/types/symbols.ts";
-import { SessionValidationResult } from "@/types/types.ts";
+import { Symbols } from "#types/symbols.js";
+import { type SessionValidationResult } from "#types/types.js";
 
 /**
  * 인증 서비스입니다.

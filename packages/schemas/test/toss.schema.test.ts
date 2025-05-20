@@ -1,4 +1,4 @@
-import { TossBillingSchema } from "@cirrodrive/schemas";
+import { TossBillingSchema } from "@cirrodrive/schemas/toss.js";
 import { describe, test, expect } from "vitest";
 
 describe("billingSchema", () => {

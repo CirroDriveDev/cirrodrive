@@ -1,8 +1,8 @@
 import { useState, useMemo } from "react";
-import type { UserDTO } from "@cirrodrive/schemas";
-import { UserItem } from "./UserItem.tsx";
-import { useUserSearchBarStore } from "@/store/useUserSearchBarStore.ts";
-import { useUserDelete } from "@/services/admin/useDeleteUser.ts";
+import type { UserDTO } from "@cirrodrive/schemas/user.js";
+import { UserItem } from "./UserItem.js";
+import { useUserSearchBarStore } from "#store/useUserSearchBarStore.js";
+import { useUserDelete } from "#services/admin/useDeleteUser.js";
 
 interface UserListProps {
   users: UserDTO[];

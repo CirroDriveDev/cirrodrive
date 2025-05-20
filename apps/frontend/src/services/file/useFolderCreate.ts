@@ -1,10 +1,14 @@
 import { useState } from "react";
-import type { AppRouter, RouterInput, RouterOutput } from "@cirrodrive/backend";
+import type {
+  AppRouter,
+  RouterInput,
+  RouterOutput,
+} from "@cirrodrive/backend/app-router";
 import type { TRPCClientErrorLike } from "@trpc/client";
 import type { UseTRPCMutationOptions } from "@trpc/react-query/shared";
-import { trpc } from "@/services/trpc.ts";
-import { useBoundStore } from "@/store/useBoundStore.ts";
-import { entryUpdatedEvent } from "@/services/entryUpdatedEvent.ts";
+import { trpc } from "#services/trpc.js";
+import { useBoundStore } from "#store/useBoundStore.js";
+import { entryUpdatedEvent } from "#services/entryUpdatedEvent.js";
 
 type UseFolderCreateOptions = UseTRPCMutationOptions<
   RouterInput["folder"]["create"],

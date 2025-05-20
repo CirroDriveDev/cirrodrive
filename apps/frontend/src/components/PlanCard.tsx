@@ -1,12 +1,12 @@
-import { Button } from "@/shadcn/components/Button.tsx";
+import { Button } from "#shadcn/components/Button.js";
 import {
   Card,
   CardHeader,
   CardTitle,
   CardContent,
   CardFooter,
-} from "@/shadcn/components/card.tsx";
-import type { PlanCardData } from "@/types/plan-card.ts";
+} from "#shadcn/components/card.js";
+import type { PlanCardData } from "#types/plan-card.js";
 
 interface PlanCardProps {
   plan: PlanCardData;

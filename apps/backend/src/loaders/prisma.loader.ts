@@ -1,9 +1,5 @@
-import { PrismaClient, type Prisma } from "@cirrodrive/database";
-import { env } from "@/loaders/env.loader.ts";
+import { type PrismaClient, type Prisma } from "@cirrodrive/database/prisma";
 
 export type PrismaTx = PrismaClient | Prisma.TransactionClient;
 
-export const prisma = new PrismaClient({
-  datasources: { db: { url: env.DATABASE_URL } },
-});
-void prisma.$connect();
+export { prisma } from "@cirrodrive/database/client";

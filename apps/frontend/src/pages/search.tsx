@@ -1,11 +1,11 @@
 import { useSearchParams } from "react-router";
-import { EntryList } from "@/components/EntryList.tsx";
-import { LoadingSpinner } from "@/components/shared/LoadingSpinner.tsx";
-import { useEntryByUserList } from "@/services/useEntryListByUser.ts";
-import { SidebarLayout } from "@/components/layout/SidebarLayout.tsx";
-import { Header } from "@/components/layout/Header.tsx";
-import { Sidebar } from "@/components/layout/Sidebar.tsx";
-import { FolderName } from "@/components/FolderName.tsx";
+import { EntryList } from "#components/EntryList.js";
+import { LoadingSpinner } from "#components/shared/LoadingSpinner.js";
+import { useEntryByUserList } from "#services/useEntryListByUser.js";
+import { SidebarLayout } from "#components/layout/SidebarLayout.js";
+import { Header } from "#components/layout/Header.js";
+import { Sidebar } from "#components/layout/Sidebar.js";
+import { FolderName } from "#components/FolderName.js";
 
 export function SearchResultsPage(): JSX.Element {
   const [searchParams] = useSearchParams();

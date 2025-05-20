@@ -1,12 +1,12 @@
 import { Moon, Sun } from "lucide-react";
-import { Button } from "@/shadcn/components//Button.tsx";
+import { Button } from "#shadcn/components//Button.js";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
-} from "@/shadcn/components/DropdownMenu.tsx";
-import { useTheme } from "@/shadcn/components/ThemeProvider.tsx";
+} from "#shadcn/components/DropdownMenu.js";
+import { useTheme } from "#shadcn/components/ThemeProvider.js";
 
 export function ModeToggle(): JSX.Element {
   const { setTheme } = useTheme();

@@ -1,7 +1,7 @@
 /* eslint-disable -- shadcn */
 import * as React from "react";
 
-import { cn } from "@/shadcn/lib/utils.ts";
+import { cn } from "#shadcn/lib/utils.js";
 
 const Table = React.forwardRef<
   HTMLTableElement,

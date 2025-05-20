@@ -1,7 +1,7 @@
 import { useState } from "react";
-import { useUserView } from "@/services/useUserView.ts";
-import { useUserAdd } from "@/services/useUserAdd.ts";
-import { useUserEdit } from "@/services/useUserEdit.ts";
+import { useUserView } from "#services/useUserView.js";
+import { useUserAdd } from "#services/useUserAdd.js";
+import { useUserEdit } from "#services/useUserEdit.js";
 
 interface UserFormProps {
   userId?: string; // 수정 시 전달되는 기존 사용자

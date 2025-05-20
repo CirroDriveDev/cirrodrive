@@ -2,7 +2,7 @@ import { create } from "zustand";
 import { devtools, persist } from "zustand/middleware";
 import { immer } from "zustand/middleware/immer";
 import type { StateCreator } from "zustand";
-import type { UserDTO } from "@cirrodrive/schemas";
+import type { UserDTO } from "@cirrodrive/schemas/user.js";
 
 // ------------------------------------
 // Store Slice Interfaces
@@ -246,7 +246,7 @@ export const createJwtSlice: StateCreator<
  * @example
  *
  * ```ts
- * import { useBoundStore } from "@/shared/store/useBoundStore.ts";
+ * import { useBoundStore } from "#shared/store/useBoundStore.js";
  *
  * const PrintUsername = () => {
  *   const { user, isAuthenticated } = useBoundStore();

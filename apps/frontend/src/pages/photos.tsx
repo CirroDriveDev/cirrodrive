@@ -1,14 +1,14 @@
 import { useNavigate } from "react-router";
-import type { EntryDTO } from "@cirrodrive/schemas";
-import { useBoundStore } from "@/store/useBoundStore.ts";
-import { SidebarLayout } from "@/components/layout/SidebarLayout.tsx";
-import { Header } from "@/components/layout/Header.tsx";
-import { Sidebar } from "@/components/layout/Sidebar.tsx";
-import { FolderName } from "@/components/FolderName.tsx";
-import { LoadingSpinner } from "@/components/shared/LoadingSpinner.tsx";
-import { EntryList } from "@/components/EntryList.tsx";
-import { useEntryByUserList } from "@/services/useEntryListByUser.ts";
-import { inferFileType } from "@/utils/inferFileType.ts";
+import type { EntryDTO } from "@cirrodrive/schemas/entry.js";
+import { useBoundStore } from "#store/useBoundStore.js";
+import { SidebarLayout } from "#components/layout/SidebarLayout.js";
+import { Header } from "#components/layout/Header.js";
+import { Sidebar } from "#components/layout/Sidebar.js";
+import { FolderName } from "#components/FolderName.js";
+import { LoadingSpinner } from "#components/shared/LoadingSpinner.js";
+import { EntryList } from "#components/EntryList.js";
+import { useEntryByUserList } from "#services/useEntryListByUser.js";
+import { inferFileType } from "#utils/inferFileType.js";
 
 export function PhotosPage(): JSX.Element {
   const navigate = useNavigate();

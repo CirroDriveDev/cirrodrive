@@ -1,12 +1,12 @@
 import { MoreVertical } from "lucide-react";
-import type { TempFile } from "@/hooks/useTempFileList.ts";
+import type { TempFile } from "#hooks/useTempFileList.js";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuGroup,
   DropdownMenuItem,
   DropdownMenuTrigger,
-} from "@/shadcn/components/DropdownMenu.tsx";
+} from "#shadcn/components/DropdownMenu.js";
 
 interface FileItemProps {
   file: TempFile;

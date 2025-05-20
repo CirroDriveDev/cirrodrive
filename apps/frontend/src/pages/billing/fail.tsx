@@ -1,5 +1,5 @@
 import { useNavigate } from "react-router";
-import { Button } from "@/shadcn/components/Button.tsx";
+import { Button } from "#shadcn/components/Button.js";
 
 export function Fail(): JSX.Element {
   const navigate = useNavigate();

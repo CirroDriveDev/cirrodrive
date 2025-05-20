@@ -1,8 +1,8 @@
 import { FileIcon, ImageIcon, HistoryIcon, Trash2Icon } from "lucide-react";
-import { EntryTreeNode } from "@/components/EntryTreeNode.tsx";
-import { useUserStore } from "@/store/useUserStore.ts";
-import { SidebarItem } from "@/components/layout/SidebarItem.tsx";
-import { useEntryGetRecursively } from "@/services/useEntryGetRecursively.ts";
+import { EntryTreeNode } from "#components/EntryTreeNode.js";
+import { useUserStore } from "#store/useUserStore.js";
+import { SidebarItem } from "#components/layout/SidebarItem.js";
+import { useEntryGetRecursively } from "#services/useEntryGetRecursively.js";
 
 export function MemberSidebar(): JSX.Element {
   const { user } = useUserStore();

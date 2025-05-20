@@ -1,15 +1,17 @@
 {
-  "extends": "@cirrodrive/tsconfig/tsconfig.base.json",
+  "$schema": "https://json.schemastore.org/tsconfig",
+  "extends": "@cirrodrive/typescript-config/tsconfig.base.json",
+  "include": ["src", "test", "*.ts"],
+  "exclude": ["node_modules", "../backend/**/*"],
   "compilerOptions": {
-    "lib": ["ES2022", "dom", "dom.iterable"],
+    "rootDir": "./",
+    "target": "ES2022",
+    "lib": ["ES2022", "DOM", "DOM.Iterable"],
     "jsx": "react-jsx",
-    "baseUrl": ".",
-    "paths": {
-      "@/*": ["./src/*", "../backend/src/*"]
-    },
-    "types": ["vitest/globals", "@testing-library/jest-dom"],
+    "module": "Preserve",
+    "moduleResolution": "bundler",
+    "types": ["vite/client", "vitest/globals"],
     "experimentalDecorators": true,
     "emitDecoratorMetadata": true
-  },
-  "include": ["**/*.ts", "**/*.tsx", "../backend/testfile.ts"]
+  }
 }

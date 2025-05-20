@@ -1,8 +1,8 @@
 import { useEffect, useState } from "react";
-import type { RouterOutput, AppRouter } from "@cirrodrive/backend";
+import type { RouterOutput, AppRouter } from "@cirrodrive/backend/app-router";
 import type { TRPCClientErrorLike } from "@trpc/client";
 import type { UseTRPCQueryOptions } from "@trpc/react-query/shared";
-import { trpc } from "@/services/trpc.ts";
+import { trpc } from "#services/trpc.js";
 
 type UseDownloadByCodeOptions = UseTRPCQueryOptions<
   RouterOutput["file"]["download"],

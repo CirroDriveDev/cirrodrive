@@ -1,5 +1,5 @@
 // hooks/useCurrentPlan.ts
-import { trpc } from "@/services/trpc.ts";
+import { trpc } from "#services/trpc.js";
 
 /**
  * 현재 사용 중인 요금제를 조회하는 커스텀 훅
