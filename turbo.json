@@ -1,85 +1,41 @@
 {
   "$schema": "https://turbo.build/schema.json",
-  "globalEnv": [
-    "MODE",
-    "BASE_URL",
-    "PROD",
-    "DEV",
-    "TEST",
-    "SSR",
-    "NODE_ENV",
-    "VITE_EC2_PUBLIC_URL",
-    "VITE_CLIENT_PORT",
-    "VITE_SERVER_PORT",
-    "JWT_SECRET"
-  ],
+  "globalEnv": ["NODE_ENV", "MODE", "PROD", "DEV", "TEST"],
   "tasks": {
-    "@cirrodrive/backend#dev": {
-      "cache": false,
-      "dependsOn": ["@cirrodrive/database#db:seed"],
-      "env": ["DATABASE_URL"],
-      "persistent": true
-    },
-    "@cirrodrive/database#build": {
-      "env": ["DATABASE_URL"],
-      "inputs": ["prisma/**"],
-      "outputs": ["dist/**"]
-    },
-    "@cirrodrive/database#db:push": {
-      "cache": false,
-      "dependsOn": ["@cirrodrive/database#build"],
-      "env": ["DATABASE_URL"]
-    },
-    "@cirrodrive/database#db:seed": {
-      "cache": false,
-      "dependsOn": [
-        "@cirrodrive/database#build",
-        "@cirrodrive/database#db:push"
-      ],
-      "env": ["DATABASE_URL"]
-    },
     "build": {
-      "outputs": [".cache/tsbuildinfo.json", "dist/**"]
+      "inputs": ["$TURBO_DEFAULT$", ".env*"],
+      "outputs": [".cache/tsbuildinfo.json", "dist/**"],
+      "dependsOn": ["^build"]
     },
     "clean": {
       "cache": false
     },
-    "db:studio": {
-      "cache": false,
-      "persistent": true
-    },
     "dev": {
       "cache": false,
-      "env": ["DATABASE_URL"],
       "persistent": true
     },
     "format": {
-      "outputLogs": "new-only",
-      "outputs": [".cache/.prettiercache"]
+      "outputLogs": "new-only"
     },
-    "lint": {
-      "outputs": [".cache/.eslintcache"]
+    "lint": {},
+    "start": {
+      "cache": false,
+      "dependsOn": ["build"],
+      "persistent": true
     },
     "test": {
       "cache": false,
+      "dependsOn": ["@cirrodrive/utils#build", "@cirrodrive/database#build"],
+      "env": ["MODE"],
       "persistent": true
     },
     "test:ci": {
+      "dependsOn": ["@cirrodrive/utils#build", "@cirrodrive/database#build"],
+      "env": ["MODE"],
       "outputs": [".cache/vitest-report.json"]
     },
-    "test:integration": {
-      "cache": false,
-      "persistent": true
-    },
-    "test:integration:ci": {
-      "outputs": [".cache/vitest-report.json"]
-    },
-    "test:unit": {
-      "cache": false,
-      "persistent": true
-    },
-    "test:unit:ci": {
-      "outputs": [".cache/vitest-report.json"]
+    "test:coverage": {
+      "outputs": ["coverage/**"]
     },
     "typecheck": {
       "outputs": [".cache/tsbuildinfo.json"]

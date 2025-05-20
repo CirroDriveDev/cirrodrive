@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import { TRPCClientError } from "@trpc/client";
-import { trpc } from "@/services/trpc.ts";
-import { useBoundStore } from "@/store/useBoundStore.ts";
+import { trpc } from "#services/trpc.js";
+import { useBoundStore } from "#store/useBoundStore.js";
 
 export interface UseEmailCodeReturn {
   email: string;

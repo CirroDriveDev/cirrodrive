@@ -1,13 +1,13 @@
 import { useNavigate } from "react-router";
 import { useEffect } from "react";
-import { useBoundStore } from "@/store/useBoundStore.ts";
-import { SidebarLayout } from "@/components/layout/SidebarLayout.tsx";
-import { Header } from "@/components/layout/Header.tsx";
-import { Sidebar } from "@/components/layout/Sidebar.tsx";
-import { LoadingSpinner } from "@/components/shared/LoadingSpinner.tsx";
-import { UserList } from "@/components/UserList.tsx";
-import { useUserList } from "@/services/useUserList.ts";
-import { UserSearchBar } from "@/components/layout/UserSearchBar.tsx";
+import { useBoundStore } from "#store/useBoundStore.js";
+import { SidebarLayout } from "#components/layout/SidebarLayout.js";
+import { Header } from "#components/layout/Header.js";
+import { Sidebar } from "#components/layout/Sidebar.js";
+import { LoadingSpinner } from "#components/shared/LoadingSpinner.js";
+import { UserList } from "#components/UserList.js";
+import { useUserList } from "#services/useUserList.js";
+import { UserSearchBar } from "#components/layout/UserSearchBar.js";
 
 export function AdminUserPage(): JSX.Element {
   const navigate = useNavigate();

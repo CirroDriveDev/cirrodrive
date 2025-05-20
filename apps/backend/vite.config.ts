@@ -1,4 +1,3 @@
-import tsconfigPaths from "vite-tsconfig-paths";
 import { defineConfig } from "vitest/config";
 
 // https://vitejs.dev/config/
@@ -9,7 +8,7 @@ export default defineConfig({
       exclude: ["**/node_modules/**", "**/index.ts"],
     },
     globals: true,
-    setupFiles: "./vitest-setup.ts",
+    setupFiles: "./test/vitest-setup.ts",
     fileParallelism: false,
     outputFile: ".cache/vitest-report.json",
   },
@@ -28,10 +27,4 @@ export default defineConfig({
   ssr: {
     external: ["@cirrodrive/database"],
   },
-  resolve: {
-    alias: {
-      "@": "/src",
-    },
-  },
-  plugins: [tsconfigPaths()],
 });

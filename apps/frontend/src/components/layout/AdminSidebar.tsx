@@ -1,4 +1,4 @@
-import { SidebarItem } from "@/components/layout/SidebarItem.tsx";
+import { SidebarItem } from "#components/layout/SidebarItem.js";
 
 export function AdminSidebar(): JSX.Element {
   return (

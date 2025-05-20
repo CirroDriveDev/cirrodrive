@@ -9,28 +9,28 @@ import {
   MoveIcon,
 } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
-import type { EntryDTO } from "@cirrodrive/schemas";
+import type { EntryDTO } from "@cirrodrive/schemas/entry.js";
 import { useNavigate } from "react-router";
-import { inferFileType } from "@/utils/inferFileType.ts";
-import { formatSize } from "@/utils/formatSize.ts";
-import { EntryIcon } from "@/components/EntryIcon.tsx";
-import { useContainerDimensions } from "@/hooks/useContainerDimensions.ts";
+import { inferFileType } from "#utils/inferFileType.js";
+import { formatSize } from "#utils/formatSize.js";
+import { EntryIcon } from "#components/EntryIcon.js";
+import { useContainerDimensions } from "#hooks/useContainerDimensions.js";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuGroup,
   DropdownMenuItem,
   DropdownMenuTrigger,
-} from "@/shadcn/components/DropdownMenu.tsx";
-import { useTrash } from "@/services/file/useTrash.ts";
-import { useDownload } from "@/services/file/useDownload.ts";
-import { useFileRename } from "@/services/file/useFileRename.ts";
-import { useFileDelete } from "@/services/useFileDelete.ts";
-import { useFolderDelete } from "@/services/useFolderDelete.ts";
-import { useRestore } from "@/services/useRestore.ts";
-import { useMoveEntry } from "@/hooks/useMoveEntry.tsx";
-import { useGetCodeByFileId } from "@/services/useCreateCode.tsx";
-import { useRenameStore } from "@/store/useRenameStore.ts";
+} from "#shadcn/components/DropdownMenu.js";
+import { useTrash } from "#services/file/useTrash.js";
+import { useDownload } from "#services/file/useDownload.js";
+import { useFileRename } from "#services/file/useFileRename.js";
+import { useFileDelete } from "#services/useFileDelete.js";
+import { useFolderDelete } from "#services/useFolderDelete.js";
+import { useRestore } from "#services/useRestore.js";
+import { useMoveEntry } from "#hooks/useMoveEntry.js";
+import { useGetCodeByFileId } from "#services/useCreateCode.js";
+import { useRenameStore } from "#store/useRenameStore.js";
 
 interface EntryItemProps {
   entry: EntryDTO;

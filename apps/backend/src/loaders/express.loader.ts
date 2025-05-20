@@ -10,10 +10,10 @@ import helmet from "helmet";
 import { StatusCodes } from "http-status-codes";
 import cors from "cors";
 import { createExpressMiddleware } from "@trpc/server/adapters/express";
-import { loggerMiddleware } from "@/loaders/logger.loader.ts";
-import { env } from "@/loaders/env.loader.ts";
-import { appRouter } from "@/routes/app.router.ts";
-import { createContext } from "@/loaders/trpc.loader.ts";
+import { loggerMiddleware } from "#loaders/logger.loader.js";
+import { env } from "#loaders/env.loader.js";
+import { appRouter } from "#routes/app.router.js";
+import { createContext } from "#loaders/trpc.loader.js";
 
 export const TRPC_PATH = "/trpc";
 
@@ -33,17 +33,26 @@ export const expressLoader = (): Express => {
     cors({
       credentials: true,
       origin: [
-        `http://${env.EC2_PUBLIC_URL}`,
-        `http://${env.EC2_PUBLIC_URL}:${env.CLIENT_PORT}`,
+        `http://${env.APP_PUBLIC_HOST}`,
+        `http://${env.APP_PUBLIC_HOST}:${env.APP_CLIENT_PORT}`,
       ],
     }),
   );
   app.use(cookieParser());
   app.use(loggerMiddleware);
 
-  if (import.meta.env.PROD) {
+  if (env.PROD) {
     app.use(helmet());
   }
+
+  // 헬스 체크 엔드포인트
+  app.get("/health", (req, res) => {
+    return res.status(StatusCodes.OK).json({
+      status: "ok",
+      timestamp: new Date().toISOString(),
+      env: env.MODE,
+    });
+  });
 
   app.use(TRPC_PATH, trpcMiddleware);
 

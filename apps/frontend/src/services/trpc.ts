@@ -1,6 +1,7 @@
 import { createTRPCContext } from "@trpc/tanstack-react-query";
 import { createTRPCReact } from "@trpc/react-query";
-import type { AppRouter } from "@cirrodrive/backend";
+import type { AppRouter } from "@cirrodrive/backend/app-router";
+import { env } from "#app/env.js";
 
 /**
  * API를 호출하기 위한 trpc 인스턴스입니다.
@@ -14,4 +15,4 @@ export const trpc = createTRPCReact<AppRouter>();
 export const { useTRPC, useTRPCClient } = createTRPCContext<AppRouter>();
 
 export const TRPC_PATH = "/trpc";
-export const TRPC_URL = `http://${import.meta.env.VITE_EC2_PUBLIC_URL}:${import.meta.env.VITE_SERVER_PORT}${TRPC_PATH}`;
+export const TRPC_URL = `http://${env.VITE_API_HOST}:${env.VITE_API_PORT}${TRPC_PATH}`;

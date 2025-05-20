@@ -1,6 +1,6 @@
 {
   "*.{ts,tsx}": [
     "eslint --fix --cache --cache-location .cache/.eslintcache",
-    "prettier --write --ignore-path ../../.gitignore --cache --cache-location .cache/.prettiercache"
+    "prettier --write --cache --cache-location .cache/.prettiercache"
   ]
 }

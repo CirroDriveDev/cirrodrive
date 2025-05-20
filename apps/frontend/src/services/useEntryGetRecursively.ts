@@ -1,7 +1,7 @@
 import { getQueryKey, type TRPCClientErrorLike } from "@trpc/react-query";
-import type { AppRouter, RouterOutput } from "@cirrodrive/backend";
+import type { AppRouter, RouterOutput } from "@cirrodrive/backend/app-router";
 import type { UseTRPCQueryResult } from "@trpc/react-query/shared";
-import { trpc } from "@/services/trpc.ts";
+import { trpc } from "#services/trpc.js";
 
 interface UseEntryGetRecursively {
   query: UseTRPCQueryResult<

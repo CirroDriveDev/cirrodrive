@@ -1,12 +1,72 @@
 {
+  "name": "@cirrodrive/backend",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "imports": {
+    "#decorators/*": {
+      "types": "./src/decorators/*",
+      "import": "./dist/decorators/*"
+    },
+    "#errors/*": {
+      "types": "./src/errors/*",
+      "import": "./dist/errors/*"
+    },
+    "#loaders/*": {
+      "types": "./src/loaders/*",
+      "import": "./dist/loaders/*"
+    },
+    "#middlewares/*": {
+      "types": "./src/middlewares/*",
+      "import": "./dist/middlewares/*"
+    },
+    "#repositories/*": {
+      "types": "./src/repositories/*",
+      "import": "./dist/repositories/*"
+    },
+    "#routes/*": {
+      "types": "./src/routes/*",
+      "import": "./dist/routes/*"
+    },
+    "#services/*": {
+      "types": "./src/services/*",
+      "import": "./dist/services/*"
+    },
+    "#types/*": {
+      "types": "./src/types/*",
+      "import": "./dist/types/*"
+    },
+    "#utils/*": {
+      "types": "./src/utils/*",
+      "import": "./dist/utils/*"
+    },
+    "#test/*": "./test/*"
+  },
+  "exports": {
+    "./app-router": {
+      "types": "./src/routes/app.router.ts"
+    }
+  },
+  "scripts": {
+    "build": "tsc -p tsconfig.build.json",
+    "clean": "git clean -xdf .cache .turbo node_modules",
+    "dev": "vite-node --watch src/server.ts",
+    "format": "prettier --check . --ignore-path ../../.gitignore",
+    "lint": "eslint",
+    "start": "tsx dist/server.js",
+    "test": "vitest",
+    "typecheck": "tsc --noEmit"
+  },
+  "prettier": "@cirrodrive/prettier-config",
   "dependencies": {
     "@aws-sdk/client-s3": "^3.810.0",
     "@aws-sdk/client-ses": "^3.810.0",
     "@aws-sdk/s3-presigned-post": "^3.810.0",
     "@aws-sdk/s3-request-presigner": "^3.810.0",
     "@aws-sdk/types": "^3.804.0",
-    "@cirrodrive/database": "workspace:^",
+    "@cirrodrive/database": "workspace:*",
     "@cirrodrive/schemas": "workspace:*",
+    "@cirrodrive/utils": "workspace:*",
     "@dotenvx/dotenvx": "^1.44.0",
     "@node-rs/argon2": "^2.0.2",
     "@oslojs/crypto": "^1.0.1",
@@ -27,11 +87,12 @@
     "jsonfile": "^6.1.0",
     "jsonwebtoken": "^9.0.2",
     "multer": "1.4.5-lts.2",
-    "pino": "^9.6.0",
+    "pino": "^9.7.0",
     "pino-http": "^10.4.0",
     "pino-pretty": "^11.3.0",
     "reflect-metadata": "^0.2.2",
     "superjson": "^2.2.2",
+    "tsx": "catalog:",
     "validator": "^13.15.0",
     "vite": "catalog:",
     "vite-node": "^2.1.9",
@@ -40,7 +101,8 @@
   },
   "devDependencies": {
     "@cirrodrive/eslint-config": "workspace:^",
-    "@cirrodrive/tsconfig": "workspace:^",
+    "@cirrodrive/prettier-config": "workspace:*",
+    "@cirrodrive/typescript-config": "workspace:^",
     "@faker-js/faker": "^8.4.1",
     "@trpc/client": "catalog:",
     "@trpc/react-query": "catalog:",
@@ -48,11 +110,14 @@
     "@types/cors": "^2.8.18",
     "@types/cross-spawn": "^6.0.6",
     "@types/express": "~4.17.21",
+    "@types/express-serve-static-core": "^5.0.6",
     "@types/jsonfile": "~6.1.4",
     "@types/jsonwebtoken": "^9.0.9",
     "@types/multer": "^1.4.12",
     "@types/node": "^20.17.47",
     "@types/npm-which": "^3.0.4",
+    "@types/pino-http": "^5.8.4",
+    "@types/qs": "^6.14.0",
     "@types/supertest": "~6.0.3",
     "@types/validator": "^13.15.0",
     "@vitest/coverage-v8": "catalog:",
@@ -60,41 +125,17 @@
     "eslint": "catalog:",
     "npm-which": "^3.0.1",
     "prettier": "catalog:",
+    "prettier-plugin-jsdoc": "catalog:",
+    "prettier-plugin-packagejson": "catalog:",
+    "prettier-plugin-sort-json": "catalog:",
     "supertest": "^7.1.1",
     "typescript": "catalog:",
     "vite-tsconfig-paths": "^4.3.2",
     "vitest": "catalog:"
   },
+  "packageManager": "pnpm@10.11.0",
   "engines": {
-    "node": ">=20.18.0",
+    "node": ">=20.19.1",
     "pnpm": "^10.11.0"
-  },
-  "name": "@cirrodrive/backend",
-  "overrides": {
-    "vite": {
-      "rollup": "npm:@rollup/wasm-node"
-    }
-  },
-  "prettier": "@cirrodrive/prettier-config",
-  "private": true,
-  "scripts": {
-    "build": "tsc -b && vite build --ssr src/server.ts",
-    "clean": "git clean -xdf .cache .turbo node_modules",
-    "dev": "vite-node --watch src/server.ts",
-    "format": "prettier --check . --ignore-path ../../.gitignore",
-    "lint": "eslint",
-    "pretest:ci": "vite-node --mode test ./test/test-utils/ci-db-setup.ts",
-    "pretest:integration:ci": "vite-node --mode test ./test/test-utils/ci-db-setup.ts",
-    "pretest:unit:ci": "vite-node --mode test ./test/test-utils/ci-db-setup.ts",
-    "start": "vite-node dist/server.js",
-    "test": "vitest",
-    "test:ci": "vitest run --reporter=default --reporter=json",
-    "test:integration": "vitest --dir test/integrations",
-    "test:integration:ci": "vitest run --dir test/integrations --reporter=default --reporter=json",
-    "test:unit": "vitest --dir test/units",
-    "test:unit:ci": "vitest run --dir test/units --reporter=default --reporter=json",
-    "typecheck": "tsc --noEmit"
-  },
-  "type": "module",
-  "version": "0.0.0"
+  }
 }

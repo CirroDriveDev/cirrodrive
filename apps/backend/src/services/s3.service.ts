@@ -1,7 +1,10 @@
 import path from "node:path";
 import { inject, injectable } from "inversify";
 import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
-import { createPresignedPost, PresignedPost } from "@aws-sdk/s3-presigned-post";
+import {
+  createPresignedPost,
+  type PresignedPost,
+} from "@aws-sdk/s3-presigned-post";
 import {
   HeadObjectCommand,
   PutObjectCommand,
@@ -10,9 +13,9 @@ import {
   CopyObjectCommand,
 } from "@aws-sdk/client-s3";
 import type { Logger } from "pino";
-import { s3Client } from "@/loaders/aws.loader.ts";
-import { env } from "@/loaders/env.loader.ts";
-import { Symbols } from "@/types/symbols.ts";
+import { s3Client } from "#loaders/aws.loader.js";
+import { env } from "#loaders/env.loader.js";
+import { Symbols } from "#types/symbols.js";
 
 const BUCKET_NAME = env.AWS_S3_BUCKET;
 export const S3_KEY_PREFIX = {
@@ -92,7 +95,7 @@ export class S3Service {
     key: string,
     expiresIn = 60 * 5, // 5분
   ): Promise<string> {
-    if (import.meta.env.DEV) {
+    if (env.DEV) {
       return `https://localhost/${key}`;
     }
     const command = new PutObjectCommand({

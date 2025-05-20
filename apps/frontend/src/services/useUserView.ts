@@ -1,4 +1,4 @@
-import type { User } from "@/types/user.ts";
+import type { User } from "#types/user.js";
 // 더미 데이터
 export const initialUsers: User[] = [
   {

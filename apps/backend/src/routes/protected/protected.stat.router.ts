@@ -1,10 +1,10 @@
 import { z } from "zod";
 import { TRPCError } from "@trpc/server";
-import { adminProcedure, router } from "@/loaders/trpc.loader.ts";
-import { container } from "@/loaders/inversify.loader.ts";
-import { AdminService } from "@/services/admin.service.ts";
-import { logger } from "@/loaders/logger.loader.ts";
-import { requireAdminSession } from "@/middlewares/admin-middleware.ts";
+import { adminProcedure, router } from "#loaders/trpc.loader.js";
+import { container } from "#loaders/inversify.loader.js";
+import { AdminService } from "#services/admin.service.js";
+import { logger } from "#loaders/logger.loader.js";
+import { requireAdminSession } from "#middlewares/admin-middleware.js";
 
 const adminService = container.get<AdminService>(AdminService);
 export const protectedStatRouter = router({

@@ -1,5 +1,5 @@
-import { type EntryDTO } from "@cirrodrive/schemas";
-import { EntryItem } from "@/components/EntryItem.tsx";
+import { type EntryDTO } from "@cirrodrive/schemas/entry.js";
+import { EntryItem } from "#components/EntryItem.js";
 
 interface EntryListProps {
   entries: EntryDTO[];

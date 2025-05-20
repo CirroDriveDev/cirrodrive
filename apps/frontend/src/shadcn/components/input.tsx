@@ -1,7 +1,7 @@
 /* eslint-disable -- shadcn */
 import * as React from "react";
 
-import { cn } from "@/shadcn/lib/utils.ts";
+import { cn } from "#shadcn/lib/utils.js";
 
 const Input = React.forwardRef<HTMLInputElement, React.ComponentProps<"input">>(
   ({ className, type, ...props }, ref) => {

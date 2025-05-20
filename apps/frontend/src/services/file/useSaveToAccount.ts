@@ -1,6 +1,6 @@
-import { type AppRouter } from "@cirrodrive/backend";
+import { type AppRouter } from "@cirrodrive/backend/app-router";
 import { type TRPCClientErrorLike } from "@trpc/client";
-import { trpc } from "@/services/trpc.ts";
+import { trpc } from "#services/trpc.js";
 
 interface UseSaveToAccount {
   saveToAccount: () => void;

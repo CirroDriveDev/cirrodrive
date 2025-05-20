@@ -1,8 +1,8 @@
-import { PlanCard } from "@/components/PlanCard.tsx";
-import { useBillingAuth } from "@/services/billing/useBillingAuth.ts";
-import { useCurrentPlan } from "@/services/billing/useCurrentPlan.ts";
-import { usePlanList } from "@/services/billing/usePlanList.ts";
-import type { PlanCardData } from "@/types/plan-card.ts";
+import { PlanCard } from "#components/PlanCard.js";
+import { useBillingAuth } from "#services/billing/useBillingAuth.js";
+import { useCurrentPlan } from "#services/billing/useCurrentPlan.js";
+import { usePlanList } from "#services/billing/usePlanList.js";
+import type { PlanCardData } from "#types/plan-card.js";
 
 export function Subscribe(): JSX.Element {
   const { plans, isPending, error } = usePlanList();

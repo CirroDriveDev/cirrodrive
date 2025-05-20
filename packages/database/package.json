@@ -1,0 +1,101 @@
+{
+  "name": "@cirrodrive/database",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "imports": {
+    "#prisma": {
+      "types": "./dist/prisma/index.d.ts",
+      "import": "./dist/prisma/index.js"
+    },
+    "#client": {
+      "types": "./src/client.ts",
+      "import": "./dist/client.js"
+    },
+    "#seed": {
+      "types": "./src/seed.ts",
+      "import": "./dist/seed.js"
+    },
+    "#src/*": {
+      "types": [
+        "./src/*",
+        "./src/*.ts"
+      ],
+      "import": [
+        "./dist/*",
+        "./dist/*.js"
+      ]
+    },
+    "#test/*": [
+      "./test/*",
+      "./test/*.ts"
+    ]
+  },
+  "exports": {
+    "./prisma": {
+      "types": "./dist/prisma/index.d.ts",
+      "import": "./dist/prisma/index.js"
+    },
+    "./client": {
+      "types": "./dist/client.d.ts",
+      "import": "./dist/client.js"
+    },
+    "./seed": {
+      "types": "./dist/seed.d.ts",
+      "import": "./dist/seed.js"
+    },
+    "./utils": {
+      "types": "./dist/utils.d.ts",
+      "import": "./dist/utils.js"
+    }
+  },
+  "scripts": {
+    "build": "prisma generate && tsc -p tsconfig.build.json",
+    "ci:db:push": "prisma db push --accept-data-loss --force-reset --skip-generate",
+    "ci:db:seed": "prisma db seed",
+    "clean": "git clean -xdf .cache .turbo node_modules dist",
+    "db:deploy": "vite-node prisma-env migrate deploy",
+    "db:generate": "prisma generate",
+    "db:migrate": "vite-node prisma-env migrate dev --skip-generate --create-only --name init",
+    "db:push": "vite-node prisma-env db push --accept-data-loss --force-reset --skip-generate",
+    "db:seed": "vite-node prisma-env db seed",
+    "db:studio": "vite-node prisma-env studio",
+    "dev": "vite-node prisma-env studio --browser none",
+    "format": "prettier --check .",
+    "lint": "eslint",
+    "test": "vitest",
+    "test:coverage": "vitest run --coverage",
+    "typecheck": "tsc --noEmit"
+  },
+  "prettier": "@cirrodrive/prettier-config",
+  "dependencies": {
+    "@cirrodrive/utils": "workspace:*",
+    "@dotenvx/dotenvx": "catalog:",
+    "@node-rs/argon2": "^2.0.2",
+    "@prisma/client": "^6.8.2",
+    "prisma": "^6.8.2",
+    "vite-node": "^2.1.9",
+    "zod": "catalog:"
+  },
+  "devDependencies": {
+    "@cirrodrive/eslint-config": "workspace:*",
+    "@cirrodrive/prettier-config": "workspace:*",
+    "@cirrodrive/typescript-config": "workspace:^",
+    "@types/cross-spawn": "^6.0.6",
+    "@types/node": "^20.17.47",
+    "@types/npm-which": "^3.0.4",
+    "@vitest/coverage-v8": "catalog:",
+    "cross-spawn": "^7.0.6",
+    "eslint": "catalog:",
+    "npm-which": "^3.0.1",
+    "prettier": "catalog:",
+    "prettier-plugin-jsdoc": "catalog:",
+    "prettier-plugin-packagejson": "catalog:",
+    "prettier-plugin-sort-json": "catalog:",
+    "vitest": "catalog:"
+  },
+  "prisma": {
+    "schema": "./prisma",
+    "seed": "vite-node src/seed.ts"
+  }
+}

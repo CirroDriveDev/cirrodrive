@@ -1,5 +1,5 @@
-import { trpc } from "@/services/trpc.ts";
-import { useBoundStore } from "@/store/useBoundStore.ts";
+import { trpc } from "#services/trpc.js";
+import { useBoundStore } from "#store/useBoundStore.js";
 
 export const useDeleteAccount = (): { deleteAccount: () => Promise<void> } => {
   const { clearUser } = useBoundStore();

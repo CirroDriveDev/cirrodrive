@@ -1,7 +1,7 @@
 import { createTRPCClient } from "@trpc/client";
 import { SuperJSON } from "superjson";
-import { supertestLink } from "test/test-utils/supertest-link.ts";
-import { app, type AppRouter } from "test/example-app.ts";
+import { supertestLink } from "#test/test-utils/supertest-link.js";
+import { app, type AppRouter } from "#test/example-app.js";
 
 const TRPC_PATH = "/trpc";
 

@@ -1,4 +1,4 @@
-import frontendConfig from "@cirrodrive/eslint-config/frontend";
+import reactConfig from "@cirrodrive/eslint-config/react";
 
 /**
  * @type {import("typescript-eslint").Config}
@@ -7,5 +7,5 @@ export default [
   {
     ignores: ["dist/**"],
   },
-  ...frontendConfig,
+  ...reactConfig,
 ];

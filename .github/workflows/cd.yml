@@ -1,17 +1,43 @@
 name: CD Pipeline
 
 on:
-  push:
-    branches: [main]
+  workflow_run:
+    workflows: ["CI Pipeline"]
+    types:
+      - completed
+    branches:
+      - main
   workflow_dispatch:
 
 jobs:
-  build-and-push:
+  check-ci-status:
+    name: Check CI Status
     runs-on: ubuntu-22.04
-    environment: production
+    if: >-
+      github.event_name == 'workflow_dispatch' || 
+      github.event.workflow_run.conclusion == 'success'
+    steps:
+      - name: Get workflow details
+        if: github.event_name == 'workflow_run'
+        run: |
+          echo "CI 파이프라인이 성공적으로 완료되었습니다."
+          echo "워크플로우 ID: ${{ github.event.workflow_run.id }}"
+          echo "워크플로우 이름: ${{ github.event.workflow_run.name }}"
+          echo "브랜치: ${{ github.event.workflow_run.head_branch }}"
+
+      - name: Manual trigger info
+        if: github.event_name == 'workflow_dispatch'
+        run: echo "CD 파이프라인이 수동으로 실행되었습니다."
+
+  build-and-push:
+    name: Build and Push Docker Images
+    runs-on: ubuntu-22.04
+    needs: check-ci-status
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 1 # 최적화: 불필요한 Git 히스토리 가져오지 않음
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
@@ -22,26 +48,13 @@ jobs:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
-      - name: Setup Node, pnpm, turbo cache, and dependencies
-        uses: ./.github/actions/setup-node-pnpm
-
-      - name: Write backend .env.production
-        run: echo "${{ secrets.BACKEND_ENV }}" > ./apps/backend/.env.production
-
-      - name: Write frontend .env.production
-        run: echo "${{ secrets.FRONTEND_ENV }}" > ./apps/frontend/.env.production
-
-      - name: Write database .env.production
-        run: echo "${{ secrets.DATABASE_ENV }}" > ./apps/database/.env.production
-
-      - name: Build pnpm
-        run: pnpm build
-
       - name: Build and push backend image
         uses: docker/build-push-action@v5
         with:
           context: ./
           file: ./apps/backend/Dockerfile
+          cache-from: type=registry,ref=${{ secrets.DOCKERHUB_USERNAME }}/cirrodrive:backend-cache
+          cache-to: type=registry,ref=${{ secrets.DOCKERHUB_USERNAME }}/cirrodrive:backend-cache,mode=max
           push: true
           tags: ${{ secrets.DOCKERHUB_USERNAME }}/cirrodrive:backend
 
@@ -50,24 +63,215 @@ jobs:
         with:
           context: ./
           file: ./apps/frontend/Dockerfile
+          cache-from: type=registry,ref=${{ secrets.DOCKERHUB_USERNAME }}/cirrodrive:frontend-cache
+          cache-to: type=registry,ref=${{ secrets.DOCKERHUB_USERNAME }}/cirrodrive:frontend-cache,mode=max
+          secrets: |
+            VITE_API_HOST=cirrodrive.kro.kr
+            VITE_API_PORT=8000
+            VITE_TOSS_CLIENT_KEY=test_ck_d46qopOB892JAe2jwoQY3ZmM75y0
           push: true
           tags: ${{ secrets.DOCKERHUB_USERNAME }}/cirrodrive:frontend
 
-  deploy:
+  prepare-release:
+    name: Prepare Release
     runs-on: ubuntu-22.04
     needs: build-and-push
+    environment: production
     steps:
-      - name: Deploy to server via SSH
+      - name: Prepare Docker Environment
         uses: appleboy/ssh-action@v1
         with:
           host: ${{ secrets.SERVER_HOST }}
           username: ${{ secrets.SERVER_USER }}
           key: ${{ secrets.SERVER_SSH_KEY }}
           script: |
-            cd /home/${{ secrets.SERVER_USER }}/cirrodrive-ci
-            git pull origin main
-            pnpm install
-            pnpm db:push
-            pnpm db:seed
-            pnpm docker:down
-            pnpm docker:up
+            # 배포 디렉토리 확인 및 생성
+            mkdir -p /home/${{ secrets.SERVER_USER }}/cirrodrive-deploy
+
+            # Docker 이미지 최신 버전 가져오기
+            docker pull ${{ secrets.DOCKERHUB_USERNAME }}/cirrodrive:backend || { echo "백엔드 이미지 가져오기 실패"; exit 1; }
+            docker pull ${{ secrets.DOCKERHUB_USERNAME }}/cirrodrive:frontend || { echo "프론트엔드 이미지 가져오기 실패"; exit 1; }
+
+  deployment:
+    name: Deployment
+    runs-on: ubuntu-22.04
+    needs: prepare-release
+    environment: production
+    env:
+      NODE_ENV: production
+      APP_SERVER_PORT: 8000
+      APP_CLIENT_PORT: 80
+      APP_PUBLIC_HOST: cirrodrive.kro.kr
+      DATABASE_URL: ${{ secrets.DATABASE_URL }}
+      AUTH_JWT_SECRET: ${{ secrets.AUTH_JWT_SECRET }}
+      AUTH_DEFAULT_ADMIN_USERNAME: ${{ secrets.AUTH_DEFAULT_ADMIN_USERNAME }}
+      AUTH_DEFAULT_ADMIN_PASSWORD: ${{ secrets.AUTH_DEFAULT_ADMIN_PASSWORD }}
+      AWS_REGION: ap-northeast-2
+      AWS_SES_SOURCE_EMAIL: ${{ secrets.AWS_SES_SOURCE_EMAIL }}
+      AWS_S3_BUCKET: ${{ secrets.AWS_S3_BUCKET }}
+      PAYMENT_TOSS_SECRET_KEY: ${{ secrets.PAYMENT_TOSS_SECRET_KEY }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          sparse-checkout: |
+            docker-compose.yml
+          sparse-checkout-cone-mode: false
+          fetch-depth: 1 # 최적화: 불필요한 Git 히스토리 가져오지 않음
+
+      - name: Copy Docker Compose file to server
+        uses: appleboy/scp-action@v0.1.4
+        with:
+          host: ${{ secrets.SERVER_HOST }}
+          username: ${{ secrets.SERVER_USER }}
+          key: ${{ secrets.SERVER_SSH_KEY }}
+          source: "docker-compose.yml"
+          target: "/home/${{ secrets.SERVER_USER }}/cirrodrive-deploy"
+          overwrite: true
+
+      - name: Deploy and Start Containers
+        uses: appleboy/ssh-action@v1
+        with:
+          host: ${{ secrets.SERVER_HOST }}
+          username: ${{ secrets.SERVER_USER }}
+          key: ${{ secrets.SERVER_SSH_KEY }}
+          envs: NODE_ENV,APP_SERVER_PORT,APP_CLIENT_PORT,APP_PUBLIC_HOST,DATABASE_URL,AUTH_JWT_SECRET,AUTH_DEFAULT_ADMIN_USERNAME,AUTH_DEFAULT_ADMIN_PASSWORD,AWS_REGION,AWS_SES_SOURCE_EMAIL,AWS_S3_BUCKET,PAYMENT_TOSS_SECRET_KEY
+          script: |
+            # 작업 디렉토리로 이동
+            cd /home/${{ secrets.SERVER_USER }}/cirrodrive-deploy
+
+            # Docker 컨테이너 재시작
+            docker-compose down
+            docker-compose up -d || { echo "Docker 컨테이너 시작 실패"; exit 1; }
+
+  validate-deployment:
+    name: Validate Deployment
+    runs-on: ubuntu-22.04
+    needs: deployment
+    environment: production
+    steps:
+      - name: Wait for containers to initialize
+        run: sleep 20
+
+      - name: Check Container Health Status
+        uses: appleboy/ssh-action@v1
+        with:
+          host: ${{ secrets.SERVER_HOST }}
+          username: ${{ secrets.SERVER_USER }}
+          key: ${{ secrets.SERVER_SSH_KEY }}
+          script: |
+            echo "컨테이너 상태 확인 중..."
+
+            # 백엔드 컨테이너 상태 확인
+            BACKEND_HEALTH=$(docker inspect --format='{{.State.Health.Status}}' cirrodrive-backend)
+            echo "백엔드 컨테이너 상태: $BACKEND_HEALTH"
+
+            # 프론트엔드 컨테이너 상태 확인
+            FRONTEND_HEALTH=$(docker inspect --format='{{.State.Health.Status}}' cirrodrive-frontend)
+            echo "프론트엔드 컨테이너 상태: $FRONTEND_HEALTH"
+
+            # 상태 검증
+            if [ "$BACKEND_HEALTH" != "healthy" ] || [ "$FRONTEND_HEALTH" != "healthy" ]; then
+              echo "컨테이너가 정상 상태가 아닙니다!"
+              
+              if [ "$BACKEND_HEALTH" != "healthy" ]; then
+                echo "백엔드 컨테이너 로그:"
+                docker logs cirrodrive-backend --tail 15
+              fi
+              
+              if [ "$FRONTEND_HEALTH" != "healthy" ]; then
+                echo "프론트엔드 컨테이너 로그:"
+                docker logs cirrodrive-frontend --tail 15
+              fi
+              
+              exit 1
+            fi
+
+            echo "모든 컨테이너가 정상 상태입니다!"
+
+            # 컨테이너가 실행 중인지 로그 확인
+            docker ps -a | grep cirrodrive
+
+  notify-success:
+    name: Notify Success
+    runs-on: ubuntu-22.04
+    needs: validate-deployment
+    env:
+      APP_PUBLIC_HOST: cirrodrive.kro.kr
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+
+      - name: Get commit info
+        id: commit-info
+        run: |
+          echo "commit_message=$(git log -1 --pretty=%B)" >> $GITHUB_OUTPUT
+          echo "commit_sha=$(git log -1 --pretty=%h)" >> $GITHUB_OUTPUT
+
+      - name: Get deployment details
+        id: deployment-details
+        run: |
+          # 현재 시간 (KST)
+          NOW=$(TZ=Asia/Seoul date +"%Y-%m-%d %H:%M:%S %Z")
+          echo "deployment_time=$NOW" >> $GITHUB_OUTPUT
+          echo "workflow_url=https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}" >> $GITHUB_OUTPUT
+
+      - name: Notify Discord Success
+        uses: sarisia/actions-status-discord@v1
+        with:
+          webhook: ${{ secrets.DISCORD_WEBHOOK_URL }}
+          status: success
+          title: "🚀 배포 성공"
+          description: |
+            **환경:** Production
+            **배포 시간:** ${{ steps.deployment-details.outputs.deployment_time }}
+            **URL:** http://${{ env.APP_PUBLIC_HOST }}
+            **커밋:** [${{ steps.commit-info.outputs.commit_sha }}](${{ github.server_url }}/${{ github.repository }}/commit/${{ github.sha }}) - ${{ steps.commit-info.outputs.commit_message }}
+          color: 3066993
+          url: ${{ steps.deployment-details.outputs.workflow_url }}
+          username: CirroDrive CD
+
+  notify-failure:
+    name: Notify Failure
+    runs-on: ubuntu-22.04
+    needs: validate-deployment
+    if: failure()
+    env:
+      APP_PUBLIC_HOST: cirrodrive.kro.kr
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+
+      - name: Get commit info
+        id: commit-info
+        run: |
+          echo "commit_message=$(git log -1 --pretty=%B)" >> $GITHUB_OUTPUT
+          echo "commit_sha=$(git log -1 --pretty=%h)" >> $GITHUB_OUTPUT
+
+      - name: Get deployment details
+        id: deployment-details
+        run: |
+          # 현재 시간 (KST)
+          NOW=$(TZ=Asia/Seoul date +"%Y-%m-%d %H:%M:%S %Z")
+          echo "deployment_time=$NOW" >> $GITHUB_OUTPUT
+          echo "workflow_url=https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}" >> $GITHUB_OUTPUT
+
+      - name: Notify Discord Failure
+        uses: sarisia/actions-status-discord@v1
+        with:
+          webhook: ${{ secrets.DISCORD_WEBHOOK_URL }}
+          status: failure
+          content: "@here 배포에 실패했습니다! 긴급 확인이 필요합니다."
+          title: "❌ 배포 실패"
+          description: |
+            **환경:** Production
+            **배포 시간:** ${{ steps.deployment-details.outputs.deployment_time }}
+            **URL:** http://${{ env.APP_PUBLIC_HOST }}
+            **커밋:** [${{ steps.commit-info.outputs.commit_sha }}](${{ github.server_url }}/${{ github.repository }}/commit/${{ github.sha }}) - ${{ steps.commit-info.outputs.commit_message }}
+          color: 15158332
+          url: ${{ steps.deployment-details.outputs.workflow_url }}
+          username: CirroDrive CD

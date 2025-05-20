@@ -6,7 +6,7 @@ import {
   FolderClosed,
   FileAudioIcon,
 } from "lucide-react";
-import { type EntryMIMEType } from "@/types/entryType.ts";
+import { type EntryMIMEType } from "#types/entryType.js";
 
 interface EntryIconProps {
   className?: string;

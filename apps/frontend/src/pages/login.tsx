@@ -1,11 +1,11 @@
 import { Link, useNavigate } from "react-router";
-import { Button } from "@/shadcn/components/Button.tsx";
-import { FormInputField } from "@/components/shared/FormInputField.tsx";
-import { Layout } from "@/components/layout/Layout.tsx";
-import { Header } from "@/components/layout/Header.tsx";
-import { useLogin } from "@/services/useLogin.ts";
-//import { useUserStore } from "@/shared/store/useUserStore.ts";
-//import { mockAdminUser } from "@/pages/admin/api/mockAdminUser.ts";
+import { Button } from "#shadcn/components/Button.js";
+import { FormInputField } from "#components/shared/FormInputField.js";
+import { Layout } from "#components/layout/Layout.js";
+import { Header } from "#components/layout/Header.js";
+import { useLogin } from "#services/useLogin.js";
+//import { useUserStore } from "#shared/store/useUserStore.js";
+//import { mockAdminUser } from "#pages/admin/api/mockAdminUser.js";
 
 export function LoginPage(): JSX.Element {
   const navigate = useNavigate();
@@ -79,7 +79,7 @@ export function LoginPage(): JSX.Element {
                 회원가입
               </Link>
 
-              {/* {import.meta.env.DEV ? <Button
+              {/* {env.DEV ? <Button
                   onClick={() => {
                     setUser(mockAdminUser);
                   void navigate("/admin/user");

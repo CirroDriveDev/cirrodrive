@@ -1,13 +1,13 @@
 import { useState } from "react";
 import { ChevronDown } from "lucide-react";
-import { useUserSearchBarStore } from "@/store/useUserSearchBarStore.ts";
+import { useUserSearchBarStore } from "#store/useUserSearchBarStore.js";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuCheckboxItem,
   DropdownMenuTrigger,
-} from "@/shadcn/components/DropdownMenu.tsx";
-import { Button } from "@/shadcn/components/Button.tsx";
+} from "#shadcn/components/DropdownMenu.js";
+import { Button } from "#shadcn/components/Button.js";
 
 export function UserSearchBar(): JSX.Element {
   const { setSearchTerm, resetSearch } = useUserSearchBarStore();

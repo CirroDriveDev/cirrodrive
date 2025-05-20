@@ -1,7 +1,7 @@
 import { useNavigate, useParams, useSearchParams } from "react-router";
 import { useEffect } from "react";
-import { useConfirmBillingAuthorization } from "@/services/billing/useConfirmBillingAuthorization.ts";
-import { LoadingSpinner } from "@/components/shared/LoadingSpinner.tsx";
+import { useConfirmBillingAuthorization } from "#services/billing/useConfirmBillingAuthorization.js";
+import { LoadingSpinner } from "#components/shared/LoadingSpinner.js";
 
 export function Success(): JSX.Element | null {
   const navigate = useNavigate();

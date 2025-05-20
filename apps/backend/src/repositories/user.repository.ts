@@ -1,7 +1,7 @@
 import { injectable } from "inversify";
-import { Prisma, User, Plan } from "@cirrodrive/database";
-import { BaseRepository } from "@/repositories/base.repository.ts";
-import { DBNotFoundError } from "@/errors/db-error-classes.ts";
+import { Prisma, type User, type Plan } from "@cirrodrive/database/prisma";
+import { BaseRepository } from "#repositories/base.repository.js";
+import { DBNotFoundError } from "#errors/db-error-classes.js";
 
 @injectable()
 export class UserRepository extends BaseRepository {

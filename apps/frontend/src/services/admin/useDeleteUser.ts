@@ -1,7 +1,7 @@
 // ✅ useUserDelete.ts
 
 import { useState, useCallback } from "react";
-import { trpc } from "@/services/trpc.ts";
+import { trpc } from "#services/trpc.js";
 
 interface UseUserDelete {
   handleUserDelete: (userId: string) => void; // ✅ 여기에서만 userId 받음

@@ -1,8 +1,8 @@
 import { useState } from "react";
 import { useQueryClient } from "@tanstack/react-query";
-import { trpc } from "@/services/trpc.ts";
-import { entryListQueryKey } from "@/services/useEntryList.ts";
-import { trashEntryListQueryKey } from "@/services/useTrashEntryList.ts";
+import { trpc } from "#services/trpc.js";
+import { entryListQueryKey } from "#services/useEntryList.js";
+import { trashEntryListQueryKey } from "#services/useTrashEntryList.js";
 
 // 파일 및 폴더 이름 변경 Hook의 반환값 인터페이스 정의
 interface UseFileRename {

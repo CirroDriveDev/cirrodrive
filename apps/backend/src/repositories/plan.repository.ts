@@ -1,6 +1,6 @@
 import { injectable } from "inversify";
-import { Prisma, Plan } from "@cirrodrive/database";
-import { BaseRepository } from "@/repositories/base.repository.ts";
+import { Prisma, type Plan } from "@cirrodrive/database/prisma";
+import { BaseRepository } from "#repositories/base.repository.js";
 
 @injectable()
 export class PlanRepository extends BaseRepository {

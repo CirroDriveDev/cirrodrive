@@ -1,5 +1,5 @@
-import { useBoundStore } from "@/store/useBoundStore.ts";
-import type { RenameStore } from "@/store/useBoundStore.ts";
+import { useBoundStore } from "#store/useBoundStore.js";
+import type { RenameStore } from "#store/useBoundStore.js";
 
 export const useRenameStore = (): RenameStore => {
   const { folderId, setFolderId, clearFolderId } = useBoundStore();

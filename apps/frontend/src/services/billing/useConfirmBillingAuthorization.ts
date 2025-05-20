@@ -1,4 +1,4 @@
-import { trpc } from "@/services/trpc.ts";
+import { trpc } from "#services/trpc.js";
 
 interface ConfirmBillingInput {
   authKey: string;

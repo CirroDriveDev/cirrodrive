@@ -1,18 +1,18 @@
 import { S3Client } from "@aws-sdk/client-s3";
 import { SESClient } from "@aws-sdk/client-ses";
-import { env } from "@/loaders/env.loader.ts";
-import { logger as baseLogger } from "@/loaders/logger.loader.ts";
+import { env } from "#loaders/env.loader.js";
+import { logger as baseLogger } from "#loaders/logger.loader.js";
 
 const logger = baseLogger.child({ prefix: "aws" });
 logger.info("Loading AWS SDK...");
 
-if (import.meta.env.DEV || import.meta.env.TEST) {
-  logger.info(`Running in ${import.meta.env.MODE} mode. Using MinIO for S3.`);
+if (env.DEV || env.TEST) {
+  logger.info(`Running in ${env.MODE} mode. Using MinIO for S3.`);
 }
 
 export const s3Client = new S3Client({
   region: env.AWS_REGION,
-  ...(!import.meta.env.PROD && {
+  ...(!env.PROD && {
     credentials: {
       accessKeyId: env.AWS_S3_ACCESS_KEY!,
       secretAccessKey: env.AWS_S3_SECRET_KEY!,
@@ -26,7 +26,7 @@ export const sesClient = new SESClient({
   region: env.AWS_REGION,
 });
 
-if (import.meta.env.DEV || import.meta.env.TEST) {
+if (env.DEV || env.TEST) {
   logger.info("Trying to create bucket...");
 
   try {

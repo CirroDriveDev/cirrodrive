@@ -1,9 +1,9 @@
 import { useState } from "react";
 import { useNavigate } from "react-router";
-import { Header } from "@/components/layout/Header.tsx";
-import { Button } from "@/shadcn/components/Button.tsx";
-import { Layout } from "@/components/layout/Layout.tsx";
-import { useGetFileByCode } from "@/services/file/useGetFileByCode.ts";
+import { Header } from "#components/layout/Header.js";
+import { Button } from "#shadcn/components/Button.js";
+import { Layout } from "#components/layout/Layout.js";
+import { useGetFileByCode } from "#services/file/useGetFileByCode.js";
 
 export function DownloadByCodePage(): JSX.Element {
   const navigate = useNavigate();

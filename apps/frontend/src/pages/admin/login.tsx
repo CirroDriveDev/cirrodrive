@@ -1,9 +1,9 @@
 import { useNavigate } from "react-router";
-import { Button } from "@/shadcn/components/Button.tsx";
-import { useLogin } from "@/services/useLogin.ts";
-import { FormInputField } from "@/components/shared/FormInputField.tsx";
-import { Layout } from "@/components/layout/Layout.tsx";
-import { Header } from "@/components/layout/Header.tsx";
+import { Button } from "#shadcn/components/Button.js";
+import { useLogin } from "#services/useLogin.js";
+import { FormInputField } from "#components/shared/FormInputField.js";
+import { Layout } from "#components/layout/Layout.js";
+import { Header } from "#components/layout/Header.js";
 
 export function AdminLoginPage(): JSX.Element {
   const navigate = useNavigate();

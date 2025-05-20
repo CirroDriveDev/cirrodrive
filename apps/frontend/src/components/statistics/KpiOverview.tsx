@@ -1,4 +1,4 @@
-import { trpc } from "@/services/trpc.ts";
+import { trpc } from "#services/trpc.js";
 
 export function KpiOverview(): JSX.Element {
   // TRPC를 사용해 여러 KPI 데이터를 각각 불러옵니다.

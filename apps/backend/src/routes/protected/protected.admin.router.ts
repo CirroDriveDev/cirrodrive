@@ -1,3 +1,3 @@
-import { router } from "@/loaders/trpc.loader.ts";
+import { router } from "#loaders/trpc.loader.js";
 
 export const protectedAdminRouter = router({});

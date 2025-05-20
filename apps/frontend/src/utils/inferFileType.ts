@@ -1,4 +1,4 @@
-import type { EntryMIMEType } from "@/types/entryType.ts";
+import type { EntryMIMEType } from "#types/entryType.js";
 
 export const inferFileType = (name: string): EntryMIMEType => {
   const extension = name.split(".").pop()?.toLowerCase();

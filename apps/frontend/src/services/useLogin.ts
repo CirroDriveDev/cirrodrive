@@ -1,10 +1,14 @@
 import { useState } from "react";
-import type { AppRouter, RouterInput, RouterOutput } from "@cirrodrive/backend";
+import type {
+  AppRouter,
+  RouterInput,
+  RouterOutput,
+} from "@cirrodrive/backend/app-router";
 import type { UseTRPCMutationOptions } from "@trpc/react-query/shared";
 import type { TRPCClientErrorLike } from "@trpc/client";
 import { z, type ZodFormattedError } from "zod";
-import { trpc } from "@/services/trpc.ts";
-import { useBoundStore } from "@/store/useBoundStore.ts";
+import { trpc } from "#services/trpc.js";
+import { useBoundStore } from "#store/useBoundStore.js";
 
 const formSchema = z.object({
   username: z.string().min(1, "아이디를 입력하세요."),

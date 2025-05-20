@@ -8,15 +8,15 @@ import {
   type TossPayment,
   TossApiErrorV1Schema,
   TossApiErrorV2Schema,
-} from "@cirrodrive/schemas";
-import { Symbols } from "@/types/symbols.ts";
-import { env } from "@/loaders/env.loader.ts";
-import { AppError } from "@/errors/error-classes.ts";
+} from "@cirrodrive/schemas/toss.js";
+import { Symbols } from "#types/symbols.js";
+import { env } from "#loaders/env.loader.js";
+import { AppError } from "#errors/error-classes.js";
 
 @injectable()
 export class TossPaymentsService {
   private readonly baseURL = "https://api.tosspayments.com/v1";
-  private readonly secretKey = env.TOSS_SECRET_KEY;
+  private readonly secretKey = env.PAYMENT_TOSS_SECRET_KEY;
 
   constructor(@inject(Symbols.Logger) private logger: Logger) {
     this.logger = logger.child({ serviceName: "TossPaymentsService" });

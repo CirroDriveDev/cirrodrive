@@ -1,7 +1,7 @@
 import { useNavigate, useParams } from "react-router";
 import { z } from "zod";
-import { FolderView } from "@/components/FolderView.tsx";
-import { useBoundStore } from "@/store/useBoundStore.ts";
+import { FolderView } from "#components/FolderView.js";
+import { useBoundStore } from "#store/useBoundStore.js";
 
 interface FolderPageParams extends Record<string, string> {
   folderId: string;

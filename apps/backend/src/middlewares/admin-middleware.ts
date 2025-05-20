@@ -1,5 +1,5 @@
 import { TRPCError } from "@trpc/server";
-import { middleware } from "@/loaders/trpc.loader.ts";
+import { middleware } from "#loaders/trpc.loader.js";
 
 /**
  * 관리자 세션을 검사하는 미들웨어입니다.

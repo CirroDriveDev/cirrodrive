@@ -1,12 +1,10 @@
 import { z } from "zod";
-import {
-  fileMetadataDTOSchema,
-  s3PresignedPostSchema,
-} from "@cirrodrive/schemas";
-import { router, procedure } from "@/loaders/trpc.loader.ts";
-import { logger } from "@/loaders/logger.loader.ts";
-import { container } from "@/loaders/inversify.loader.ts";
-import { S3Service, S3_KEY_PREFIX } from "@/services/s3.service.ts";
+import { s3PresignedPostSchema } from "@cirrodrive/schemas/s3.js";
+import { fileMetadataDTOSchema } from "@cirrodrive/schemas/file-metadata.js";
+import { router, procedure } from "#loaders/trpc.loader.js";
+import { logger } from "#loaders/logger.loader.js";
+import { container } from "#loaders/inversify.loader.js";
+import { S3Service, S3_KEY_PREFIX } from "#services/s3.service.js";
 
 const MAX_POST_FILE_SIZE = 1024 * 1024 * 1024; // 1GB
 const s3Service = container.get<S3Service>(S3Service);

@@ -4,10 +4,10 @@ import type {
   FileAccessCode,
   FileMetadata,
   Prisma,
-} from "@cirrodrive/database";
-import { Symbols } from "@/types/symbols.ts";
-import { FileAccessCodeRepository } from "@/repositories/file-access-code.repository.ts";
-import { generateCode } from "@/utils/generate-code.ts";
+} from "@cirrodrive/database/prisma";
+import { Symbols } from "#types/symbols.js";
+import { FileAccessCodeRepository } from "#repositories/file-access-code.repository.js";
+import { generateCode } from "#utils/generate-code.js";
 
 export interface FileAccessCodeServiceInterface {
   // create

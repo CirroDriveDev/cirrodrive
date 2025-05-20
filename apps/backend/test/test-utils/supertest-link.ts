@@ -12,7 +12,7 @@ import {
   type DefaultErrorShape,
   type DataTransformerOptions,
 } from "@trpc/server/unstable-core-do-not-import";
-import { type App } from "supertest/types";
+import { type App } from "supertest/types.js";
 
 function convertHeaders(
   headers: RequestInit["headers"],

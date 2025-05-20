@@ -1,0 +1,40 @@
+{
+  "$schema": "https://turbo.build/schema.json",
+  "extends": ["//"],
+  "tasks": {
+    "db:generate": {
+      "env": ["DATABASE_URL"],
+      "inputs": ["prisma/**"],
+      "outputs": ["dist/**"],
+      "dependsOn": ["build"]
+    },
+    "db:seed": {
+      "cache": false,
+      "dependsOn": ["build", "db:generate"],
+      "env": ["DATABASE_URL"]
+    },
+    "db:push": {
+      "cache": false,
+      "dependsOn": ["build"],
+      "env": ["DATABASE_URL"]
+    },
+    "db:studio": {
+      "cache": false,
+      "dependsOn": ["build"],
+      "env": ["DATABASE_URL"],
+      "persistent": true
+    },
+    "dev": {
+      "dependsOn": ["db:seed"],
+      "env": ["DATABASE_URL"]
+    },
+    "test": {
+      "env": ["DATABASE_URL"],
+      "dependsOn": ["db:push"]
+    },
+    "test:ci": {
+      "env": ["DATABASE_URL"],
+      "dependsOn": ["db:push"]
+    }
+  }
+}

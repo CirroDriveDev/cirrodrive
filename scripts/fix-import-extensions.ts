@@ -3,14 +3,39 @@ import { globSync } from "glob";
 import path from "path";
 import fs from "fs";
 
-const extensionsToAdd = [".ts", ".tsx"];
+const ALLOWED_EXTENSIONS = [".ts", ".tsx", ".js"] as const;
+const IMPORT_PATH_ALIAS = "#/";
+
 const hasFileExtension = (text: string) => /\.[jt]sx?$/.test(text);
 const isRelativePath = (text: string) =>
   text.startsWith("./") || text.startsWith("../");
 
 const isHandledImportPath = (text: string): boolean => {
-  return isRelativePath(text) || text.startsWith("@/");
+  return isRelativePath(text) || text.startsWith(IMPORT_PATH_ALIAS);
 };
+
+function getNewImportText(
+  text: string,
+  ext: string,
+  resolvedPath: string,
+): string {
+  if (text.endsWith("/")) return `${text}index${ext}`;
+  if (
+    fs.existsSync(resolvedPath) &&
+    path.basename(resolvedPath).startsWith("index.")
+  )
+    return `${text}/index${ext}`;
+  return `${text}${ext}`;
+}
+
+function assertNoIndexFileInDir(dirPath: string) {
+  for (const ext of ALLOWED_EXTENSIONS) {
+    const indexFile = path.join(dirPath, `index${ext}`);
+    if (fs.existsSync(indexFile)) {
+      throw new Error(`Do not use ${indexFile}`);
+    }
+  }
+}
 
 // node_modules 제외하고 tsconfig.json 파일 탐색
 const tsconfigPaths = globSync("{apps,packages}/**/tsconfig.json", {
@@ -71,32 +96,15 @@ tsconfigPaths.forEach((tsconfigPath) => {
           dirPath = path.resolve(path.dirname(filePath), text);
         }
         // index.ts, index.tsx 우선순위로 검색
-        for (const ext of extensionsToAdd) {
-          const indexFile = path.join(dirPath, `index${ext}`);
-          if (fs.existsSync(indexFile)) {
-            resolvedPath = indexFile;
-            break;
-          }
-        }
+        assertNoIndexFileInDir(dirPath);
         // index 파일이 없으면 skip
         if (!resolvedPath || fs.statSync(resolvedPath).isDirectory()) return;
       }
 
-      const ext = path.extname(resolvedPath);
-      if (!extensionsToAdd.includes(ext)) return;
+      const ext = ".js";
 
       // 디렉터리 import였다면 index 확장자를 붙여줌
-      let newText: string;
-      if (text.endsWith("/")) {
-        newText = `${text}index${ext}`;
-      } else if (
-        fs.existsSync(resolvedPath) &&
-        path.basename(resolvedPath).startsWith("index.")
-      ) {
-        newText = `${text}/index${ext}`;
-      } else {
-        newText = `${text}${ext}`;
-      }
+      const newText = getNewImportText(text, ext, resolvedPath);
       spec.setLiteralValue(newText);
       changed = true;
 

@@ -1,13 +1,13 @@
 import { injectable, inject } from "inversify";
-import type { Prisma, User, FileMetadata } from "@cirrodrive/database";
+import type { Prisma, User, FileMetadata } from "@cirrodrive/database/prisma";
 import { hash, verify } from "@node-rs/argon2";
 import type { Logger } from "pino";
 import { TRPCError } from "@trpc/server";
-import { sign } from "jsonwebtoken";
-import { dayjs } from "@/loaders/dayjs.loader.ts";
-import { Symbols } from "@/types/symbols.ts";
-import { env } from "@/loaders/env.loader.ts";
-import { PlanService } from "@/services/plan.service.ts";
+import jwt from "jsonwebtoken";
+import { dayjs } from "#loaders/dayjs.loader.js";
+import { Symbols } from "#types/symbols.js";
+import { env } from "#loaders/env.loader.js";
+import { PlanService } from "#services/plan.service.js";
 
 @injectable()
 export class AdminService {
@@ -853,9 +853,9 @@ export class AdminService {
         });
       }
 
-      const token = sign(
+      const token = jwt.sign(
         { id: user.id, email: user.email, isAdmin: user.isAdmin },
-        env.JWT_SECRET, // non-null 단정 사용
+        env.AUTH_JWT_SECRET, // non-null 단정 사용
         { expiresIn: "1h" },
       );
 

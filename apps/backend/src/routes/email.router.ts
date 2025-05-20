@@ -1,10 +1,10 @@
 import { z } from "zod";
 import { TRPCError } from "@trpc/server";
-import { userSchema } from "@cirrodrive/schemas";
-import { container } from "@/loaders/inversify.loader.ts";
-import { logger } from "@/loaders/logger.loader.ts";
-import { router, procedure } from "@/loaders/trpc.loader.ts";
-import { EmailService } from "@/services/email.service.ts";
+import { userSchema } from "@cirrodrive/schemas/user.js";
+import { container } from "#loaders/inversify.loader.js";
+import { logger } from "#loaders/logger.loader.js";
+import { router, procedure } from "#loaders/trpc.loader.js";
+import { EmailService } from "#services/email.service.js";
 
 const emailService = container.get<EmailService>(EmailService);
 

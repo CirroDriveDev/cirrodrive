@@ -1,13 +1,13 @@
 import { injectable, inject } from "inversify";
 import type { Logger } from "pino";
 import { SendEmailCommand } from "@aws-sdk/client-ses";
-import type { Prisma } from "@cirrodrive/database";
+import type { Prisma } from "@cirrodrive/database/prisma";
 import { SignJWT } from "jose"; // jose 추가
-import { Symbols } from "@/types/symbols.ts";
-import { sesClient } from "@/loaders/aws.loader.ts";
-import { generateVerificationCode } from "@/utils/generate-verification-code.ts";
-import { createSecretKey } from "@/utils/jwt.ts"; // JWT 비밀키 유틸리티 추가
-import { env } from "@/loaders/env.loader.ts";
+import { Symbols } from "#types/symbols.js";
+import { sesClient } from "#loaders/aws.loader.js";
+import { generateVerificationCode } from "#utils/generate-verification-code.js";
+import { createSecretKey } from "#utils/jwt.js"; // JWT 비밀키 유틸리티 추가
+import { env } from "#loaders/env.loader.js";
 
 /**
  * 이메일 서비스입니다.
@@ -66,7 +66,7 @@ export class EmailService {
    * @param to - 수신자 이메일 주소
    */
   public async sendVerificationCode({ to }: { to: string }): Promise<void> {
-    if (import.meta.env.DEV) {
+    if (env.DEV) {
       this.logger.warn("개발 환경에서는 이메일 전송을 건너뜁니다.");
       return;
     }
@@ -103,7 +103,7 @@ export class EmailService {
    * @throws 인증 실패 시 오류
    */
   public async verifyEmailCode(email: string, code: string): Promise<string> {
-    if (import.meta.env.DEV) {
+    if (env.DEV) {
       this.logger.warn("개발 환경에서는 이메일 인증을 건너뜁니다.");
       const secretKey = createSecretKey();
       const token = await new SignJWT({ email })

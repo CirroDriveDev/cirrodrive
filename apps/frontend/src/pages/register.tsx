@@ -1,10 +1,10 @@
 import { useNavigate, Link } from "react-router";
-import { useRegister } from "@/services/useRegister.tsx";
-import { useEmailCode } from "@/services/useEmailCode.ts";
-import { FormInputField } from "@/components/shared/FormInputField.tsx";
-import { Layout } from "@/components/layout/Layout.tsx";
-import { Header } from "@/components/layout/Header.tsx";
-import { Button } from "@/shadcn/components/Button.tsx";
+import { useRegister } from "#services/useRegister.js";
+import { useEmailCode } from "#services/useEmailCode.js";
+import { FormInputField } from "#components/shared/FormInputField.js";
+import { Layout } from "#components/layout/Layout.js";
+import { Header } from "#components/layout/Header.js";
+import { Button } from "#shadcn/components/Button.js";
 
 export function RegisterPage(): JSX.Element {
   const navigate = useNavigate();

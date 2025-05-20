@@ -1,7 +1,11 @@
 import { injectable } from "inversify";
-import { Prisma, Subscription, type $Enums } from "@cirrodrive/database";
-import { BaseRepository } from "@/repositories/base.repository.ts";
-import { DBNotFoundError } from "@/errors/db-error-classes.ts";
+import {
+  Prisma,
+  type Subscription,
+  type $Enums,
+} from "@cirrodrive/database/prisma";
+import { BaseRepository } from "#repositories/base.repository.js";
+import { DBNotFoundError } from "#errors/db-error-classes.js";
 
 @injectable()
 export class SubscriptionRepository extends BaseRepository {

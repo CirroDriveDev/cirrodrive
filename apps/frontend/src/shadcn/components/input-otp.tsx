@@ -3,7 +3,7 @@ import * as React from "react";
 import { OTPInput, OTPInputContext } from "input-otp";
 import { Dot } from "lucide-react";
 
-import { cn } from "@/shadcn/lib/utils.ts";
+import { cn } from "#shadcn/lib/utils.js";
 
 const InputOTP = React.forwardRef<
   React.ElementRef<typeof OTPInput>,
@@ -34,7 +34,6 @@ const InputOTPSlot = React.forwardRef<
   React.ComponentPropsWithoutRef<"div"> & { index: number }
 >(({ index, className, ...props }, ref) => {
   const inputOTPContext = React.useContext(OTPInputContext);
-  // @ts-expect-error -- shadcn
   const { char, hasFakeCaret, isActive } = inputOTPContext.slots[index];
 
   return (
