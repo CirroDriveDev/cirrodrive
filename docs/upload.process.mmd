@@ -1,0 +1,63 @@
+---
+title: file upload process (MVP + multipart-ready abstraction)
+config:
+  theme: dark
+---
+sequenceDiagram
+  autonumber
+  participant User
+  participant F_Page as Frontend:Page
+  participant F_View as Frontend:Component
+  participant F_Hook as useUploadFiles()
+  participant U_Interface as UploadStrategy (interface)
+  participant Impl_Simple as PresignedPostUploader
+  participant B_Router as Backend:Router
+  participant B_Service as Backend:Service
+  participant B_Repo as Backend:Repository
+  participant S3
+
+  %% Step 0: 업로드 페이지 진입
+  User->>F_Page: /upload 경로로 접근
+  note left of F_Page: 업로드 UI 초기화<br>/pages/upload.tsx<br>- useUploadFiles 훅 호출<br>- input[multiple], 버튼 렌더링<br>- 상태: isUploading, uploadResults[]
+  F_Page->>F_View: 업로드 컴포넌트 렌더링
+
+  %% Step 1: 여러 파일 선택 및 업로드 버튼 클릭
+  User->>F_View: 다중 파일 선택 및 업로드 버튼 클릭
+  note left of F_View: uploadFiles(files[]) 실행<br>- 파일 유효성 검사 수행<br>  - 크기, 확장자, MIME 타입 등 검사<br>- 유효한 파일만 전달
+  F_View->>F_Hook: uploadFiles(validFiles[])
+
+  note over F_Hook: 제한 병렬 방식으로 업로드 수행<br>- p-limit(3)으로 동시에 3개씩 처리
+  loop 각 파일에 대해 제한 병렬 처리
+    %% Step 2: 인터페이스를 통한 업로드 전략 선택
+    F_Hook->>U_Interface: UploadStrategy.upload(file)
+    U_Interface->>Impl_Simple: upload(file)
+
+    %% Step 3: Presigned POST 방식 업로드
+    Impl_Simple->>B_Router: trpc.file.getPresignedPostUrl.mutate({ fileName, fileType })
+    B_Router->>B_Service: fileService.createPresignedPost(fileMeta)
+    B_Service->>S3: S3.createPresignedPost(fileMeta)
+    S3-->>B_Service: { url, fields }
+    B_Service-->>B_Router: { url, fields }
+    B_Router-->>Impl_Simple: { url, fields }
+    Impl_Simple->>S3: POST multipart/form-data (file + fields)
+    S3-->>Impl_Simple: HTTP 상태 코드 기반 응답
+
+    %% Step 4: 공통 메타데이터 저장
+    alt 업로드 성공
+      U_Interface->>B_Router: trpc.file.completeUpload.mutate({ fileMeta })
+      B_Router->>B_Service: fileService.saveFileMetadata(fileMeta)
+      B_Service->>B_Repo: fileRepository.create(fileMeta)
+      B_Repo-->>B_Service: 저장 완료
+      B_Service-->>B_Router: 저장 완료
+      B_Router-->>U_Interface: 저장 완료
+      U_Interface-->>F_Hook: uploadResults.push({ file, status: "success" })
+    else 업로드 실패
+      U_Interface-->>F_Hook: uploadResults.push({ file, status: "error" })
+      F_Hook-->>F_View: 오류 메시지 표시 (파일별)
+    end
+  end
+
+  %% Step 5: 전체 업로드 결과 처리
+  F_Hook-->>F_View: uploadResults 전달 (성공/실패 리스트)
+  note left of F_View: 성공/실패 파일 구분 렌더링<br>- 성공: 체크 아이콘<br>- 실패: 재시도 버튼 또는 에러 메시지
+  F_View-->>User: 업로드 결과 요약 메시지 출력
