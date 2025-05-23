@@ -55,4 +55,17 @@ export const fileUploadRouter = router({
         presignedPost: s3PresignedPostSchema.parse(presignedPost),
       };
     }),
+
+  /**
+   * S3 업로드 완료 후, 파일 메타데이터를 저장합니다.
+   *
+   * @param metadata - 업로드된 파일의 메타데이터
+   */
+  completeUpload: procedure
+  .input(fileMetadataDTOSchema)
+  .mutation(({ input }) => {
+    logger.debug("completeUpload: not implemented", input);
+    throw new Error("completeUpload not implemented");
+  }),
+
 });
