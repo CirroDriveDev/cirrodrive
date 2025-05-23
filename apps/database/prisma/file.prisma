@@ -3,7 +3,7 @@ model FileMetadata {
   name      String
   extension String
   size      Int
-  key       String
+  key       String    @unique
   createdAt DateTime  @default(now())
   updatedAt DateTime  @updatedAt
   trashedAt DateTime?
