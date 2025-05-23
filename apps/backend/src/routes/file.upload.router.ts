@@ -7,9 +7,12 @@ import { router, procedure } from "@/loaders/trpc.loader.ts";
 import { logger } from "@/loaders/logger.loader.ts";
 import { container } from "@/loaders/inversify.loader.ts";
 import { S3Service, S3_KEY_PREFIX } from "@/services/s3.service.ts";
+import { FileService } from "@/services/file.upload.service.ts"; // 추가
 
 const MAX_POST_FILE_SIZE = 1024 * 1024 * 1024; // 1GB
+
 const s3Service = container.get<S3Service>(S3Service);
+const fileService = container.get<FileService>(FileService); // 추가
 
 export const fileUploadRouter = router({
   /**
@@ -62,10 +65,9 @@ export const fileUploadRouter = router({
    * @param metadata - 업로드된 파일의 메타데이터
    */
   completeUpload: procedure
-  .input(fileMetadataDTOSchema)
-  .mutation(({ input }) => {
-    logger.debug("completeUpload: not implemented", input);
-    throw new Error("completeUpload not implemented");
-  }),
-
+    .input(fileMetadataDTOSchema)
+    .mutation(async ({ input }) => {
+      logger.debug("completeUpload", input);
+      await fileService.saveFileMetadata(input); // 서비스는 현재 Not implemented
+    }),
 });
