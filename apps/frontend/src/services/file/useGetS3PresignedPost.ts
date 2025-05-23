@@ -1,39 +1,41 @@
 import { useMutation } from "@tanstack/react-query";
-import { useTRPC } from "@/services/trpc";
-import { uploadWithPresignedPost } from "@/shared/uploaders/uploadWithPresignedPost";
-import { entryUpdatedEvent } from "@/services/entryUpdatedEvent";
+import { useTRPC } from "@/services/trpc.ts";
+import { entryUpdatedEvent } from "@/services/entryUpdatedEvent.ts";
 
 /**
- * 파일을 S3 Presigned POST 방식으로 업로드하는 훅
+ * S3 Presigned Post를 요청하는 커스텀 훅
+ *
+ * @returns S3 Presigned Post를 요청하는 함수와 mutation 상태 객체
  */
-export function usePresignedPostUploader() {
+export function useGetS3PresignedPost() {
   const trpc = useTRPC();
-
-  const mutation = useMutation({
-    mutationFn: async (file: File) => {
-      const presigned = await trpc.file.upload.getS3PresignedPost.mutate({
-        fileName: file.name,
-        fileType: file.type,
-      });
-
-      await uploadWithPresignedPost(file, presigned);
-
-      return presigned.url; // 업로드 후 접근 가능한 S3 URL (필요 시)
-    },
-    onSuccess: () => {
-      void entryUpdatedEvent();
-    },
-  });
+  const mutation = useMutation(
+    trpc.file.upload.getS3PresignedPost.mutationOptions(),
+  );
 
   return {
     /**
-     * 파일을 업로드합니다
+     * 파일 이름과 타입을 받아 Presigned Post를 요청합니다.
      *
-     * @param file 업로드할 File 객체
+     * @param fileName - 업로드할 파일 이름
+     * @param fileType - 업로드할 파일의 MIME 타입
+     * @returns
      */
-    uploadFile: (file: File) => mutation.mutate(file),
-    isUploading: mutation.isPending,
-    uploadedUrl: mutation.data,
+    getS3PresignedPost: (fileName: string, fileType: string) => {
+      mutation.mutate(
+        {
+          fileName,
+          fileType,
+        },
+        {
+          onSuccess: () => {
+            void entryUpdatedEvent();
+          },
+        },
+      );
+    },
+    data: mutation.data,
+    isPending: mutation.isPending,
     error: mutation.error,
   };
 }
