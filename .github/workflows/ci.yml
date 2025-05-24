@@ -27,6 +27,7 @@ on:
       - "pnpm-workspace.yaml"
       - "turbo.json"
       - "pnpm-lock.yaml"
+  workflow_dispatch:
 
 jobs:
   lint:
