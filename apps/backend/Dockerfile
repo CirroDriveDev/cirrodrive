@@ -41,7 +41,7 @@ RUN ls -alR /cirrodrive/apps/backend/node_modules/@cirrodrive*
 
 # 실행 환경 설정 
 ENV NODE_ENV=production
-WORKDIR /cirrodrive/apps/backend
-CMD [ "pnpx", "tsx", "dist/server.js" ]
+
+CMD [ "pnpm", "run", "-F", "@cirrodrive/backend", "start"]
 
 

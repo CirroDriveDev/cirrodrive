@@ -53,7 +53,7 @@
     "dev": "vite-node --watch src/server.ts",
     "format": "prettier --check . --ignore-path ../../.gitignore",
     "lint": "eslint",
-    "start": "export NODE_ENV=production && tsx dist/server.js",
+    "start": "tsx dist/server.js",
     "test": "vitest",
     "typecheck": "tsc --noEmit"
   },
