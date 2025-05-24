@@ -58,16 +58,6 @@ jobs:
           push: true
           tags: ${{ secrets.DOCKERHUB_USERNAME }}/cirrodrive:backend
 
-      - name: Create frontend environment file
-        run: |
-          mkdir -p secrets
-          cat > secrets/.env << EOL
-          NODE_ENV=production
-          VITE_API_HOST=cirrodrive.kro.kr
-          VITE_API_PORT=8000
-          VITE_TOSS_CLIENT_KEY=test_ck_d46qopOB892JAe2jwoQY3ZmM75y0
-          EOL
-
       - name: Build and push frontend image
         uses: docker/build-push-action@v5
         with:
@@ -76,7 +66,9 @@ jobs:
           cache-from: type=registry,ref=${{ secrets.DOCKERHUB_USERNAME }}/cirrodrive:frontend-cache
           cache-to: type=registry,ref=${{ secrets.DOCKERHUB_USERNAME }}/cirrodrive:frontend-cache,mode=max
           secrets: |
-            id=env,src=secrets/.env
+            VITE_API_HOST=cirrodrive.kro.kr
+            VITE_API_PORT=8000
+            VITE_TOSS_CLIENT_KEY=test_ck_d46qopOB892JAe2jwoQY3ZmM75y0
           push: true
           tags: ${{ secrets.DOCKERHUB_USERNAME }}/cirrodrive:frontend
 
