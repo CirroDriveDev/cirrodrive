@@ -27,14 +27,14 @@ WORKDIR /cirrodrive
 
 # 개발 의존성 설치
 COPY --from=pruner /cirrodrive/out/json/ .
-RUN --mount=type=cache,id=pnpm,target=/pnpm/store pnpm install --frozen-lockfile --ignore-scripts
+RUN --mount=type=cache,id=pnpm,target=/pnpm/store pnpm install --frozen-lockfile --ignore-scripts --force
 
 # 모든 필요한 패키지 빌드
 COPY --from=pruner /cirrodrive/out/full/ .
 RUN pnpm turbo run build --filter=@cirrodrive/backend...
 
 # 프로덕션 의존성 설치
-RUN --mount=type=cache,id=pnpm,target=/pnpm/store pnpm install --prod --frozen-lockfile --ignore-scripts
+RUN --mount=type=cache,id=pnpm,target=/pnpm/store pnpm install --prod --frozen-lockfile --ignore-scripts --force
 
 # 패키지 연결 확인
 RUN ls -alR /cirrodrive/apps/backend/node_modules/@cirrodrive*

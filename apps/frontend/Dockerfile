@@ -28,7 +28,7 @@ WORKDIR /cirrodrive
 
 # 개발 의존성 설치
 COPY --from=pruner /cirrodrive/out/json/ .
-RUN --mount=type=cache,id=pnpm,target=/pnpm/store pnpm install --frozen-lockfile --ignore-scripts
+RUN --mount=type=cache,id=pnpm,target=/pnpm/store pnpm install --frozen-lockfile --ignore-scripts --force
 
 # 소스 코드 복사
 COPY --from=pruner /cirrodrive/out/full/ .
