@@ -95,7 +95,7 @@ jobs:
   database-update:
     name: Update Database
     runs-on: ubuntu-22.04
-    needs: build-and-push
+    needs: prepare-release
     environment: production
     steps:
       - name: Run Database Migrations via Docker Container
@@ -110,11 +110,11 @@ jobs:
 
             # 임시 마이그레이션 컨테이너 실행
             docker run --rm \
-              --name temp-migration-container \
-              -e DATABASE_URL="${DATABASE_URL}" \
-              -e NODE_ENV="production" \
-              ${{ secrets.DOCKERHUB_USERNAME }}/cirrodrive:backend \
-              sh -c "echo '마이그레이션 시작...' && pnpm db:push && pnpm db:seed"
+            --name temp-migration-container \
+            -e DATABASE_URL="${DATABASE_URL}" \
+            -e NODE_ENV="production" \
+            ${{ secrets.DOCKERHUB_USERNAME }}/cirrodrive:backend \
+            sh -c "cd /cirrodrive && ls -la && cat package.json && echo '마이그레이션 시작...' && pnpm run db:push && pnpm run db:seed"
 
             # 실행 결과 확인
             if [ $? -eq 0 ]; then
@@ -127,7 +127,7 @@ jobs:
   deployment:
     name: Deployment
     runs-on: ubuntu-22.04
-    needs: [prepare-release, database-update]
+    needs: database-update
     environment: production
     env:
       NODE_ENV: production
