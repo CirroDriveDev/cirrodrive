@@ -4,12 +4,6 @@ WORKDIR /cirrodrive
 
 # 환경 변수 설정
 ENV TURBO_TELEMETRY_DISABLED=1
-ARG VITE_API_HOST
-ARG VITE_API_PORT
-ARG VITE_TOSS_CLIENT_KEY
-ENV VITE_API_HOST=${VITE_API_HOST:-"localhost"}
-ENV VITE_API_PORT=${VITE_API_PORT:-"3000"}
-ENV VITE_TOSS_CLIENT_KEY=${VITE_TOSS_CLIENT_KEY:-""}
 
 # pnpm 설정
 ENV PNPM_HOME="/pnpm"
@@ -40,7 +34,9 @@ RUN --mount=type=cache,id=pnpm,target=/pnpm/store pnpm install --frozen-lockfile
 COPY --from=pruner /cirrodrive/out/full/ .
 
 # 프론트엔드 빌드
-RUN pnpm turbo run build --filter=@cirrodrive/frontend...
+RUN --mount=type=secret,id=env,target=/run/secrets/.env \
+  { test -f /run/secrets/.env && source /run/secrets/.env || echo "환경 변수 파일을 찾을 수 없거나 로드할 수 없습니다."; } && \
+  pnpm turbo run build --filter=@cirrodrive/frontend...;
 
 # 프로덕션 배포를 위한 Nginx 설정
 FROM nginx:alpine AS runner
