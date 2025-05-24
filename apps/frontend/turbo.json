@@ -1,0 +1,9 @@
+{
+  "$schema": "https://turbo.build/schema.json",
+  "extends": ["//"],
+  "tasks": {
+    "build": {
+      "env": ["VITE_API_HOST", "VITE_API_PORT", "VITE_TOSS_CLIENT_KEY"]
+    }
+  }
+}
