@@ -97,6 +97,8 @@ jobs:
     runs-on: ubuntu-22.04
     needs: prepare-release
     environment: production
+    env:
+      DATABASE_URL: ${{ secrets.DATABASE_URL }}
     steps:
       - name: Run Database Migrations via Docker Container
         uses: appleboy/ssh-action@v1
@@ -114,7 +116,7 @@ jobs:
             -e DATABASE_URL="${DATABASE_URL}" \
             -e NODE_ENV="production" \
             ${{ secrets.DOCKERHUB_USERNAME }}/cirrodrive:backend \
-            sh -c "cd /cirrodrive && ls -la && cat package.json && echo '마이그레이션 시작...' && pnpm run db:push && pnpm run db:seed"
+            sh -c "echo '마이그레이션 시작...' && pnpm run db:push && pnpm run db:seed"
 
             # 실행 결과 확인
             if [ $? -eq 0 ]; then
