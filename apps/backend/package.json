@@ -58,11 +58,6 @@
     "typecheck": "tsc --noEmit"
   },
   "prettier": "@cirrodrive/prettier-config",
-  "overrides": {
-    "vite": {
-      "rollup": "npm:@rollup/wasm-node"
-    }
-  },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.810.0",
     "@aws-sdk/client-ses": "^3.810.0",
@@ -140,7 +135,7 @@
   },
   "packageManager": "pnpm@10.11.0",
   "engines": {
-    "node": ">=20.18.0",
+    "node": ">=20.19.1",
     "pnpm": "^10.11.0"
   }
 }

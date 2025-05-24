@@ -56,15 +56,7 @@
   },
   "packageManager": "pnpm@10.11.0",
   "engines": {
-    "node": ">=20.18.0",
+    "node": ">=20.19.1",
     "pnpm": "^10.11.0"
-  },
-  "pnpm": {
-    "overrides": {
-      "vite>rollup": "npm:@rollup/wasm-node"
-    },
-    "onlyBuiltDependencies": [
-      "@swc/core"
-    ]
   }
 }

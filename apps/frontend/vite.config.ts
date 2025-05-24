@@ -1,4 +1,3 @@
-import { nodePolyfills } from "vite-plugin-node-polyfills";
 import { defineConfig } from "vitest/config";
 import react from "@vitejs/plugin-react-swc";
 import { ValidateEnv } from "@julr/vite-plugin-validate-env";
@@ -19,11 +18,6 @@ export default defineConfig({
     react(),
     ValidateEnv({
       configFile: "src/app/env",
-    }),
-    nodePolyfills({
-      globals: {
-        Buffer: true,
-      },
     }),
   ],
 });
