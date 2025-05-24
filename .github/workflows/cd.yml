@@ -97,24 +97,32 @@ jobs:
     runs-on: ubuntu-22.04
     needs: build-and-push
     environment: production
-    env:
-      DATABASE_URL: ${{ secrets.DATABASE_URL }}
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
+      - name: Run Database Migrations via Docker Container
+        uses: appleboy/ssh-action@v1
         with:
-          fetch-depth: 1 # 최적화: 불필요한 Git 히스토리 가져오지 않음
+          host: ${{ secrets.SERVER_HOST }}
+          username: ${{ secrets.SERVER_USER }}
+          key: ${{ secrets.SERVER_SSH_KEY }}
+          envs: DATABASE_URL
+          script: |
+            echo "백엔드 컨테이너를 사용하여 데이터베이스 마이그레이션 실행 중..."
 
-      - name: Setup Node, pnpm, turbo cache, and dependencies
-        uses: ./.github/actions/setup-node-pnpm
+            # 임시 마이그레이션 컨테이너 실행
+            docker run --rm \
+              --name temp-migration-container \
+              -e DATABASE_URL="${DATABASE_URL}" \
+              -e NODE_ENV="production" \
+              ${{ secrets.DOCKERHUB_USERNAME }}/cirrodrive:backend \
+              sh -c "echo '마이그레이션 시작...' && pnpm db:push && pnpm db:seed"
 
-      - name: Run Database Migrations
-        run: |
-          echo "데이터베이스 마이그레이션 실행 중..."
-          pnpm db:push || { echo "DB 마이그레이션 실패"; exit 1; }
-
-          echo "데이터베이스 시드 데이터 적용 중..."
-          pnpm db:seed || { echo "DB 시드 적용 실패"; exit 1; }
+            # 실행 결과 확인
+            if [ $? -eq 0 ]; then
+              echo "✅ 데이터베이스 마이그레이션 성공"
+            else
+              echo "❌ 데이터베이스 마이그레이션 실패"
+              exit 1
+            fi
 
   deployment:
     name: Deployment
