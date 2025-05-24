@@ -263,7 +263,9 @@ jobs:
           FAILED_JOBS=""
 
           for job in "build-and-push" "prepare-release" "database-update" "deployment" "validate-deployment"; do
-            if [[ "${{ needs[job].result }}" != "success" ]]; then
+            status="${{ needs[job].result }}"
+            echo "작업 $job 상태: $status"
+            if [[ "$status" != "success" && "$status" != "skipped" ]]; then
               ALL_SUCCESS=false
               FAILED_JOBS="${FAILED_JOBS}• ${job}\\n"
             fi
