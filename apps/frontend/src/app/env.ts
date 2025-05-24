@@ -1,6 +1,4 @@
 import { z } from "zod";
-import { getEnv } from "@cirrodrive/utils/env";
-import { defineConfig } from "@julr/vite-plugin-validate-env";
 
 /**
  * 환경 변수를 검증하기 위한 스키마입니다.
@@ -13,18 +11,8 @@ import { defineConfig } from "@julr/vite-plugin-validate-env";
  */
 export const envSchema = z.object({
   VITE_API_HOST: z.string(),
-  VITE_API_PORT: z.coerce.number(),
+  VITE_API_PORT: z.string(),
   VITE_TOSS_CLIENT_KEY: z.string(),
 });
 
-export const env = getEnv(envSchema, {
-  injectedEnv: {
-    ...import.meta.env,
-  },
-});
-
-// eslint-disable-next-line import/no-default-export -- for Vite plugin
-export default defineConfig({
-  validator: "standard",
-  schema: envSchema.shape,
-});
+export const env = import.meta.env as z.infer<typeof envSchema>;

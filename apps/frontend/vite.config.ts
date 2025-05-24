@@ -17,7 +17,7 @@ export default defineConfig({
   plugins: [
     react(),
     ValidateEnv({
-      configFile: "src/app/env",
+      configFile: "env",
     }),
   ],
 });

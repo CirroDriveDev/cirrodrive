@@ -353,9 +353,6 @@ importers:
       '@cirrodrive/typescript-config':
         specifier: workspace:*
         version: link:../../tooling/typescript-config
-      '@cirrodrive/utils':
-        specifier: workspace:*
-        version: link:../../packages/utils
       '@hookform/resolvers':
         specifier: ^5.0.1
         version: 5.0.1(react-hook-form@7.56.4(react@18.3.1))
