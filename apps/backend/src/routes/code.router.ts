@@ -63,6 +63,25 @@ export const codeRouter = router({
       return { codeString: code.code };
     }),
 
+  // 비회원(게스트)용 다운로드 코드 생성 (public)
+  createPublic: procedure
+    .input(
+      z.object({
+        fileId: fileMetadataDTOSchema.shape.id,
+        expiresAt: fileAccessCodeSchema.shape.expiresAt.optional(),
+      }),
+    )
+    .output(z.object({ codeString: z.string() }))
+    .mutation(async ({ input }) => {
+      const { fileId, expiresAt } = input;
+      // 비회원도 사용 가능, 기본 만료 24시간 등 정책 적용
+      const code = await fileAccessCodeService.create({
+        fileId,
+        expiresAt,
+      });
+      return { codeString: code.code };
+    }),
+
   // 코드 삭제
   delete: procedure
     .input(z.object({ codeString: z.string() }))
