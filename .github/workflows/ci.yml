@@ -3,30 +3,6 @@ name: CI Pipeline
 on:
   push:
     branches: [main, develop]
-    paths:
-      - ".github/workflows/**"
-      - ".github/actions/**"
-      - "**/src/**"
-      - "**/test/**"
-      - "**/package.json"
-      - "**/tsconfig.json"
-      - "**/vitest.config.*"
-      - "**/.env*"
-      - "env/**"
-      - "compose.yaml"
-      - "vitest.config.ts"
-      - ".nvmrc"
-      - ".npmrc"
-      - ".devcontainer/**"
-      - "**/.nvmrc"
-      - "**/.npmrc"
-      - "**/.prettier*"
-      - "**/.eslintrc*"
-      - "**/.lintstagedrc*"
-      - "eslint.config.js"
-      - "pnpm-workspace.yaml"
-      - "turbo.json"
-      - "pnpm-lock.yaml"
   workflow_dispatch:
 
 jobs:
