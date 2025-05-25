@@ -19,7 +19,6 @@
     "format": "prettier --write . && turbo run format --continue -- --write",
     "postinstall": "turbo run -F @cirrodrive/database build",
     "lint": "turbo run lint --continue -- --fix",
-    "lint:ext": "vite-node ./scripts/fix-import-extensions.ts",
     "lint:ws": "pnpx sherif@latest",
     "prepare": "husky",
     "start": "turbo run start",
