@@ -231,7 +231,8 @@ jobs:
             **커밋:** [${{ steps.commit-info.outputs.commit_sha }}](${{ github.server_url }}/${{ github.repository }}/commit/${{ github.sha }}) - ${{ steps.commit-info.outputs.commit_message }}
           color: 3066993
           url: ${{ steps.deployment-details.outputs.workflow_url }}
-          username: CirroDrive CD
+          username: GitHub Actions
+          avatar_url: https://github.githubassets.com/images/modules/logos_page/GitHub-Mark.png
 
   notify-failure:
     name: Notify Failure
@@ -274,4 +275,5 @@ jobs:
             **커밋:** [${{ steps.commit-info.outputs.commit_sha }}](${{ github.server_url }}/${{ github.repository }}/commit/${{ github.sha }}) - ${{ steps.commit-info.outputs.commit_message }}
           color: 15158332
           url: ${{ steps.deployment-details.outputs.workflow_url }}
-          username: CirroDrive CD
+          username: GitHub Actions
+          avatar_url: https://github.githubassets.com/images/modules/logos_page/GitHub-Mark.png

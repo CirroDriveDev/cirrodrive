@@ -108,35 +108,103 @@ jobs:
       - name: Run tests
         run: pnpm test:ci
 
-  notify:
-    name: Notify Discord
+  notify-success:
+    name: Notify Success
     runs-on: ubuntu-22.04
     needs: [lint, typecheck, test]
-    if: always()
+    if: success()
     steps:
-      - name: Notify discord (lint)
-        if: ${{ needs.lint.result == 'failure' }}
-        uses: th0th/notify-discord@v0.4.1
-        env:
-          DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
-          GITHUB_ACTOR: ${{ github.actor }}
-          GITHUB_JOB_NAME: "CI (Lint) 실패"
-          GITHUB_JOB_STATUS: "failure"
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
 
-      - name: Notify discord (typecheck)
-        if: ${{ needs.typecheck.result == 'failure' }}
-        uses: th0th/notify-discord@v0.4.1
-        env:
-          DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
-          GITHUB_ACTOR: ${{ github.actor }}
-          GITHUB_JOB_NAME: "CI (TypeCheck) 실패"
-          GITHUB_JOB_STATUS: "failure"
+      - name: Get commit info
+        id: commit-info
+        run: |
+          echo "commit_message=$(git log -1 --pretty=%B)" >> $GITHUB_OUTPUT
+          echo "commit_sha=$(git log -1 --pretty=%h)" >> $GITHUB_OUTPUT
 
-      - name: Notify discord (test)
-        if: ${{ needs.test.result == 'failure' }}
-        uses: th0th/notify-discord@v0.4.1
-        env:
-          DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
-          GITHUB_ACTOR: ${{ github.actor }}
-          GITHUB_JOB_NAME: "CI (Test) 실패"
-          GITHUB_JOB_STATUS: "failure"
+      - name: Get test details
+        id: test-details
+        run: |
+          # 현재 시간 (KST)
+          NOW=$(TZ=Asia/Seoul date +"%Y-%m-%d %H:%M:%S %Z")
+          echo "test_time=$NOW" >> $GITHUB_OUTPUT
+          echo "workflow_url=https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}" >> $GITHUB_OUTPUT
+
+      - name: Notify Discord Success
+        uses: sarisia/actions-status-discord@v1
+        with:
+          webhook: ${{ secrets.DISCORD_WEBHOOK_URL }}
+          status: success
+          title: "✅ CI 테스트 성공"
+          description: |
+            **환경:** CI
+            **테스트 시간:** ${{ steps.test-details.outputs.test_time }}
+            **브랜치:** ${{ github.ref_name }}
+            **커밋:** [${{ steps.commit-info.outputs.commit_sha }}](${{ github.server_url }}/${{ github.repository }}/commit/${{ github.sha }}) - ${{ steps.commit-info.outputs.commit_message }}
+          color: 3066993
+          url: ${{ steps.test-details.outputs.workflow_url }}
+          username: GitHub Actions
+          avatar_url: https://github.githubassets.com/images/modules/logos_page/GitHub-Mark.png
+
+  notify-failure:
+    name: Notify Failure
+    runs-on: ubuntu-22.04
+    needs: [lint, typecheck, test]
+    if: always() && failure()
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+
+      - name: Get commit info
+        id: commit-info
+        run: |
+          echo "commit_message=$(git log -1 --pretty=%B)" >> $GITHUB_OUTPUT
+          echo "commit_sha=$(git log -1 --pretty=%h)" >> $GITHUB_OUTPUT
+
+      - name: Get test details
+        id: test-details
+        run: |
+          # 현재 시간 (KST)
+          NOW=$(TZ=Asia/Seoul date +"%Y-%m-%d %H:%M:%S %Z")
+          echo "test_time=$NOW" >> $GITHUB_OUTPUT
+          echo "workflow_url=https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}" >> $GITHUB_OUTPUT
+
+      - name: Get failure jobs
+        id: failure-jobs
+        run: |
+          FAILURES=""
+          if [[ "${{ needs.lint.result }}" == "failure" ]]; then
+            FAILURES="${FAILURES}* Lint\n"
+          fi
+          if [[ "${{ needs.typecheck.result }}" == "failure" ]]; then
+            FAILURES="${FAILURES}* TypeCheck\n"
+          fi
+          if [[ "${{ needs.test.result }}" == "failure" ]]; then
+            FAILURES="${FAILURES}* Tests\n"
+          fi
+          echo "failures=${FAILURES}" >> $GITHUB_OUTPUT
+
+      - name: Notify Discord Failure
+        uses: sarisia/actions-status-discord@v1
+        with:
+          webhook: ${{ secrets.DISCORD_WEBHOOK_URL }}
+          status: failure
+          content: "@here CI 테스트에 실패했습니다! 확인이 필요합니다."
+          title: "❌ CI 테스트 실패"
+          description: |
+            **환경:** CI
+            **테스트 시간:** ${{ steps.test-details.outputs.test_time }}
+            **브랜치:** ${{ github.ref_name }}
+            **커밋:** [${{ steps.commit-info.outputs.commit_sha }}](${{ github.server_url }}/${{ github.repository }}/commit/${{ github.sha }}) - ${{ steps.commit-info.outputs.commit_message }}
+
+            **실패한 작업:**
+            ${{ steps.failure-jobs.outputs.failures }}
+          color: 15158332
+          url: ${{ steps.test-details.outputs.workflow_url }}
+          username: GitHub Actions
+          avatar_url: https://github.githubassets.com/images/modules/logos_page/GitHub-Mark.png
