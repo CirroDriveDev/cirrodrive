@@ -109,7 +109,7 @@ jobs:
           key: test-${{ runner.os }}-${{ hashFiles('**/vitest.config.ts', '**/package.json', '**/pnpm-lock.yaml') }}
           restore-keys: |
             test-${{ runner.os }}-
-      
+
       - name: Clear dotenv files
         run: find . -name ".env*" -type f -print -delete
 
