@@ -5,7 +5,7 @@ export default defineConfig({
   resolve: {
     alias: {
       "#client": path.resolve(__dirname, "src/client.ts"),
-      "#src": path.resolve(__dirname, "src/"),
+      "#src": path.resolve(__dirname, "src"),
     },
   },
   test: {

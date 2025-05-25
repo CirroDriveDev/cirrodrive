@@ -5,42 +5,99 @@
   "type": "module",
   "imports": {
     "#decorators/*": {
-      "types": "./src/decorators/*",
-      "import": "./dist/decorators/*"
+      "types": [
+        "./src/decorators/*",
+        "./src/decorators/*.ts"
+      ],
+      "import": [
+        "./dist/decorators/*",
+        "./dist/decorators/*.js"
+      ]
     },
     "#errors/*": {
-      "types": "./src/errors/*",
-      "import": "./dist/errors/*"
+      "types": [
+        "./src/errors/*",
+        "./src/errors/*.ts"
+      ],
+      "import": [
+        "./dist/errors/*",
+        "./dist/errors/*.js"
+      ]
     },
     "#loaders/*": {
-      "types": "./src/loaders/*",
-      "import": "./dist/loaders/*"
+      "types": [
+        "./src/loaders/*",
+        "./src/loaders/*.ts"
+      ],
+      "import": [
+        "./dist/loaders/*",
+        "./dist/loaders/*.js"
+      ]
     },
     "#middlewares/*": {
-      "types": "./src/middlewares/*",
-      "import": "./dist/middlewares/*"
+      "types": [
+        "./src/middlewares/*",
+        "./src/middlewares/*.ts"
+      ],
+      "import": [
+        "./dist/middlewares/*",
+        "./dist/middlewares/*.js"
+      ]
     },
     "#repositories/*": {
-      "types": "./src/repositories/*",
-      "import": "./dist/repositories/*"
+      "types": [
+        "./src/repositories/*",
+        "./src/repositories/*.ts"
+      ],
+      "import": [
+        "./dist/repositories/*",
+        "./dist/repositories/*.js"
+      ]
     },
     "#routes/*": {
-      "types": "./src/routes/*",
-      "import": "./dist/routes/*"
+      "types": [
+        "./src/routes/*",
+        "./src/routes/*.ts"
+      ],
+      "import": [
+        "./dist/routes/*",
+        "./dist/routes/*.js"
+      ]
     },
     "#services/*": {
-      "types": "./src/services/*",
-      "import": "./dist/services/*"
+      "types": [
+        "./src/services/*",
+        "./src/services/*.ts"
+      ],
+      "import": [
+        "./dist/services/*",
+        "./dist/services/*.js"
+      ]
     },
     "#types/*": {
-      "types": "./src/types/*",
-      "import": "./dist/types/*"
+      "types": [
+        "./src/types/*",
+        "./src/types/*.ts"
+      ],
+      "import": [
+        "./dist/types/*",
+        "./dist/types/*.js"
+      ]
     },
     "#utils/*": {
-      "types": "./src/utils/*",
-      "import": "./dist/utils/*"
+      "types": [
+        "./src/utils/*",
+        "./src/utils/*.ts"
+      ],
+      "import": [
+        "./dist/utils/*",
+        "./dist/utils/*.js"
+      ]
     },
-    "#test/*": "./test/*"
+    "#test/*": [
+      "./test/*",
+      "./test/*.ts"
+    ]
   },
   "exports": {
     "./app-router": {
