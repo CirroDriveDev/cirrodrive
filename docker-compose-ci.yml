@@ -3,7 +3,7 @@ services:
     image: mariadb:11.4
     environment:
       MYSQL_ROOT_PASSWORD: mariadb
-      MYSQL_DATABASE: mariadb
+      MYSQL_DATABASE: mariadb-test
       MYSQL_USER: mariadb
       MYSQL_PASSWORD: mariadb
     ports:
