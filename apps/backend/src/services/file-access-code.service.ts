@@ -71,6 +71,11 @@ export class FileAccessCodeService implements FileAccessCodeServiceInterface {
   }
 
   // create
+  /**
+   * 다운로드 코드를 생성합니다. 코드가 중복될 경우 최대 5회까지 재시도합니다. 암호학적으로 안전하고 URL-safe한 코드가 생성됩니다.
+   *
+   * @throws Error - 5회 시도 후에도 충돌 시 에러 발생
+   */
   async create({
     fileId,
     expiresAt,
@@ -85,14 +90,41 @@ export class FileAccessCodeService implements FileAccessCodeServiceInterface {
       throw new Error(`File entry not found for fileId ${fileId}`);
     }
 
-    const code = generateCode();
-    const newCode = await this.fileAccessCodeRepository.create({
-      code,
-      expiresAt: expiresAt ?? new Date(Date.now() + 24 * 60 * 60 * 1000), // 임시로 24시간 후 만료로 설정
-      fileId,
-    });
-    this.logger.info(`Created access code for fileId ${fileId}`);
-    return newCode;
+    for (let attempt = 0; attempt < 5; attempt++) {
+      const code = generateCode();
+      try {
+        const newCode = await this.fileAccessCodeRepository.create({
+          code,
+          expiresAt: expiresAt ?? new Date(Date.now() + 24 * 60 * 60 * 1000),
+          fileId,
+        });
+        this.logger.info(`Created access code for fileId ${fileId}`);
+        return newCode;
+      } catch (err: unknown) {
+        // Prisma unique constraint violation (중복 코드)
+        if (
+          typeof err === "object" &&
+          err !== null &&
+          "code" in err &&
+          (err as { code?: string }).code === "P2002" &&
+          "meta" in err &&
+          Array.isArray(
+            (err as { meta?: { target?: string[] } }).meta?.target,
+          ) &&
+          (err as { meta?: { target?: string[] } }).meta!.target!.includes(
+            "code",
+          )
+        ) {
+          this.logger.warn(
+            `Code collision detected, retrying... (attempt ${attempt + 1})`,
+          );
+          continue;
+        }
+        throw err;
+      }
+    }
+    this.logger.error(`Failed to generate unique access code after 5 attempts`);
+    throw new Error("Failed to generate unique access code after 5 attempts");
   }
 
   // read
