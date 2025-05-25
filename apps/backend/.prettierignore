@@ -1,0 +1,9 @@
+# Ignore dependencies
+node_modules
+
+# Ignore cache
+.cache
+.turbo
+
+# Ignore build artifacts
+dist

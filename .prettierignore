@@ -1,0 +1,18 @@
+# Ignore lock files
+pnpm-lock.yaml
+
+# Ignore packages
+apps/*
+packages/*
+tooling/*
+
+# Ignore dependencies
+node_modules
+.pnpm-store
+
+# Ignore cache
+.cache
+.turbo
+
+# Ignore build artifacts
+dist

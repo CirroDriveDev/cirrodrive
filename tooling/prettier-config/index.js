@@ -61,7 +61,7 @@ const config = {
           "prettier-plugin-sort-json",
         ],
         // prettier-plugin-sort-json
-        jsonRecursiveSort: false,
+        jsonRecursiveSort: true,
         jsonSortOrder: '{"*": "lexical"}',
       },
     },
