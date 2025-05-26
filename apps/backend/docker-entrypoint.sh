@@ -18,7 +18,7 @@ pnpm run -F @cirrodrive/database db:generate
 
 echo "데이터베이스 시드 실행..."
 # 데이터베이스 시드 실행
-pnpm run -F @cirrodrive/database ci:db:seed
+# pnpm run -F @cirrodrive/database ci:db:seed
 
 echo "마이그레이션 및 시드 완료"
 
