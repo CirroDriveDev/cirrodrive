@@ -2,6 +2,7 @@ import { useState } from "react";
 import pLimit from "p-limit";
 import { type UploadResult, type UseUploader } from "#types/use-uploader.js";
 import { trpc } from "#services/trpc.js";
+import { entryUpdatedEvent } from "#services/entryUpdatedEvent.js";
 
 interface UploadRequest {
   file: File;
@@ -18,7 +19,8 @@ export function useUploadFiles(useUploader: UseUploader) {
   const completeUploadMutation = trpc.file.upload.completeUpload.useMutation();
 
   const completeUpload = async (key: string, folderId?: string) => {
-    return await completeUploadMutation.mutateAsync({ key, folderId });
+    await completeUploadMutation.mutateAsync({ key, folderId });
+    await entryUpdatedEvent();
   };
 
   const uploadFiles = async (uploadRequests: UploadRequest[]) => {

@@ -207,7 +207,6 @@ jobs:
       - name: Get commit info
         id: commit-info
         run: |
-          echo "commit_message=$(git log -1 --pretty=%B)" >> $GITHUB_OUTPUT
           echo "commit_sha=$(git log -1 --pretty=%h)" >> $GITHUB_OUTPUT
 
       - name: Get deployment details
@@ -228,7 +227,7 @@ jobs:
             **환경:** Production
             **배포 시간:** ${{ steps.deployment-details.outputs.deployment_time }}
             **URL:** http://${{ env.APP_PUBLIC_HOST }}
-            **커밋:** [${{ steps.commit-info.outputs.commit_sha }}](${{ github.server_url }}/${{ github.repository }}/commit/${{ github.sha }}) - ${{ steps.commit-info.outputs.commit_message }}
+            **커밋:** [${{ steps.commit-info.outputs.commit_sha }}](${{ github.server_url }}/${{ github.repository }}/commit/${{ github.sha }})
           color: 3066993
           url: ${{ steps.deployment-details.outputs.workflow_url }}
           username: GitHub Actions
@@ -250,7 +249,6 @@ jobs:
       - name: Get commit info
         id: commit-info
         run: |
-          echo "commit_message=$(git log -1 --pretty=%B)" >> $GITHUB_OUTPUT
           echo "commit_sha=$(git log -1 --pretty=%h)" >> $GITHUB_OUTPUT
 
       - name: Get deployment details
@@ -272,7 +270,7 @@ jobs:
             **환경:** Production
             **배포 시간:** ${{ steps.deployment-details.outputs.deployment_time }}
             **URL:** http://${{ env.APP_PUBLIC_HOST }}
-            **커밋:** [${{ steps.commit-info.outputs.commit_sha }}](${{ github.server_url }}/${{ github.repository }}/commit/${{ github.sha }}) - ${{ steps.commit-info.outputs.commit_message }}
+            **커밋:** [${{ steps.commit-info.outputs.commit_sha }}](${{ github.server_url }}/${{ github.repository }}/commit/${{ github.sha }})
           color: 15158332
           url: ${{ steps.deployment-details.outputs.workflow_url }}
           username: GitHub Actions

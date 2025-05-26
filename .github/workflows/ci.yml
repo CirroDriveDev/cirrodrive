@@ -122,7 +122,6 @@ jobs:
       - name: Get commit info
         id: commit-info
         run: |
-          echo "commit_message=$(git log -1 --pretty=%B)" >> $GITHUB_OUTPUT
           echo "commit_sha=$(git log -1 --pretty=%h)" >> $GITHUB_OUTPUT
 
       - name: Get test details
@@ -143,7 +142,7 @@ jobs:
             **환경:** CI
             **테스트 시간:** ${{ steps.test-details.outputs.test_time }}
             **브랜치:** ${{ github.ref_name }}
-            **커밋:** [${{ steps.commit-info.outputs.commit_sha }}](${{ github.server_url }}/${{ github.repository }}/commit/${{ github.sha }}) - ${{ steps.commit-info.outputs.commit_message }}
+            **커밋:** [${{ steps.commit-info.outputs.commit_sha }}](${{ github.server_url }}/${{ github.repository }}/commit/${{ github.sha }})
           color: 3066993
           url: ${{ steps.test-details.outputs.workflow_url }}
           username: GitHub Actions
@@ -163,7 +162,6 @@ jobs:
       - name: Get commit info
         id: commit-info
         run: |
-          echo "commit_message=$(git log -1 --pretty=%B)" >> $GITHUB_OUTPUT
           echo "commit_sha=$(git log -1 --pretty=%h)" >> $GITHUB_OUTPUT
 
       - name: Get test details
@@ -200,7 +198,7 @@ jobs:
             **환경:** CI
             **테스트 시간:** ${{ steps.test-details.outputs.test_time }}
             **브랜치:** ${{ github.ref_name }}
-            **커밋:** [${{ steps.commit-info.outputs.commit_sha }}](${{ github.server_url }}/${{ github.repository }}/commit/${{ github.sha }}) - ${{ steps.commit-info.outputs.commit_message }}
+            **커밋:** [${{ steps.commit-info.outputs.commit_sha }}](${{ github.server_url }}/${{ github.repository }}/commit/${{ github.sha }})
 
             **실패한 작업:**
             ${{ steps.failure-jobs.outputs.failures }}
