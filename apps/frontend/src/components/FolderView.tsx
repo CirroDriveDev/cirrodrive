@@ -14,8 +14,7 @@ import { useFolderCreate } from "#services/file/useFolderCreate.js";
 import { FileUploadDropzoneOverlay } from "#components/FileUploadDropzoneOverlay.js";
 import { useRenameStore } from "#store/useRenameStore.js";
 import { selectFile } from "#utils/selectFile.js";
-import { useUploadFiles } from "#services/file/useUploadFiles.js";
-import { usePresignedPostUploader } from "#services/file/presigned-post-uploader.js";
+import { useUpload } from "#services/file/useUpload.js";
 
 interface FolderViewProps {
   folderId: string;
@@ -30,18 +29,14 @@ export function FolderView({ folderId }: FolderViewProps): JSX.Element {
     },
   });
   const { query: entryListQuery } = useEntryList(folderId);
-  const { uploadFiles, isPending } = useUploadFiles(usePresignedPostUploader);
+  const { upload, isPending } = useUpload();
 
   async function handleFileSelect(): Promise<void> {
     const files = await selectFile();
     if (!files) return;
-
-    await uploadFiles(
-      Array.from(files).map((file) => ({
-        file,
-        folderId,
-      })),
-    );
+    for (const file of files) {
+      await upload(file, folderId);
+    }
     void entryListQuery.refetch();
   }
 

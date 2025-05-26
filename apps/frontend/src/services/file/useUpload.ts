@@ -1,23 +1,8 @@
-import type { TRPCClientErrorLike } from "@trpc/client";
-import type { AppRouter } from "@cirrodrive/backend/app-router";
 import { trpc } from "#services/trpc.js";
 
-interface UseUpload {
-  upload: (
-    file: File,
-    folderId?: string,
-  ) => Promise<{
-    fileId: string;
-    code?: string;
-  }>;
-  isPending: boolean;
-  isError: boolean;
-  error: TRPCClientErrorLike<AppRouter> | null;
-}
-
-export const useUpload = (): UseUpload => {
+export const useUpload = () => {
   const urlMutation = trpc.file.getS3PresignedUploadURL.useMutation();
-  const completeMutation = trpc.file.completeUpload.useMutation();
+  const completeMutation = trpc.file.upload.completeUpload.useMutation();
 
   async function upload(
     file: File,
@@ -40,11 +25,11 @@ export const useUpload = (): UseUpload => {
       throw new Error("Failed to upload file");
     }
 
-    const { fileId, code } = await completeMutation.mutateAsync({
+    const result = await completeMutation.mutateAsync({
       key,
       folderId,
     });
-    return { fileId, code };
+    return result;
   }
 
   return {

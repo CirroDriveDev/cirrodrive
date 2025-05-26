@@ -34,7 +34,7 @@ export class FileService {
     parentFolderId,
     ownerId,
   }: {
-    metadata: S3Metadata;
+    metadata: Prisma.FileMetadataCreateInput;
     parentFolderId?: string;
     ownerId?: string;
   }): Promise<FileMetadata> {

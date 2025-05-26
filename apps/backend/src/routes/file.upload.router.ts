@@ -6,10 +6,12 @@ import { logger } from "#loaders/logger.loader.js";
 import { container } from "#loaders/inversify.loader.js";
 import { S3Service, S3_KEY_PREFIX } from "#services/s3.service.js";
 import { FileUploadService } from "#services/file.upload.service.js";
+import { FileAccessCodeService } from "#services/file-access-code.service.js";
 
 const MAX_POST_FILE_SIZE = 1024 * 1024 * 1024; // 1GB
 
 const s3Service = container.get<S3Service>(S3Service);
+const fileAccessCodeService = container.get<FileAccessCodeService>(FileAccessCodeService);
 const fileUploadService = container.get<FileUploadService>(FileUploadService);
 
 export const fileUploadRouter = router({
@@ -73,10 +75,23 @@ export const fileUploadRouter = router({
         folderId: z.string().optional(),
       }),
     )
+    .output(
+      z.object({
+        fileId: z.string(),
+        code: z.string().optional()
+      })
+    )
     .mutation(async ({ input }) => {
-      await fileUploadService.completeUpload({
+      const file = await fileUploadService.completeUpload({
         key: input.key,
         parentFolderId: input.folderId,
       });
+
+      const code = await fileAccessCodeService.create({fileId: file.id})
+
+      return {
+        fileId: file.id,
+        code: code.code
+      }
     }),
 });

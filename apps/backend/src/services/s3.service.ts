@@ -16,19 +16,25 @@ import type { Logger } from "pino";
 import { s3Client } from "#loaders/aws.loader.js";
 import { env } from "#loaders/env.loader.js";
 import { Symbols } from "#types/symbols.js";
+import { z } from "zod";
 
 const BUCKET_NAME = env.AWS_S3_BUCKET;
 export const S3_KEY_PREFIX = {
   USER_UPLOADS: "user-uploads",
   PUBLIC_UPLOADS: "public-uploads",
 } as const;
+
 export interface S3Metadata {
-  name: string;
-  extension: string;
   size: number;
   key: string;
   hash: string;
 }
+
+const S3MetadataSchema = z.object({
+  size: z.coerce.number(),
+  key: z.string(),
+  hash: z.string(),
+})
 
 @injectable()
 export class S3Service {
@@ -95,9 +101,6 @@ export class S3Service {
     key: string,
     expiresIn = 60 * 5, // 5분
   ): Promise<string> {
-    if (env.DEV) {
-      return `https://localhost/${key}`;
-    }
     const command = new PutObjectCommand({
       Bucket: BUCKET_NAME,
       Key: key,
@@ -142,25 +145,18 @@ export class S3Service {
     if (data.Metadata === undefined) {
       throw new Error("Metadata is undefined");
     }
-    if (data.Metadata.Name === undefined) {
-      throw new Error("Metadata Name is undefined");
-    }
     if (data.ContentLength === undefined) {
       throw new Error("Metadata ContentLength is undefined");
     }
-    if (data.ChecksumCRC64NVME === undefined) {
+    if (data.ChecksumCRC64NVME === undefined && env.PROD) {
       throw new Error("Metadata ChecksumCRC64NVME is undefined");
     }
 
-    const extension = path.extname(data.Metadata.Name);
-
-    const metadata: S3Metadata = {
-      name: data.Metadata.Name,
-      extension,
+    const metadata = S3MetadataSchema.parse({
       size: data.ContentLength,
       key,
-      hash: data.ChecksumCRC64NVME,
-    };
+      hash: env.PROD ? data.ChecksumCRC64NVME : "",
+    });
 
     return metadata;
   }
