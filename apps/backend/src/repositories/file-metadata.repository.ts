@@ -4,7 +4,7 @@ import { BaseRepository } from "#repositories/base.repository.js";
 import { DBNotFoundError } from "#errors/db-error-classes.js";
 
 @injectable()
-export class FileUploadRepository extends BaseRepository {
+export class FileMetadataRepository extends BaseRepository {
   // 파일 메타데이터 생성
   public async create(
     data: Prisma.FileMetadataUncheckedCreateInput,

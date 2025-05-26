@@ -23,6 +23,8 @@ import { TossPaymentsService } from "#services/toss-payments.service.js";
 import { SubscriptionHistoryRepository } from "#repositories/subscription-history.repository.js";
 import { PaymentRepository } from "#repositories/payment.repository.js";
 import { UserRepository } from "#repositories/user.repository.js";
+import { FileUploadService } from "#services/file.upload.service.js";
+import { FileMetadataRepository } from "#repositories/file-metadata.repository.js";
 
 const inversifyLogger = logger.child({ prefix: "Inversify" });
 
@@ -52,6 +54,7 @@ container.bind(TransactionRepository).toSelf();
 container.bind(SubscriptionHistoryRepository).toSelf();
 container.bind(PaymentRepository).toSelf();
 container.bind(UserRepository).toSelf();
+container.bind(FileMetadataRepository).toSelf();
 
 // Services
 container.bind(UserService).toSelf();
@@ -65,6 +68,7 @@ container.bind(S3Service).toSelf();
 container.bind(PlanService).toSelf();
 container.bind(BillingService).toSelf();
 container.bind(TossPaymentsService).toSelf();
+container.bind(FileUploadService).toSelf();
 
 inversifyLogger.info("Inversify loaded successfully");
 

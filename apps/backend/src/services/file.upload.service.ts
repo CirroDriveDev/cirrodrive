@@ -4,16 +4,16 @@ import { z } from "zod";
 import { s3PresignedPostSchema } from "@cirrodrive/schemas/s3";
 import { fileMetadataDTOSchema } from "@cirrodrive/schemas/file-metadata";
 import { S3Service, S3_KEY_PREFIX } from "#services/s3.service.js";
-import { FileUploadRepository } from "#repositories/file.upload.repository.js";
+import { FileMetadataRepository } from "#repositories/file-metadata.repository.js";
 
 const MAX_POST_FILE_SIZE = 1024 * 1024 * 1024; // 1GB
 
 @injectable()
-export class FileService {
+export class FileUploadService {
   constructor(
     @inject(S3Service) private readonly s3Service: S3Service,
-    @inject(FileUploadRepository)
-    private readonly fileRepository: FileUploadRepository,
+    @inject(FileMetadataRepository)
+    private readonly fileRepository: FileMetadataRepository,
   ) {}
 
   async generatePresignedPost(fileName: string, fileType: string) {

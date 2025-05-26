@@ -5,12 +5,12 @@ import { router, procedure } from "#loaders/trpc.loader.js";
 import { logger } from "#loaders/logger.loader.js";
 import { container } from "#loaders/inversify.loader.js";
 import { S3Service, S3_KEY_PREFIX } from "#services/s3.service.js";
-import { FileService } from "#services/file.upload.service.js";
+import { FileUploadService } from "#services/file.upload.service.js";
 
 const MAX_POST_FILE_SIZE = 1024 * 1024 * 1024; // 1GB
 
 const s3Service = container.get<S3Service>(S3Service);
-const fileService = container.get<FileService>(FileService);
+const fileUploadService = container.get<FileUploadService>(FileUploadService);
 
 export const fileUploadRouter = router({
   /**
@@ -72,6 +72,6 @@ export const fileUploadRouter = router({
     )
     .mutation(async ({ input }) => {
       const { key, hash, ...metadata } = input;
-      await fileService.saveFileMetadata(metadata, key, hash);
+      await fileUploadService.saveFileMetadata(metadata, key, hash);
     }),
 });
