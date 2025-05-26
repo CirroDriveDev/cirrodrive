@@ -1,13 +1,16 @@
 import { z } from "zod";
-import { s3PresignedPostSchema } from "@cirrodrive/schemas/s3.js";
-import { fileMetadataDTOSchema } from "@cirrodrive/schemas/file-metadata.js";
+import { s3PresignedPostSchema } from "@cirrodrive/schemas/s3";
+import { fileMetadataDTOSchema } from "@cirrodrive/schemas/file-metadata";
 import { router, procedure } from "#loaders/trpc.loader.js";
 import { logger } from "#loaders/logger.loader.js";
 import { container } from "#loaders/inversify.loader.js";
 import { S3Service, S3_KEY_PREFIX } from "#services/s3.service.js";
+import { FileService } from "#services/file.upload.service.js";
 
 const MAX_POST_FILE_SIZE = 1024 * 1024 * 1024; // 1GB
+
 const s3Service = container.get<S3Service>(S3Service);
+const fileService = container.get<FileService>(FileService);
 
 export const fileUploadRouter = router({
   /**
@@ -52,5 +55,23 @@ export const fileUploadRouter = router({
       return {
         presignedPost: s3PresignedPostSchema.parse(presignedPost),
       };
+    }),
+
+  /**
+   * S3 업로드 완료 후, 파일 메타데이터를 저장합니다.
+   *
+   * @param metadata - 업로드된 파일의 메타데이터
+   */
+  completeUpload: procedure
+    .input(
+      z.object({
+        ...fileMetadataDTOSchema.shape,
+        key: z.string(),
+        hash: z.string(),
+      }),
+    )
+    .mutation(async ({ input }) => {
+      const { key, hash, ...metadata } = input;
+      await fileService.saveFileMetadata(metadata, key, hash);
     }),
 });
