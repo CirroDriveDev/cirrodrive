@@ -1,0 +1,20 @@
+{
+  "recommendations": [
+    "ms-azuretools.vscode-containers",
+    "antfu.vite",
+    "bradlc.vscode-tailwindcss",
+    "christian-kohler.npm-intellisense",
+    "dbaeumer.vscode-eslint",
+    "eamodio.gitlens",
+    "esbenp.prettier-vscode",
+    "foxundermoon.shell-format",
+    "github.vscode-github-actions",
+    "github.vscode-pull-request-github",
+    "ms-azuretools.vscode-docker",
+    "MermaidChart.vscode-mermaid-chart",
+    "Prisma.prisma",
+    "redhat.vscode-yaml",
+    "vitest.explorer",
+    "yoavbls.pretty-ts-errors"
+  ]
+}
