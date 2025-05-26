@@ -96,7 +96,7 @@
   "scripts": {
     "build": "tsc -p tsconfig.build.json",
     "clean": "git clean -xdf .cache .turbo node_modules",
-    "dev": "vite-node --watch src/server.ts",
+    "dev": "nodemon",
     "format": "prettier --check . --ignore-path ../../.gitignore",
     "lint": "eslint",
     "start": "tsx dist/server.js",
@@ -133,6 +133,7 @@
     "jsonfile": "^6.1.0",
     "jsonwebtoken": "^9.0.2",
     "multer": "1.4.5-lts.2",
+    "nodemon": "^3.1.10",
     "pino": "^9.7.0",
     "pino-http": "^10.4.0",
     "pino-pretty": "^11.3.0",
