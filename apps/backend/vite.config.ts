@@ -1,5 +1,5 @@
 import path from "node:path";
-import { defineConfig } from "vitest/config";
+import { defineConfig } from "vite";
 
 // https://vitejs.dev/config/
 // eslint-disable-next-line import/no-default-export -- Vite requires default export
