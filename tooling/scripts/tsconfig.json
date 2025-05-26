@@ -1,0 +1,10 @@
+{
+  "$schema": "https://json.schemastore.org/tsconfig",
+  "extends": "@cirrodrive/typescript-config/tsconfig.base.json",
+  "include": ["src", "test", "*.ts"],
+  "exclude": ["node_modules"],
+  "compilerOptions": {
+    "rootDir": "./",
+    "types": ["vitest/globals"]
+  }
+}

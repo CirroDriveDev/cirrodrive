@@ -1,0 +1,31 @@
+{
+  "name": "@cirrodrive/scripts",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {},
+  "prettier": "@cirrodrive/prettier-config",
+  "dependencies": {},
+  "devDependencies": {
+    "@cirrodrive/eslint-config": "workspace:*",
+    "@cirrodrive/prettier-config": "workspace:*",
+    "@cirrodrive/typescript-config": "workspace:^",
+    "@dotenvx/dotenvx": "catalog:",
+    "@types/cross-spawn": "^6.0.6",
+    "@types/node": "^20.17.47",
+    "@types/npm-which": "^3.0.4",
+    "@vitest/coverage-v8": "catalog:",
+    "cross-spawn": "^7.0.6",
+    "eslint": "catalog:",
+    "npm-which": "^3.0.1",
+    "prettier": "catalog:",
+    "prettier-plugin-jsdoc": "catalog:",
+    "prettier-plugin-packagejson": "catalog:",
+    "prettier-plugin-sort-json": "catalog:",
+    "tsx": "catalog:"
+  },
+  "prisma": {
+    "schema": "./prisma",
+    "seed": "vite-node src/seed.ts"
+  }
+}
