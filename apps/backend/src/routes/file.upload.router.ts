@@ -4,14 +4,14 @@ import { fileMetadataDTOSchema } from "@cirrodrive/schemas/file-metadata";
 import { router, procedure } from "#loaders/trpc.loader.js";
 import { logger } from "#loaders/logger.loader.js";
 import { container } from "#loaders/inversify.loader.js";
-import { S3Service, S3_KEY_PREFIX } from "#services/s3.service.js";
+import { S3Service } from "#services/s3.service.js";
 import { FileUploadService } from "#services/file.upload.service.js";
 import { FileAccessCodeService } from "#services/file-access-code.service.js";
 
-const MAX_POST_FILE_SIZE = 1024 * 1024 * 1024; // 1GB
-
 const s3Service = container.get<S3Service>(S3Service);
-const fileAccessCodeService = container.get<FileAccessCodeService>(FileAccessCodeService);
+const fileAccessCodeService = container.get<FileAccessCodeService>(
+  FileAccessCodeService,
+);
 const fileUploadService = container.get<FileUploadService>(FileUploadService);
 
 export const fileUploadRouter = router({
@@ -33,24 +33,26 @@ export const fileUploadRouter = router({
         presignedPost: s3PresignedPostSchema,
       }),
     )
-    .mutation(async ({ input }) => {
+    .mutation(async ({ input, ctx }) => {
       const { fileName, fileType } = input;
+      const { user } = ctx;
+      const userId = user?.id ?? "anonymous";
+
       logger.debug("getS3PresignedPost", {
         fileName,
         fileType,
       });
 
-      const prefix = S3_KEY_PREFIX.PUBLIC_UPLOADS;
-      const key = s3Service.generateS3ObjectKey(prefix, fileName);
-      const presignedPost = await s3Service.generatePresignedPost({
-        key,
+      const presignedPost = await s3Service.createPresignedPost({
+        fileName,
         contentType: fileType,
-        expires: 120,
-        maxSizeInBytes: MAX_POST_FILE_SIZE,
+        userId,
       });
 
       logger.debug("S3 Presigned Post", {
-        key,
+        fileName,
+        contentType: fileType,
+        userId,
         presignedPost,
       });
 
@@ -71,6 +73,7 @@ export const fileUploadRouter = router({
   completeUpload: procedure
     .input(
       z.object({
+        fileName: fileMetadataDTOSchema.shape.name,
         key: z.string(),
         folderId: z.string().optional(),
       }),
@@ -78,20 +81,24 @@ export const fileUploadRouter = router({
     .output(
       z.object({
         fileId: z.string(),
-        code: z.string().optional()
-      })
+        code: z.string().optional(),
+      }),
     )
-    .mutation(async ({ input }) => {
+    .mutation(async ({ input, ctx }) => {
+      const { user } = ctx;
+      const ownerId = user?.id ?? "anonymous";
       const file = await fileUploadService.completeUpload({
+        ownerId,
+        name: input.fileName,
         key: input.key,
         parentFolderId: input.folderId,
       });
 
-      const code = await fileAccessCodeService.create({fileId: file.id})
+      const code = await fileAccessCodeService.create({ fileId: file.id });
 
       return {
         fileId: file.id,
-        code: code.code
-      }
+        code: code.code,
+      };
     }),
 });

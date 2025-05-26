@@ -11,7 +11,7 @@ import { logger } from "#loaders/logger.loader.js";
 import { container } from "#loaders/inversify.loader.js";
 import { FileService } from "#services/file.service.js";
 import { FileAccessCodeService } from "#services/file-access-code.service.js";
-import { S3Service, S3_KEY_PREFIX } from "#services/s3.service.js";
+import { S3Service } from "#services/s3.service.js";
 import { fileUploadRouter } from "#routes/file.upload.router.js";
 
 const fileService = container.get<FileService>(FileService);
@@ -42,62 +42,15 @@ export const fileRouter = router({
     .mutation(async ({ input, ctx }) => {
       const { fileName } = input;
       const { user } = ctx;
-      const prefix =
-        user ? S3_KEY_PREFIX.USER_UPLOADS : S3_KEY_PREFIX.PUBLIC_UPLOADS;
+      const userId = user?.id ?? "anonymous";
 
-      const key = s3Service.generateS3ObjectKey(prefix, fileName);
+      const key = s3Service.generateKey({
+        fileName,
+        userId,
+      });
       const presignedUploadURL = await s3Service.getPutObjectSignedURL(key);
 
       return { presignedUploadURL, key };
-    }),
-
-  completeUpload: procedure
-    .input(
-      z.object({
-        key: z.string(),
-        folderId: folderDTOSchema.shape.id.optional(),
-      }),
-    )
-    .output(
-      z.object({
-        fileId: fileMetadataDTOSchema.shape.id,
-        code: fileAccessCodeSchema.shape.code.optional(),
-      }),
-    )
-    .mutation(async ({ input, ctx }) => {
-      const { key, folderId } = input;
-      const { user } = ctx;
-
-      if (user && !folderId) {
-        throw new TRPCError({
-          code: "BAD_REQUEST",
-          message: "로그인한 사용자는 folderId를 제공해야 합니다.",
-        });
-      }
-
-      // 존재 확인
-      const metadata = await s3Service.headObject(key);
-
-      if (!metadata) {
-        throw new TRPCError({
-          code: "NOT_FOUND",
-          message: "파일을 찾을 수 없습니다.",
-        });
-      }
-
-      const { id: fileId } = await fileService.save({
-        metadata,
-        ownerId: user?.id,
-      });
-
-      const { code } = await codeService.create({
-        fileId,
-      });
-
-      return {
-        fileId,
-        code,
-      };
     }),
 
   download: procedure

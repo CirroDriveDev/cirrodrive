@@ -26,6 +26,7 @@ export const useUpload = () => {
     }
 
     const result = await completeMutation.mutateAsync({
+      fileName: file.name,
       key,
       folderId,
     });

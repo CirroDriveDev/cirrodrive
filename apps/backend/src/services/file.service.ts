@@ -2,10 +2,23 @@ import path from "node:path";
 import { injectable, inject } from "inversify";
 import type { Prisma, FileMetadata } from "@cirrodrive/database/prisma";
 import type { Logger } from "pino";
+import { z } from "zod";
 import { Symbols } from "#types/symbols.js";
 import { FileAccessCodeService } from "#services/file-access-code.service.js";
 import { UserService } from "#services/user.service.js";
-import { type S3Metadata } from "#services/s3.service.js";
+
+export const FileMetadataSaveSchema = z.object({
+  name: z.string(),
+  key: z.string(),
+  size: z.number(),
+  extension: z.string().optional(),
+  hash: z.string().default(""),
+  parentFolderId: z.string().optional(),
+  ownerId: z.string(),
+});
+
+export type FileMetadataSaveInput = z.infer<typeof FileMetadataSaveSchema>;
+
 /**
  * 파일 서비스입니다.
  */
@@ -29,34 +42,28 @@ export class FileService {
    * @returns 저장된 파일의 경로와 이름입니다.
    * @throws 파일 저장 중 오류가 발생한 경우.
    */
-  public async save({
-    metadata,
-    parentFolderId,
-    ownerId,
-  }: {
-    metadata: Prisma.FileMetadataCreateInput;
-    parentFolderId?: string;
-    ownerId?: string;
-  }): Promise<FileMetadata> {
-    try {
-      this.logger.info(
-        {
-          methodName: "save",
-          metadata,
-        },
-        "파일 저장 시작",
-      );
+  public async save(input: FileMetadataSaveInput): Promise<FileMetadata> {
+    const { name, key, extension, size, hash, parentFolderId, ownerId } =
+      FileMetadataSaveSchema.parse(input);
+    this.logger.info(
+      {
+        methodName: "save",
+        input,
+      },
+      "파일 저장 시작",
+    );
 
+    try {
       // 파일 메타데이터를 데이터베이스에 저장
       const fileMetadata = await this.fileMetadataModel.create({
         data: {
-          ownerId,
-          name: metadata.name,
-          extension: metadata.extension,
-          size: metadata.size,
-          key: metadata.key,
-          hash: metadata.hash,
+          name,
+          key,
+          extension: extension ?? path.extname(name),
+          size,
+          hash,
           parentFolderId,
+          ownerId,
         },
       });
 

@@ -13,31 +13,56 @@ import {
   CopyObjectCommand,
 } from "@aws-sdk/client-s3";
 import type { Logger } from "pino";
+import { z } from "zod";
 import { s3Client } from "#loaders/aws.loader.js";
 import { env } from "#loaders/env.loader.js";
 import { Symbols } from "#types/symbols.js";
-import { z } from "zod";
 
 const BUCKET_NAME = env.AWS_S3_BUCKET;
-export const S3_KEY_PREFIX = {
-  USER_UPLOADS: "user-uploads",
-  PUBLIC_UPLOADS: "public-uploads",
-} as const;
 
-export interface S3Metadata {
-  size: number;
-  key: string;
-  hash: string;
+const MAX_GUEST_FILE_SIZE = 1024 * 1024 * 1024; // 1GB
+const MAX_USER_FILE_SIZE = 5 * 1024 * 1024 * 1024; // 5GB
+const S3_POST_EXPIRES = 60; // 1 minute
+
+export const S3MetadataSchema = z.object({
+  userId: z.string(),
+  origin: z.enum(["guest", "user"]),
+});
+
+export const S3HeadObjectSchema = z.object({
+  Metadata: S3MetadataSchema,
+  ContentLength: z.coerce.number(),
+});
+
+export type S3Metadata = z.infer<typeof S3MetadataSchema>;
+export type S3HeadObject = z.infer<typeof S3HeadObjectSchema>;
+
+interface GenerateKeyInput {
+  userId: string;
+  fileName: string;
 }
 
-const S3MetadataSchema = z.object({
-  size: z.coerce.number(),
-  key: z.string(),
-  hash: z.string(),
-})
+interface CreatePresignedPostInput {
+  fileName: string;
+  contentType: string;
+  userId?: string;
+}
+
+export interface S3ServiceInterface {
+  createPresignedPost: (
+    input: CreatePresignedPostInput,
+  ) => Promise<PresignedPost>;
+  getPutObjectSignedURL: (key: string, expiresIn?: number) => Promise<string>;
+  generateKey: (input: GenerateKeyInput) => string;
+  headObject: (key: string) => Promise<S3HeadObject>;
+  deleteObject: (key: string) => Promise<void>;
+  deleteObjects: (keys: string[]) => Promise<void>;
+  copyObject: (sourceKey: string, targetKey: string) => Promise<void>;
+  objectExists: (key: string) => Promise<boolean>;
+}
 
 @injectable()
-export class S3Service {
+export class S3Service implements S3ServiceInterface {
   constructor(@inject(Symbols.Logger) private logger: Logger) {
     this.logger = logger.child({ serviceName: "S3Service" });
   }
@@ -45,42 +70,43 @@ export class S3Service {
   /**
    * S3에 파일을 직접 업로드할 수 있도록 presigned POST 정책을 생성합니다.
    *
-   * @param params - Presigned POST 생성을 위한 파라미터
-   * @param key - 업로드할 S3 객체의 키
-   * @param expires - (선택) presigned POST의 만료 시간(초). 기본값은 60초입니다.
-   * @param contentType - (선택) 업로드할 파일의 Content-Type
-   * @param maxSizeInBytes - (선택) 업로드 파일의 최대 허용 크기(바이트). 기본값은 10MB입니다.
+   * @param fileName - 업로드할 파일의 이름
+   * @param contentType - 업로드할 파일의 MIME 타입
+   * @param userId - 업로드하는 사용자의 ID (선택적, 기본값은 "anonymous")
    * @returns 업로드에 필요한 URL과 form 필드가 포함된 `PresignedPost` 객체를 반환하는 Promise
    */
-  public async generatePresignedPost({
-    key,
-    expires = 60, // 초 단위, 기본 1분
-    contentType,
-    maxSizeInBytes,
-  }: {
-    key: string;
-    expires?: number;
-    contentType?: string;
-    maxSizeInBytes?: number;
-  }): Promise<PresignedPost> {
-    this.logger.debug("generatePresignedPost", {
-      key,
-      expires,
-      contentType,
-      maxSizeInBytes,
-    });
+  public async createPresignedPost(
+    input: CreatePresignedPostInput,
+  ): Promise<PresignedPost> {
+    const { fileName, contentType } = input;
+    this.logger.debug("generatePresignedPost", input);
+    const userId = input.userId ?? "anonymous";
+    const isGuest = Boolean(input.userId);
+
+    const key = this.generateKey({ userId, fileName });
 
     const presignedPost = await createPresignedPost(s3Client, {
       Bucket: env.AWS_S3_BUCKET,
       Key: key,
-      Expires: expires,
-      Conditions: [
-        ["starts-with", "$Content-Type", contentType ?? ""],
-        ["content-length-range", 0, maxSizeInBytes ?? 10 * 1024 * 1024], // 10MB
-      ],
+      Expires: S3_POST_EXPIRES,
       Fields: {
-        "Content-Type": contentType ?? "application/octet-stream",
+        "Content-Type": contentType,
+        "x-amz-meta-userId": userId,
+        "x-amz-meta-origin": isGuest ? "guest" : "user",
+        "acl": "private",
       },
+      Conditions: [
+        ["starts-with", "$key", `uploads/${userId}`],
+        ["starts-with", "$Content-Type", contentType],
+        ["eq", "$x-amz-meta-userId", userId],
+        ["eq", "$x-amz-meta-origin", isGuest ? "guest" : "user"],
+        ["eq", "$acl", "private"],
+        [
+          "content-length-range",
+          0,
+          isGuest ? MAX_GUEST_FILE_SIZE : MAX_USER_FILE_SIZE,
+        ],
+      ],
     });
 
     this.logger.debug("generatePresignedPost", {
@@ -113,21 +139,20 @@ export class S3Service {
   }
 
   /**
-   * S3 객체의 키를 생성합니다.
+   * S3 객체 키를 생성합니다.
    *
-   * @param prefix - S3 객체의 접두사
-   * @param filename - 파일 이름
+   * @param userId - 사용자 ID
+   * @param fileName - 파일 이름
    * @returns S3 객체 키
    */
-  public generateS3ObjectKey(
-    prefix: (typeof S3_KEY_PREFIX)[keyof typeof S3_KEY_PREFIX],
-    filename: string,
-  ): string {
+  public generateKey(input: { userId: string; fileName: string }): string {
+    const { userId, fileName } = input;
+
     const uuid = crypto.randomUUID();
     const timestamp = new Date().toISOString().split("T")[0];
-    const safeFilename = path.basename(filename).replace(/[^\w\-.]/g, "_");
-
-    return `${prefix}/${timestamp}/${uuid}__${safeFilename}`;
+    let ext = path.extname(fileName).toLowerCase().replace(/^\./, "");
+    if (!ext) ext = "bin";
+    return `uploads/${userId}/${timestamp}-${uuid}.${ext}`;
   }
 
   /**
@@ -136,29 +161,15 @@ export class S3Service {
    * @param key - S3 객체 키
    * @returns S3 객체 메타데이터
    */
-  public async headObject(key: string): Promise<S3Metadata> {
+  public async headObject(key: string) {
     const command = new HeadObjectCommand({
       Bucket: BUCKET_NAME,
       Key: key,
     });
+
     const data = await s3Client.send(command);
-    if (data.Metadata === undefined) {
-      throw new Error("Metadata is undefined");
-    }
-    if (data.ContentLength === undefined) {
-      throw new Error("Metadata ContentLength is undefined");
-    }
-    if (data.ChecksumCRC64NVME === undefined && env.PROD) {
-      throw new Error("Metadata ChecksumCRC64NVME is undefined");
-    }
 
-    const metadata = S3MetadataSchema.parse({
-      size: data.ContentLength,
-      key,
-      hash: env.PROD ? data.ChecksumCRC64NVME : "",
-    });
-
-    return metadata;
+    return S3HeadObjectSchema.parse(data);
   }
 
   /**
@@ -203,5 +214,24 @@ export class S3Service {
     });
 
     await s3Client.send(command);
+  }
+
+  /**
+   * S3 객체가 존재하는지 확인합니다.
+   *
+   * @param key - S3 객체 키
+   * @returns 객체가 존재하면 true, 아니면 false
+   */
+  public async objectExists(key: string): Promise<boolean> {
+    try {
+      await this.headObject(key);
+      return true;
+    } catch (error) {
+      if (error instanceof Error && error.name === "NotFound") {
+        return false;
+      }
+      this.logger.error("Error checking object existence", { key, error });
+      throw error;
+    }
   }
 }

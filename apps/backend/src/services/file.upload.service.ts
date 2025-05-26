@@ -1,12 +1,9 @@
 // src/services/file.upload.service.ts
+import path from "node:path";
 import { inject, injectable } from "inversify";
-import { s3PresignedPostSchema } from "@cirrodrive/schemas/s3";
-import { S3Service, S3_KEY_PREFIX } from "#services/s3.service.js";
+import { S3Service } from "#services/s3.service.js";
 import { FileMetadataRepository } from "#repositories/file-metadata.repository.js";
 import { FileService } from "#services/file.service.js";
-import path from "node:path";
-
-const MAX_POST_FILE_SIZE = 1024 * 1024 * 1024; // 1GB
 
 @injectable()
 export class FileUploadService {
@@ -18,42 +15,52 @@ export class FileUploadService {
     private readonly fileService: FileService,
   ) {}
 
-  async generatePresignedPost(fileName: string, fileType: string) {
-    const prefix = S3_KEY_PREFIX.PUBLIC_UPLOADS;
-    const key = this.s3Service.generateS3ObjectKey(prefix, fileName);
-
-    const presignedPost = await this.s3Service.generatePresignedPost({
-      key,
-      contentType: fileType,
-      expires: 120,
-      maxSizeInBytes: MAX_POST_FILE_SIZE,
-    });
-
-    return s3PresignedPostSchema.parse(presignedPost);
-  }
-
   async completeUpload({
     name,
     key,
     parentFolderId,
     ownerId,
   }: {
+    ownerId: string;
     name: string;
     key: string;
     parentFolderId?: string;
-    ownerId?: string;
   }) {
     // S3에서 오브젝트 메타데이터 조회 및 해시 계산 등은 서비스에서 처리
-    const s3Meta = await this.s3Service.headObject(key);
+    let headObjectData;
+    try {
+      headObjectData = await this.s3Service.headObject(key);
+    } catch (error) {
+      if (error instanceof Error) {
+        if (error.message.includes("Not Found")) {
+          throw new Error("File not found in S3.");
+        }
+        throw new Error(`Failed to retrieve object metadata: ${error.message}`);
+      }
+      throw error;
+    }
+
+    const metadata = headObjectData.Metadata;
+    const { userId, origin } = metadata;
+    if (origin === "user" && !userId) {
+      throw new Error("User ID is required for user-origin files.");
+    }
+
+    if (origin === "guest" && userId) {
+      throw new Error("Guest files should not have a user ID.");
+    }
+
+    if (userId !== ownerId) {
+      throw new Error("File owner does not match the provided ownerId.");
+    }
+
     const extension = path.extname(name);
     return await this.fileService.save({
-      metadata: {
-        name: name,
-        size: s3Meta.size,
-        hash: s3Meta.hash,
-        extension: extension,
-        key,
-      },
+      name,
+      size: headObjectData.ContentLength,
+      extension,
+      key,
+      hash: "",
       parentFolderId,
       ownerId,
     });

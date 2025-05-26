@@ -18,40 +18,46 @@ export function useUploadFiles(useUploader: UseUploader) {
   const { upload } = useUploader();
   const completeUploadMutation = trpc.file.upload.completeUpload.useMutation();
 
-  const completeUpload = async (key: string, folderId?: string) => {
-    await completeUploadMutation.mutateAsync({ key, folderId });
+  const completeUpload = async (
+    fileName: string,
+    key: string,
+    folderId?: string,
+  ) => {
+    await completeUploadMutation.mutateAsync({ fileName, key, folderId });
     await entryUpdatedEvent();
   };
 
-  const uploadFiles = async (uploadRequests: UploadRequest[]) => {
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars -- 임시적으로 사용하지 않음
+  const uploadFiles = (uploadRequests: UploadRequest[]) => {
     setIsPending(true);
     const results: UploadResult[] = [];
     const limit = pLimit(3);
 
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars -- 임시적으로 사용하지 않음
     const uploadSingleFile = async (
       file: File,
       folderId?: string,
     ): Promise<void> => {
       const result = await upload(file);
       if (result.success) {
-        await completeUpload(result.key, folderId);
+        await completeUpload(file.name, result.key, folderId);
+        results.push(result);
       }
-      results.push(result);
+
+      await Promise.all(
+        uploadRequests.map((request) =>
+          limit(() => uploadSingleFile(request.file, request.folderId)),
+        ),
+      );
+      setUploadResults(results);
+      setIsPending(false);
     };
 
-    await Promise.all(
-      uploadRequests.map((request) =>
-        limit(() => uploadSingleFile(request.file, request.folderId)),
-      ),
-    );
-    setUploadResults(results);
-    setIsPending(false);
-  };
-
-  return {
-    isPending,
-    uploadResults,
-    uploadFiles,
-    completeUpload,
+    return {
+      isPending,
+      uploadResults,
+      uploadFiles,
+      completeUpload,
+    };
   };
 }
