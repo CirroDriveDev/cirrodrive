@@ -94,7 +94,6 @@ jobs:
             cd /home/${{ secrets.SERVER_USER }}/cirrodrive-deploy
             git pull
             pnpm install
-            pnpm build
             pnpm run db:push
             pnpm run db:seed
 
