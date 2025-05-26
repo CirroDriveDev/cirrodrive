@@ -12,6 +12,10 @@ echo "데이터베이스 마이그레이션 시작..."
 # 데이터베이스 마이그레이션 실행
 pnpm run -F @cirrodrive/database ci:db:push
 
+echo "Prisma 클라이언트 생성..."
+# Prisma 클라이언트 생성
+pnpm run -F @cirrodrive/database db:generate
+
 echo "데이터베이스 시드 실행..."
 # 데이터베이스 시드 실행
 pnpm run -F @cirrodrive/database ci:db:seed
