@@ -34,6 +34,26 @@ export function useGetS3PresignedPost() {
         },
       );
     },
+    /**
+     * 파일 이름과 타입을 받아 Presigned Post를 요청합니다.
+     *
+     * @param fileName - 업로드할 파일 이름
+     * @param fileType - 업로드할 파일의 MIME 타입
+     * @returns PresignedPost
+     */
+    getS3PresignedPostAsync: async (fileName: string, fileType: string) => {
+      return await mutation.mutateAsync(
+        {
+          fileName,
+          fileType,
+        },
+        {
+          onSuccess: () => {
+            void entryUpdatedEvent();
+          },
+        },
+      );
+    },
     data: mutation.data,
     isPending: mutation.isPending,
     error: mutation.error,

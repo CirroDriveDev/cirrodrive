@@ -6,7 +6,6 @@ import { Sidebar } from "#components/layout/Sidebar.js";
 import { SidebarLayout } from "#components/layout/SidebarLayout.js";
 import { LoadingSpinner } from "#components/shared/LoadingSpinner.js";
 import { Button } from "#shadcn/components/Button.js";
-import { useUpload } from "#services/file/useUpload.js";
 import { useEntryList } from "#services/useEntryList.js";
 import { useFolderPath } from "#services/useFolderPath.js";
 import { FolderName } from "#components/FolderName.js";
@@ -15,6 +14,8 @@ import { useFolderCreate } from "#services/file/useFolderCreate.js";
 import { FileUploadDropzoneOverlay } from "#components/FileUploadDropzoneOverlay.js";
 import { useRenameStore } from "#store/useRenameStore.js";
 import { selectFile } from "#utils/selectFile.js";
+import { useUploadFiles } from "#services/file/useUploadFiles.js";
+import { usePresignedPostUploader } from "#services/file/presigned-post-uploader.js";
 
 interface FolderViewProps {
   folderId: string;
@@ -29,14 +30,18 @@ export function FolderView({ folderId }: FolderViewProps): JSX.Element {
     },
   });
   const { query: entryListQuery } = useEntryList(folderId);
-  const { upload, isPending } = useUpload();
+  const { uploadFiles, isPending } = useUploadFiles(usePresignedPostUploader);
 
   async function handleFileSelect(): Promise<void> {
     const files = await selectFile();
     if (!files) return;
-    for (const file of files) {
-      await upload(file, folderId);
-    }
+
+    await uploadFiles(
+      Array.from(files).map((file) => ({
+        file,
+        folderId,
+      })),
+    );
     void entryListQuery.refetch();
   }
 

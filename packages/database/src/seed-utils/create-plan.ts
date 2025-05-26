@@ -34,8 +34,8 @@ export async function createPlan({
   interval: $Enums.PlanInterval;
   intervalCount: number;
 }) {
-  const plan = await prisma.plan.create({
-    data: {
+  const plan = await prisma.plan.upsert({
+    create: {
       name,
       description,
       features,
@@ -45,6 +45,10 @@ export async function createPlan({
       interval,
       intervalCount,
     },
+    where: {
+      name,
+    },
+    update: {},
   });
 
   return plan;

@@ -60,18 +60,23 @@ export const fileUploadRouter = router({
   /**
    * S3 업로드 완료 후, 파일 메타데이터를 저장합니다.
    *
-   * @param metadata - 업로드된 파일의 메타데이터
+   * @param key - 업로드된 S3 오브젝트의 key
+   * @param name - 파일명
+   * @param size - 파일 크기 (bytes)
+   * @param extension - 파일 확장자
+   * @param folderId - (선택) 부모 폴더 ID
    */
   completeUpload: procedure
     .input(
       z.object({
-        ...fileMetadataDTOSchema.shape,
         key: z.string(),
-        hash: z.string(),
+        folderId: z.string().optional(),
       }),
     )
     .mutation(async ({ input }) => {
-      const { key, hash, ...metadata } = input;
-      await fileUploadService.saveFileMetadata(metadata, key, hash);
+      await fileUploadService.completeUpload({
+        key: input.key,
+        parentFolderId: input.folderId,
+      });
     }),
 });

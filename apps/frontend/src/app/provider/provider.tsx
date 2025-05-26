@@ -3,18 +3,20 @@ import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 import { Router } from "#app/router.js";
 import { ThemeProvider } from "#shadcn/components/ThemeProvider.js";
 import { queryClient } from "#app/provider/queryClient.js";
-import { trpc } from "#services/trpc.js";
+import { trpc, TRPCProvider } from "#services/trpc.js";
 import { trpcClient } from "#app/provider/trpcClient.js";
 
 export function Provider(): JSX.Element {
   return (
     <QueryClientProvider client={queryClient}>
-      <trpc.Provider client={trpcClient} queryClient={queryClient}>
-        <ThemeProvider>
-          <Router />
-          <ReactQueryDevtools initialIsOpen={false} />
-        </ThemeProvider>
-      </trpc.Provider>
+      <TRPCProvider trpcClient={trpcClient} queryClient={queryClient}>
+        <trpc.Provider client={trpcClient} queryClient={queryClient}>
+          <ThemeProvider>
+            <Router />
+            <ReactQueryDevtools initialIsOpen={false} />
+          </ThemeProvider>
+        </trpc.Provider>
+      </TRPCProvider>
     </QueryClientProvider>
   );
 }
