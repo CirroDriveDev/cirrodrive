@@ -31,9 +31,11 @@ export class FileService {
    */
   public async save({
     metadata,
+    parentFolderId,
     ownerId,
   }: {
     metadata: S3Metadata;
+    parentFolderId?: string;
     ownerId?: string;
   }): Promise<FileMetadata> {
     try {
@@ -54,6 +56,7 @@ export class FileService {
           size: metadata.size,
           key: metadata.key,
           hash: metadata.hash,
+          parentFolderId,
         },
       });
 
