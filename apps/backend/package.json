@@ -5,42 +5,88 @@
   "type": "module",
   "imports": {
     "#decorators/*": {
-      "types": "./src/decorators/*",
-      "import": "./dist/decorators/*.js"
+      "types": [
+        "./src/decorators/*"
+      ],
+      "import": [
+        "./dist/decorators/*",
+        "./dist/decorators/*.js"
+      ]
     },
     "#errors/*": {
-      "types": "./src/errors/*",
-      "import": "./dist/errors/*.js"
+      "types": [
+        "./src/errors/*"
+      ],
+      "import": [
+        "./dist/errors/*",
+        "./dist/errors/*.js"
+      ]
     },
     "#loaders/*": {
-      "types": "./src/loaders/*",
-      "import": "./dist/loaders/*.js"
+      "types": [
+        "./src/loaders/*"
+      ],
+      "import": [
+        "./dist/loaders/*",
+        "./dist/loaders/*.js"
+      ]
     },
     "#middlewares/*": {
-      "types": "./src/middlewares/*",
-      "import": "./dist/middlewares/*.js"
+      "types": [
+        "./src/middlewares/*"
+      ],
+      "import": [
+        "./dist/middlewares/*"
+      ]
     },
     "#repositories/*": {
-      "types": "./src/repositories/*",
-      "import": "./dist/repositories/*.js"
+      "types": [
+        "./src/repositories/*"
+      ],
+      "import": [
+        "./dist/repositories/*"
+      ]
     },
     "#routes/*": {
-      "types": "./src/routes/*",
-      "import": "./dist/routes/*.js"
+      "types": [
+        "./src/routes/*"
+      ],
+      "import": [
+        "./dist/routes/*",
+        "./dist/routes/*.js"
+      ]
     },
     "#services/*": {
-      "types": "./src/services/*",
-      "import": "./dist/services/*.js"
+      "types": [
+        "./src/services/*"
+      ],
+      "import": [
+        "./dist/services/*",
+        "./dist/services/*.js"
+      ]
     },
     "#types/*": {
-      "types": "./src/types/*",
-      "import": "./dist/types/*.js"
+      "types": [
+        "./src/types/*"
+      ],
+      "import": [
+        "./dist/types/*",
+        "./dist/types/*.js"
+      ]
     },
     "#utils/*": {
-      "types": "./src/utils/*",
-      "import": "./dist/utils/*.js"
+      "types": [
+        "./src/utils/*"
+      ],
+      "import": [
+        "./dist/utils/*",
+        "./dist/utils/*.js"
+      ]
     },
-    "#test/*": "./test/*"
+    "#test/*": [
+      "./test/*",
+      "./test/*.ts"
+    ]
   },
   "exports": {
     "./app-router": {
