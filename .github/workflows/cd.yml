@@ -72,10 +72,36 @@ jobs:
           push: true
           tags: ${{ secrets.DOCKERHUB_USERNAME }}/cirrodrive:frontend
 
+  database-migration:
+    name: database-migration
+    runs-on: ubuntu-22.04
+    needs: build-and-push
+    environment: production
+    env: 
+      DATABASE_URL: ${{ secrets.DATABASE_URL }}
+    steps:
+      - name: Prepare Docker Environment
+        uses: appleboy/ssh-action@v1
+        with:
+          host: ${{ secrets.SERVER_HOST }}
+          username: ${{ secrets.SERVER_USER }}
+          key: ${{ secrets.SERVER_SSH_KEY }}
+          envs: DATABASE_URL
+          script: |
+            # 배포 디렉토리 확인 및 생성
+            mkdir -p /home/${{ secrets.SERVER_USER }}/cirrodrive-deploy
+            
+            cd /home/${{ secrets.SERVER_USER }}/cirrodrive-deploy
+            git pull
+            pnpm install
+            pnpm build
+            pnpm run db:push
+            pnpm run db:seed
+
   prepare-release:
     name: Prepare Release
     runs-on: ubuntu-22.04
-    needs: build-and-push
+    needs: database-migration
     environment: production
     steps:
       - name: Prepare Docker Environment
@@ -85,9 +111,6 @@ jobs:
           username: ${{ secrets.SERVER_USER }}
           key: ${{ secrets.SERVER_SSH_KEY }}
           script: |
-            # 배포 디렉토리 확인 및 생성
-            mkdir -p /home/${{ secrets.SERVER_USER }}/cirrodrive-deploy
-
             # Docker 이미지 최신 버전 가져오기
             docker pull ${{ secrets.DOCKERHUB_USERNAME }}/cirrodrive:backend || { echo "백엔드 이미지 가져오기 실패"; exit 1; }
             docker pull ${{ secrets.DOCKERHUB_USERNAME }}/cirrodrive:frontend || { echo "프론트엔드 이미지 가져오기 실패"; exit 1; }

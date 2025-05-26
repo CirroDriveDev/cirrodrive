@@ -23,17 +23,12 @@ RUN --mount=type=cache,id=pnpm,target=/pnpm/store pnpm install --frozen-lockfile
 # 모든 필요한 패키지 빌드
 RUN pnpm turbo run build --filter @cirrodrive/backend...
 
-# 엔트리포인트 스크립트 복사 및 실행 권한 부여
-COPY apps/backend/docker-entrypoint.sh /cirrodrive/docker-entrypoint.sh
-RUN chmod +x /cirrodrive/docker-entrypoint.sh
-
 # 실행 환경 설정 
 ENV NODE_ENV=production
 
 # 헬스체크를 위한 curl 설치
 RUN apk add --no-cache curl
 
-ENTRYPOINT ["/cirrodrive/docker-entrypoint.sh"]
 CMD [ "pnpm", "run", "-F", "@cirrodrive/backend", "start"]
 
 
