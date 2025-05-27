@@ -3,9 +3,19 @@
   "version": "0.0.0",
   "private": true,
   "type": "module",
-  "scripts": {},
+  "scripts": {
+    "clean": "git clean -xdf .cache .turbo node_modules",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "lint": "eslint .",
+    "remove-ext": "tsx src/remove-ext.ts",
+    "seed": "vite-node src/seed.ts",
+    "test": "vitest",
+    "test:coverage": "vitest run --coverage",
+    "test:watch": "vitest watch",
+    "typecheck": "tsc --noEmit"
+  },
   "prettier": "@cirrodrive/prettier-config",
-  "dependencies": {},
   "devDependencies": {
     "@cirrodrive/eslint-config": "workspace:*",
     "@cirrodrive/prettier-config": "workspace:*",
@@ -22,10 +32,8 @@
     "prettier-plugin-jsdoc": "catalog:",
     "prettier-plugin-packagejson": "catalog:",
     "prettier-plugin-sort-json": "catalog:",
-    "tsx": "catalog:"
-  },
-  "prisma": {
-    "schema": "./prisma",
-    "seed": "vite-node src/seed.ts"
+    "ts-morph": "^25.0.1",
+    "tsx": "catalog:",
+    "vitest": "catalog:"
   }
 }
