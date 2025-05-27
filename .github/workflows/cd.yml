@@ -57,7 +57,7 @@ jobs:
     runs-on: ubuntu-22.04
     needs: build-and-push
     environment: production
-    env: 
+    env:
       DATABASE_URL: ${{ secrets.DATABASE_URL }}
     steps:
       - name: Prepare Docker Environment
@@ -70,7 +70,7 @@ jobs:
           script: |
             # 배포 디렉토리 확인 및 생성
             mkdir -p /home/${{ secrets.SERVER_USER }}/cirrodrive-deploy
-            
+
             cd /home/${{ secrets.SERVER_USER }}/cirrodrive-deploy
             git pull
             pnpm install

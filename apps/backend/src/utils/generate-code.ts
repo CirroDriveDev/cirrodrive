@@ -3,7 +3,8 @@ import { randomBytes } from "node:crypto";
 // 암호학적으로 안전하고 URL-safe한 코드 생성
 export const generateCode = (length = 8): string => {
   // URL-safe: A-Z, a-z, 0-9
-  const characters = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+  const characters =
+    "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
   const bytes = randomBytes(length);
   let result = "";
   for (let i = 0; i < length; i++) {

@@ -5,11 +5,7 @@ import { type Response } from "express";
 import { container } from "#loaders/inversify.loader";
 import { logger } from "#loaders/logger.loader";
 import { AuthService } from "#services/auth.service";
-import {
-  router,
-  authedProcedure,
-  adminProcedure,
-} from "#loaders/trpc.loader";
+import { router, authedProcedure, adminProcedure } from "#loaders/trpc.loader";
 import { requireAdminSession } from "#middlewares/admin-middleware";
 
 const authService = container.get<AuthService>(AuthService);
