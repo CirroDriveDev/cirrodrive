@@ -1,5 +1,5 @@
 import { AsyncLocalStorage } from "node:async_hooks";
-import { prisma, type PrismaTx } from "#loaders/prisma.loader.js";
+import { prisma, type PrismaTx } from "#loaders/prisma.loader";
 
 const txStorage = new AsyncLocalStorage<{ tx: PrismaTx }>();
 

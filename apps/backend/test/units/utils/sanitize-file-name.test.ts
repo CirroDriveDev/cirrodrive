@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { generateSafeFileName } from "#utils/generate-safe-file-name.js";
+import { generateSafeFileName } from "#utils/generate-safe-file-name";
 
 describe("generateSafeFileName", () => {
   it("should sanitize file names by replacing path separators", () => {

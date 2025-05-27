@@ -3,11 +3,11 @@ import type { Logger } from "pino";
 import { SendEmailCommand } from "@aws-sdk/client-ses";
 import type { Prisma } from "@cirrodrive/database/prisma";
 import { SignJWT } from "jose"; // jose 추가
-import { Symbols } from "#types/symbols.js";
-import { sesClient } from "#loaders/aws.loader.js";
-import { generateVerificationCode } from "#utils/generate-verification-code.js";
-import { createSecretKey } from "#utils/jwt.js"; // JWT 비밀키 유틸리티 추가
-import { env } from "#loaders/env.loader.js";
+import { Symbols } from "#types/symbols";
+import { sesClient } from "#loaders/aws.loader";
+import { generateVerificationCode } from "#utils/generate-verification-code";
+import { createSecretKey } from "#utils/jwt"; // JWT 비밀키 유틸리티 추가
+import { env } from "#loaders/env.loader";
 
 /**
  * 이메일 서비스입니다.

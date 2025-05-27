@@ -1,3 +1,3 @@
-import { router } from "#loaders/trpc.loader.js";
+import { router } from "#loaders/trpc.loader";
 
 export const protectedFileRouter = router({});

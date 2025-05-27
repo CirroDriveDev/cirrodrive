@@ -1,7 +1,7 @@
 import { injectable } from "inversify";
 import { Prisma, type Payment } from "@cirrodrive/database/prisma";
-import type { TossPayment } from "@cirrodrive/schemas/toss.js";
-import { BaseRepository } from "#repositories/base.repository.js";
+import type { TossPayment } from "@cirrodrive/schemas/toss";
+import { BaseRepository } from "#repositories/base.repository";
 
 @injectable()
 export class PaymentRepository extends BaseRepository {

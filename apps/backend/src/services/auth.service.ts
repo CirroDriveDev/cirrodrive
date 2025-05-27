@@ -8,8 +8,8 @@ import {
 } from "@oslojs/encoding";
 import { sha256 } from "@oslojs/crypto/sha2";
 import type { Response } from "express";
-import { Symbols } from "#types/symbols.js";
-import { type SessionValidationResult } from "#types/types.js";
+import { Symbols } from "#types/symbols";
+import { type SessionValidationResult } from "#types/types";
 
 /**
  * 인증 서비스입니다.

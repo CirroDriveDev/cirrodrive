@@ -1,7 +1,7 @@
 import { injectable } from "inversify";
 import { Prisma, FileMetadata } from "@cirrodrive/database/prisma";
-import { BaseRepository } from "#repositories/base.repository.js";
-import { DBNotFoundError } from "#errors/db-error-classes.js";
+import { BaseRepository } from "#repositories/base.repository";
+import { DBNotFoundError } from "#errors/db-error-classes";
 
 @injectable()
 export class FileMetadataRepository extends BaseRepository {

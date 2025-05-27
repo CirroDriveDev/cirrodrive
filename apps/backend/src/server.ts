@@ -1,9 +1,9 @@
 import "reflect-metadata";
 import { type Server } from "node:http";
 import type express from "express";
-import { env } from "#loaders/env.loader.js";
-import { expressLoader } from "#loaders/express.loader.js";
-import { logger } from "#loaders/logger.loader.js";
+import { env } from "#loaders/env.loader";
+import { expressLoader } from "#loaders/express.loader";
+import { logger } from "#loaders/logger.loader";
 
 let server: Server;
 

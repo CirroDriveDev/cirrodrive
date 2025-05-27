@@ -3,16 +3,16 @@ import { TRPCError } from "@trpc/server";
 import {
   fileMetadataDTOSchema,
   fileMetadataPublicDTOSchema,
-} from "@cirrodrive/schemas/file-metadata.js";
-import { fileAccessCodeSchema } from "@cirrodrive/schemas/file-access-code.js";
-import { folderDTOSchema } from "@cirrodrive/schemas/folder.js";
-import { router, procedure, authedProcedure } from "#loaders/trpc.loader.js";
-import { logger } from "#loaders/logger.loader.js";
-import { container } from "#loaders/inversify.loader.js";
-import { FileService } from "#services/file.service.js";
-import { FileAccessCodeService } from "#services/file-access-code.service.js";
-import { S3Service } from "#services/s3.service.js";
-import { fileUploadRouter } from "#routes/file.upload.router.js";
+} from "@cirrodrive/schemas/file-metadata";
+import { fileAccessCodeSchema } from "@cirrodrive/schemas/file-access-code";
+import { folderDTOSchema } from "@cirrodrive/schemas/folder";
+import { router, procedure, authedProcedure } from "#loaders/trpc.loader";
+import { logger } from "#loaders/logger.loader";
+import { container } from "#loaders/inversify.loader";
+import { FileService } from "#services/file.service";
+import { FileAccessCodeService } from "#services/file-access-code.service";
+import { S3Service } from "#services/s3.service";
+import { fileUploadRouter } from "#routes/file.upload.router";
 
 const fileService = container.get<FileService>(FileService);
 const codeService = container.get<FileAccessCodeService>(FileAccessCodeService);

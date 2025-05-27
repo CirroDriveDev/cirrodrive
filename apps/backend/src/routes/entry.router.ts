@@ -4,11 +4,11 @@ import {
   entryDTOSchema,
   recursiveEntrySchema,
   type EntryDTO,
-} from "@cirrodrive/schemas/entry.js";
-import { router, authedProcedure } from "#loaders/trpc.loader.js";
-import { container } from "#loaders/inversify.loader.js";
-import { FolderService } from "#services/folder.service.js";
-import { FileService } from "#services/file.service.js";
+} from "@cirrodrive/schemas/entry";
+import { router, authedProcedure } from "#loaders/trpc.loader";
+import { container } from "#loaders/inversify.loader";
+import { FolderService } from "#services/folder.service";
+import { FileService } from "#services/file.service";
 
 const folderService = container.get(FolderService);
 const fileService = container.get(FileService);

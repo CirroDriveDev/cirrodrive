@@ -1,10 +1,10 @@
 import { z } from "zod";
 import { TRPCError } from "@trpc/server";
-import { userInputSchema } from "@cirrodrive/schemas/admin.js";
-import { router, adminProcedure } from "#loaders/trpc.loader.js";
-import { container } from "#loaders/inversify.loader.js";
-import { AdminService } from "#services/admin.service.js";
-import { logger } from "#loaders/logger.loader.js";
+import { userInputSchema } from "@cirrodrive/schemas/admin";
+import { router, adminProcedure } from "#loaders/trpc.loader";
+import { container } from "#loaders/inversify.loader";
+import { AdminService } from "#services/admin.service";
+import { logger } from "#loaders/logger.loader";
 
 const adminService = container.get<AdminService>(AdminService);
 

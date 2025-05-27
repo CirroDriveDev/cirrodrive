@@ -1,6 +1,6 @@
 import { injectable } from "inversify";
-import { prisma, type PrismaTx } from "#loaders/prisma.loader.js";
-import { TxContext } from "#decorators/transactional.js";
+import { prisma, type PrismaTx } from "#loaders/prisma.loader";
+import { TxContext } from "#decorators/transactional";
 
 @injectable()
 export class BaseRepository {

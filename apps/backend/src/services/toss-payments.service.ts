@@ -8,10 +8,10 @@ import {
   type TossPayment,
   TossApiErrorV1Schema,
   TossApiErrorV2Schema,
-} from "@cirrodrive/schemas/toss.js";
-import { Symbols } from "#types/symbols.js";
-import { env } from "#loaders/env.loader.js";
-import { AppError } from "#errors/error-classes.js";
+} from "@cirrodrive/schemas/toss";
+import { Symbols } from "#types/symbols";
+import { env } from "#loaders/env.loader";
+import { AppError } from "#errors/error-classes";
 
 @injectable()
 export class TossPaymentsService {

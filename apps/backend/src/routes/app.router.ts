@@ -1,15 +1,15 @@
 import { type inferRouterInputs, type inferRouterOutputs } from "@trpc/server";
-import { sessionRouter } from "#routes/session.router.js";
-import { userRouter } from "#routes/user.router.js";
-import { codeRouter } from "#routes/code.router.js";
-import { router } from "#loaders/trpc.loader.js";
-import { fileRouter } from "#routes/file.router.js";
-import { folderRouter } from "#routes/folder.router.js";
-import { entryRouter } from "#routes/entry.router.js";
-import { emailRouter } from "#routes/email.router.js";
-import { protectedRouter } from "#routes/protected/protected.router.js";
-import { planRouter } from "#routes/plan.router.js";
-import { billingRouter } from "#routes/billing.router.js";
+import { sessionRouter } from "#routes/session.router";
+import { userRouter } from "#routes/user.router";
+import { codeRouter } from "#routes/code.router";
+import { router } from "#loaders/trpc.loader";
+import { fileRouter } from "#routes/file.router";
+import { folderRouter } from "#routes/folder.router";
+import { entryRouter } from "#routes/entry.router";
+import { emailRouter } from "#routes/email.router";
+import { protectedRouter } from "#routes/protected/protected.router";
+import { planRouter } from "#routes/plan.router";
+import { billingRouter } from "#routes/billing.router";
 
 export const appRouter = router({
   billing: billingRouter,

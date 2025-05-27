@@ -4,8 +4,8 @@ import {
   type Subscription,
   type $Enums,
 } from "@cirrodrive/database/prisma";
-import { BaseRepository } from "#repositories/base.repository.js";
-import { DBNotFoundError } from "#errors/db-error-classes.js";
+import { BaseRepository } from "#repositories/base.repository";
+import { DBNotFoundError } from "#errors/db-error-classes";
 
 @injectable()
 export class SubscriptionRepository extends BaseRepository {

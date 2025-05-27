@@ -1,20 +1,20 @@
 import { injectable, inject } from "inversify";
 import type { Logger } from "pino";
 import { $Enums, type Card } from "@cirrodrive/database/prisma";
-import type { TossBilling } from "@cirrodrive/schemas/toss.js";
+import type { TossBilling } from "@cirrodrive/schemas/toss";
 import {
   CardTypeK2ESchema,
   MethodK2ESchema,
   OwnerTypeK2ESchema,
-} from "@cirrodrive/schemas/billing.js";
-import { TossPaymentsService } from "#services/toss-payments.service.js";
-import { SubscriptionRepository } from "#repositories/subscription.repository.js";
-import { Symbols } from "#types/symbols.js";
-import { CardRepository } from "#repositories/card.repository.js";
-import { PlanService } from "#services/plan.service.js";
-import { Transactional } from "#decorators/transactional.js";
-import { ExternalPaymentError } from "#errors/error-classes.js";
-import { PaymentRepository } from "#repositories/payment.repository.js";
+} from "@cirrodrive/schemas/billing";
+import { TossPaymentsService } from "#services/toss-payments.service";
+import { SubscriptionRepository } from "#repositories/subscription.repository";
+import { Symbols } from "#types/symbols";
+import { CardRepository } from "#repositories/card.repository";
+import { PlanService } from "#services/plan.service";
+import { Transactional } from "#decorators/transactional";
+import { ExternalPaymentError } from "#errors/error-classes";
+import { PaymentRepository } from "#repositories/payment.repository";
 
 @injectable()
 export class BillingService {

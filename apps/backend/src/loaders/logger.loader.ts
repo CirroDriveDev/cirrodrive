@@ -1,7 +1,7 @@
 import path from "node:path";
 import { type TransportTargetOptions } from "pino";
 import { pinoHttp } from "pino-http";
-import { env } from "#loaders/env.loader.js";
+import { env } from "#loaders/env.loader";
 
 const logFilePath = path.join("logs", "app.log");
 

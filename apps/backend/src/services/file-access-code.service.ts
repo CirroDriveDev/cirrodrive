@@ -5,9 +5,9 @@ import type {
   FileMetadata,
   Prisma,
 } from "@cirrodrive/database/prisma";
-import { Symbols } from "#types/symbols.js";
-import { FileAccessCodeRepository } from "#repositories/file-access-code.repository.js";
-import { generateCode } from "#utils/generate-code.js";
+import { Symbols } from "#types/symbols";
+import { FileAccessCodeRepository } from "#repositories/file-access-code.repository";
+import { generateCode } from "#utils/generate-code";
 
 export interface FileAccessCodeServiceInterface {
   // create

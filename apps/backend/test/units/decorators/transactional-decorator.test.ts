@@ -1,6 +1,6 @@
-import { Transactional } from "#decorators/transactional.js";
-import { PlanRepository } from "#repositories/plan.repository.js";
-import { prisma } from "#loaders/prisma.loader.js";
+import { Transactional } from "#decorators/transactional";
+import { PlanRepository } from "#repositories/plan.repository";
+import { prisma } from "#loaders/prisma.loader";
 
 class TestService {
   private readonly planRepo = new PlanRepository();

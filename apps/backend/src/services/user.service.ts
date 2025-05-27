@@ -3,9 +3,9 @@ import type { Prisma, User } from "@cirrodrive/database/prisma";
 import { hash } from "@node-rs/argon2";
 import { jwtVerify } from "jose";
 import type { Logger } from "pino";
-import { Symbols } from "#types/symbols.js";
-import { createSecretKey } from "#utils/jwt.js";
-import { PlanService } from "#services/plan.service.js";
+import { Symbols } from "#types/symbols";
+import { createSecretKey } from "#utils/jwt";
+import { PlanService } from "#services/plan.service";
 
 /**
  * 사용자 서비스입니다.

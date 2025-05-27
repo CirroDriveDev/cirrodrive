@@ -14,9 +14,9 @@ import {
 } from "@aws-sdk/client-s3";
 import type { Logger } from "pino";
 import { z } from "zod";
-import { s3Client } from "#loaders/aws.loader.js";
-import { env } from "#loaders/env.loader.js";
-import { Symbols } from "#types/symbols.js";
+import { s3Client } from "#loaders/aws.loader";
+import { env } from "#loaders/env.loader";
+import { Symbols } from "#types/symbols";
 
 const BUCKET_NAME = env.AWS_S3_BUCKET;
 

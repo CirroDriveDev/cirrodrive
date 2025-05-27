@@ -1,6 +1,6 @@
 import { injectable } from "inversify";
 import { Prisma, type Transaction, $Enums } from "@cirrodrive/database/prisma";
-import { BaseRepository } from "#repositories/base.repository.js";
+import { BaseRepository } from "#repositories/base.repository";
 
 @injectable()
 export class TransactionRepository extends BaseRepository {

@@ -1,5 +1,5 @@
 import type { TRPC_ERROR_CODE_KEY } from "@trpc/server/unstable-core-do-not-import";
-import { AppError } from "./error-classes.js";
+import { AppError } from "#errors/error-classes";
 
 export class DBError extends AppError {
   constructor(

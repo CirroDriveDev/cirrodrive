@@ -4,10 +4,10 @@ import { hash, verify } from "@node-rs/argon2";
 import type { Logger } from "pino";
 import { TRPCError } from "@trpc/server";
 import jwt from "jsonwebtoken";
-import { dayjs } from "#loaders/dayjs.loader.js";
-import { Symbols } from "#types/symbols.js";
-import { env } from "#loaders/env.loader.js";
-import { PlanService } from "#services/plan.service.js";
+import { dayjs } from "#loaders/dayjs.loader";
+import { Symbols } from "#types/symbols";
+import { env } from "#loaders/env.loader";
+import { PlanService } from "#services/plan.service";
 
 @injectable()
 export class AdminService {

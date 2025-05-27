@@ -1,9 +1,9 @@
 // src/services/file.upload.service.ts
 import path from "node:path";
 import { inject, injectable } from "inversify";
-import { S3Service } from "#services/s3.service.js";
-import { FileMetadataRepository } from "#repositories/file-metadata.repository.js";
-import { FileService } from "#services/file.service.js";
+import { S3Service } from "#services/s3.service";
+import { FileMetadataRepository } from "#repositories/file-metadata.repository";
+import { FileService } from "#services/file.service";
 
 @injectable()
 export class FileUploadService {

@@ -1,4 +1,4 @@
-import { createCallerFactory } from "#loaders/trpc.loader.js";
-import { appRouter } from "#routes/app.router.js";
+import { createCallerFactory } from "#loaders/trpc.loader";
+import { appRouter } from "#routes/app.router";
 
 export const createCaller = createCallerFactory(appRouter);

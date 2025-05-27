@@ -1,6 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import type { Request, Response } from "express";
-import { fileUploadRouter } from "#routes/file.upload.router.js";
+import { fileUploadRouter } from "#routes/file.upload.router";
 
 // Mock 서비스들
 const mockCreatePresignedPost = vi.fn();

@@ -1,6 +1,6 @@
 import type { PresignedPost } from "@aws-sdk/s3-presigned-post";
-import { createMockLogger } from "#test/test-utils/create-mock-logger.js";
-import { S3Service } from "#services/s3.service.js";
+import { createMockLogger } from "#test/test-utils/create-mock-logger";
+import { S3Service } from "#services/s3.service";
 
 const policyMatcher = expect.stringMatching(/^[A-Za-z0-9+/=]+$/) as string;
 const credentialMatcher = expect.stringMatching(

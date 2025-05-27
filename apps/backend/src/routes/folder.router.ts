@@ -3,10 +3,10 @@ import { TRPCError } from "@trpc/server"; // TRPCError 임포트
 import {
   folderDTOSchema,
   subFolderDTOSchema,
-} from "@cirrodrive/schemas/folder.js";
-import { router, authedProcedure } from "#loaders/trpc.loader.js"; // tRPC 설정 임포트
-import { container } from "#loaders/inversify.loader.js";
-import { FolderService } from "#services/folder.service.js";
+} from "@cirrodrive/schemas/folder";
+import { router, authedProcedure } from "#loaders/trpc.loader"; // tRPC 설정 임포트
+import { container } from "#loaders/inversify.loader";
+import { FolderService } from "#services/folder.service";
 
 const folderService = container.get(FolderService);
 

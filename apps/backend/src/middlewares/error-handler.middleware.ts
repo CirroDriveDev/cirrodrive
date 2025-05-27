@@ -1,7 +1,7 @@
 import { TRPCError } from "@trpc/server";
-import { AppError } from "#errors/error-classes.js";
-import { middleware } from "#loaders/trpc.loader.js";
-import { logger } from "#loaders/logger.loader.js";
+import { AppError } from "#errors/error-classes";
+import { middleware } from "#loaders/trpc.loader";
+import { logger } from "#loaders/logger.loader";
 
 /**
  * TRPC 공통 에러 처리 미들웨어

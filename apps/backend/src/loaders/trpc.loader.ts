@@ -3,8 +3,8 @@ import { type CreateExpressContextOptions } from "@trpc/server/adapters/express"
 import { z } from "zod";
 import type { Session, User } from "@cirrodrive/database/prisma";
 import { SuperJSON } from "superjson";
-import { AuthService } from "#services/auth.service.js";
-import { container } from "#loaders/inversify.loader.js";
+import { AuthService } from "#services/auth.service";
+import { container } from "#loaders/inversify.loader";
 
 const authService = container.get<AuthService>(AuthService);
 

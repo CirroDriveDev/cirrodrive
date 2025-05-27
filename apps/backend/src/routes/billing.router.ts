@@ -1,9 +1,9 @@
 import { z } from "zod";
 import { TRPCError } from "@trpc/server";
-import { router, authedProcedure } from "#loaders/trpc.loader.js";
-import { container } from "#loaders/inversify.loader.js";
-import { BillingService } from "#services/billing.service.js";
-import { PlanService } from "#services/plan.service.js";
+import { router, authedProcedure } from "#loaders/trpc.loader";
+import { container } from "#loaders/inversify.loader";
+import { BillingService } from "#services/billing.service";
+import { PlanService } from "#services/plan.service";
 
 const billingService = container.get<BillingService>(BillingService);
 const planService = container.get<PlanService>(PlanService);

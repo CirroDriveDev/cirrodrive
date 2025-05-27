@@ -3,9 +3,9 @@ import { injectable, inject } from "inversify";
 import type { Prisma, FileMetadata } from "@cirrodrive/database/prisma";
 import type { Logger } from "pino";
 import { z } from "zod";
-import { Symbols } from "#types/symbols.js";
-import { FileAccessCodeService } from "#services/file-access-code.service.js";
-import { UserService } from "#services/user.service.js";
+import { Symbols } from "#types/symbols";
+import { FileAccessCodeService } from "#services/file-access-code.service";
+import { UserService } from "#services/user.service";
 
 export const FileMetadataSaveSchema = z.object({
   name: z.string(),

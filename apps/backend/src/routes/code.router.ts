@@ -1,10 +1,10 @@
 import { z } from "zod"; // zod 임포트
 import { TRPCError } from "@trpc/server"; // TRPCError 임포트
-import { fileAccessCodeSchema } from "@cirrodrive/schemas/file-access-code.js";
-import { fileMetadataDTOSchema } from "@cirrodrive/schemas/file-metadata.js";
-import { router, procedure, authedProcedure } from "#loaders/trpc.loader.js"; // tRPC 설정 임포트
-import { container } from "#loaders/inversify.loader.js";
-import { FileAccessCodeService } from "#services/file-access-code.service.js";
+import { fileAccessCodeSchema } from "@cirrodrive/schemas/file-access-code";
+import { fileMetadataDTOSchema } from "@cirrodrive/schemas/file-metadata";
+import { router, procedure, authedProcedure } from "#loaders/trpc.loader"; // tRPC 설정 임포트
+import { container } from "#loaders/inversify.loader";
+import { FileAccessCodeService } from "#services/file-access-code.service";
 
 const fileAccessCodeService = container.get(FileAccessCodeService);
 

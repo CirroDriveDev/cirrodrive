@@ -10,10 +10,10 @@ import helmet from "helmet";
 import { StatusCodes } from "http-status-codes";
 import cors from "cors";
 import { createExpressMiddleware } from "@trpc/server/adapters/express";
-import { loggerMiddleware } from "#loaders/logger.loader.js";
-import { env } from "#loaders/env.loader.js";
-import { appRouter } from "#routes/app.router.js";
-import { createContext } from "#loaders/trpc.loader.js";
+import { loggerMiddleware } from "#loaders/logger.loader";
+import { env } from "#loaders/env.loader";
+import { appRouter } from "#routes/app.router";
+import { createContext } from "#loaders/trpc.loader";
 
 export const TRPC_PATH = "/trpc";
 

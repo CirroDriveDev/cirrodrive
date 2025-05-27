@@ -1,12 +1,12 @@
 import { z } from "zod";
 import { s3PresignedPostSchema } from "@cirrodrive/schemas/s3";
 import { fileMetadataDTOSchema } from "@cirrodrive/schemas/file-metadata";
-import { router, procedure } from "#loaders/trpc.loader.js";
-import { logger } from "#loaders/logger.loader.js";
-import { container } from "#loaders/inversify.loader.js";
-import { S3Service } from "#services/s3.service.js";
-import { FileUploadService } from "#services/file.upload.service.js";
-import { FileAccessCodeService } from "#services/file-access-code.service.js";
+import { router, procedure } from "#loaders/trpc.loader";
+import { logger } from "#loaders/logger.loader";
+import { container } from "#loaders/inversify.loader";
+import { S3Service } from "#services/s3.service";
+import { FileUploadService } from "#services/file.upload.service";
+import { FileAccessCodeService } from "#services/file-access-code.service";
 
 const s3Service = container.get<S3Service>(S3Service);
 const fileAccessCodeService = container.get<FileAccessCodeService>(
