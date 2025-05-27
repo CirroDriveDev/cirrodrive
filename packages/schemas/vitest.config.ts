@@ -4,9 +4,6 @@ export default defineConfig({
   test: {
     globals: true,
     exclude: ["**/node_modules/**", "**/dist/**"],
-    coverage: {
-      include: ["src/client.ts", "src/utils.ts"],
-    },
   },
   plugins: [],
 });
