@@ -1,7 +1,7 @@
 #!/usr/bin/env vite-node
 /* eslint-disable no-console -- cli */
 
-import { runPrismaCommand } from "#src/utils.js";
+import { runPrismaCommand } from "#src/utils";
 
 async function main() {
   try {

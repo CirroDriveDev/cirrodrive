@@ -25,12 +25,12 @@
     },
     "test": {
       "cache": false,
-      "dependsOn": ["@cirrodrive/utils#build", "@cirrodrive/database#build"],
+      "dependsOn": ["@cirrodrive/database#build"],
       "env": ["MODE"],
       "persistent": true
     },
     "test:ci": {
-      "dependsOn": ["@cirrodrive/utils#build", "@cirrodrive/database#build"],
+      "dependsOn": ["@cirrodrive/database#build"],
       "env": ["MODE"],
       "outputs": [".cache/vitest-report.json"]
     },

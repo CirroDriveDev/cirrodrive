@@ -1,6 +1,6 @@
-import { clearDatabase } from "#src/utils.js";
+import { clearDatabase } from "#src/utils";
 import { prisma } from "#client";
-import { createPlan } from "#src/seed-utils/create-plan.js";
+import { createPlan } from "#src/seed-utils/create-plan";
 
 // 실제 통합 테스트를 위한 설정
 describe("Database Utils", () => {
