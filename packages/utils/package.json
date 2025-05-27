@@ -4,38 +4,15 @@
   "private": true,
   "type": "module",
   "imports": {
-    "#env": {
-      "types": "./src/env.ts",
-      "import": "./dist/env.js"
-    },
-    "#seed": {
-      "types": "./src/seed.ts",
-      "import": "./dist/seed.js"
-    },
-    "#src/*": {
-      "types": [
-        "./src/*",
-        "./src/*.ts"
-      ],
-      "import": [
-        "./dist/*",
-        "./dist/*.js"
-      ]
-    },
-    "#test/*": [
-      "./test/*",
-      "./test/*.ts"
-    ]
+    "#env": "./src/env.ts",
+    "#src/*": "./src/*.ts",
+    "#test/*": "./test/*.ts"
   },
   "exports": {
-    "./env": {
-      "types": "./dist/env.d.ts",
-      "import": "./dist/env.js"
-    }
+    "./env": "./src/env.ts"
   },
   "scripts": {
-    "build": "tsc -p tsconfig.build.json",
-    "clean": "git clean -xdf .cache .turbo node_modules dist",
+    "clean": "git clean -xdf .cache .turbo node_modules",
     "format": "prettier --check .",
     "lint": "eslint",
     "test": "vitest",

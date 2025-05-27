@@ -1,5 +1,5 @@
-import { TossBillingSchema } from "@cirrodrive/schemas/toss.js";
 import { describe, test, expect } from "vitest";
+import { TossBillingSchema } from "#schemas/toss";
 
 describe("billingSchema", () => {
   test("정상적인 값은 에러를 발생시키지 않는다", () => {

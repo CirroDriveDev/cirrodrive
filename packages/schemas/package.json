@@ -4,32 +4,13 @@
   "private": true,
   "type": "module",
   "imports": {
-    "#schemas/*": {
-      "types": [
-        "./src/*",
-        "./src/*.ts"
-      ],
-      "import": [
-        "./dist/*",
-        "./dist/*.js"
-      ]
-    }
+    "#schemas/*": "./src/*.ts"
   },
   "exports": {
-    "./*": {
-      "types": [
-        "./src/*",
-        "./src/*.ts"
-      ],
-      "import": [
-        "./dist/*",
-        "./dist/*.js"
-      ]
-    }
+    "./*": "./src/*.ts"
   },
   "scripts": {
-    "build": "tsc -p tsconfig.build.json",
-    "clean": "git clean -xdf .cache .turbo node_modules dist",
+    "clean": "git clean -xdf .cache .turbo node_modules",
     "format": "prettier --check .",
     "lint": "eslint .",
     "typecheck": "tsc --noEmit"
