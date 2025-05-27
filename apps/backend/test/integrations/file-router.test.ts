@@ -1,6 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import type { Request, Response } from "express";
-import { fileUploadRouter } from "./routes/file.upload.router.js";
+import { fileUploadRouter } from "#routes/file.upload.router.js";
 
 // Mock 서비스들
 const mockCreatePresignedPost = vi.fn();
@@ -53,23 +53,22 @@ describe("fileUploadRouter", () => {
     const fakePresignedPost = {
       url: "https://fake-s3-url",
       fields: {
-        key: "testfile.png",
+        "key": "testfile.png",
         "Content-Type": "image/png",
       },
     };
     mockCreatePresignedPost.mockResolvedValue(fakePresignedPost);
 
     const caller = fileUploadRouter.createCaller({
-  req: {
-    body: {},
-    cookies: {},
-  } as unknown as Request,
-  res: {} as unknown as Response,
-  user: fakeUser,
-  session: null,
-  sessionToken: null,
-});
-
+      req: {
+        body: {},
+        cookies: {},
+      } as unknown as Request,
+      res: {} as unknown as Response,
+      user: fakeUser,
+      session: null,
+      sessionToken: null,
+    });
 
     const result = await caller.getS3PresignedPost(input);
 
@@ -93,16 +92,15 @@ describe("fileUploadRouter", () => {
     mockCreateCode.mockResolvedValue(fakeCode);
 
     const caller = fileUploadRouter.createCaller({
-  req: {
-    body: {},
-    cookies: {},
-  } as unknown as Request,
-  res: {} as unknown as Response,
-  user: fakeUser,
-  session: null,
-  sessionToken: null,
-});
-
+      req: {
+        body: {},
+        cookies: {},
+      } as unknown as Request,
+      res: {} as unknown as Response,
+      user: fakeUser,
+      session: null,
+      sessionToken: null,
+    });
 
     const result = await caller.completeUpload(input);
 
