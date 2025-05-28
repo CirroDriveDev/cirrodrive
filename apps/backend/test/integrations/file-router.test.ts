@@ -31,13 +31,12 @@ describe("fileUploadRouter", () => {
       const mockPresignedPost: PresignedPost = {
         fields: {
           "Content-Type": "image/png",
-          "Policy": expect.any(String) as string, // 실제 정책 문자열은 매우 깁니다.
+          "Policy": expect.any(String) as string, // 실제 정책 문자열은 호출 시마다 다릅니다.
           "X-Amz-Algorithm": "AWS4-HMAC-SHA256",
           "X-Amz-Credential":
             "minioadmin/20250527/ap-northeast-2/s3/aws4_request",
           "X-Amz-Date": "20250527T120000Z",
-          "X-Amz-Signature":
-            "b55bfdd51b293ccaaae6eec5068654d2ba8a1079070e5e544256348660a0a0e7",
+          "X-Amz-Signature": expect.any(String) as string, // 실제 서명은 호출 시마다 다릅니다.
           "bucket": "test-bucket",
           "key": "uploads/anonymous/2025-05-27-mock-uuid-1234.png",
         },
