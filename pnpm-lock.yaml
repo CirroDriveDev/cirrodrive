@@ -136,6 +136,9 @@ importers:
       '@aws-sdk/client-ses':
         specifier: ^3.810.0
         version: 3.817.0
+      '@aws-sdk/cloudfront-signer':
+        specifier: ^3.813.0
+        version: 3.813.0
       '@aws-sdk/s3-presigned-post':
         specifier: ^3.810.0
         version: 3.817.0
@@ -996,6 +999,10 @@ packages:
 
   '@aws-sdk/client-sso@3.817.0':
     resolution: {integrity: sha512-fCh5rUHmWmWDvw70NNoWpE5+BRdtNi45kDnIoeoszqVg7UKF79SlG+qYooUT52HKCgDNHqgbWaXxMOSqd2I/OQ==}
+    engines: {node: '>=18.0.0'}
+
+  '@aws-sdk/cloudfront-signer@3.813.0':
+    resolution: {integrity: sha512-4fT5P14ka8sduNO5L/nuTi763q22BxcmOCXY8FvsD0b1RKU3F8wvPODCDXf5+L7AuRHFMKrjCkcnWql+QuyOpQ==}
     engines: {node: '>=18.0.0'}
 
   '@aws-sdk/core@3.816.0':
@@ -7301,6 +7308,11 @@ snapshots:
       tslib: 2.8.1
     transitivePeerDependencies:
       - aws-crt
+
+  '@aws-sdk/cloudfront-signer@3.813.0':
+    dependencies:
+      '@smithy/url-parser': 4.0.3
+      tslib: 2.8.1
 
   '@aws-sdk/core@3.816.0':
     dependencies:
