@@ -25,12 +25,6 @@ export const sessionRouter = router({
     .mutation(async ({ input, ctx }) => {
       logger.info({ requestId: ctx.req.id }, "login 요청 시작");
 
-      if (ctx.user) {
-        throw new TRPCError({
-          code: "FORBIDDEN",
-          message: "이미 로그인되어 있습니다.",
-        });
-      }
       try {
         const { user, session, token } = await authService.login({
           username: input.username,
