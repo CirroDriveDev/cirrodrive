@@ -24,10 +24,15 @@ const MAX_GUEST_FILE_SIZE = 1024 * 1024 * 1024; // 1GB
 const MAX_USER_FILE_SIZE = 5 * 1024 * 1024 * 1024; // 5GB
 const S3_POST_EXPIRES = 60; // 1 minute
 
-export const S3MetadataSchema = z.object({
-  userId: z.string(),
-  origin: z.enum(["guest", "user"]),
-});
+export const S3MetadataSchema = z
+  .object({
+    userid: z.string(),
+  })
+  .transform((data) => {
+    return {
+      userId: data.userid,
+    };
+  });
 
 export const S3HeadObjectSchema = z.object({
   Metadata: S3MetadataSchema,
@@ -92,15 +97,11 @@ export class S3Service implements S3ServiceInterface {
       Fields: {
         "Content-Type": contentType,
         "x-amz-meta-userId": userId,
-        "x-amz-meta-origin": isGuest ? "guest" : "user",
-        "acl": "private",
       },
       Conditions: [
         ["starts-with", "$key", `uploads/${userId}`],
         ["starts-with", "$Content-Type", contentType],
         ["eq", "$x-amz-meta-userId", userId],
-        ["eq", "$x-amz-meta-origin", isGuest ? "guest" : "user"],
-        ["eq", "$acl", "private"],
         [
           "content-length-range",
           0,
@@ -168,6 +169,7 @@ export class S3Service implements S3ServiceInterface {
     });
 
     const data = await s3Client.send(command);
+    this.logger.debug(data);
 
     return S3HeadObjectSchema.parse(data);
   }

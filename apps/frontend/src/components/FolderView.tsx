@@ -13,8 +13,7 @@ import { useBoundStore } from "#store/useBoundStore.js";
 import { useFolderCreate } from "#services/file/useFolderCreate.js";
 import { FileUploadDropzoneOverlay } from "#components/FileUploadDropzoneOverlay.js";
 import { useRenameStore } from "#store/useRenameStore.js";
-import { selectFile } from "#utils/selectFile.js";
-import { useUpload } from "#services/file/useUpload.js";
+import { UploadButton } from "#components/UploadButton.js";
 
 interface FolderViewProps {
   folderId: string;
@@ -29,16 +28,6 @@ export function FolderView({ folderId }: FolderViewProps): JSX.Element {
     },
   });
   const { query: entryListQuery } = useEntryList(folderId);
-  const { upload, isPending } = useUpload();
-
-  async function handleFileSelect(): Promise<void> {
-    const files = await selectFile();
-    if (!files) return;
-    for (const file of files) {
-      await upload(file, folderId);
-    }
-    void entryListQuery.refetch();
-  }
 
   // useEffect에 넣어서 렌더링 이후 실행하지 않으면 무한 루프에 빠집니다.
   useEffect(() => {
@@ -84,9 +73,7 @@ export function FolderView({ folderId }: FolderViewProps): JSX.Element {
             ))}
         </div>
         <div className="flex w-full space-x-4 p-4">
-          {isPending ?
-            <LoadingSpinner />
-          : <Button onClick={handleFileSelect}>업로드</Button>}
+          <UploadButton folderId={folderId} />
           <Button onClick={createFolder}>폴더 생성</Button>
         </div>
         <div className="relative flex w-full px-4">

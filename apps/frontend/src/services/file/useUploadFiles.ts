@@ -4,7 +4,7 @@ import { type UploadResult, type UseUploader } from "#types/use-uploader.js";
 import { trpc } from "#services/trpc.js";
 import { entryUpdatedEvent } from "#services/entryUpdatedEvent.js";
 
-interface UploadRequest {
+export interface UploadRequest {
   file: File;
   folderId?: string;
 }
@@ -27,13 +27,11 @@ export function useUploadFiles(useUploader: UseUploader) {
     await entryUpdatedEvent();
   };
 
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars -- 임시적으로 사용하지 않음
-  const uploadFiles = (uploadRequests: UploadRequest[]) => {
+  const uploadFiles = async (uploadRequests: UploadRequest[]) => {
     setIsPending(true);
     const results: UploadResult[] = [];
     const limit = pLimit(3);
 
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars -- 임시적으로 사용하지 않음
     const uploadSingleFile = async (
       file: File,
       folderId?: string,
@@ -41,23 +39,23 @@ export function useUploadFiles(useUploader: UseUploader) {
       const result = await upload(file);
       if (result.success) {
         await completeUpload(file.name, result.key, folderId);
-        results.push(result);
       }
-
-      await Promise.all(
-        uploadRequests.map((request) =>
-          limit(() => uploadSingleFile(request.file, request.folderId)),
-        ),
-      );
-      setUploadResults(results);
-      setIsPending(false);
+      results.push(result);
     };
 
-    return {
-      isPending,
-      uploadResults,
-      uploadFiles,
-      completeUpload,
-    };
+    await Promise.all(
+      uploadRequests.map((request) =>
+        limit(() => uploadSingleFile(request.file, request.folderId)),
+      ),
+    );
+    setUploadResults(results);
+    setIsPending(false);
+  };
+
+  return {
+    isPending,
+    uploadResults,
+    uploadFiles,
+    completeUpload,
   };
 }
