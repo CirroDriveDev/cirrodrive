@@ -9,7 +9,7 @@ import {
   MoveIcon,
 } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
-import type { EntryDTO } from "@cirrodrive/schemas/entry.js";
+import type { EntryDTO } from "@cirrodrive/schemas/entry";
 import { useNavigate } from "react-router";
 import { inferFileType } from "#utils/inferFileType.js";
 import { formatSize } from "#utils/formatSize.js";

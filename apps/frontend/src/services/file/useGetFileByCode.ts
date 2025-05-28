@@ -1,4 +1,4 @@
-import type { FileMetadataPublicDTO } from "@cirrodrive/schemas/file-metadata.js";
+import type { FileMetadataPublicDTO } from "@cirrodrive/schemas/file-metadata";
 import type { TRPCClientErrorLike } from "@trpc/client";
 import type { AppRouter } from "@cirrodrive/backend/app-router";
 import { trpc } from "#services/trpc.js";

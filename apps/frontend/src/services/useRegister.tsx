@@ -7,7 +7,7 @@ import type {
 } from "@cirrodrive/backend/app-router";
 import type { TRPCClientErrorLike } from "@trpc/client";
 import type { UseTRPCMutationOptions } from "@trpc/react-query/shared";
-import { userSchema } from "@cirrodrive/schemas/user.js";
+import { userSchema } from "@cirrodrive/schemas/user";
 import { z, type ZodFormattedError } from "zod";
 import { trpc } from "#services/trpc.js";
 import { useModalStore } from "#store/useModalStore.js";

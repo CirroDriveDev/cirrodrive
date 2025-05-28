@@ -1,5 +1,5 @@
 import { useNavigate } from "react-router";
-import type { EntryDTO } from "@cirrodrive/schemas/entry.js";
+import type { EntryDTO } from "@cirrodrive/schemas/entry";
 import { useBoundStore } from "#store/useBoundStore.js";
 import { SidebarLayout } from "#components/layout/SidebarLayout.js";
 import { Header } from "#components/layout/Header.js";

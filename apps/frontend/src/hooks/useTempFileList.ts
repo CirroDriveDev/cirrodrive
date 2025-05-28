@@ -1,5 +1,5 @@
 import { useState } from "react";
-import type { EntryDTO } from "@cirrodrive/schemas/entry.js";
+import type { EntryDTO } from "@cirrodrive/schemas/entry";
 
 export type TempFile = EntryDTO & {
   ownerName: string;

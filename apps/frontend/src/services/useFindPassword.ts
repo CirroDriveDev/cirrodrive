@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { userSchema } from "@cirrodrive/schemas/user.js";
+import { userSchema } from "@cirrodrive/schemas/user";
 import { useEmailCode } from "#services/useEmailCode.js";
 import { trpc } from "#services/trpc.js";
 import { useModalStore } from "#store/useModalStore.js";

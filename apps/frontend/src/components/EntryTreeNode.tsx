@@ -1,4 +1,4 @@
-import type { RecursiveEntryDTO } from "@cirrodrive/schemas/entry.js";
+import type { RecursiveEntryDTO } from "@cirrodrive/schemas/entry";
 import {
   ChevronDown,
   ChevronUp,

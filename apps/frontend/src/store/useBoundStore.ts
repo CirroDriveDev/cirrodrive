@@ -2,7 +2,7 @@ import { create } from "zustand";
 import { devtools, persist } from "zustand/middleware";
 import { immer } from "zustand/middleware/immer";
 import type { StateCreator } from "zustand";
-import type { UserDTO } from "@cirrodrive/schemas/user.js";
+import type { UserDTO } from "@cirrodrive/schemas/user";
 
 // ------------------------------------
 // Store Slice Interfaces

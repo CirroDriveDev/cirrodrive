@@ -1,4 +1,4 @@
-import type { UserDTO } from "@cirrodrive/schemas/user.js";
+import type { UserDTO } from "@cirrodrive/schemas/user";
 
 export const mockAdminUser: UserDTO = {
   id: "9999",

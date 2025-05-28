@@ -1,5 +1,5 @@
 /* eslint-disable unicorn/filename-case -- Todo */
-import type { EntryDTO } from "@cirrodrive/schemas/entry.js";
+import type { EntryDTO } from "@cirrodrive/schemas/entry";
 import { trpc } from "#services/trpc.js";
 import { entryUpdatedEvent } from "#services/entryUpdatedEvent.js";
 import { useModalStore } from "#store/useModalStore.js";

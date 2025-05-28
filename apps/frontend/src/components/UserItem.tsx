@@ -1,5 +1,5 @@
 import { MoreVertical } from "lucide-react";
-import type { UserDTO } from "@cirrodrive/schemas/user.js";
+import type { UserDTO } from "@cirrodrive/schemas/user";
 import {
   DropdownMenu,
   DropdownMenuContent,

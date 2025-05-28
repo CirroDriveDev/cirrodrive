@@ -1,5 +1,5 @@
 import { useState, useMemo } from "react";
-import type { UserDTO } from "@cirrodrive/schemas/user.js";
+import type { UserDTO } from "@cirrodrive/schemas/user";
 import { UserItem } from "./UserItem.js";
 import { useUserSearchBarStore } from "#store/useUserSearchBarStore.js";
 import { useUserDelete } from "#services/admin/useDeleteUser.js";
