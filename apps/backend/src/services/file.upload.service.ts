@@ -41,14 +41,7 @@ export class FileUploadService {
     }
 
     const metadata = headObjectData.Metadata;
-    const { userId, origin } = metadata;
-    if (origin === "user" && !userId) {
-      throw new Error("User ID is required for user-origin files.");
-    }
-
-    if (origin === "guest" && userId) {
-      throw new Error("Guest files should not have a user ID.");
-    }
+    const { userId } = metadata;
 
     if (userId !== ownerId) {
       throw new Error("File owner does not match the provided ownerId.");
