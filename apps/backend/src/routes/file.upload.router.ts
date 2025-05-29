@@ -71,34 +71,68 @@ export const fileUploadRouter = router({
    * @param folderId - (선택) 부모 폴더 ID
    */
   completeUpload: procedure
-    .input(
-      z.object({
-        fileName: fileMetadataDTOSchema.shape.name,
-        key: z.string(),
-        folderId: z.string().optional(),
-      }),
-    )
-    .output(
-      z.object({
-        fileId: z.string(),
-        code: z.string().optional(),
-      }),
-    )
-    .mutation(async ({ input, ctx }) => {
-      const { user } = ctx;
-      const ownerId = user?.id ?? "anonymous";
-      const file = await fileUploadService.completeUpload({
-        ownerId,
-        name: input.fileName,
-        key: input.key,
-        parentFolderId: input.folderId,
-      });
+  .input(
+    z.object({
+      fileName: fileMetadataDTOSchema.shape.name,
+      key: z.string(),
+      folderId: z.string().optional(),
+    }),
+  )
+  .output(
+    z.object({
+      fileId: z.string(),
+      code: z.string().optional(),
+    }),
+  )
+  .mutation(async ({ input, ctx }) => {
+    const { user } = ctx;
+    const ownerId = user?.id ?? "anonymous";
 
+    const file = await fileUploadService.completeUpload({
+      ownerId,
+      name: input.fileName,
+      key: input.key,
+      parentFolderId: input.folderId,
+    });
+
+    if (!user) {
       const code = await fileAccessCodeService.create({ fileId: file.id });
 
       return {
         fileId: file.id,
         code: code.code,
       };
+    }
+
+    return {
+      fileId: file.id,
+    };
+  }),
+
+  completeUploadAnonymous: procedure
+  .input(
+    z.object({
+      fileName: fileMetadataDTOSchema.shape.name,
+      key: z.string(),
+      folderId: z.string().optional(),
     }),
+  )
+  .output(
+    z.object({
+      fileId: z.string(),
+      code: z.string(),
+    }),
+  )
+  .mutation(async ({ input }) => {
+    const { file, code } = await fileUploadService.completeUploadAnonymous({
+      name: input.fileName,
+      key: input.key,
+      parentFolderId: input.folderId,
+    });
+
+    return {
+      fileId: file.id,
+      code: code.code,
+    };
+  }),
 });

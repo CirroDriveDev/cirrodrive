@@ -4,6 +4,7 @@ import { inject, injectable } from "inversify";
 import { S3Service } from "#services/s3.service";
 import { FileMetadataRepository } from "#repositories/file-metadata.repository";
 import { FileService } from "#services/file.service";
+import { FileAccessCodeService } from "#services/file-access-code.service";
 
 @injectable()
 export class FileUploadService {
@@ -13,6 +14,8 @@ export class FileUploadService {
     private readonly fileRepository: FileMetadataRepository,
     @inject(FileService)
     private readonly fileService: FileService,
+    @inject(FileAccessCodeService)
+    private readonly fileAccessCodeService: FileAccessCodeService, // 추가
   ) {}
 
   async completeUpload({
@@ -57,5 +60,39 @@ export class FileUploadService {
       parentFolderId,
       ownerId,
     });
+  }
+
+  // 비회원 업로드용 메서드 추가
+  async completeUploadAnonymous({
+    name,
+    key,
+    parentFolderId,
+  }: {
+    name: string;
+    key: string;
+    parentFolderId?: string;
+  }) {
+    const ownerId = "anonymous";
+
+    // S3 메타 데이터 조회 없이 바로 저장하려면 아래처럼 처리하거나, 필요 시 기존처럼 조회할 수 있음.
+    // 필요하면 s3Service.headObject 호출 추가 가능
+
+    const savedFile = await this.fileService.save({
+      name,
+      size: 0, // 크기 모를 경우 0 또는 별도 처리
+      extension: path.extname(name),
+      key,
+      hash: "",
+      parentFolderId,
+      ownerId,
+    });
+
+    // 코드 생성
+    const code = await this.fileAccessCodeService.create({ fileId: savedFile.id });
+
+    return {
+      file: savedFile,
+      code,
+    };
   }
 }
