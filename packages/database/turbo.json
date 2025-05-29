@@ -15,7 +15,7 @@
     },
     "db:seed": {
       "cache": false,
-      "dependsOn": ["build", "db:generate"],
+      "dependsOn": ["build", "db:push"],
       "env": ["DATABASE_URL"]
     },
     "db:studio": {

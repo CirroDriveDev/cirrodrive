@@ -11,6 +11,7 @@ import {
   DeleteObjectCommand,
   DeleteObjectsCommand,
   CopyObjectCommand,
+  GetObjectCommand,
 } from "@aws-sdk/client-s3";
 import type { Logger } from "pino";
 import { z } from "zod";
@@ -235,5 +236,23 @@ export class S3Service implements S3ServiceInterface {
       this.logger.error("Error checking object existence", { key, error });
       throw error;
     }
+  }
+
+  /**
+   * S3 객체를 다운로드하는 Signed URL을 생성합니다.
+   */
+  public async getDownloadSignedURL(
+    key: string,
+    expiresIn = 60 * 5, // 5분
+  ): Promise<string> {
+    const command = new GetObjectCommand({
+      Bucket: BUCKET_NAME,
+      Key: key,
+    });
+    const signedDownloadUrl = await getSignedUrl(s3Client, command, {
+      expiresIn,
+    });
+
+    return signedDownloadUrl;
   }
 }

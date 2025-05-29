@@ -23,6 +23,10 @@ const envSchema = z.object({
   AWS_S3_ACCESS_KEY: z.string().optional(),
   AWS_S3_SECRET_KEY: z.string().optional(),
   AWS_S3_ENDPOINT: z.string().url().optional(),
+  AWS_CLOUDFRONT_DOMAIN: z.string(),
+  AWS_CLOUDFRONT_KEY_PAIR_ID: z.string(),
+  AWS_CLOUDFRONT_PRIVATE_KEY: z.string(),
+  AWS_CLOUDFRONT_EXPIRES_IN_SECONDS: z.coerce.number().default(3600),
   PAYMENT_TOSS_SECRET_KEY: z.string(),
 });
 
