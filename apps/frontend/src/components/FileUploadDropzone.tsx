@@ -2,11 +2,16 @@ import { useState } from "react";
 import { FileIcon } from "lucide-react";
 import { useBoundStore } from "#store/useBoundStore.js";
 import { LoadingSpinner } from "#components/shared/LoadingSpinner.js";
-import { useUpload } from "#services/file/useUpload.js";
-import { FileUploadSuccessModal } from "#components/FileUploadSuccessModal.js";
+import {
+  useUploadFiles,
+  type UploadRequest,
+} from "#services/file/useUploadFiles.js";
+import { usePresignedPostUploader } from "#services/file/presigned-post-uploader.js";
 
 export function FileUploadDropzone(): JSX.Element {
-  const { upload, isPending, error: uploadError } = useUpload();
+  const { uploadFiles, isPending, uploadResults } = useUploadFiles(
+    usePresignedPostUploader,
+  );
 
   const [dragOver, setDragOver] = useState(false);
   const { openModal } = useBoundStore();
@@ -27,25 +32,28 @@ export function FileUploadDropzone(): JSX.Element {
     setDragOver(false);
 
     const files = e.dataTransfer.files;
-    if (!files?.[0]) {
+    if (!files?.length) {
       return;
     }
 
-    const file = files[0];
+    const uploadRequests: UploadRequest[] = Array.from(files).map((file) => ({
+      file,
+    }));
+    await uploadFiles(uploadRequests);
 
-    const { code } = await upload(file);
-
-    if (uploadError) {
+    // 업로드 결과 처리
+    const hasError = uploadResults.some((r) => !r.success);
+    if (hasError) {
       openModal({
         title: "업로드 실패",
-        content: <div>{uploadError?.message}</div>,
+        content: <div>일부 파일 업로드에 실패했습니다.</div>,
       });
       return;
     }
-
+    // 성공 모달 (여러 파일 이름 표시)
     openModal({
       title: "업로드 성공",
-      content: FileUploadSuccessModal(file.name, code),
+      content: <div>{uploadResults.map((r) => r.file.name).join(", ")}</div>,
     });
   };
 

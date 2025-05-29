@@ -1,8 +1,11 @@
 import { useEffect, useState } from "react";
 import { FileIcon } from "lucide-react";
-import { useUpload } from "#services/file/useUpload.js";
+import {
+  useUploadFiles,
+  type UploadRequest,
+} from "#services/file/useUploadFiles.js";
+import { usePresignedPostUploader } from "#services/file/presigned-post-uploader.js";
 import { useBoundStore } from "#store/useBoundStore.js";
-import { FileUploadSuccessModal } from "#components/FileUploadSuccessModal.js";
 
 interface DragAndDropUploadOverlayProps {
   folderId?: string; // 폴더 ID
@@ -16,7 +19,10 @@ export function FileUploadDropzoneOverlay({
   const [dragOver, setDragOver] = useState(false);
   const { openModal } = useBoundStore();
 
-  const { upload, error: uploadError } = useUpload();
+  // useUpload → useUploadFiles + usePresignedPostUploader
+  const { uploadFiles, uploadResults } = useUploadFiles(
+    usePresignedPostUploader,
+  );
 
   // 드래그 앤 드롭 공통 처리
   const handleDrop = async (
@@ -26,27 +32,27 @@ export function FileUploadDropzoneOverlay({
     setDragOver(false);
 
     const files = e.dataTransfer.files;
+    if (!files?.length) return;
 
-    if (files?.[0]) {
-      const file = files[0];
+    const uploadRequests: UploadRequest[] = Array.from(files).map((file) => ({
+      file,
+      folderId,
+    }));
+    await uploadFiles(uploadRequests);
 
-      const { code } = await upload(file, folderId);
-      if (uploadError) {
-        openModal({
-          title: "업로드 실패",
-          content: <div>{uploadError?.message}</div>,
-        });
-        return;
-      }
-
-      if (onUploadSuccess) {
-        onUploadSuccess();
-      }
+    const hasError = uploadResults.some((r) => !r.success);
+    if (hasError) {
       openModal({
-        title: "업로드 성공",
-        content: FileUploadSuccessModal(file.name, code),
+        title: "업로드 실패",
+        content: <div>일부 파일 업로드에 실패했습니다.</div>,
       });
+      return;
     }
+    if (onUploadSuccess) onUploadSuccess();
+    openModal({
+      title: "업로드 성공",
+      content: <div>{uploadResults.map((r) => r.file.name).join(", ")}</div>,
+    });
   };
 
   useEffect(() => {
