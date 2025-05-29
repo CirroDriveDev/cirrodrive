@@ -131,19 +131,19 @@ importers:
   apps/backend:
     dependencies:
       '@aws-sdk/client-s3':
-        specifier: ^3.810.0
+        specifier: ^3.813.0
         version: 3.817.0
       '@aws-sdk/client-ses':
-        specifier: ^3.810.0
+        specifier: ^3.813.0
         version: 3.817.0
       '@aws-sdk/cloudfront-signer':
         specifier: ^3.813.0
         version: 3.813.0
       '@aws-sdk/s3-presigned-post':
-        specifier: ^3.810.0
+        specifier: ^3.813.0
         version: 3.817.0
       '@aws-sdk/s3-request-presigner':
-        specifier: ^3.810.0
+        specifier: ^3.813.0
         version: 3.817.0
       '@aws-sdk/types':
         specifier: ^3.804.0

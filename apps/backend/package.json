@@ -102,7 +102,7 @@
     "@aws-sdk/cloudfront-signer": "^3.813.0",
     "@aws-sdk/s3-presigned-post": "^3.813.0",
     "@aws-sdk/s3-request-presigner": "^3.813.0",
-    "@aws-sdk/types": "^3.813.0",
+    "@aws-sdk/types": "^3.804.0",
     "@cirrodrive/database": "workspace:*",
     "@cirrodrive/schemas": "workspace:*",
     "@cirrodrive/utils": "workspace:*",
