@@ -41,7 +41,6 @@ export function FolderView({ folderId }: FolderViewProps): JSX.Element {
   const sortedEntries =
     entryListQuery.data
       ?.filter((entry) => {
-        if (filters.name && !entry.name.includes(filters.name)) return false;
         if (
           filters.updatedAt &&
           !entry.updatedAt.toISOString().includes(filters.updatedAt)
