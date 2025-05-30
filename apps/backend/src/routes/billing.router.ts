@@ -147,46 +147,49 @@ export const billingRouter = router({
       };
     }),
 
-  /**
-   * 결제 내역 조회 (페이징 지원)
-   *
-   * @param input.limit - 조회 개수 (기본 20)
-   * @param input.cursor - 페이징 커서
-   * @returns 결제 내역 및 다음 커서
-   * @throws NOT_FOUND (내역 없음)
-   */
-  getPaymentHistory: authedProcedure
-    .input(
-      z.object({
-        limit: z.number().int().min(1).max(100).optional().default(20),
-        cursor: z.string().optional(),
-      }),
-    )
-    .output(
-      z.object({
-        payments: z.array(PaymentSchema),
-        nextCursor: z.string().nullable(),
-      }),
-    )
-    .query(async ({ input, ctx }) => {
-      const userId = ctx.user.id;
-      const { limit, cursor } = input;
-      const { payments, nextCursor } = await billingService.getPaymentHistory({
-        userId,
-        limit,
-        cursor,
-      });
-      if (!payments) {
-        throw new TRPCError({
-          code: "NOT_FOUND",
-          message: "결제 내역을 찾을 수 없습니다.",
-        });
-      }
-      return {
-        payments,
-        nextCursor: nextCursor ?? null,
-      };
+ /**
+ * 결제 내역 조회 (페이징 지원)
+ *
+ * @description
+ * 사용자의 결제 내역을 조회합니다. 페이징을 위해 limit 및 cursor를 사용할 수 있습니다.
+ * 결제 내역이 없을 경우 payments는 빈 배열로 반환되며, 에러는 발생하지 않습니다.
+ * 클라이언트는 빈 배열 여부로 결제 내역 유무를 판단해야 합니다.
+ *
+ * @param input.limit - 조회 개수 (기본값: 20, 최대: 100)
+ * @param input.cursor - 페이징 커서 (옵션)
+ *
+ * @returns 결제 내역 배열 및 다음 커서 (더 불러올 내역이 없으면 nextCursor는 null)
+ */
+
+getPaymentHistory: authedProcedure
+  .input(
+    z.object({
+      limit: z.number().int().min(1).max(100).optional().default(20),
+      cursor: z.string().optional(),
     }),
+  )
+  .output(
+    z.object({
+      payments: z.array(PaymentSchema),
+      nextCursor: z.string().nullable(),
+    }),
+  )
+  .query(async ({ input, ctx }) => {
+    const userId = ctx.user.id;
+    const { limit, cursor } = input;
+
+    const { payments, nextCursor } = await billingService.getPaymentHistory({
+      userId,
+      limit,
+      cursor,
+    });
+
+    return {
+      payments: payments ?? [],
+      nextCursor: nextCursor ?? null,
+    };
+  }),
+
 
   /**
    * 특정 요금제의 할당량(Quota) 정보 반환
