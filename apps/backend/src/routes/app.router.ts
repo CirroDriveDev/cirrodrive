@@ -10,6 +10,7 @@ import { emailRouter } from "#routes/email.router";
 import { protectedRouter } from "#routes/protected/protected.router";
 import { planRouter } from "#routes/plan.router";
 import { billingRouter } from "#routes/billing.router";
+import { subscriptionRouter } from "#routes/subscription.router";
 
 export const appRouter = router({
   billing: billingRouter,
@@ -22,6 +23,7 @@ export const appRouter = router({
   session: sessionRouter,
   user: userRouter,
   plan: planRouter,
+  subscription: subscriptionRouter,
 });
 
 export type AppRouter = typeof appRouter;
