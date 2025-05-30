@@ -4,7 +4,7 @@ export type EntryType = "all" | "file" | "folder";
 
 interface FileSearchBarFilters {
   name: string;
-  updatedAt: string;     
+  updatedAt: string;
   minSizeMB: string;
   maxSizeMB: string;
   type: EntryType;
@@ -14,7 +14,7 @@ interface FileSearchBarState {
   filters: FileSearchBarFilters;
   setFilter: <K extends keyof FileSearchBarFilters>(
     key: K,
-    value: FileSearchBarFilters[K]
+    value: FileSearchBarFilters[K],
   ) => void;
   resetFilters: () => void;
 }
@@ -22,7 +22,7 @@ interface FileSearchBarState {
 export const useFileSearchBarStore = create<FileSearchBarState>((set) => ({
   filters: {
     name: "",
-    updatedAt: "",        
+    updatedAt: "",
     minSizeMB: "",
     maxSizeMB: "",
     type: "all",
@@ -38,7 +38,7 @@ export const useFileSearchBarStore = create<FileSearchBarState>((set) => ({
     set({
       filters: {
         name: "",
-        updatedAt: "",     
+        updatedAt: "",
         minSizeMB: "",
         maxSizeMB: "",
         type: "all",

@@ -68,16 +68,16 @@ export class PlanService {
     }
     return date;
   }
-   /**
-     * 요금제별 할당 용량 정보를 조회합니다.
-     *
-     * @param planId - 조회할 요금제 ID
-     * @returns 요금제 ID, 할당 용량(예: MB), 설명(선택적)
-     */
-    public async getPlanQuota(planId: string): Promise<{
-  planId: string;
-  quota?: number;
-  description?: string;
+  /**
+   * 요금제별 할당 용량 정보를 조회합니다.
+   *
+   * @param planId - 조회할 요금제 ID
+   * @returns 요금제 ID, 할당 용량(예: MB), 설명(선택적)
+   */
+  public async getPlanQuota(planId: string): Promise<{
+    planId: string;
+    quota?: number;
+    description?: string;
   }> {
     try {
       const plan = await this.getPlan(planId);

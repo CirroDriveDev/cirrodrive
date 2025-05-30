@@ -1,6 +1,9 @@
 import { useState } from "react";
 import { ChevronDown } from "lucide-react";
-import { useFileSearchBarStore, type EntryType } from "#store/useFileSearchBarStore.js";
+import {
+  useFileSearchBarStore,
+  type EntryType,
+} from "#store/useFileSearchBarStore.js";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -71,25 +74,31 @@ export function FileSearchBar(): JSX.Element {
         <option value="folder">폴더</option>
       </select>
 
-      {activeFields.updatedAt ? <input
+      {activeFields.updatedAt ?
+        <input
           type="date"
           className="h-10 w-48 rounded border px-3"
           onChange={(e) => setFilter("updatedAt", e.target.value)}
-        /> : null}
+        />
+      : null}
 
-      {activeFields.minSizeMB ? <input
+      {activeFields.minSizeMB ?
+        <input
           type="number"
           placeholder="최소 크기(MB)"
           className="h-10 w-32 rounded border px-3"
           onChange={(e) => setFilter("minSizeMB", e.target.value)}
-        /> : null}
+        />
+      : null}
 
-      {activeFields.maxSizeMB ? <input
+      {activeFields.maxSizeMB ?
+        <input
           type="number"
           placeholder="최대 크기(MB)"
           className="h-10 w-32 rounded border px-3"
           onChange={(e) => setFilter("maxSizeMB", e.target.value)}
-        /> : null}
+        />
+      : null}
 
       <DropdownMenu>
         <DropdownMenuTrigger asChild>

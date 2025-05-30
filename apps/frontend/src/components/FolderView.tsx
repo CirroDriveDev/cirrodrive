@@ -38,19 +38,35 @@ export function FolderView({ folderId }: FolderViewProps): JSX.Element {
   }, [folderId, setParentFolderId]);
 
   const sortedEntries =
-    entryListQuery.data?.filter((entry) => {
-      if (filters.name && !entry.name.includes(filters.name)) return false;
-      if (filters.updatedAt && !entry.updatedAt.toISOString().includes(filters.updatedAt)) return false;
-      if (filters.minSizeMB && entry.type === "file" && entry.size < Number(filters.minSizeMB) * 1024 * 1024) return false;
-      if (filters.maxSizeMB && entry.type === "file" && entry.size > Number(filters.maxSizeMB) * 1024 * 1024) return false;
-      if (filters.type !== "all" && entry.type !== filters.type) return false;
-      return true;
-    })?.sort((a, b) => {
-      if (a.type === b.type) {
-        return a.name.localeCompare(b.name);
-      }
-      return a.type === "folder" ? -1 : 1;
-    }) ?? [];
+    entryListQuery.data
+      ?.filter((entry) => {
+        if (filters.name && !entry.name.includes(filters.name)) return false;
+        if (
+          filters.updatedAt &&
+          !entry.updatedAt.toISOString().includes(filters.updatedAt)
+        )
+          return false;
+        if (
+          filters.minSizeMB &&
+          entry.type === "file" &&
+          entry.size < Number(filters.minSizeMB) * 1024 * 1024
+        )
+          return false;
+        if (
+          filters.maxSizeMB &&
+          entry.type === "file" &&
+          entry.size > Number(filters.maxSizeMB) * 1024 * 1024
+        )
+          return false;
+        if (filters.type !== "all" && entry.type !== filters.type) return false;
+        return true;
+      })
+      ?.sort((a, b) => {
+        if (a.type === b.type) {
+          return a.name.localeCompare(b.name);
+        }
+        return a.type === "folder" ? -1 : 1;
+      }) ?? [];
 
   return (
     <SidebarLayout header={<Header />} sidebar={<Sidebar />}>
@@ -58,14 +74,14 @@ export function FolderView({ folderId }: FolderViewProps): JSX.Element {
         {/* 경로 영역 */}
         <div className="flex h-16 w-full items-center space-x-4 p-4">
           <FolderName folderId={user!.rootFolderId} folderName="내 파일" />
-          {folderPathQuery.data?.length && folderPathQuery.data.length > 3 ? (
+          {folderPathQuery.data?.length && folderPathQuery.data.length > 3 ?
             <div className="flex h-16 items-center space-x-4">
               <ChevronRight />
               <div className="flex items-center justify-center text-lg font-bold">
                 ···
               </div>
             </div>
-          ) : null}
+          : null}
           {folderPathQuery.data
             ?.slice(1)
             .slice(-2)
@@ -93,11 +109,9 @@ export function FolderView({ folderId }: FolderViewProps): JSX.Element {
 
         {/* 파일 목록 */}
         <div className="relative flex w-full px-4">
-          {entryListQuery.isLoading || !sortedEntries ? (
+          {entryListQuery.isLoading || !sortedEntries ?
             <LoadingSpinner />
-          ) : (
-            <EntryList entries={sortedEntries} />
-          )}
+          : <EntryList entries={sortedEntries} />}
 
           {/* 업로드 오버레이 */}
           <div className="pointer-events-none absolute h-full w-full">

@@ -88,7 +88,9 @@ export class FileUploadService {
     });
 
     // 코드 생성
-    const code = await this.fileAccessCodeService.create({ fileId: savedFile.id });
+    const code = await this.fileAccessCodeService.create({
+      fileId: savedFile.id,
+    });
 
     return {
       file: savedFile,

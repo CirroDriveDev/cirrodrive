@@ -201,50 +201,52 @@ export class BillingService {
     return card;
   }
   /**
- * 현재 사용자 구독 정보를 조회합니다.
- *
- * @param userId - 사용자 ID
- * @returns 구독 및 요금제 정보 또는 null
- */
-public async getCurrentSubscription(userId: string): Promise<{
-  subscription: {
-    status: $Enums.BillingStatus;
-    startedAt: string;
-    expiredAt: string;
-    billingKeyLast4?: string;
-  };
-  plan: {
-    name: string;
-    id: string;
-    price: number;
-    currency: string;
-    interval: string;
-    intervalCount: number;
-  };
-} | null> {
-  const subscription = await this.subscriptionRepository.findActiveByUserId(userId);
-  if (!subscription) return null;
-
-  const plan = await this.planService.getPlan(subscription.planId);
-  const card = await this.cardRepository.findById(subscription.cardId);
-
-  return {
-    plan: {
-      id: plan.id,
-      name: plan.name,
-      interval: plan.interval,
-      intervalCount: plan.intervalCount,
-      price: plan.price,
-      currency: plan.currency,
-    },
+   * 현재 사용자 구독 정보를 조회합니다.
+   *
+   * @param userId - 사용자 ID
+   * @returns 구독 및 요금제 정보 또는 null
+   */
+  public async getCurrentSubscription(userId: string): Promise<{
     subscription: {
-      startedAt: subscription.startedAt.toISOString(),
-      expiredAt: subscription.nextBillingAt.toISOString(), // nextBillingAt → expiredAt
-      status: subscription.status,
-      billingKeyLast4: typeof card?.number === "string" ? card.number.slice(-4) : undefined,
-    },
-  };
-}
+      status: $Enums.BillingStatus;
+      startedAt: string;
+      expiredAt: string;
+      billingKeyLast4?: string;
+    };
+    plan: {
+      name: string;
+      id: string;
+      price: number;
+      currency: string;
+      interval: string;
+      intervalCount: number;
+    };
+  } | null> {
+    const subscription =
+      await this.subscriptionRepository.findActiveByUserId(userId);
+    if (!subscription) return null;
+
+    const plan = await this.planService.getPlan(subscription.planId);
+    const card = await this.cardRepository.findById(subscription.cardId);
+
+    return {
+      plan: {
+        id: plan.id,
+        name: plan.name,
+        interval: plan.interval,
+        intervalCount: plan.intervalCount,
+        price: plan.price,
+        currency: plan.currency,
+      },
+      subscription: {
+        startedAt: subscription.startedAt.toISOString(),
+        expiredAt: subscription.nextBillingAt.toISOString(), // nextBillingAt → expiredAt
+        status: subscription.status,
+        billingKeyLast4:
+          typeof card?.number === "string" ? card.number.slice(-4) : undefined,
+      },
+    };
+  }
   /**
    * 사용자 결제 내역을 조회합니다.
    *
@@ -270,31 +272,33 @@ public async getCurrentSubscription(userId: string): Promise<{
     const { userId, limit, cursor } = params;
     const take = limit + 1;
 
-    const payments = await ((this.paymentRepository as unknown) as {
-    findMany: (args: {
-      where: { userId: string };
-      orderBy: { paidAt: "desc" };
-      take: number;
-      cursor?: { id: string };
-      skip?: number;
-    }) => Promise<
-      {
-        id: string;
-        amount: number;
-        currency: string;
-        status: string;
-        paidAt: Date | string;
-        method: string;
-        description: string | null;
-      }[]
-    >;
-  }).findMany({
-    where: { userId },
-    orderBy: { paidAt: "desc" },
-    take,
-    cursor: cursor ? { id: cursor } : undefined,
-    skip: cursor ? 1 : 0,
-  });
+    const payments = await (
+      this.paymentRepository as unknown as {
+        findMany: (args: {
+          where: { userId: string };
+          orderBy: { paidAt: "desc" };
+          take: number;
+          cursor?: { id: string };
+          skip?: number;
+        }) => Promise<
+          {
+            id: string;
+            amount: number;
+            currency: string;
+            status: string;
+            paidAt: Date | string;
+            method: string;
+            description: string | null;
+          }[]
+        >;
+      }
+    ).findMany({
+      where: { userId },
+      orderBy: { paidAt: "desc" },
+      take,
+      cursor: cursor ? { id: cursor } : undefined,
+      skip: cursor ? 1 : 0,
+    });
     let nextCursor: string | undefined;
     if (payments.length > limit) {
       const nextItem = payments.pop();
@@ -306,13 +310,12 @@ public async getCurrentSubscription(userId: string): Promise<{
       amount: p.amount,
       currency: p.currency,
       status: p.status as "paid" | "failed" | "pending",
-      paidAt: p.paidAt instanceof Date ? p.paidAt.toISOString() : String(p.paidAt),
+      paidAt:
+        p.paidAt instanceof Date ? p.paidAt.toISOString() : String(p.paidAt),
       method: p.method,
       description: p.description,
     }));
 
     return { payments: result, nextCursor };
   }
-
-
 }
