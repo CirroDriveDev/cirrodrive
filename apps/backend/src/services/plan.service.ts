@@ -1,6 +1,7 @@
 import { injectable, inject } from "inversify";
 import type { Logger } from "pino";
 import { $Enums } from "@cirrodrive/database/prisma";
+import { TRPCError } from "@trpc/server";
 import { Symbols } from "#types/symbols";
 import { PlanRepository } from "#repositories/plan.repository";
 import { UserRepository } from "#repositories/user.repository";
@@ -66,5 +67,41 @@ export class PlanService {
       date.setFullYear(date.getFullYear() + intervalCount);
     }
     return date;
+  }
+   /**
+     * 요금제별 할당 용량 정보를 조회합니다.
+     *
+     * @param planId - 조회할 요금제 ID
+     * @returns 요금제 ID, 할당 용량(예: MB), 설명(선택적)
+     */
+    public async getPlanQuota(planId: string): Promise<{
+  planId: string;
+  quota?: number;
+  description?: string;
+  }> {
+    try {
+      const plan = await this.getPlan(planId);
+
+      if (!plan) {
+        throw new TRPCError({
+          code: "NOT_FOUND",
+          message: "요금제를 찾을 수 없습니다.",
+        });
+      }
+
+      const features = plan.features as { quota?: number };
+
+      return {
+        planId: plan.id,
+        quota: features?.quota,
+        description: plan.description ?? undefined,
+      };
+    } catch (error) {
+      throw new TRPCError({
+        code: "INTERNAL_SERVER_ERROR",
+        message: "요금제 정보를 조회하는 중 오류가 발생했습니다.",
+        cause: error,
+      });
+    }
   }
 }

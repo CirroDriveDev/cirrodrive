@@ -165,4 +165,33 @@ export const billingRouter = router({
         nextCursor: nextCursor ?? null,
       };
     }),
+  getPlanQuota: authedProcedure
+  .input(
+    z.object({
+      planId: z.string().uuid(),
+    }),
+  )
+  .output(
+    z.object({
+      planId: z.string(),
+      quota: z.number(),
+      description: z.string().optional(),
+    }),
+  )
+  .query(async ({ input }) => {
+    const { planId } = input;
+    const quotaInfo = await planService.getPlanQuota(planId);
+    if (!quotaInfo) {
+      throw new TRPCError({
+        code: "NOT_FOUND",
+        message: "요금제 정보를 찾을 수 없습니다.",
+      });
+    }
+
+    return {
+       planId,
+      quota: quotaInfo.quota ?? 0, // undefined일 경우 0으로 대체
+      description: quotaInfo.description,
+    };
+  }),
 });
