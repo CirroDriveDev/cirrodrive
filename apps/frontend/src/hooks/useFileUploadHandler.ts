@@ -9,12 +9,14 @@ interface UseFileUploadHandlerProps {
   folderId?: string;
   onSuccess?: (fileNames: string[]) => void;
   onError?: (errorFiles: string[]) => void;
+  maxFiles?: number;
 }
 
 export function useFileUploadHandler({
   folderId,
   onSuccess,
   onError,
+  maxFiles,
 }: UseFileUploadHandlerProps) {
   const { uploadFiles, uploadResults } = useUploadFiles(
     usePresignedPostUploader,
@@ -29,7 +31,10 @@ export function useFileUploadHandler({
     async (files: FileList | File[] | null | undefined) => {
       if (!files?.length) return;
 
-      const fileArray = Array.from(files as ArrayLike<File>);
+      let fileArray = Array.from(files as ArrayLike<File>);
+      if (maxFiles && fileArray.length > maxFiles) {
+        fileArray = fileArray.slice(0, maxFiles);
+      }
       if (!fileArray.length) return;
 
       const uploadRequests: UploadRequest[] = fileArray.map((file) => ({
@@ -55,7 +60,7 @@ export function useFileUploadHandler({
         onSuccess(successFiles);
       }
     },
-    [folderId, onSuccess, onError, uploadFiles, uploadResults],
+    [folderId, onSuccess, onError, uploadFiles, uploadResults, maxFiles],
   );
 
   return { handleFiles };
