@@ -1,11 +1,7 @@
-import { useEffect, useState } from "react";
 import { FileIcon } from "lucide-react";
-import {
-  useUploadFiles,
-  type UploadRequest,
-} from "#services/file/useUploadFiles.js";
-import { usePresignedPostUploader } from "#services/file/presigned-post-uploader.js";
+import { useFileUploadHandler } from "#hooks/useFileUploadHandler.js";
 import { useBoundStore } from "#store/useBoundStore.js";
+import { useDragOverlay } from "#hooks/useDragOverlay.js";
 
 interface DragAndDropUploadOverlayProps {
   folderId?: string; // 폴더 ID
@@ -16,68 +12,36 @@ export function FileUploadDropzoneOverlay({
   folderId,
   onUploadSuccess,
 }: DragAndDropUploadOverlayProps): JSX.Element {
-  const [dragOver, setDragOver] = useState(false);
   const { openModal } = useBoundStore();
-
-  // useUpload → useUploadFiles + usePresignedPostUploader
-  const { uploadFiles, uploadResults } = useUploadFiles(
-    usePresignedPostUploader,
-  );
-
-  // 드래그 앤 드롭 공통 처리
-  const handleDrop = async (
-    e: React.DragEvent<HTMLDivElement>,
-  ): Promise<void> => {
-    e.preventDefault();
-    setDragOver(false);
-
-    const files = e.dataTransfer.files;
-    if (!files?.length) return;
-
-    const uploadRequests: UploadRequest[] = Array.from(files).map((file) => ({
-      file,
-      folderId,
-    }));
-    await uploadFiles(uploadRequests);
-
-    const hasError = uploadResults.some((r) => !r.success);
-    if (hasError) {
+  const { handleFiles } = useFileUploadHandler({
+    folderId,
+    onSuccess: (fileNames) => {
+      if (onUploadSuccess) onUploadSuccess();
+      openModal({
+        title: "업로드 성공",
+        content: fileNames.join(", "),
+      });
+    },
+    onError: (errorFiles) => {
       openModal({
         title: "업로드 실패",
-        content: <div>일부 파일 업로드에 실패했습니다.</div>,
+        content: `일부 파일 업로드에 실패했습니다: ${errorFiles.join(", ")}`,
       });
-      return;
-    }
-    if (onUploadSuccess) onUploadSuccess();
-    openModal({
-      title: "업로드 성공",
-      content: <div>{uploadResults.map((r) => r.file.name).join(", ")}</div>,
-    });
-  };
-
-  useEffect(() => {
-    const handleDragEnter = (e: DragEvent): void => {
-      e.preventDefault();
-      setDragOver(true);
-    };
-
-    window.addEventListener("dragenter", handleDragEnter);
-    return () => {
-      window.removeEventListener("dragenter", handleDragEnter);
-    };
+    },
   });
+
+  const { dragOver, handleDragOver, handleDragLeave, handleDrop } =
+    useDragOverlay({
+      onDrop: async (files) => {
+        await handleFiles(files);
+      },
+    });
 
   return (
     <div
       onDrop={handleDrop}
-      onDragOver={(e) => {
-        e.preventDefault();
-        setDragOver(true);
-      }}
-      onDragLeave={(e) => {
-        e.preventDefault();
-        setDragOver(false);
-      }}
+      onDragOver={handleDragOver}
+      onDragLeave={handleDragLeave}
       style={{
         visibility: dragOver ? "visible" : "hidden",
       }}
