@@ -1,12 +1,19 @@
 import { initTRPC, TRPCError } from "@trpc/server";
 import { type CreateExpressContextOptions } from "@trpc/server/adapters/express";
 import { z } from "zod";
-import type { Session, User } from "@cirrodrive/database/prisma";
+import type {
+  AdminSession,
+  AdminUser,
+  Session,
+  User,
+} from "@cirrodrive/database/prisma";
 import { SuperJSON } from "superjson";
 import { AuthService } from "#services/auth.service";
+import { AdminAuthService } from "#services/admin.auth.service";
 import { container } from "#loaders/inversify.loader";
 
 const authService = container.get<AuthService>(AuthService);
+const adminAuthService = container.get<AdminAuthService>(AdminAuthService);
 
 export const createContext = async ({
   req,
@@ -18,21 +25,47 @@ export const createContext = async ({
     user: null as User | null,
     session: null as Session | null,
     sessionToken: null as string | null,
+    admin: null as AdminUser | null,
+    adminSession: null as AdminSession | null,
+    adminSessionToken: null as string | null,
   };
 
-  // 세션 토큰을 가져옵니다.
+  // 관리자 세션 토큰을 가져옵니다.
+  const { data: adminToken, success: adminSuccess } = z
+    .string()
+    .safeParse(req.cookies[AdminAuthService.SESSION_TOKEN_COOKIE_NAME]);
+
+  if (adminSuccess) {
+    const { admin, session } = await adminAuthService.validateSessionToken({
+      token: adminToken,
+    });
+    if (admin) {
+      ctx.admin = admin;
+      ctx.adminSession = session;
+      ctx.adminSessionToken = adminToken;
+      if (session) {
+        adminAuthService.setSessionTokenCookie({
+          response: res,
+          token: adminToken,
+          expiresAt: session.expiresAt,
+        });
+      } else {
+        adminAuthService.clearSessionTokenCookie({ response: res });
+      }
+      return ctx;
+    }
+  }
+
+  // 기존 일반 사용자 세션 처리 (필요하다면 유지)
   const { data: token, success } = z
     .string()
     .safeParse(req.cookies[AuthService.SESSION_TOKEN_COOKIE_NAME]);
 
-  // 세션 토큰이 존재하는 경우 사용자와 세션을 가져옵니다.
   if (success) {
     const { user, session } = await authService.validateSessionToken({ token });
     ctx.user = user;
     ctx.session = session;
     ctx.sessionToken = token;
-
-    // 세션 토큰 쿠키를 갱신합니다.
     if (session) {
       authService.setSessionTokenCookie({
         response: res,
@@ -40,9 +73,7 @@ export const createContext = async ({
         expiresAt: session.expiresAt,
       });
     } else {
-      authService.clearSessionTokenCookie({
-        response: res,
-      });
+      authService.clearSessionTokenCookie({ response: res });
     }
   }
 
@@ -75,12 +106,21 @@ export const authedProcedure = procedure.use(async (opts) => {
   });
 });
 
-export const adminProcedure = authedProcedure.use(async ({ ctx, next }) => {
-  if (!ctx.user.isAdmin) {
+export const adminProcedure = procedure.use(async (opts) => {
+  const { ctx } = opts;
+  if (!ctx.admin || !ctx.adminSession || !ctx.adminSessionToken) {
     throw new TRPCError({
-      code: "FORBIDDEN",
-      message: "관리자 권한이 필요합니다.",
+      code: "UNAUTHORIZED",
+      message: "관리자 인증이 필요합니다.",
     });
   }
-  return next();
+
+  return opts.next({
+    ctx: {
+      ...ctx,
+      user: undefined,
+      session: undefined,
+      sessionToken: undefined,
+    },
+  });
 });

@@ -14,13 +14,13 @@ const env = getEnv(envSchema);
 export async function createAdmin(
   email: string,
   password: string,
-  name: string,
+  username: string,
 ) {
   const admin = await prisma.adminUser.upsert({
     where: { email },
     update: {},
     create: {
-      name,
+      username,
       email,
       password: await hash(password),
     },
@@ -32,11 +32,11 @@ export async function createAdmin(
 export async function seedAdmin() {
   const email = env.AUTH_DEFAULT_ADMIN_EMAIL;
   const password = env.AUTH_DEFAULT_ADMIN_PASSWORD;
-  const name = env.AUTH_DEFAULT_ADMIN_USERNAME;
+  const username = env.AUTH_DEFAULT_ADMIN_USERNAME;
 
-  if (!email || !password || !name) {
+  if (!email || !password || !username) {
     throw new Error("Admin credentials are not set in environment variables.");
   }
 
-  return createAdmin(email, password, name);
+  return createAdmin(email, password, username);
 }

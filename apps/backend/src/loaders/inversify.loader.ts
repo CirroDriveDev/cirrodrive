@@ -25,6 +25,9 @@ import { PaymentRepository } from "#repositories/payment.repository";
 import { UserRepository } from "#repositories/user.repository";
 import { FileUploadService } from "#services/file.upload.service";
 import { FileMetadataRepository } from "#repositories/file-metadata.repository";
+import { AdminUserRepository } from "#repositories/admin-user.repository";
+import { AdminSessionRepository } from "#repositories/admin-session.repository";
+import { AdminAuthService } from "#services/admin.auth.service";
 
 const inversifyLogger = logger.child({ prefix: "Inversify" });
 
@@ -55,6 +58,8 @@ container.bind(SubscriptionHistoryRepository).toSelf();
 container.bind(PaymentRepository).toSelf();
 container.bind(UserRepository).toSelf();
 container.bind(FileMetadataRepository).toSelf();
+container.bind(AdminUserRepository).toSelf();
+container.bind(AdminSessionRepository).toSelf();
 
 // Services
 container.bind(UserService).toSelf();
@@ -69,6 +74,7 @@ container.bind(PlanService).toSelf();
 container.bind(BillingService).toSelf();
 container.bind(TossPaymentsService).toSelf();
 container.bind(FileUploadService).toSelf();
+container.bind(AdminAuthService).toSelf();
 
 inversifyLogger.info("Inversify loaded successfully");
 

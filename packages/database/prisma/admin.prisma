@@ -1,7 +1,16 @@
 model AdminUser {
-  id        Int      @id @default(autoincrement())
-  email     String   @unique
+  id        Int            @id @default(autoincrement())
+  email     String         @unique
   password  String
-  name      String
-  createdAt DateTime @default(now())
+  username  String
+  createdAt DateTime       @default(now())
+  Sessions  AdminSession[]
+}
+
+model AdminSession {
+  id        String    @id @default(uuid())
+  adminId   Int
+  admin     AdminUser @relation(fields: [adminId], references: [id], onDelete: Cascade)
+  expiresAt DateTime
+  createdAt DateTime  @default(now())
 }
