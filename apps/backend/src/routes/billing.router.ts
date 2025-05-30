@@ -75,4 +75,50 @@ export const billingRouter = router({
 
       return plan;
     }),
+
+  getCurrentSubscription: authedProcedure
+  .output(
+    z.object({
+      plan: z.object({
+        id: z.string(),
+        name: z.string(),
+        interval: z.string(),
+        intervalCount: z.number(),
+        price: z.number(),
+        currency: z.string(),
+      }),
+      subscription: z.object({
+        startedAt: z.string().datetime(),
+        expiredAt: z.string().datetime(),
+        status: z.enum(["active", "canceled", "expired"]),
+        billingKeyLast4: z.string().optional(),
+      }),
+    }),
+  )
+  .query(async ({ ctx }) => {
+    const userId = ctx.user.id;
+
+    const subscriptionInfo = await billingService.getCurrentSubscription(userId);
+
+    if (!subscriptionInfo) {
+      throw new TRPCError({
+        code: "NOT_FOUND",
+        message: "현재 구독 정보를 찾을 수 없습니다.",
+      });
+    }
+
+    const status = subscriptionInfo.subscription.status.toLowerCase() as
+      | "active"
+      | "canceled"
+      | "expired";
+
+    return {
+      ...subscriptionInfo,
+      subscription: {
+        ...subscriptionInfo.subscription,
+        status,
+      },
+    };
+  }),
+
 });
