@@ -766,104 +766,81 @@ export class AdminService {
       throw error;
     }
   }
-  /**
-   * 이메일로 관리자 로그인 처리
-   *
-   * @param email - 관리자 이메일
+    /**
+   * 관리자 로그인 처리 (username 또는 email 사용 가능)
+   * 
+   * @param usernameOrEmail - 사용자 이름 또는 이메일
    * @param password - 비밀번호
-   * @returns 관리자 유저 객체
+   * @returns 관리자 권한이 있는 사용자 객체
+   * @throws 사용자 없음, 비밀번호 불일치, 관리자 권한 없을 경우 예외 발생
    */
-  public async login(email: string, password: string): Promise<User> {
-    try {
-      this.logger.info({ methodName: "login", email }, "관리자 로그인 시도");
+  public async login(
+    usernameOrEmail: string,
+    password: string,
+  ): Promise<User> {
+    this.logger.info({ methodName: "login", usernameOrEmail }, "관리자 로그인 시도");
 
-      const user = await this.userModel.findUnique({
-        where: { email },
+    // username 또는 email로 사용자 조회
+    const user = await this.userModel.findFirst({
+      where: {
+        OR: [
+          { username: usernameOrEmail },
+          { email: usernameOrEmail },
+        ],
+      },
+    });
+
+    // 사용자 없으면 예외 처리
+    if (!user) {
+      throw new TRPCError({
+        code: "NOT_FOUND",
+        message: "관리자를 찾을 수 없습니다.",
       });
-
-      if (!user) {
-        throw new TRPCError({
-          code: "NOT_FOUND",
-          message: "관리자를 찾을 수 없습니다.",
-        });
-      }
-
-      const isPasswordValid = await verify(user.hashedPassword, password);
-      if (!isPasswordValid) {
-        throw new TRPCError({
-          code: "UNAUTHORIZED",
-          message: "비밀번호가 올바르지 않습니다.",
-        });
-      }
-
-      if (!user.isAdmin) {
-        throw new TRPCError({
-          code: "FORBIDDEN",
-          message: "관리자 권한이 없습니다.",
-        });
-      }
-
-      this.logger.info({ email }, "관리자 로그인 성공");
-      return user;
-    } catch (error) {
-      this.logger.error({ error, email }, "관리자 로그인 실패");
-      throw error;
     }
+
+    // 비밀번호 검증
+    const isPasswordValid = await verify(user.hashedPassword, password);
+    if (!isPasswordValid) {
+      throw new TRPCError({
+        code: "UNAUTHORIZED",
+        message: "비밀번호가 올바르지 않습니다.",
+      });
+    }
+
+    // 관리자 권한 체크
+    if (!user.isAdmin) {
+      throw new TRPCError({
+        code: "FORBIDDEN",
+        message: "관리자 권한이 없습니다.",
+      });
+    }
+
+    this.logger.info({ usernameOrEmail }, "관리자 로그인 성공");
+    return user;
   }
+
   /**
-   * 관리자 세션 생성
-   *
-   * @param email - 관리자 이메일
-   * @param password - 관리자 비밀번호
-   * @returns 세션 토큰
+   * 관리자 로그인 후 세션 토큰 생성
+   * 
+   * @param usernameOrEmail - 사용자 이름 또는 이메일
+   * @param password - 비밀번호
+   * @returns JWT 세션 토큰 (1시간 유효)
+   * @throws login 메서드에서 발생하는 예외 전파
    */
   public async loginAndCreateSession(
-    email: string,
+    usernameOrEmail: string,
     password: string,
   ): Promise<string> {
-    try {
-      this.logger.info(
-        { methodName: "loginAndCreateSession", email },
-        "관리자 로그인 시도",
-      );
+    // 로그인 시도 및 관리자 검증
+    const user = await this.login(usernameOrEmail, password);
 
-      const user = await this.userModel.findUnique({
-        where: { email },
-      });
+    // JWT 토큰 생성 (관리자 정보 포함)
+    const token = jwt.sign(
+      { id: user.id, email: user.email, isAdmin: user.isAdmin },
+      env.AUTH_JWT_SECRET, // 환경변수로부터 비밀키 사용
+      { expiresIn: "1h" }, // 토큰 유효기간 1시간
+    );
 
-      if (!user) {
-        throw new TRPCError({
-          code: "NOT_FOUND",
-          message: "관리자를 찾을 수 없습니다.",
-        });
-      }
-
-      const isPasswordValid = await verify(user.hashedPassword, password);
-      if (!isPasswordValid) {
-        throw new TRPCError({
-          code: "UNAUTHORIZED",
-          message: "비밀번호가 올바르지 않습니다.",
-        });
-      }
-
-      if (!user.isAdmin) {
-        throw new TRPCError({
-          code: "FORBIDDEN",
-          message: "관리자 권한이 없습니다.",
-        });
-      }
-
-      const token = jwt.sign(
-        { id: user.id, email: user.email, isAdmin: user.isAdmin },
-        env.AUTH_JWT_SECRET, // non-null 단정 사용
-        { expiresIn: "1h" },
-      );
-
-      this.logger.info({ email }, "관리자 로그인 성공");
-      return token;
-    } catch (error) {
-      this.logger.error({ error, email }, "관리자 로그인 실패");
-      throw error;
-    }
+    return token;
   }
 }
