@@ -1,61 +1,38 @@
-import { useState } from "react";
 import { FileIcon } from "lucide-react";
 import { useBoundStore } from "#store/useBoundStore.js";
-import { LoadingSpinner } from "#components/shared/LoadingSpinner.js";
-import {
-  useUploadFiles,
-  type UploadRequest,
-} from "#services/file/useUploadFiles.js";
-import { usePresignedPostUploader } from "#services/file/presigned-post-uploader.js";
+import { useFileUploadHandler } from "#hooks/useFileUploadHandler.js";
+import { useDragOverlay } from "#hooks/useDragOverlay.js";
 
-export function FileUploadDropzone(): JSX.Element {
-  const { uploadFiles, isPending, uploadResults } = useUploadFiles(
-    usePresignedPostUploader,
-  );
+interface FileUploadDropzoneProps {
+  maxFiles?: number;
+}
 
-  const [dragOver, setDragOver] = useState(false);
+export function FileUploadDropzone({
+  maxFiles = 1,
+}: FileUploadDropzoneProps): JSX.Element {
   const { openModal } = useBoundStore();
-
-  const handleDragOver = (e: React.DragEvent<HTMLDivElement>): void => {
-    e.preventDefault();
-    setDragOver(true);
-  };
-
-  const handleDragLeave = (): void => {
-    setDragOver(false);
-  };
-
-  const handleDrop = async (
-    e: React.DragEvent<HTMLDivElement>,
-  ): Promise<void> => {
-    e.preventDefault();
-    setDragOver(false);
-
-    const files = e.dataTransfer.files;
-    if (!files?.length) {
-      return;
-    }
-
-    const uploadRequests: UploadRequest[] = Array.from(files).map((file) => ({
-      file,
-    }));
-    await uploadFiles(uploadRequests);
-
-    // 업로드 결과 처리
-    const hasError = uploadResults.some((r) => !r.success);
-    if (hasError) {
+  const { handleFiles } = useFileUploadHandler({
+    onSuccess: (fileNames: string[]) => {
+      openModal({
+        title: "업로드 성공",
+        content: fileNames.join(", "),
+      });
+    },
+    onError: (errorFiles: string[]) => {
       openModal({
         title: "업로드 실패",
-        content: <div>일부 파일 업로드에 실패했습니다.</div>,
+        content: `일부 파일 업로드에 실패했습니다: ${errorFiles.join(", ")}`,
       });
-      return;
-    }
-    // 성공 모달 (여러 파일 이름 표시)
-    openModal({
-      title: "업로드 성공",
-      content: <div>{uploadResults.map((r) => r.file.name).join(", ")}</div>,
+    },
+    maxFiles,
+  });
+
+  const { dragOver, handleDragOver, handleDragLeave, handleDrop } =
+    useDragOverlay({
+      onDrop: async (files) => {
+        await handleFiles(files);
+      },
     });
-  };
 
   return (
     <div>
@@ -70,15 +47,10 @@ export function FileUploadDropzone(): JSX.Element {
               dragOver ? "border-blue-500" : "border-gray-300"
             }`}
           >
-            {isPending ?
-              <LoadingSpinner />
-            : <>
-                <FileIcon className="h-32 w-32 text-blue-500" />
-                <p className="text-gray-500">
-                  파일을 여기에 드래그하거나 클릭하여 선택하세요.
-                </p>
-              </>
-            }
+            <FileIcon className="h-32 w-32 text-blue-500" />
+            <p className="text-gray-500">
+              파일을 여기에 드래그하거나 클릭하여 선택하세요.
+            </p>
           </div>
         </label>
       </form>
