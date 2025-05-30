@@ -34,6 +34,7 @@ import { Success } from "#pages/billing/success/[plan-id].js";
 import { Fail } from "#pages/billing/fail.js";
 import { Subscribe } from "#pages/subscribe.js";
 import { TestPage } from "#pages/test.js";
+import { ChangePasswordPage } from "#pages/changspassword.js";
 
 function GuestRoute(): JSX.Element {
   const { user } = useBoundStore();
@@ -107,6 +108,7 @@ export function Router(): JSX.Element {
           <Route path="recent" element={<RecentPage />} />
           <Route path="search" element={<SearchResultsPage />} />
           <Route path="mypage" element={<MyPage />} />
+          <Route path="changspassword" element={<ChangePasswordPage />} />
         </Route>
         <Route path="admin">
           <Route path="user" element={<AdminUserPage />} />
