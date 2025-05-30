@@ -117,7 +117,9 @@ export const adminProcedure = procedure.use(async (opts) => {
 
   return opts.next({
     ctx: {
-      ...ctx,
+      admin: ctx.admin,
+      adminSession: ctx.adminSession,
+      adminSessionToken: ctx.adminSessionToken,
       user: undefined,
       session: undefined,
       sessionToken: undefined,

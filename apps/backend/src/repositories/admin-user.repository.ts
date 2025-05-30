@@ -8,7 +8,7 @@ export class AdminUserRepository extends BaseRepository {
     return this.prisma.adminUser.findUnique({ where: { email } });
   }
 
-  async findById(id: number): Promise<AdminUser | null> {
+  async findById(id: string): Promise<AdminUser | null> {
     return this.prisma.adminUser.findUnique({ where: { id } });
   }
 
@@ -17,13 +17,13 @@ export class AdminUserRepository extends BaseRepository {
   }
 
   async update(
-    id: number,
+    id: string,
     data: Prisma.AdminUserUpdateInput,
   ): Promise<AdminUser> {
     return this.prisma.adminUser.update({ where: { id }, data });
   }
 
-  async delete(id: number): Promise<AdminUser> {
+  async delete(id: string): Promise<AdminUser> {
     return this.prisma.adminUser.delete({ where: { id } });
   }
 }

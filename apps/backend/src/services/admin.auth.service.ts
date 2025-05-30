@@ -122,7 +122,7 @@ export class AdminAuthService {
     adminId,
   }: {
     token: string;
-    adminId: number;
+    adminId: string;
   }): Promise<AdminSession> {
     this.logger.info({ methodName: "createSession" }, "관리자 세션 생성 중");
     const sessionId = this.encodeToken(token);

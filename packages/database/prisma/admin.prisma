@@ -1,5 +1,5 @@
 model AdminUser {
-  id        Int            @id @default(autoincrement())
+  id        String         @id @default(uuid())
   email     String         @unique
   password  String
   username  String
@@ -9,7 +9,7 @@ model AdminUser {
 
 model AdminSession {
   id        String    @id @default(uuid())
-  adminId   Int
+  adminId   String
   admin     AdminUser @relation(fields: [adminId], references: [id], onDelete: Cascade)
   expiresAt DateTime
   createdAt DateTime  @default(now())

@@ -207,17 +207,15 @@ export const protectedUserRouter = router({
         { requestId: ctx.req.id },
         "protected.user.listFiles 요청 시작",
       );
+      const currentUserId = ctx.admin.id;
 
       try {
-        // currentUserId를 인증 정보에서 가져온다고 가정
-        const currentUserId = ctx.user.id;
-
         const files = await adminService.getAllUserFiles({
           limit: input.limit,
           offset: input.offset,
           sortBy: input.sortBy,
           order: input.order,
-          currentUserId, // currentUserId 전달
+          currentUserId,
         });
 
         logger.info(
@@ -249,8 +247,7 @@ export const protectedUserRouter = router({
         "파일 삭제 요청",
       );
 
-      // currentUserId를 ctx에서 추출 (예: ctx.user.id)
-      const currentUserId = ctx.user.id; // 로그인된 사용자의 ID
+      const currentUserId = ctx.admin.id;
 
       try {
         const result = await adminService.deleteFile({
@@ -408,7 +405,7 @@ export const protectedUserRouter = router({
       }
     }),
   recentFiles: adminProcedure.query(async ({ ctx }) => {
-    const currentUserId = ctx.user?.id;
+    const currentUserId = ctx.admin.id;
     if (!currentUserId) {
       throw new TRPCError({
         code: "UNAUTHORIZED",

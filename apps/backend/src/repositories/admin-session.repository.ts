@@ -22,7 +22,7 @@ export class AdminSessionRepository extends BaseRepository {
     return this.prisma.adminSession.delete({ where: { id } });
   }
 
-  async deleteByAdminId(adminId: number): Promise<Prisma.BatchPayload> {
+  async deleteByAdminId(adminId: string): Promise<Prisma.BatchPayload> {
     return this.prisma.adminSession.deleteMany({ where: { adminId } });
   }
 }
