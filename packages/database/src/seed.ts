@@ -1,6 +1,7 @@
 import { prisma } from "#client";
 import { createUser } from "#src/seed-utils/create-user";
 import { createPlan } from "#src/seed-utils/create-plan";
+import { seedAdmin } from "#src/seed-utils/seed-admin";
 
 export async function seed() {
   // 무료 요금제 생성
@@ -73,6 +74,8 @@ export async function seed() {
     "testuser_pro@example.com",
     proPlan.id,
   );
+
+  await seedAdmin();
 }
 
 seed()
