@@ -1,12 +1,10 @@
 import { useGetS3PresignedPost } from "#services/file/useGetS3PresignedPost.js";
-import { useBoundStore } from "#store/useBoundStore.js";
 import type { UploadResult, UseUploader } from "#types/use-uploader.js";
 
 /**
  * Presigned Post 방식 S3 파일 업로드 전략 훅 (UseUploader 인터페이스 준수)
  */
 export const usePresignedPostUploader: UseUploader = () => {
-  const { user } = useBoundStore();
   const mutation = useGetS3PresignedPost();
   // 1. presigned post 정보 요청
   const getS3PresignedPost = async (file: File) => {
@@ -33,7 +31,6 @@ export const usePresignedPostUploader: UseUploader = () => {
     Object.entries(fields).forEach(([key, value]) => {
       formData.append(key, value);
     });
-    formData.append("x-amz-meta-userId", user?.id ?? "anonymous");
 
     formData.append("file", file);
     const res = await fetch(url, {

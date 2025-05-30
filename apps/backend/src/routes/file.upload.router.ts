@@ -28,11 +28,6 @@ export const fileUploadRouter = router({
         fileType: s3PresignedPostSchema.shape.fields.shape["Content-Type"],
       }),
     )
-    .output(
-      z.object({
-        presignedPost: s3PresignedPostSchema,
-      }),
-    )
     .mutation(async ({ input, ctx }) => {
       const { fileName, fileType } = input;
       const { user } = ctx;
@@ -57,7 +52,7 @@ export const fileUploadRouter = router({
       });
 
       return {
-        presignedPost: s3PresignedPostSchema.parse(presignedPost),
+        presignedPost,
       };
     }),
 
