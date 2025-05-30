@@ -169,10 +169,18 @@ export class S3Service implements S3ServiceInterface {
       Key: key,
     });
 
-    const data = await s3Client.send(command);
-    this.logger.debug(data);
-
-    return S3HeadObjectSchema.parse(data);
+    try {
+      const data = await s3Client.send(command);
+      this.logger.debug(data);
+      return S3HeadObjectSchema.parse(data);
+    } catch (error) {
+      if (error instanceof Error) {
+        if (error.message.includes("Not Found")) {
+          throw new Error("File not found in S3.");
+        }
+      }
+      throw error;
+    }
   }
 
   /**

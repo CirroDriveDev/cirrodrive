@@ -14,7 +14,7 @@ export const FileMetadataSaveSchema = z.object({
   extension: z.string().optional(),
   hash: z.string().default(""),
   parentFolderId: z.string().optional(),
-  ownerId: z.string(),
+  ownerId: z.string().optional(),
 });
 
 export type FileMetadataSaveInput = z.infer<typeof FileMetadataSaveSchema>;

@@ -1,25 +1,33 @@
-import { type UploadRequest } from "#services/file/useUploadFiles.js";
-import { type UploadResult } from "#types/use-uploader.js";
+import {
+  useUploadFiles,
+  type UploadRequest,
+} from "#services/file/useUploadFiles.js";
+import {
+  type UploadResultError,
+  type UploadResultSuccess,
+  type UseUploader,
+} from "#types/use-uploader.js";
 
-interface UseFileUploadHandlerProps {
+interface UseFileUploadHandlerOptions {
   folderId?: string;
-  onSuccess?: (fileNames: string[]) => void;
-  onError?: (errorFiles: string[]) => void;
+  onSuccess?: (results: UploadResultSuccess[]) => void;
+  onError?: (results: UploadResultError[]) => void;
+  onSingleFileSuccess?: (result: UploadResultSuccess) => void;
+  onSingleFileError?: (result: UploadResultError) => void;
+
   maxFiles?: number;
-  useUploadFiles: () => {
-    uploadFiles: (uploadRequests: UploadRequest[]) => Promise<void>;
-    uploadResults: UploadResult[];
-  };
+  useUploader: UseUploader;
 }
 
-export function useFileUploadHandler({
-  folderId,
-  onSuccess,
-  onError,
-  maxFiles,
-  useUploadFiles,
-}: UseFileUploadHandlerProps) {
-  const { uploadFiles, uploadResults } = useUploadFiles();
+export function useFileUploadHandler(options: UseFileUploadHandlerOptions) {
+  const { folderId, maxFiles, useUploader } = options;
+  const { uploadFiles, uploadResults } = useUploadFiles({
+    useUploader,
+    onSuccess: options.onSuccess,
+    onError: options.onError,
+    onSingleFileSuccess: options.onSingleFileSuccess,
+    onSingleFileError: options.onSingleFileError,
+  });
 
   /**
    * 파일 리스트를 받아 업로드를 수행하는 핸들러
@@ -41,23 +49,10 @@ export function useFileUploadHandler({
     }));
 
     await uploadFiles(uploadRequests);
-
-    const errorFiles = uploadResults
-      .filter((r) => !r.success)
-      .map((r) => r.file.name);
-
-    const successFiles = uploadResults
-      .filter((r) => r.success)
-      .map((r) => r.file.name);
-
-    if (errorFiles.length > 0 && onError) {
-      onError(errorFiles);
-    }
-
-    if (successFiles.length > 0 && onSuccess) {
-      onSuccess(successFiles);
-    }
   };
 
-  return { handleFiles };
+  return {
+    handleFiles,
+    uploadResults,
+  };
 }

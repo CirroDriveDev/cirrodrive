@@ -1,5 +1,5 @@
 import { useGetS3PresignedPost } from "#services/file/useGetS3PresignedPost.js";
-import type { UploadResult, UseUploader } from "#types/use-uploader.js";
+import type { S3UploadResult, UseUploader } from "#types/use-uploader.js";
 
 /**
  * Presigned Post 방식 S3 파일 업로드 전략 훅 (UseUploader 인터페이스 준수)
@@ -40,7 +40,7 @@ export const usePresignedPostUploader: UseUploader = () => {
     return res;
   };
 
-  const upload = async (file: File): Promise<UploadResult> => {
+  const upload = async (file: File): Promise<S3UploadResult> => {
     const presignedPost = await getS3PresignedPost(file);
     const res = await uploadPresignedPost(file, presignedPost);
     if (!res.ok) {

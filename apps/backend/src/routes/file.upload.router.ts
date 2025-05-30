@@ -81,13 +81,19 @@ export const fileUploadRouter = router({
     )
     .mutation(async ({ input, ctx }) => {
       const { user } = ctx;
-      const ownerId = user?.id ?? "anonymous";
+      if ((!input.folderId && user) || (input.folderId && !user)) {
+        throw new Error(
+          "Folder ID must be provided if the user is authenticated, or not provided if the user is anonymous.",
+        );
+      }
 
-      const file = await fileUploadService.completeUpload({
-        ownerId,
+      const { file } = await fileUploadService.completeUpload({
         name: input.fileName,
         key: input.key,
-        parentFolderId: input.folderId,
+        ...(user && {
+          parentFolderId: input.folderId,
+          userId: user.id,
+        }),
       });
 
       if (!user) {
@@ -101,33 +107,6 @@ export const fileUploadRouter = router({
 
       return {
         fileId: file.id,
-      };
-    }),
-
-  completeUploadAnonymous: procedure
-    .input(
-      z.object({
-        fileName: fileMetadataDTOSchema.shape.name,
-        key: z.string(),
-        folderId: z.string().optional(),
-      }),
-    )
-    .output(
-      z.object({
-        fileId: z.string(),
-        code: z.string(),
-      }),
-    )
-    .mutation(async ({ input }) => {
-      const { file, code } = await fileUploadService.completeUploadAnonymous({
-        name: input.fileName,
-        key: input.key,
-        parentFolderId: input.folderId,
-      });
-
-      return {
-        fileId: file.id,
-        code: code.code,
       };
     }),
 });

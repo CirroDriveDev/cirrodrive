@@ -1,32 +1,33 @@
 import { FileIcon } from "lucide-react";
-import { useBoundStore } from "#store/useBoundStore.js";
 import { useFileUploadHandler } from "#hooks/useFileUploadHandler.js";
 import { useDragOverlay } from "#hooks/useDragOverlay.js";
-import { useUploadFiles } from "#services/file/useUploadFiles.js";
 import { usePresignedPostUploader } from "#services/file/presigned-post-uploader.js";
+import {
+  type UploadResultError,
+  type UploadResultSuccess,
+} from "#types/use-uploader.js";
 
 interface FileUploadDropzoneProps {
   maxFiles?: number;
+  onSuccess?: (results: UploadResultSuccess[]) => void;
+  onError?: (results: UploadResultError[]) => void;
+  onSingleFileSuccess?: (result: UploadResultSuccess) => void;
+  onSingleFileError?: (result: UploadResultError) => void;
 }
 
 export function FileUploadDropzone({
   maxFiles = 1,
+  onSuccess,
+  onError,
+  onSingleFileSuccess,
+  onSingleFileError,
 }: FileUploadDropzoneProps): JSX.Element {
-  const { openModal } = useBoundStore();
   const { handleFiles } = useFileUploadHandler({
-    useUploadFiles: () => useUploadFiles(usePresignedPostUploader),
-    onSuccess: (fileNames: string[]) => {
-      openModal({
-        title: "업로드 성공",
-        content: fileNames.join(", "),
-      });
-    },
-    onError: (errorFiles: string[]) => {
-      openModal({
-        title: "업로드 실패",
-        content: `일부 파일 업로드에 실패했습니다: ${errorFiles.join(", ")}`,
-      });
-    },
+    useUploader: usePresignedPostUploader,
+    onSuccess,
+    onError,
+    onSingleFileSuccess,
+    onSingleFileError,
     maxFiles,
   });
 
@@ -40,7 +41,17 @@ export function FileUploadDropzone({
   return (
     <div>
       <form method="post" className="flex flex-col gap-4 bg-background">
-        <input type="file" className="hidden" id="file-upload" />
+        <input
+          type="file"
+          className="hidden"
+          id="file-upload"
+          onChange={(event) => {
+            const files = event.target.files;
+            if (files) {
+              void handleFiles(files);
+            }
+          }}
+        />
         <label htmlFor="file-upload">
           <div
             onDragOver={handleDragOver}

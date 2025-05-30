@@ -1,37 +1,35 @@
 import { FileIcon } from "lucide-react";
 import { useFileUploadHandler } from "#hooks/useFileUploadHandler.js";
-import { useBoundStore } from "#store/useBoundStore.js";
 import { useDragOverlay } from "#hooks/useDragOverlay.js";
-import { useUploadFiles } from "#services/file/useUploadFiles.js";
 import { usePresignedPostUploader } from "#services/file/presigned-post-uploader.js";
+import {
+  type UploadResultError,
+  type UploadResultSuccess,
+  type UploadResult,
+} from "#types/use-uploader.js";
 
 interface DragAndDropUploadOverlayProps {
   folderId?: string; // 폴더 ID
-  onUploadSuccess?: () => void; // 업로드 성공 시 호출할 함수
+  onSuccess?: (results: UploadResult[]) => void;
+  onError?: (results: UploadResult[]) => void;
+  onSingleFileSuccess?: (result: UploadResultSuccess) => void;
+  onSingleFileError?: (result: UploadResultError) => void;
 }
 
 export function FileUploadDropzoneOverlay({
   folderId,
-  onUploadSuccess,
+  onSuccess,
+  onError,
+  onSingleFileSuccess,
+  onSingleFileError,
 }: DragAndDropUploadOverlayProps): JSX.Element {
-  const { openModal } = useBoundStore();
-
   const { handleFiles } = useFileUploadHandler({
-    useUploadFiles: () => useUploadFiles(usePresignedPostUploader),
+    useUploader: usePresignedPostUploader,
     folderId,
-    onSuccess: (fileNames) => {
-      if (onUploadSuccess) onUploadSuccess();
-      openModal({
-        title: "업로드 성공",
-        content: fileNames.join(", "),
-      });
-    },
-    onError: (errorFiles) => {
-      openModal({
-        title: "업로드 실패",
-        content: `일부 파일 업로드에 실패했습니다: ${errorFiles.join(", ")}`,
-      });
-    },
+    onSuccess,
+    onError,
+    onSingleFileSuccess,
+    onSingleFileError,
   });
 
   const { dragOver, handleDragOver, handleDragLeave, handleDrop } =

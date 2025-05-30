@@ -1,5 +1,6 @@
 import { ChevronRight } from "lucide-react";
 import { useEffect } from "react";
+import { toast } from "react-toastify";
 import { EntryList } from "#components/EntryList.js";
 import { Header } from "#components/layout/Header.js";
 import { Sidebar } from "#components/layout/Sidebar.js";
@@ -117,8 +118,14 @@ export function FolderView({ folderId }: FolderViewProps): JSX.Element {
           <div className="pointer-events-none absolute h-full w-full">
             <FileUploadDropzoneOverlay
               folderId={folderId}
-              onUploadSuccess={() => {
+              onSingleFileSuccess={(result) => {
                 void entryListQuery.refetch();
+                toast.success(`파일 업로드 성공: ${result.file.name}`);
+              }}
+              onSingleFileError={(result) => {
+                toast.error(
+                  `파일 업로드에 실패했습니다: ${result.error || "알 수 없는 오류"}`,
+                );
               }}
             />
           </div>

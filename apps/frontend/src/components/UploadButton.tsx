@@ -14,7 +14,9 @@ interface FolderViewProps {
 export function UploadButton(props: FolderViewProps): JSX.Element {
   const { folderId } = props;
   const { query: entryListQuery } = useEntryList(folderId);
-  const { uploadFiles } = useUploadFiles(usePresignedPostUploader);
+  const { uploadFiles } = useUploadFiles({
+    useUploader: usePresignedPostUploader,
+  });
 
   async function handleFileSelect(): Promise<void> {
     const files = await selectFile();
