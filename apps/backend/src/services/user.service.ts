@@ -1,6 +1,6 @@
 import { injectable, inject } from "inversify";
 import type { Prisma, User } from "@cirrodrive/database/prisma";
-import { hash } from "@node-rs/argon2";
+import { hash, verify  } from "@node-rs/argon2";
 import { jwtVerify } from "jose";
 import type { Logger } from "pino";
 import { Symbols } from "#types/symbols";
@@ -479,6 +479,75 @@ export class UserService {
         this.logger.error("알 수 없는 오류가 발생했습니다.");
       }
       throw error; // 에러 다시 던짐
+    }
+  }
+    /**
+   * 현재 비밀번호를 확인하고 새 비밀번호로 변경합니다.
+   *
+   * @param userId - 비밀번호를 변경할 사용자 ID
+   * @param currentPassword - 현재 비밀번호
+   * @param newPassword - 새 비밀번호
+   * @returns 비밀번호가 성공적으로 변경된 사용자
+   * @throws 비밀번호 변경 중 오류가 발생한 경우
+   */
+  public async changePassword({
+    userId,
+    currentPassword,
+    newPassword,
+  }: {
+    userId: string;
+    currentPassword: string;
+    newPassword: string;
+  }): Promise<User> {
+    try {
+      this.logger.info(
+        {
+          methodName: "changePassword",
+          userId,
+        },
+        "비밀번호 변경 시작",
+      );
+
+      // 사용자 조회
+      const user = await this.userModel.findUnique({
+        where: { id: userId },
+      });
+
+      if (!user) {
+        throw new Error("사용자를 찾을 수 없습니다.");
+      }
+
+      // 기존 비밀번호 확인
+      const isMatch = await verify(user.hashedPassword, currentPassword);
+      if (!isMatch) {
+        throw new Error("현재 비밀번호가 일치하지 않습니다.");
+      }
+
+      // 새 비밀번호 해시
+      const hashedPassword = await hash(newPassword);
+
+      // 사용자 비밀번호 업데이트
+      const updatedUser = await this.userModel.update({
+        where: { id: userId },
+        data: { hashedPassword },
+      });
+
+      this.logger.info(
+        {
+          methodName: "changePassword",
+          userId,
+        },
+        "비밀번호 변경 완료",
+      );
+
+      return updatedUser;
+    } catch (error: unknown) {
+      if (error instanceof Error) {
+        this.logger.error(error.message);
+      } else {
+        this.logger.error("알 수 없는 오류가 발생했습니다.");
+      }
+      throw error;
     }
   }
 }

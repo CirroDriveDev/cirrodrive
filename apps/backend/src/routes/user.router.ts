@@ -7,6 +7,11 @@ import { logger } from "#loaders/logger.loader";
 import { router, procedure, authedProcedure } from "#loaders/trpc.loader";
 
 const userService = container.get<UserService>(UserService);
+const passwordSchema = z.string()
+  .min(8)
+  .regex(/[A-Z]/, "영어 대문자를 포함해야 합니다.")
+  .regex(/[0-9]/, "숫자를 포함해야 합니다.")
+  .regex(/[\W_]/, "특수문자를 포함해야 합니다.");
 
 export const userRouter = router({
   create: procedure
@@ -235,48 +240,47 @@ export const userRouter = router({
         });
       }
     }),
-  /**
-   * 현재 비밀번호 인증 후 새 비밀번호로 변경합니다.
-   *
-   * @throws
-   *
-   *   - UNAUTHORIZED: 현재 비밀번호가 일치하지 않음
-   *   - BAD_REQUEST: 새 비밀번호 확인이 일치하지 않거나 조건이 맞지 않음
-   *   - INTERNAL_SERVER_ERROR: 서버 내부 오류
-   *
-   * @input
-   *  - currentPassword: 현재 비밀번호 (최소 8자)
-   *  - newPassword: 새 비밀번호 (최소 8자, 특수문자 및 대문자 포함 필수)
-   *  - confirmNewPassword: 새 비밀번호 확인용 (newPassword와 일치해야 함)
-   *
-   * @validation
-   *  - newPassword는 다음 조건을 만족해야 합니다:
-   *    - 최소 하나 이상의 대문자 포함
-   *    - 최소 하나 이상의 특수문자 포함 (!@#$%^&* 등)
-   *  - newPassword와 confirmNewPassword는 반드시 일치해야 합니다.
-   *
-   * @output
-   *  - 사용자 DTO 정보 반환 (userDTOSchema)
-   */
-  changePassword: authedProcedure
-    .input(
-      z
-        .object({
-          currentPassword: z.string().min(8),
-          newPassword: z
-            .string()
-            .min(8)
-            .regex(/[A-Z]/, "대문자가 포함되어야 합니다.")
-            .regex(/[^a-zA-Z0-9]/, "특수문자가 포함되어야 합니다."),
-          confirmNewPassword: z.string().min(8),
-        })
-        .refine((data) => data.newPassword === data.confirmNewPassword, {
-          message: "새 비밀번호와 확인이 일치하지 않습니다.",
-          path: ["confirmNewPassword"],
-        }),
-    )
-    .output(userDTOSchema)
-    .mutation(() => {
-      throw new Error("Not implemented yet");
+  changePassword: procedure
+  .input(
+    z.object({
+      currentPassword: z.string().min(8),  // 현재 비밀번호, 최소 8자
+      newPassword: passwordSchema,         // 새 비밀번호, passwordSchema로 유효성 검사
     }),
+  )
+  .output(userDTOSchema)                   // 반환값 스키마 (유저 DTO)
+  .mutation(async ({ input, ctx }) => {
+    logger.info({ requestId: ctx.req.id }, "user.changePassword 요청 시작");
+
+    if (!ctx.user) {
+      throw new TRPCError({
+        code: "UNAUTHORIZED",
+        message: "로그인이 필요합니다.",
+      });
+    }
+
+    try {
+      const { currentPassword, newPassword } = input;
+
+      // 서비스에서 비밀번호 변경 처리
+      const user = await userService.changePassword({
+        userId: ctx.user.id,
+        currentPassword,
+        newPassword,
+      });
+
+      logger.info({ requestId: ctx.req.id }, "user.changePassword 요청 성공");
+
+      return user;
+    } catch (error) {
+      logger.error(
+        { requestId: ctx.req.id, error },
+        "user.changePassword 요청 실패",
+      );
+
+      throw new TRPCError({
+        code: "UNAUTHORIZED",
+        message: "현재 비밀번호가 올바르지 않습니다.",
+      });
+    }
+  }),
 });
