@@ -120,5 +120,49 @@ export const billingRouter = router({
       },
     };
   }),
+  getPaymentHistory: authedProcedure
+    .input(
+      z.object({
+        limit: z.number().int().min(1).max(100).optional().default(20),
+        cursor: z.string().optional(), // 페이징용 cursor
+      }),
+    )
+    .output(
+      z.object({
+        payments: z.array(
+          z.object({
+            id: z.string(),
+            amount: z.number(),
+            currency: z.string(),
+            status: z.enum(["paid", "failed", "pending"]),
+            paidAt: z.string().datetime(),
+            method: z.string(),
+            description: z.string().nullable(),
+          }),
+        ),
+        nextCursor: z.string().nullable(),
+      }),
+    )
+    .query(async ({ input, ctx }) => {
+      const userId = ctx.user.id;
+      const { limit, cursor } = input;
 
+      const { payments, nextCursor } = await billingService.getPaymentHistory({
+        userId,
+        limit,
+        cursor,
+      });
+
+      if (!payments) {
+        throw new TRPCError({
+          code: "NOT_FOUND",
+          message: "결제 내역을 찾을 수 없습니다.",
+        });
+      }
+
+      return {
+        payments,
+        nextCursor: nextCursor ?? null,
+      };
+    }),
 });
