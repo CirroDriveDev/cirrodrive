@@ -235,4 +235,48 @@ export const userRouter = router({
         });
       }
     }),
+  /**
+   * 현재 비밀번호 인증 후 새 비밀번호로 변경합니다.
+   *
+   * @throws
+   *
+   *   - UNAUTHORIZED: 현재 비밀번호가 일치하지 않음
+   *   - BAD_REQUEST: 새 비밀번호 확인이 일치하지 않거나 조건이 맞지 않음
+   *   - INTERNAL_SERVER_ERROR: 서버 내부 오류
+   *
+   * @input
+   *  - currentPassword: 현재 비밀번호 (최소 8자)
+   *  - newPassword: 새 비밀번호 (최소 8자, 특수문자 및 대문자 포함 필수)
+   *  - confirmNewPassword: 새 비밀번호 확인용 (newPassword와 일치해야 함)
+   *
+   * @validation
+   *  - newPassword는 다음 조건을 만족해야 합니다:
+   *    - 최소 하나 이상의 대문자 포함
+   *    - 최소 하나 이상의 특수문자 포함 (!@#$%^&* 등)
+   *  - newPassword와 confirmNewPassword는 반드시 일치해야 합니다.
+   *
+   * @output
+   *  - 사용자 DTO 정보 반환 (userDTOSchema)
+   */
+  changePassword: authedProcedure
+    .input(
+      z
+        .object({
+          currentPassword: z.string().min(8),
+          newPassword: z
+            .string()
+            .min(8)
+            .regex(/[A-Z]/, "대문자가 포함되어야 합니다.")
+            .regex(/[^a-zA-Z0-9]/, "특수문자가 포함되어야 합니다."),
+          confirmNewPassword: z.string().min(8),
+        })
+        .refine((data) => data.newPassword === data.confirmNewPassword, {
+          message: "새 비밀번호와 확인이 일치하지 않습니다.",
+          path: ["confirmNewPassword"],
+        }),
+    )
+    .output(userDTOSchema)
+    .mutation(() => {
+      throw new Error("Not implemented yet");
+    }),
 });
