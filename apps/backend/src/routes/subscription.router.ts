@@ -31,8 +31,8 @@ export const subscriptionRouter = router({
       z.object({
         name: z.string(), // 요금제 이름
         status: z.enum(["active", "inactive", "canceled", "expired"]), // 구독 상태 (매핑된 상태)
-        billingDate: z.string(), // 구독 시작일 (YYYY-MM-DD)
-        expirationDate: z.string(), // 구독 만료일 (YYYY-MM-DD)
+        billingDate: z.string().nullable(),  // 구독 시작일 (YYYY-MM-DD)
+        expirationDate: z.string().nullable(), // 구독 만료일 (YYYY-MM-DD)
         price: z.number(), // 요금제 가격
       }),
     )
@@ -89,8 +89,8 @@ export const subscriptionRouter = router({
         return {
           name: plan.name,                  // 요금제 이름
           status,                          // 매핑된 구독 상태
-          billingDate: sub.startedAt.slice(0, 10),    // 시작일 (YYYY-MM-DD)
-          expirationDate: sub.expiredAt.slice(0, 10), // 만료일 (YYYY-MM-DD)
+          billingDate: sub.startedAt ? sub.startedAt.slice(0, 10) : null,    // 시작일 (YYYY-MM-DD)
+          expirationDate: sub.expiredAt ? sub.expiredAt.slice(0, 10) : null, // 만료일 (YYYY-MM-DD)
           price: plan.price,                // 요금제 가격
         };
       } catch {
