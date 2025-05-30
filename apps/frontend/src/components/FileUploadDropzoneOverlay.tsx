@@ -2,6 +2,8 @@ import { FileIcon } from "lucide-react";
 import { useFileUploadHandler } from "#hooks/useFileUploadHandler.js";
 import { useBoundStore } from "#store/useBoundStore.js";
 import { useDragOverlay } from "#hooks/useDragOverlay.js";
+import { useUploadFiles } from "#services/file/useUploadFiles.js";
+import { usePresignedPostUploader } from "#services/file/presigned-post-uploader.js";
 
 interface DragAndDropUploadOverlayProps {
   folderId?: string; // 폴더 ID
@@ -13,7 +15,9 @@ export function FileUploadDropzoneOverlay({
   onUploadSuccess,
 }: DragAndDropUploadOverlayProps): JSX.Element {
   const { openModal } = useBoundStore();
+
   const { handleFiles } = useFileUploadHandler({
+    useUploadFiles: () => useUploadFiles(usePresignedPostUploader),
     folderId,
     onSuccess: (fileNames) => {
       if (onUploadSuccess) onUploadSuccess();

@@ -2,6 +2,8 @@ import { FileIcon } from "lucide-react";
 import { useBoundStore } from "#store/useBoundStore.js";
 import { useFileUploadHandler } from "#hooks/useFileUploadHandler.js";
 import { useDragOverlay } from "#hooks/useDragOverlay.js";
+import { useUploadFiles } from "#services/file/useUploadFiles.js";
+import { usePresignedPostUploader } from "#services/file/presigned-post-uploader.js";
 
 interface FileUploadDropzoneProps {
   maxFiles?: number;
@@ -12,6 +14,7 @@ export function FileUploadDropzone({
 }: FileUploadDropzoneProps): JSX.Element {
   const { openModal } = useBoundStore();
   const { handleFiles } = useFileUploadHandler({
+    useUploadFiles: () => useUploadFiles(usePresignedPostUploader),
     onSuccess: (fileNames: string[]) => {
       openModal({
         title: "업로드 성공",
