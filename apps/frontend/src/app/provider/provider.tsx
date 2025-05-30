@@ -5,6 +5,7 @@ import { ThemeProvider } from "#shadcn/components/ThemeProvider.js";
 import { queryClient } from "#app/provider/queryClient.js";
 import { trpc, TRPCProvider } from "#services/trpc.js";
 import { trpcClient } from "#app/provider/trpcClient.js";
+import { ToastRoot } from "#app/provider/toast.js";
 
 export function Provider(): JSX.Element {
   return (
@@ -13,6 +14,7 @@ export function Provider(): JSX.Element {
         <trpc.Provider client={trpcClient} queryClient={queryClient}>
           <ThemeProvider>
             <Router />
+            <ToastRoot />
             <ReactQueryDevtools initialIsOpen={false} />
           </ThemeProvider>
         </trpc.Provider>

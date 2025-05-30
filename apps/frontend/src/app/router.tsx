@@ -33,6 +33,7 @@ import { AdminDashboardPage } from "#pages/admin/dashboard.js";
 import { Success } from "#pages/billing/success/[plan-id].js";
 import { Fail } from "#pages/billing/fail.js";
 import { Subscribe } from "#pages/subscribe.js";
+import { TestPage } from "#pages/test.js";
 
 function GuestRoute(): JSX.Element {
   const { user } = useBoundStore();
@@ -87,6 +88,7 @@ export function Router(): JSX.Element {
       <Modal />
       <CheckAuth />
       <Routes>
+        <Route path="test" element={<TestPage />} />
         <Route element={<GuestRoute />}>
           <Route index element={<LandingPage />} />
           <Route path="login" element={<LoginPage />} />
