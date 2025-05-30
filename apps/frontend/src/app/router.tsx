@@ -28,7 +28,7 @@ import { TrashPage } from "#pages/trash.js";
 import { UploadByCodePage } from "#pages/upload.js";
 import { trpc } from "#services/trpc.js";
 import { useBoundStore } from "#store/useBoundStore.js";
-import { MyPlanPage } from "#pages/subscribe/myplanpage.js";
+import { MyPage } from "#pages/mypage/mypage.js";
 import { AdminDashboardPage } from "#pages/admin/dashboard.js";
 import { Success } from "#pages/billing/success/[plan-id].js";
 import { Fail } from "#pages/billing/fail.js";
@@ -106,7 +106,7 @@ export function Router(): JSX.Element {
           <Route path="photos" element={<PhotosPage />} />
           <Route path="recent" element={<RecentPage />} />
           <Route path="search" element={<SearchResultsPage />} />
-          <Route path="myplan" element={<MyPlanPage />} />
+          <Route path="mypage" element={<MyPage />} />
         </Route>
         <Route path="admin">
           <Route path="user" element={<AdminUserPage />} />
