@@ -247,11 +247,23 @@ export class BillingService {
       },
     };
   }
-  /**
+    /**
    * 사용자 결제 내역을 조회합니다.
    *
-   * @param params - 조회 파라미터 (userId, limit, cursor)
+   * @param params - 조회 파라미터
+   *   - userId: 조회할 사용자 ID
+   *   - limit: 한 번에 조회할 최대 결제 내역 개수
+   *   - cursor: 다음 페이지 조회를 위한 커서 ID (옵션)
    * @returns 결제 내역 리스트와 다음 페이지 커서
+   *   - payments: 결제 내역 배열
+   *     - id: 결제 ID
+   *     - amount: 결제 금액
+   *     - currency: 통화 단위
+   *     - status: 결제 상태 ("paid" | "failed" | "pending")
+   *     - paidAt: 결제 완료 시각 (ISO 문자열)
+   *     - method: 결제 수단
+   *     - description: 결제 설명 (없을 수도 있음)
+   *   - nextCursor: 다음 페이지 조회에 사용할 커서 ID (있으면 반환)
    */
   public async getPaymentHistory(params: {
     userId: string;
@@ -270,8 +282,9 @@ export class BillingService {
     nextCursor?: string;
   }> {
     const { userId, limit, cursor } = params;
-    const take = limit + 1;
+    const take = limit + 1; // 다음 페이지 존재 확인용 한 개 더 조회
 
+    // 결제 내역을 페이징하여 조회
     const payments = await (
       this.paymentRepository as unknown as {
         findMany: (args: {
@@ -294,17 +307,19 @@ export class BillingService {
       }
     ).findMany({
       where: { userId },
-      orderBy: { paidAt: "desc" },
+      orderBy: { paidAt: "desc" }, // 최신 결제 내역부터
       take,
       cursor: cursor ? { id: cursor } : undefined,
-      skip: cursor ? 1 : 0,
+      skip: cursor ? 1 : 0, // 커서가 있으면 해당 항목은 제외
     });
+
     let nextCursor: string | undefined;
     if (payments.length > limit) {
-      const nextItem = payments.pop();
+      const nextItem = payments.pop(); // 한 개 초과시 다음 페이지 커서로 설정
       nextCursor = nextItem?.id;
     }
 
+    // 응답 형식에 맞게 데이터 가공 (paidAt을 ISO 문자열로 변환)
     const result = payments.map((p) => ({
       id: p.id,
       amount: p.amount,
@@ -318,4 +333,5 @@ export class BillingService {
 
     return { payments: result, nextCursor };
   }
+
 }
