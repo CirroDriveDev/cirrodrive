@@ -23,7 +23,7 @@ import {
   DropdownMenuTrigger,
 } from "#shadcn/components/DropdownMenu.js";
 import { useTrash } from "#services/file/useTrash.js";
-import { useDownload } from "#services/file/useDownload.js";
+import { useDownloadSingleFile } from "#services/file/useDownloadSingleFile";
 import { useFileRename } from "#services/file/useFileRename.js";
 import { useFileDelete } from "#services/useFileDelete.js";
 import { useFolderDelete } from "#services/useFolderDelete.js";
@@ -103,7 +103,7 @@ export function EntryItem({
   const iconVariant = type === "folder" ? type : inferFileType(name);
 
   // 다운로드
-  const { handleDownload: downloadEntry } = useDownload(id);
+  const { downloadSingleFile } = useDownloadSingleFile();
 
   // 이동
   const { openMoveModal } = useMoveEntry(entry);
@@ -122,13 +122,15 @@ export function EntryItem({
   const deleteEntry = type === "folder" ? handleFolderDelete : handleFileDelete;
 
   // 이벤트 핸들러
-  const handleDoubleClick = (e: React.MouseEvent<HTMLDivElement>): void => {
+  const handleDoubleClick = async (
+    e: React.MouseEvent<HTMLDivElement>,
+  ): Promise<void> => {
     if (onDoubleClick) {
       onDoubleClick(e);
     } else if (type === "folder") {
       void navigate(`/folder/${id}`);
     } else {
-      downloadEntry();
+      await downloadSingleFile({ fileId: id, name });
     }
   };
 
@@ -199,7 +201,9 @@ export function EntryItem({
             {!trashedAt ?
               <DropdownMenuGroup>
                 {type === "file" ?
-                  <DropdownMenuItem onClick={downloadEntry}>
+                  <DropdownMenuItem
+                    onClick={() => downloadSingleFile({ fileId: id, name })}
+                  >
                     <DownloadIcon />
                     <span>다운로드</span>
                   </DropdownMenuItem>

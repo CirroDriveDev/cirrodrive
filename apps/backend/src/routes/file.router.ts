@@ -13,6 +13,7 @@ import { FileService } from "#services/file.service";
 import { FileAccessCodeService } from "#services/file-access-code.service";
 import { S3Service } from "#services/s3.service";
 import { fileUploadRouter } from "#routes/file.upload.router";
+import { fileDownloadRouter } from "#routes/file.download.router";
 
 const fileService = container.get<FileService>(FileService);
 const codeService = container.get<FileAccessCodeService>(FileAccessCodeService);
@@ -20,6 +21,7 @@ const s3Service = container.get<S3Service>(S3Service);
 
 export const fileRouter = router({
   upload: fileUploadRouter,
+  download: fileDownloadRouter,
 
   /**
    * S3 Presigned Upload URL을 생성합니다.
@@ -51,21 +53,6 @@ export const fileRouter = router({
       const presignedUploadURL = await s3Service.getPutObjectSignedURL(key);
 
       return { presignedUploadURL, key };
-    }),
-
-  download: procedure
-    .input(
-      z.object({
-        fileId: fileMetadataDTOSchema.shape.id,
-      }),
-    )
-    .output(
-      z.object({
-        url: z.string(),
-      }),
-    )
-    .query(() => {
-      throw new Error("Not implemented");
     }),
 
   /**

@@ -28,6 +28,7 @@ import { FileMetadataRepository } from "#repositories/file-metadata.repository";
 import { AdminUserRepository } from "#repositories/admin-user.repository";
 import { AdminSessionRepository } from "#repositories/admin-session.repository";
 import { AdminAuthService } from "#services/admin.auth.service";
+import { CloudFrontService } from "#services/cloud-front.service";
 
 const inversifyLogger = logger.child({ prefix: "Inversify" });
 
@@ -75,6 +76,7 @@ container.bind(BillingService).toSelf();
 container.bind(TossPaymentsService).toSelf();
 container.bind(FileUploadService).toSelf();
 container.bind(AdminAuthService).toSelf();
+container.bind(CloudFrontService).toSelf();
 
 inversifyLogger.info("Inversify loaded successfully");
 

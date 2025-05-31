@@ -2,7 +2,7 @@ import { useParams } from "react-router";
 import { NotFoundPage } from "#pages/not-found.js";
 import { LoadingSpinner } from "#components/shared/LoadingSpinner.js";
 import { useGetFileByCode } from "#services/file/useGetFileByCode.js";
-import { useDownloadByCode } from "#services/file/useDownloadByCode.js";
+import { useDownloadSingleFile } from "#services/file/useDownloadSingleFile";
 import { Button } from "#shadcn/components/Button.js";
 import { EntryIcon } from "#components/EntryIcon.js";
 import { inferFileType } from "#utils/inferFileType.js";
@@ -20,7 +20,7 @@ export function CodePage(): JSX.Element {
 
   const { file, error, isLoading } = useGetFileByCode(code ?? "");
   const { saveToAccount } = useSaveToAccount(code ?? "");
-  const { download } = useDownloadByCode(code ?? "");
+  const { downloadSingleFile, isPending } = useDownloadSingleFile();
 
   if (typeof code === "undefined") {
     return <NotFoundPage />;
@@ -58,7 +58,8 @@ export function CodePage(): JSX.Element {
             variant="default"
             className="w-full"
             type="button"
-            onClick={download}
+            onClick={() => downloadSingleFile({ code, name: file.name })}
+            disabled={isPending}
           >
             다운로드
           </Button>
