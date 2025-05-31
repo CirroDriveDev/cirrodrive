@@ -7,15 +7,22 @@ interface TrashEntryListProps {
 }
 
 type SortKey = "name" | "updatedAt" | "size";
-type SortOrder = "asc" | "desc";
+type SortOrder = "asc" | "desc" | "none";
 
 export function TrashEntryList({ entries }: TrashEntryListProps): JSX.Element {
-  const [sortKey, setSortKey] = useState<SortKey>("name");
-  const [sortOrder, setSortOrder] = useState<SortOrder>("asc");
+  const [sortKey, setSortKey] = useState<SortKey | null>(null);
+  const [sortOrder, setSortOrder] = useState<SortOrder>("none");
 
   const handleSort = (key: SortKey): void => {
     if (sortKey === key) {
-      setSortOrder((prev) => (prev === "asc" ? "desc" : "asc"));
+      if (sortOrder === "asc") {
+        setSortOrder("desc");
+      } else if (sortOrder === "desc") {
+        setSortKey(null);
+        setSortOrder("none");
+      } else {
+        setSortOrder("asc");
+      }
     } else {
       setSortKey(key);
       setSortOrder("asc");
@@ -23,6 +30,8 @@ export function TrashEntryList({ entries }: TrashEntryListProps): JSX.Element {
   };
 
   const sortedEntries = useMemo(() => {
+    if (sortOrder === "none" || sortKey === null) return entries;
+
     const copy = [...entries];
     return copy.sort((a, b) => {
       const aVal = a[sortKey];
@@ -50,7 +59,7 @@ export function TrashEntryList({ entries }: TrashEntryListProps): JSX.Element {
   }, [entries, sortKey, sortOrder]);
 
   const renderArrow = (key: SortKey): "▲" | "▼" | null => {
-    if (sortKey !== key) return null;
+    if (sortKey !== key || sortOrder === "none") return null;
     return sortOrder === "asc" ? "▲" : "▼";
   };
 
@@ -79,7 +88,7 @@ export function TrashEntryList({ entries }: TrashEntryListProps): JSX.Element {
       </div>
 
       {/* List */}
-      <div className="border-y-muted-foreground flex h-[720px] w-full flex-col divide-y overflow-auto border-y">
+      <div className="border-y-muted-foreground flex h-[720px] w-full flex-col divide-yoverflow-auto border-y">
         {sortedEntries.map((entry) => (
           <EntryItem
             key={`${entry.id}:${entry.name}:${entry.type}`}

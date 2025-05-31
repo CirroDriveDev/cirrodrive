@@ -6,7 +6,7 @@ import type { SortOrder } from "#services/useSortedList.js";
 interface AdminFileListProps {
   files: TempFile[];
   onDelete: (id: string) => void;
-  sortKey: keyof TempFile;
+  sortKey: keyof TempFile | null; // ✅ null 허용
   sortOrder: SortOrder;
   changeSort: (key: keyof TempFile) => void;
 }

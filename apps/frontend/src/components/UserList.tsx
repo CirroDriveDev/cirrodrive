@@ -9,7 +9,7 @@ interface UserListProps {
 }
 
 type SortKey = "id" | "username" | "email" | "createdAt" | "currentPlanId";
-type SortOrder = "asc" | "desc";
+type SortOrder = "asc" | "desc" | "none";
 
 // searchFields 타입 정의에 currentPlanId 추가
 interface SearchFields {
@@ -25,14 +25,19 @@ export function UserList({ users }: UserListProps): JSX.Element {
     searchTerm: string;
     searchFields: SearchFields;
   };
-  const [sortKey, setSortKey] = useState<SortKey>("id");
-  const [sortOrder, setSortOrder] = useState<SortOrder>("asc");
+
+  const [sortKey, setSortKey] = useState<SortKey | null>(null);
+  const [sortOrder, setSortOrder] = useState<SortOrder>("none");
 
   const { handleUserDelete } = useUserDelete();
 
   const handleSort = (key: SortKey): void => {
     if (sortKey === key) {
-      setSortOrder((prev) => (prev === "asc" ? "desc" : "asc"));
+      if (sortOrder === "asc") setSortOrder("desc");
+      else if (sortOrder === "desc") {
+        setSortKey(null);
+        setSortOrder("none");
+      } else setSortOrder("asc");
     } else {
       setSortKey(key);
       setSortOrder("asc");
@@ -65,6 +70,8 @@ export function UserList({ users }: UserListProps): JSX.Element {
   });
 
   const sortedUsers = useMemo(() => {
+    if (!sortKey || sortOrder === "none") return filteredUsers;
+
     const copy = [...filteredUsers];
     return copy.sort((a, b) => {
       const aValue = a[sortKey];
@@ -73,20 +80,29 @@ export function UserList({ users }: UserListProps): JSX.Element {
       if (aValue === null && bValue === null) return 0;
       if (aValue === null) return 1;
       if (bValue === null) return -1;
+
       if (typeof aValue === "string" && typeof bValue === "string") {
-        return sortOrder === "asc" ?
-            aValue.localeCompare(bValue)
+        return sortOrder === "asc"
+          ? aValue.localeCompare(bValue)
           : bValue.localeCompare(aValue);
       }
+
       if (typeof aValue === "number" && typeof bValue === "number") {
         return sortOrder === "asc" ? aValue - bValue : bValue - aValue;
       }
+
+      if (aValue instanceof Date && bValue instanceof Date) {
+        return sortOrder === "asc"
+          ? aValue.getTime() - bValue.getTime()
+          : bValue.getTime() - aValue.getTime();
+      }
+
       return 0;
     });
   }, [filteredUsers, sortKey, sortOrder]);
 
   const renderArrow = (key: SortKey): "▲" | "▼" | null => {
-    if (sortKey !== key) return null;
+    if (sortKey !== key || sortOrder === "none") return null;
     return sortOrder === "asc" ? "▲" : "▼";
   };
 
@@ -129,18 +145,19 @@ export function UserList({ users }: UserListProps): JSX.Element {
 
       {/* List */}
       <div className="flex h-[720px] w-full flex-col divide-y divide-muted-foreground overflow-auto border-y border-y-muted-foreground">
-        {sortedUsers.length > 0 ?
+        {sortedUsers.length > 0 ? (
           sortedUsers.map((user) => (
             <UserItem
               key={user.id}
               user={user}
-              onDelete={handleUserDelete} // ✅ 여기서 user.id를 넘기게 됨
+              onDelete={handleUserDelete}
             />
           ))
-        : <div className="px-16 py-4 text-muted-foreground">
+        ) : (
+          <div className="px-16 py-4 text-muted-foreground">
             검색 결과가 없습니다.
           </div>
-        }
+        )}
       </div>
     </div>
   );

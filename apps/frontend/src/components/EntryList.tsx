@@ -8,15 +8,22 @@ interface EntryListProps {
 }
 
 type SortKey = "name" | "updatedAt" | "size";
-type SortOrder = "asc" | "desc";
+type SortOrder = "asc" | "desc" | "none"; // ✅ 무정렬 추가
 
 export function EntryList({ entries }: EntryListProps): JSX.Element {
-  const [sortKey, setSortKey] = useState<SortKey>("name");
-  const [sortOrder, setSortOrder] = useState<SortOrder>("asc");
+  const [sortKey, setSortKey] = useState<SortKey | null>(null);
+  const [sortOrder, setSortOrder] = useState<SortOrder>("none");
 
   const handleSort = (key: SortKey): void => {
     if (sortKey === key) {
-      setSortOrder((prev) => (prev === "asc" ? "desc" : "asc"));
+      if (sortOrder === "asc") {
+        setSortOrder("desc");
+      } else if (sortOrder === "desc") {
+        setSortKey(null);
+        setSortOrder("none");
+      } else {
+        setSortOrder("asc");
+      }
     } else {
       setSortKey(key);
       setSortOrder("asc");
@@ -24,6 +31,10 @@ export function EntryList({ entries }: EntryListProps): JSX.Element {
   };
 
   const sortedEntries = useMemo(() => {
+    if (sortOrder === "none" || sortKey === null) {
+      return entries;
+    }
+
     const copy = [...entries];
     return copy.sort((a, b) => {
       const aVal = a[sortKey];
@@ -33,7 +44,6 @@ export function EntryList({ entries }: EntryListProps): JSX.Element {
       if (aVal === null) return 1;
       if (bVal === null) return -1;
 
-      // updatedAt은 Date 객체이므로 변환
       const aComp = sortKey === "updatedAt" ? new Date(aVal).getTime() : aVal;
       const bComp = sortKey === "updatedAt" ? new Date(bVal).getTime() : bVal;
 
@@ -52,17 +62,18 @@ export function EntryList({ entries }: EntryListProps): JSX.Element {
   }, [entries, sortKey, sortOrder]);
 
   const renderArrow = (key: SortKey): "▲" | "▼" | null => {
-    if (sortKey !== key) return null;
+    if (sortKey !== key || sortOrder === "none") return null;
     return sortOrder === "asc" ? "▲" : "▼";
   };
 
   return (
     <div className="flex w-full flex-col">
-        {/* ✅ 검색바 */}
-              <div className="flex w-full px-4 pb-2">
-                <FileSearchBar />
-              </div>
-      
+      {/* ✅ 검색바 */}
+      <div className="flex w-full px-4 pb-2">
+        <FileSearchBar />
+      </div>
+
+      {/* Header */}
       <div className="flex w-full gap-x-4 px-16 py-2 text-sm font-semibold">
         <div
           className="min-w-32 flex-grow cursor-pointer"
@@ -85,7 +96,7 @@ export function EntryList({ entries }: EntryListProps): JSX.Element {
       </div>
 
       {/* List */}
-      <div className="flex h-[720px] w-full flex-col divide-y-[1px] overflow-auto border-y-[1px] border-y-muted-foreground">
+      <div className="border-y-muted-foreground flex h-[720px] w-full flex-col divide-y-[1px] overflow-auto border-y">
         {sortedEntries.map((entry) => (
           <EntryItem
             key={`${entry.id}:${entry.name}:${entry.type}`}
