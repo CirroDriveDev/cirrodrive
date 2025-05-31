@@ -36,6 +36,7 @@ import { Fail } from "#pages/billing/fail.js";
 import { Subscribe } from "#pages/subscribe.js";
 import { TestPage } from "#pages/test.js";
 import { ChangePasswordPage } from "#pages/changspassword.js";
+import { AdminLayout } from "#components/layout/admin/AdminLayout.js";
 
 function AdminRoute(): JSX.Element {
   const { admin } = useAdminStore();
@@ -158,9 +159,11 @@ export function Router(): JSX.Element {
           }
         />
         <Route path="admin" element={<AdminRoute />}>
-          <Route path="user" element={<AdminUserPage />} />
-          <Route path="file" element={<AdminFilePage />} />
-          <Route path="dashboard" element={<AdminDashboardPage />} />
+          <Route element={<AdminLayout />}>
+            <Route path="user" element={<AdminUserPage />} />
+            <Route path="file" element={<AdminFilePage />} />
+            <Route path="dashboard" element={<AdminDashboardPage />} />
+          </Route>
         </Route>
         <Route path="*" element={<NotFoundPage />} />
       </Routes>
