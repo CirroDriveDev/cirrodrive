@@ -30,6 +30,9 @@ export function Header(): JSX.Element {
             <Link to="/download">
               <NavButton>다운로드</NavButton>
             </Link>
+            <Link to="/mypage">
+              <NavButton>마이페이지</NavButton>
+            </Link>
             <NavButton onClick={logout}>로그아웃</NavButton>
             <NavButton onClick={deleteAccount}>계정 탈퇴</NavButton>
             <ModeToggle />
