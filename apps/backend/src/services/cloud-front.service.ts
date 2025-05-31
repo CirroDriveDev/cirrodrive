@@ -6,19 +6,15 @@ import { S3Service } from "#services/s3.service";
 
 @injectable()
 export class CloudFrontService {
+  private readonly expiresInSeconds = env.AWS_CLOUDFRONT_EXPIRES_IN_SECONDS;
+  private readonly DOMAIN = env.AWS_CLOUDFRONT_DOMAIN;
+  private readonly KEY_PAIR_ID = env.AWS_CLOUDFRONT_KEY_PAIR_ID;
+  private readonly PRIVATE_KEY = env.AWS_CLOUDFRONT_PRIVATE_KEY;
+
   constructor(
     @inject(FileService) private readonly fileService: FileService,
     @inject(S3Service) private readonly s3Service: S3Service,
-    private readonly expiresInSeconds: number,
-    private readonly DOMAIN: string,
-    private readonly KEY_PAIR_ID: string,
-    private readonly PRIVATE_KEY: string,
-  ) {
-    this.expiresInSeconds = env.AWS_CLOUDFRONT_EXPIRES_IN_SECONDS;
-    this.DOMAIN = env.AWS_CLOUDFRONT_DOMAIN;
-    this.KEY_PAIR_ID = env.AWS_CLOUDFRONT_KEY_PAIR_ID;
-    this.PRIVATE_KEY = env.AWS_CLOUDFRONT_PRIVATE_KEY;
-  }
+  ) {}
 
   public createSignedUrl(
     key: string,
