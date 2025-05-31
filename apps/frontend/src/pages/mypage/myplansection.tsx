@@ -5,13 +5,13 @@ import {
   CardContent,
   CardHeader,
   CardTitle,
-} from "#shadcn/components/card.js";
-import { Skeleton } from "#shadcn/components/skeleton.js";
+} from "#shadcn/components/Card.js";
+import { Skeleton } from "#shadcn/components/Skeleton.js";
 import {
   Alert,
   AlertDescription,
   AlertTitle,
-} from "#shadcn/components/alert.js";
+} from "#shadcn/components/Alert.js";
 
 /**
  * 마이페이지에서 현재 사용 중인 요금제를 보여주는 섹션 컴포넌트

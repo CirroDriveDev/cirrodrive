@@ -4,7 +4,7 @@ import {
   CardHeader,
   CardTitle,
   CardContent,
-} from "#shadcn/components/card.js";
+} from "#shadcn/components/Card.js";
 import {
   Table,
   TableHeader,
@@ -12,7 +12,7 @@ import {
   TableHead,
   TableBody,
   TableCell,
-} from "#shadcn/components/table.js";
+} from "#shadcn/components/Table.js";
 
 /**
  * 결제 내역을 표 형식으로 보여주는 UI 컴포넌트

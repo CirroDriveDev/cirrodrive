@@ -5,7 +5,7 @@ import {
   CardTitle,
   CardContent,
   CardFooter,
-} from "#shadcn/components/card.js";
+} from "#shadcn/components/Card.js";
 import type { PlanCardData } from "#types/plan-card.js";
 
 interface PlanCardProps {

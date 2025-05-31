@@ -10,14 +10,14 @@ import {
   DropdownMenuCheckboxItem,
   DropdownMenuTrigger,
 } from "#shadcn/components/DropdownMenu.js";
-import { Input } from "#shadcn/components/input.js";
+import { Input } from "#shadcn/components/Input.js";
 import {
   Select,
   SelectTrigger,
   SelectContent,
   SelectItem,
   SelectValue,
-} from "#shadcn/components/select.js";
+} from "#shadcn/components/Select.js";
 import { Button } from "#shadcn/components/Button.js";
 
 export function FileSearchBar(): JSX.Element {
