@@ -28,6 +28,7 @@ import { TrashPage } from "#pages/trash.js";
 import { UploadByCodePage } from "#pages/upload.js";
 import { trpc } from "#services/trpc.js";
 import { useBoundStore } from "#store/useBoundStore.js";
+import { useAdminStore } from "#store/useAdminStore.js";
 import { MyPage } from "#pages/mypage/mypage.js";
 import { AdminDashboardPage } from "#pages/admin/dashboard.js";
 import { Success } from "#pages/billing/success/[plan-id].js";
@@ -35,6 +36,15 @@ import { Fail } from "#pages/billing/fail.js";
 import { Subscribe } from "#pages/subscribe.js";
 import { TestPage } from "#pages/test.js";
 import { ChangePasswordPage } from "#pages/changspassword.js";
+
+function AdminRoute(): JSX.Element {
+  const { admin } = useAdminStore();
+  const location = useLocation();
+  if (!admin) {
+    return <Navigate to="/admin/login" state={{ from: location }} replace />;
+  }
+  return <Outlet />;
+}
 
 function GuestRoute(): JSX.Element {
   const { user } = useBoundStore();
@@ -48,7 +58,6 @@ function GuestRoute(): JSX.Element {
       />
     );
   }
-
   return <Outlet />;
 }
 
@@ -58,29 +67,54 @@ function UserRoute(): JSX.Element {
   if (!user) {
     return <Navigate to="/login" state={{ from: location }} replace />;
   }
-
   return <Outlet />;
 }
 
 function CheckAuth(): React.ReactNode {
   const { user, setUser, clearUser } = useBoundStore();
-  const query = trpc.session.validate.useQuery(undefined, {
+  const { admin, setAdmin, clearAdmin } = useAdminStore();
+  const userQuery = trpc.session.validate.useQuery(undefined, {
     enabled: user !== null,
     refetchOnMount: user !== null,
     refetchOnReconnect: user !== null,
     refetchInterval: 1000 * 60 * 5,
+    retry: 0,
+  });
+
+  const adminQuery = trpc.protected.session.verify.useQuery(undefined, {
+    enabled: admin !== null,
+    refetchOnMount: admin !== null,
+    refetchOnReconnect: admin !== null,
+    refetchInterval: 1000 * 60 * 5,
+    retry: 3,
   });
 
   useEffect(() => {
-    if (query.data) {
-      setUser(query.data);
-    }
-    if (query.error) {
-      clearUser();
-    }
-  }, [query.data, query.error, setUser, clearUser]);
+    if (userQuery.data) setUser(userQuery.data);
+    if (userQuery.error) clearUser();
+    if (adminQuery.data?.admin) setAdmin(adminQuery.data.admin);
+    if (adminQuery.error) clearAdmin();
+  }, [
+    userQuery.data,
+    userQuery.error,
+    setUser,
+    clearUser,
+    adminQuery.data,
+    adminQuery.error,
+    setAdmin,
+    clearAdmin,
+  ]);
 
   return null;
+}
+
+function AdminLoginGuard({ children }: { children: React.ReactNode }) {
+  const { admin } = useAdminStore();
+  const location = useLocation();
+  if (admin) {
+    return <Navigate to="/admin/user" state={{ from: location }} replace />;
+  }
+  return <>{children}</>;
 }
 
 export function Router(): JSX.Element {
@@ -107,21 +141,26 @@ export function Router(): JSX.Element {
           <Route path="photos" element={<PhotosPage />} />
           <Route path="recent" element={<RecentPage />} />
           <Route path="search" element={<SearchResultsPage />} />
+          <Route path="subscribe" element={<Subscribe />} />
           <Route path="mypage" element={<MyPage />} />
           <Route path="changspassword" element={<ChangePasswordPage />} />
+          <Route path="billing">
+            <Route path="success/:planId" element={<Success />} />
+            <Route path="fail" element={<Fail />} />
+          </Route>
         </Route>
-        <Route path="admin">
+        <Route
+          path="admin/login"
+          element={
+            <AdminLoginGuard>
+              <AdminLoginPage />
+            </AdminLoginGuard>
+          }
+        />
+        <Route path="admin" element={<AdminRoute />}>
           <Route path="user" element={<AdminUserPage />} />
           <Route path="file" element={<AdminFilePage />} />
-          <Route path="login" element={<AdminLoginPage />} />
           <Route path="dashboard" element={<AdminDashboardPage />} />
-        </Route>
-        <Route path="subscribe">
-          <Route index element={<Subscribe />} />
-        </Route>
-        <Route path="billing">
-          <Route path="success/:planId" element={<Success />} />
-          <Route path="fail" element={<Fail />} />
         </Route>
         <Route path="*" element={<NotFoundPage />} />
       </Routes>

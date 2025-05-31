@@ -294,8 +294,8 @@ export const useBoundStore = create<StoreState>()(
         ...createModalSlice(...opts),
         ...createSearchBarSlice(...opts),
         ...createRenameSlice(...opts),
-        ...createJwtSlice(...opts), // 추가: JWT 슬라이스
-        ...createAdminSlice(...opts), // 추가: Admin 슬라이스
+        ...createJwtSlice(...opts),
+        ...createAdminSlice(...opts),
       })),
       // persist 미들웨어의 옵션
       {
@@ -303,6 +303,7 @@ export const useBoundStore = create<StoreState>()(
         // partialize 함수를 사용하여 특정 state만 저장
         partialize: (slices) => ({
           user: slices.user,
+          admin: slices.admin, // admin도 저장
         }),
       },
     ),

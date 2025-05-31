@@ -19,7 +19,7 @@ export function AdminLoginPage(): JSX.Element {
   // useAdminLogin 훅에서 login 함수와 서버 에러 상태만 사용
   const { login, submissionError } = useAdminLogin({
     onSuccess: () => {
-      void navigate("/admin/file");
+      void navigate("/admin/user");
     },
     retry: 0,
   });

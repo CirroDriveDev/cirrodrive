@@ -1,6 +1,3 @@
-import { useNavigate } from "react-router";
-import { useEffect } from "react";
-import { useBoundStore } from "#store/useBoundStore.js";
 import { SidebarLayout } from "#components/layout/SidebarLayout.js";
 import { Header } from "#components/layout/Header.js";
 import { Sidebar } from "#components/layout/Sidebar.js";
@@ -12,15 +9,6 @@ import { Button } from "#shadcn/components/Button.js";
 import { AdminFileSearchBar } from "#components/layout/AdminFileSearchBar.js";
 
 export function AdminFilePage(): JSX.Element {
-  const navigate = useNavigate();
-  const { user } = useBoundStore();
-
-  useEffect(() => {
-    if (!user?.isAdmin) {
-      void navigate("/login");
-    }
-  }, [navigate, user]);
-
   const { tempFiles, isLoading, addTempFile, deleteTempFile } =
     useTempFileList(); // ✅ deleteTempFile 추가
   const { sortedList, sortKey, sortOrder, changeSort } = useSortedList(

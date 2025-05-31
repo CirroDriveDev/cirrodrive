@@ -13,9 +13,16 @@ export const protectedSessionRouter = router({
   /**
    * 관리자 인증 상태 확인
    */
-  verify: adminProcedure.query(({ ctx }) => {
-    return { authorized: true, admin: ctx.admin };
-  }),
+  verify: adminProcedure
+    .output(
+      z.object({
+        authorized: z.literal(true),
+        admin: adminUserDTOSchema,
+      }),
+    )
+    .query(({ ctx }) => {
+      return { authorized: true, admin: ctx.admin };
+    }),
 
   /**
    * 관리자 로그인
@@ -30,12 +37,7 @@ export const protectedSessionRouter = router({
     .output(adminUserDTOSchema)
     .mutation(async ({ input, ctx }) => {
       logger.info({ requestId: ctx.req.id }, "admin login 요청 시작");
-      if (ctx.admin) {
-        throw new TRPCError({
-          code: "FORBIDDEN",
-          message: "이미 로그인되어 있습니다.",
-        });
-      }
+
       try {
         const { admin, session, token } = await adminAuthService.login({
           email: input.email,

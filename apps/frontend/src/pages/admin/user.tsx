@@ -1,6 +1,3 @@
-import { useNavigate } from "react-router";
-import { useEffect } from "react";
-import { useBoundStore } from "#store/useBoundStore.js";
 import { SidebarLayout } from "#components/layout/SidebarLayout.js";
 import { Header } from "#components/layout/Header.js";
 import { Sidebar } from "#components/layout/Sidebar.js";
@@ -10,16 +7,6 @@ import { useUserList } from "#services/useUserList.js";
 import { UserSearchBar } from "#components/layout/UserSearchBar.js";
 
 export function AdminUserPage(): JSX.Element {
-  const navigate = useNavigate();
-  const { user } = useBoundStore();
-
-  // 로그인 & 관리자 권한 확인
-  useEffect(() => {
-    if (!user?.isAdmin) {
-      void navigate("/login");
-    }
-  }, [navigate, user]);
-
   const { query: userListQuery } = useUserList();
 
   return (
