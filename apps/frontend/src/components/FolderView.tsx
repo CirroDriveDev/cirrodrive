@@ -15,7 +15,6 @@ import { useFolderCreate } from "#services/file/useFolderCreate.js";
 import { FileUploadDropzoneOverlay } from "#components/FileUploadDropzoneOverlay.js";
 import { useRenameStore } from "#store/useRenameStore.js";
 import { UploadButton } from "#components/UploadButton.js";
-import { FileSearchBar } from "#components/layout/FileSearchBar.js";
 import { useFileSearchBarStore } from "#store/useFileSearchBarStore.js";
 
 interface FolderViewProps {
@@ -94,11 +93,6 @@ export function FolderView({ folderId }: FolderViewProps): JSX.Element {
                 <FolderName folderId={path.folderId} folderName={path.name} />
               </div>
             ))}
-        </div>
-
-        {/* ✅ 검색바 */}
-        <div className="flex w-full px-4 pb-2">
-          <FileSearchBar />
         </div>
 
         {/* 버튼 영역 */}
