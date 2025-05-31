@@ -23,107 +23,128 @@ export class AdminService {
   }
 
   /**
-   * 새로운 관리자를 생성합니다.
-   *
-   * @param username - 관리자 이름
-   * @param password - 비밀번호
-   * @param email - 이메일
-   * @param profileImageUrl - 프로필 이미지 URL
-   * @param usedStorage - 사용된 저장 공간
-   * @returns 생성된 관리자
-   * @throws 관리자 생성 중 오류가 발생한 경우
-   */
-  public async create({
-    username,
-    password,
-    email,
-    profileImageUrl,
-    usedStorage,
-    isAdmin,
-  }: {
-    username: string;
-    password: string;
-    email: string;
-    planId: string;
-    profileImageUrl: string | null;
-    usedStorage: number;
-    isAdmin: boolean;
-  }): Promise<User> {
-    try {
-      this.logger.info(
-        {
-          methodName: "create",
-          username,
-          email,
-        },
-        "관리자 계정 생성 시작",
-      );
+ * 새로운 사용자(일반 사용자 또는 관리자)를 생성합니다.
+ *
+ * 프론트엔드에서 사용자 생성 시:
+ * - username: 텍스트 입력
+ * - password: 텍스트 입력
+ * - email: 텍스트 입력
+ * - profileImageUrl: 선택적 이미지 URL
+ * - usedStorage: 보통 0으로 초기화
+ * - isAdmin: 관리자 권한 부여 여부 (체크박스, 체크 시 true, 미체크 시 false)
+ * - planId: 사용자에게 적용할 요금제 ID
+ *
+ * 관리자 계정 생성을 원할 경우 isAdmin을 true로 설정합니다.
+ * 단, 실제 관리자 권한 생성은 호출하는 쪽에서 권한 검증을 반드시 해야 합니다.
+ *
+ * @param username - 사용자 이름
+ * @param password - 비밀번호
+ * @param email - 이메일
+ * @param profileImageUrl - 프로필 이미지 URL
+ * @param usedStorage - 사용된 저장 공간
+ * @param isAdmin - 관리자 여부 (true면 관리자 생성)
+ * @returns 생성된 사용자
+ * @throws 생성 중 오류가 발생한 경우
+ */
+public async create({
+  username,
+  password,
+  email,
+  profileImageUrl,
+  usedStorage,
+  isAdmin,
+}: {
+  username: string;
+  password: string;
+  email: string;
+  planId: string;
+  profileImageUrl: string | null;
+  usedStorage: number;
+  isAdmin: boolean;  // 체크박스 값으로 true/false 전달
+}): Promise<User> {
+  try {
+    this.logger.info(
+      {
+        methodName: "create",
+        username,
+        email,
+        isAdmin,
+      },
+      isAdmin ? "관리자 계정 생성 시작" : "일반 사용자 계정 생성 시작",
+    );
 
-      const hashedPassword = await hash(password);
+    // 관리자 생성 권한 체크 필요 (예시)
+    // if (isAdmin && !callerHasAdminRights) {
+    //   throw new TRPCError({ code: "FORBIDDEN", message: "관리자 권한이 필요합니다." });
+    // }
 
-      const plan = await this.planService.getDefaultPlan();
+    const hashedPassword = await hash(password);
 
-      const admin = await this.userModel.create({
-        data: {
-          username,
-          email,
-          hashedPassword,
-          profileImageUrl,
-          usedStorage,
-          isAdmin, // 관리자 여부 설정
-          rootFolder: {
-            create: {
-              name: "root",
-            },
-          },
-          trashFolder: {
-            create: {
-              name: "trash",
-            },
-          },
-          currentPlan: {
-            connect: {
-              id: plan.id,
-            },
-          },
-        },
-      });
+    // planId를 직접 받는 게 맞으면 아래 코드로 변경 가능
+    const plan = await this.planService.getDefaultPlan();
+    // const plan = await this.planService.getPlanById(planId);
 
-      await this.folderModel.update({
-        where: {
-          id: admin.rootFolderId,
-        },
-        data: {
-          owner: {
-            connect: {
-              id: admin.id,
-            },
+    const user = await this.userModel.create({
+      data: {
+        username,
+        email,
+        hashedPassword,
+        profileImageUrl,
+        usedStorage,
+        isAdmin,
+        rootFolder: {
+          create: {
+            name: "root",
           },
         },
-      });
-
-      await this.folderModel.update({
-        where: {
-          id: admin.trashFolderId,
-        },
-        data: {
-          owner: {
-            connect: {
-              id: admin.id,
-            },
+        trashFolder: {
+          create: {
+            name: "trash",
           },
         },
-      });
+        currentPlan: {
+          connect: {
+            id: plan.id,
+          },
+        },
+      },
+    });
 
-      return admin;
-    } catch (error) {
-      if (error instanceof Error) {
-        this.logger.error(error.message);
-      }
-      throw error;
+    // rootFolder, trashFolder owner 연결
+    await this.folderModel.update({
+      where: {
+        id: user.rootFolderId,
+      },
+      data: {
+        owner: {
+          connect: {
+            id: user.id,
+          },
+        },
+      },
+    });
+
+    await this.folderModel.update({
+      where: {
+        id: user.trashFolderId,
+      },
+      data: {
+        owner: {
+          connect: {
+            id: user.id,
+          },
+        },
+      },
+    });
+
+    return user;
+  } catch (error) {
+    if (error instanceof Error) {
+      this.logger.error(error.message);
     }
+    throw error;
   }
-
+}
   /**
    * 주어진 ID를 가진 사용자를 삭제합니다.
    *
