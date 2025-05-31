@@ -8,6 +8,8 @@ import { dayjs } from "#loaders/dayjs.loader";
 import { Symbols } from "#types/symbols";
 import { env } from "#loaders/env.loader";
 import { PlanService } from "#services/plan.service";
+import { BillingService } from "#services/billing.service";
+
 
 @injectable()
 export class AdminService {
@@ -18,6 +20,7 @@ export class AdminService {
     @inject(Symbols.FileMetadataModel)
     private fileModel: Prisma.FileMetadataDelegate,
     @inject(PlanService) private planService: PlanService,
+    @inject(BillingService) private billingService: BillingService,
   ) {
     this.logger = logger.child({ serviceName: "AdminService" });
   }
@@ -863,5 +866,46 @@ public async create({
     );
 
     return token;
+  }
+    public async getUserWithPaymentHistory(params: {
+    userId: string;
+    paymentLimit: number;
+    paymentCursor?: string;
+  }) {
+    const { userId, paymentLimit, paymentCursor } = params;
+
+    // 1. 주어진 userId로 데이터베이스에서 유저 정보를 조회한다.
+    //    - userModel.findUnique는 Prisma ORM을 사용해 단일 유저를 검색하는 메서드다.
+    //    - 필요한 필드만 선택해서 조회할 수 있으므로, 민감한 정보는 제외 가능하다.
+    //    - 유저가 존재하지 않으면 null을 반환한다.
+    const user = await this.userModel.findUnique({
+      where: { id: userId },
+      // 필요 시 select 옵션으로 반환 필드 제한 가능
+    });
+
+    // 2. 조회된 유저가 없으면, TRPCError를 던져서 'NOT_FOUND' 에러를 발생시킨다.
+    //    - 클라이언트에서는 이 에러를 받아 사용자 미존재를 인지할 수 있다.
+    if (!user) {
+      throw new TRPCError({ code: "NOT_FOUND", message: "사용자를 찾을 수 없습니다." });
+    }
+
+    // 3. billingService의 getPaymentHistory 메서드를 호출해
+    //    해당 유저의 결제 내역을 페이징 조회한다.
+    //    - userId: 조회 대상 유저 ID
+    //    - limit: 한 번에 조회할 결제 내역 최대 개수
+    //    - cursor: 다음 페이지 조회를 위한 커서 ID (선택)
+    //    - 반환값은 결제 내역 배열과 다음 페이지 커서 정보가 포함되어 있다.
+    const paymentHistory = await this.billingService.getPaymentHistory({
+      userId,
+      limit: paymentLimit,
+      cursor: paymentCursor,
+    });
+
+    // 4. 조회한 유저 정보와 결제 내역을 하나의 객체로 묶어 반환한다.
+    //    - 프론트엔드 또는 호출한 API에서 유저 정보와 결제 내역을 같이 활용할 수 있도록 한다.
+    return {
+      user,
+      paymentHistory,
+    };
   }
 }
