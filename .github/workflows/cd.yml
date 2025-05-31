@@ -190,12 +190,12 @@ jobs:
               
               if [ "$BACKEND_HEALTH" != "healthy" ]; then
                 echo "백엔드 컨테이너 로그:"
-                docker logs cirrodrive-backend --tail 15
+                docker logs cirrodrive-backend --tail 100
               fi
               
               if [ "$FRONTEND_HEALTH" != "healthy" ]; then
                 echo "프론트엔드 컨테이너 로그:"
-                docker logs cirrodrive-frontend --tail 15
+                docker logs cirrodrive-frontend --tail 100
               fi
               
               exit 1
