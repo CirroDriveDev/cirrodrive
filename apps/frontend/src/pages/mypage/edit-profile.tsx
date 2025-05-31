@@ -3,7 +3,7 @@ import { Button } from "#shadcn/components/Button.js";
 import { useChangePassword } from "#services/useChangePassword.js";
 
 // 비밀번호 변경 페이지 컴포넌트
-export function ChangePasswordPage(): JSX.Element {
+export function EditProfilePage(): JSX.Element {
   const {
     currentPassword,
     newPassword,

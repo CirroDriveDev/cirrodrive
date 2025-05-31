@@ -4,7 +4,7 @@ import { useCurrentPlan } from "#services/billing/useCurrentPlan.js";
 import { usePlanList } from "#services/billing/usePlanList.js";
 import type { PlanCardData } from "#types/plan-card.js";
 
-export function Subscribe(): JSX.Element {
+export function Subscriptions(): JSX.Element {
   const { plans, isPending, error } = usePlanList();
   const { plan: currentPlan } = useCurrentPlan();
   const { requestBillingAuth } = useBillingAuth(
