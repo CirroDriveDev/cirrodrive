@@ -1,6 +1,4 @@
 import { Link } from "react-router";
-import { Layout } from "#components/layout/Layout.js";
-import { Header } from "#components/layout/Header.js";
 import { FormInputField } from "#components/shared/FormInputField.js";
 import { Button } from "#shadcn/components/Button.js";
 import { useFindUsername } from "#services/useFindUsername.js";
@@ -23,8 +21,7 @@ export function FindUsernamePage(): JSX.Element {
   } = useFindUsername(); // 아이디 찾기 관련 상태와 메서드 가져오기
 
   return (
-    <Layout header={<Header />}>
-      {" "}
+    <>
       {/* 헤더가 포함된 레이아웃 */}
       <div className="flex flex-grow items-center justify-center">
         {" "}
@@ -119,6 +116,6 @@ export function FindUsernamePage(): JSX.Element {
           </div>
         </section>
       </div>
-    </Layout>
+    </>
   );
 }

@@ -1,6 +1,4 @@
 import { Link } from "react-router";
-import { Layout } from "#components/layout/Layout.js";
-import { Header } from "#components/layout/Header.js";
 import { FormInputField } from "#components/shared/FormInputField.js";
 import { Button } from "#shadcn/components/Button.js";
 import { useFindPassword } from "#services/useFindPassword.js";
@@ -27,8 +25,7 @@ export function FindPasswordPage(): JSX.Element {
   } = useFindPassword(); // 비밀번호 찾기 관련 상태와 메서드 가져오기
 
   return (
-    <Layout header={<Header />}>
-      {" "}
+    <>
       {/* 레이아웃에 헤더 포함 */}
       <div className="flex flex-grow items-center justify-center">
         {" "}
@@ -148,6 +145,6 @@ export function FindPasswordPage(): JSX.Element {
           </div>
         </section>
       </div>
-    </Layout>
+    </>
   );
 }

@@ -39,6 +39,7 @@ import { ChangePasswordPage } from "#pages/changspassword.js";
 import { AdminLayout } from "#components/layout/admin/AdminLayout.js";
 import { UserWorkspaceLayout } from "#components/layout/user/UserWorkspaceLayout.js";
 import { UserLayout } from "#components/layout/user/UserLayout.js";
+import { GuestLayout } from "#components/layout/guest/GuestLayout.js";
 
 function AdminRoute(): JSX.Element {
   const { admin } = useAdminStore();
@@ -129,14 +130,16 @@ export function Router(): JSX.Element {
         <Route path="test" element={<TestPage />} />
 
         <Route element={<GuestRoute />}>
-          <Route index element={<LandingPage />} />
-          <Route path="login" element={<LoginPage />} />
-          <Route path="register" element={<RegisterPage />} />
-          <Route path="findpassword" element={<FindPasswordPage />} />
-          <Route path="findname" element={<FindUsernamePage />} />
-          <Route path="upload" element={<UploadByCodePage />} />
-          <Route path="download" element={<DownloadByCodePage />} />
-          <Route path="c/:code" element={<CodePage />} />
+          <Route element={<GuestLayout />}>
+            <Route index element={<LandingPage />} />
+            <Route path="login" element={<LoginPage />} />
+            <Route path="register" element={<RegisterPage />} />
+            <Route path="findpassword" element={<FindPasswordPage />} />
+            <Route path="findname" element={<FindUsernamePage />} />
+            <Route path="upload" element={<UploadByCodePage />} />
+            <Route path="download" element={<DownloadByCodePage />} />
+            <Route path="c/:code" element={<CodePage />} />
+          </Route>
         </Route>
 
         <Route element={<UserRoute />}>

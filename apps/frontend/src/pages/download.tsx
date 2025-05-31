@@ -1,8 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "react-router";
-import { Header } from "#components/layout/Header.js";
 import { Button } from "#shadcn/components/Button.js";
-import { Layout } from "#components/layout/Layout.js";
 import { useGetFileByCode } from "#services/file/useGetFileByCode.js";
 
 export function DownloadByCodePage(): JSX.Element {
@@ -29,29 +27,27 @@ export function DownloadByCodePage(): JSX.Element {
   };
 
   return (
-    <Layout header={<Header />}>
-      <div className="flex flex-grow items-center justify-center">
-        <section className="flex w-96 flex-col items-center justify-center space-y-4">
-          <h2 className="text-2xl font-bold">다운로드</h2>
-          <input
-            type="text"
-            value={code}
-            onChange={handleInputChange}
-            className="mb-1 mt-2 w-full rounded-md border border-gray-300 bg-background px-3 py-2 text-foreground"
-            placeholder="Enter code"
-          />
-          <div className="flex w-full flex-col justify-center">
-            <Button variant="default" type="button" onClick={submitCode}>
-              확인
-            </Button>
-          </div>
-          <div className="h-8">
-            {errorMessage ?
-              <p className="text-red-500">{errorMessage}</p>
-            : null}
-          </div>
-        </section>
-      </div>
-    </Layout>
+    <div className="flex flex-grow items-center justify-center">
+      <section className="flex w-96 flex-col items-center justify-center space-y-4">
+        <h2 className="text-2xl font-bold">다운로드</h2>
+        <input
+          type="text"
+          value={code}
+          onChange={handleInputChange}
+          className="mb-1 mt-2 w-full rounded-md border border-gray-300 bg-background px-3 py-2 text-foreground"
+          placeholder="Enter code"
+        />
+        <div className="flex w-full flex-col justify-center">
+          <Button variant="default" type="button" onClick={submitCode}>
+            확인
+          </Button>
+        </div>
+        <div className="h-8">
+          {errorMessage ?
+            <p className="text-red-500">{errorMessage}</p>
+          : null}
+        </div>
+      </section>
+    </div>
   );
 }
