@@ -1,35 +1,31 @@
-import { Link, useNavigate } from "react-router";
+import { useForm } from "react-hook-form";
+import { useNavigate, Link } from "react-router";
 import { Button } from "#shadcn/components/Button.js";
-import { FormInputField } from "#components/shared/FormInputField.js";
+import { Input } from "#shadcn/components/Input.js";
+import { Label } from "#shadcn/components/Label.js";
 import { Layout } from "#components/layout/Layout.js";
 import { Header } from "#components/layout/Header.js";
 import { useLogin } from "#services/useLogin.js";
-//import { useUserStore } from "#shared/store/useUserStore.js";
-//import { mockAdminUser } from "#pages/admin/api/mockAdminUser.js";
 
 export function LoginPage(): JSX.Element {
   const navigate = useNavigate();
-  //const { setUser } = useUserStore();
 
   const {
-    input,
-    validationError,
-    submissionError,
-    handleInputChange,
-    handleFormSubmit,
-  } = useLogin({
+    register,
+    handleSubmit,
+    formState: { errors, isSubmitting },
+  } = useForm<{ username: string; password: string }>();
+
+  const { login, submissionError } = useLogin({
     onSuccess: (data) => {
-      // 로그인 성공 시 받은 user data 활용
-      if (data.isAdmin) {
-        void navigate("/admin/user");
-      } else {
-        void navigate(`/folder/${data.rootFolderId}`);
-      }
+      void navigate(`/folder/${data.rootFolderId}`);
     },
     retry: 0,
   });
 
-  const { username, password } = input;
+  const onSubmit = async (data: { username: string; password: string }) => {
+    await login(data);
+  };
 
   return (
     <Layout header={<Header />}>
@@ -38,56 +34,68 @@ export function LoginPage(): JSX.Element {
           <h2 className="text-2xl font-bold">로그인</h2>
           <form
             className="flex w-full flex-col items-center justify-center space-y-4"
-            onSubmit={handleFormSubmit}
+            onSubmit={handleSubmit(onSubmit)}
           >
-            <FormInputField
-              displayName="아이디"
-              type="text"
-              name="username"
-              value={username}
-              onChange={handleInputChange}
-              errorMessage={validationError?.username?._errors[0]}
-            />
-            <FormInputField
-              displayName="비밀번호"
-              type="password"
-              name="password"
-              value={password}
-              onChange={handleInputChange}
-              errorMessage={validationError?.password?._errors[0]}
-            />
-
+            <div className="w-full">
+              <Label htmlFor="username">아이디</Label>
+              <Input
+                id="username"
+                type="text"
+                autoComplete="username"
+                {...register("username", {
+                  required: "아이디를 입력하세요.",
+                })}
+                className={errors.username ? "border-destructive" : ""}
+              />
+              {typeof errors.username?.message === "string" && (
+                <p className="text-destructive text-sm mt-1">
+                  {errors.username.message}
+                </p>
+              )}
+            </div>
+            <div className="w-full">
+              <Label htmlFor="password">비밀번호</Label>
+              <Input
+                id="password"
+                type="password"
+                autoComplete="current-password"
+                {...register("password", {
+                  required: "비밀번호를 입력하세요.",
+                  minLength: {
+                    value: 8,
+                    message: "비밀번호는 8자 이상이어야 합니다.",
+                  },
+                })}
+                className={errors.password ? "border-destructive" : ""}
+              />
+              {typeof errors.password?.message === "string" && (
+                <p className="text-destructive text-sm mt-1">
+                  {errors.password.message}
+                </p>
+              )}
+            </div>
             {submissionError ?
-              <div className="h-8">
-                <p className="text-destructive">{submissionError}</p>
+              <div className="h-8 w-full">
+                <p className="text-destructive text-center">
+                  {submissionError}
+                </p>
               </div>
             : null}
-
             <div className="flex w-full justify-center">
               <Button
                 variant="default"
                 className="w-full text-white"
                 type="submit"
+                disabled={isSubmitting}
               >
                 로그인
               </Button>
             </div>
-
             <div className="flex flex-col items-center space-y-2 pt-2">
               <span className="text-sm">계정이 없으신가요?</span>
               <Link to="/register" className="text-primary underline">
                 회원가입
               </Link>
-
-              {/* {env.DEV ? <Button
-                  onClick={() => {
-                    setUser(mockAdminUser);
-                  void navigate("/admin/user");
-                  }}
-                  className="rounded bg-green-600 px-4 py-2 text-white"
-                >
-                  임시 관리자 로그인
-                </Button> : null} */}
             </div>
             <div className="flex space-x-2">
               <Link to="/findname">

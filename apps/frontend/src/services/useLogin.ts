@@ -1,21 +1,13 @@
-import { useState } from "react";
 import type {
   AppRouter,
   RouterInput,
   RouterOutput,
 } from "@cirrodrive/backend/app-router";
-import type { UseTRPCMutationOptions } from "@trpc/react-query/shared";
-import type { TRPCClientErrorLike } from "@trpc/client";
-import { z, type ZodFormattedError } from "zod";
+import { useState } from "react";
+import { type UseTRPCMutationOptions } from "@trpc/react-query/shared";
+import { type TRPCClientErrorLike } from "@trpc/client";
 import { trpc } from "#services/trpc.js";
 import { useBoundStore } from "#store/useBoundStore.js";
-
-const formSchema = z.object({
-  username: z.string().min(1, "아이디를 입력하세요."),
-  password: z.string().min(1, "비밀번호를 입력하세요."),
-});
-
-type FormSchema = z.infer<typeof formSchema>;
 
 type UseLoginOptions = UseTRPCMutationOptions<
   RouterInput["session"]["login"],
@@ -23,87 +15,35 @@ type UseLoginOptions = UseTRPCMutationOptions<
   RouterOutput["session"]["login"]
 >;
 
-interface UseLogin {
-  input: RouterInput["session"]["login"];
-
-  validationError: ZodFormattedError<FormSchema> | undefined;
-
-  submissionError: string | undefined;
-
-  mutation: ReturnType<typeof trpc.session.login.useMutation>;
-
-  /**
-   * Input 요소의 change 이벤트를 처리하는 함수
-   *
-   * Input 요소의 `name` 속성이 `username`, `password` 중 하나여야 한다.
-   *
-   * @param e - Input 요소의 change 이벤트 객체
-   */
-  handleInputChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
-
-  /**
-   * Form 요소의 submit 이벤트를 처리하는 함수
-   *
-   * @param e - Form 요소의 submit 이벤트 객체
-   */
-  handleFormSubmit: (e: React.FormEvent) => void;
-}
-
-export const useLogin = (opts?: UseLoginOptions): UseLogin => {
+/**
+ * 일반 사용자 로그인 커스텀 훅
+ *
+ * - TRPC mutation을 통해 로그인을 처리합니다.
+ * - 로그인 성공 시 사용자 정보를 zustand store에 저장합니다.
+ * - 로그인 실패 시 submissionError에 에러 메시지를 저장합니다.
+ *
+ * @param opts TRPC mutation 옵션 (onSuccess, onError 등)
+ * @returns Login 함수와 submissionError 상태
+ */
+export const useLogin = (opts?: UseLoginOptions) => {
   const { setUser } = useBoundStore();
-
-  const [input, setInput] = useState<RouterInput["session"]["login"]>({
-    username: "",
-    password: "",
-  });
-
-  const [validationError, setValidationError] =
-    useState<ZodFormattedError<FormSchema>>();
-
   const [submissionError, setSubmissionError] = useState<string>();
 
   const mutation = trpc.session.login.useMutation({
     ...opts,
-    onSuccess: (data, variable, context) => {
+    onSuccess: (data, variables, context) => {
       setUser(data);
-      opts?.onSuccess?.(data, variable, context);
+      opts?.onSuccess?.(data, variables, context);
+      setSubmissionError(undefined);
     },
-    onError: (error, variable, context) => {
-      setSubmissionError(error.message);
-      opts?.onError?.(error, variable, context);
+    onError: (error, variables, context) => {
+      opts?.onError?.(error, variables, context);
+      setSubmissionError(error.message ?? "로그인에 실패했습니다.");
     },
   });
 
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>): void => {
-    const { name, value } = e.target;
-    setInput({
-      ...input,
-      [name]: value,
-    });
-  };
-
-  const handleFormSubmit = (e: React.FormEvent): void => {
-    e.preventDefault();
-    const result = formSchema.safeParse(input);
-
-    if (result.success) {
-      setValidationError(undefined);
-      mutation.mutate({
-        username: result.data.username,
-        password: result.data.password,
-      });
-    } else {
-      setValidationError(result.error.format());
-      setSubmissionError(undefined);
-    }
-  };
-
   return {
-    input,
-    mutation,
-    validationError,
+    login: mutation.mutateAsync,
     submissionError,
-    handleInputChange,
-    handleFormSubmit,
   };
 };
