@@ -2,9 +2,6 @@ import { ChevronRight } from "lucide-react";
 import { useEffect } from "react";
 import { toast } from "react-toastify";
 import { EntryList } from "#components/EntryList.js";
-import { Header } from "#components/layout/Header.js";
-import { Sidebar } from "#components/layout/Sidebar.js";
-import { SidebarLayout } from "#components/layout/SidebarLayout.js";
 import { LoadingSpinner } from "#components/shared/LoadingSpinner.js";
 import { Button } from "#shadcn/components/Button.js";
 import { useEntryList } from "#services/useEntryList.js";
@@ -68,62 +65,60 @@ export function FolderView({ folderId }: FolderViewProps): JSX.Element {
       }) ?? [];
 
   return (
-    <SidebarLayout header={<Header />} sidebar={<Sidebar />}>
-      <div className="flex w-full flex-grow flex-col items-center">
-        {/* 경로 영역 */}
-        <div className="flex h-16 w-full items-center space-x-4 p-4">
-          <FolderName folderId={user!.rootFolderId} folderName="내 파일" />
-          {folderPathQuery.data?.length && folderPathQuery.data.length > 3 ?
-            <div className="flex h-16 items-center space-x-4">
-              <ChevronRight />
-              <div className="flex items-center justify-center text-lg font-bold">
-                ···
-              </div>
+    <div className="flex w-full flex-grow flex-col items-center">
+      {/* 경로 영역 */}
+      <div className="flex h-16 w-full items-center space-x-4 p-4">
+        <FolderName folderId={user!.rootFolderId} folderName="내 파일" />
+        {folderPathQuery.data?.length && folderPathQuery.data.length > 3 ?
+          <div className="flex h-16 items-center space-x-4">
+            <ChevronRight />
+            <div className="flex items-center justify-center text-lg font-bold">
+              ···
             </div>
-          : null}
-          {folderPathQuery.data
-            ?.slice(1)
-            .slice(-2)
-            .map((path) => (
-              <div
-                className="flex h-16 items-center space-x-4"
-                key={`${path.folderId}:${path.name}`}
-              >
-                <ChevronRight />
-                <FolderName folderId={path.folderId} folderName={path.name} />
-              </div>
-            ))}
-        </div>
-
-        {/* 버튼 영역 */}
-        <div className="flex w-full space-x-4 px-4 pb-4">
-          <UploadButton folderId={folderId} />
-          <Button onClick={createFolder}>폴더 생성</Button>
-        </div>
-
-        {/* 파일 목록 */}
-        <div className="relative flex w-full px-4">
-          {entryListQuery.isLoading || !sortedEntries ?
-            <LoadingSpinner />
-          : <EntryList entries={sortedEntries} />}
-
-          {/* 업로드 오버레이 */}
-          <div className="pointer-events-none absolute h-full w-full">
-            <FileUploadDropzoneOverlay
-              folderId={folderId}
-              onSingleFileSuccess={(result) => {
-                void entryListQuery.refetch();
-                toast.success(`파일 업로드 성공: ${result.file.name}`);
-              }}
-              onSingleFileError={(result) => {
-                toast.error(
-                  `파일 업로드에 실패했습니다: ${result.error || "알 수 없는 오류"}`,
-                );
-              }}
-            />
           </div>
+        : null}
+        {folderPathQuery.data
+          ?.slice(1)
+          .slice(-2)
+          .map((path) => (
+            <div
+              className="flex h-16 items-center space-x-4"
+              key={`${path.folderId}:${path.name}`}
+            >
+              <ChevronRight />
+              <FolderName folderId={path.folderId} folderName={path.name} />
+            </div>
+          ))}
+      </div>
+
+      {/* 버튼 영역 */}
+      <div className="flex w-full space-x-4 px-4 pb-4">
+        <UploadButton folderId={folderId} />
+        <Button onClick={createFolder}>폴더 생성</Button>
+      </div>
+
+      {/* 파일 목록 */}
+      <div className="relative flex w-full px-4">
+        {entryListQuery.isLoading || !sortedEntries ?
+          <LoadingSpinner />
+        : <EntryList entries={sortedEntries} />}
+
+        {/* 업로드 오버레이 */}
+        <div className="pointer-events-none absolute h-full w-full">
+          <FileUploadDropzoneOverlay
+            folderId={folderId}
+            onSingleFileSuccess={(result) => {
+              void entryListQuery.refetch();
+              toast.success(`파일 업로드 성공: ${result.file.name}`);
+            }}
+            onSingleFileError={(result) => {
+              toast.error(
+                `파일 업로드에 실패했습니다: ${result.error || "알 수 없는 오류"}`,
+              );
+            }}
+          />
         </div>
       </div>
-    </SidebarLayout>
+    </div>
   );
 }

@@ -1,11 +1,11 @@
 import { Outlet } from "react-router";
 import { Home, Users, FileText } from "lucide-react";
-import { type AdminMenuItem } from "#components/layout/admin/adminMenuItem.js";
+import { type MenuItem } from "#types/menuItem.js";
 import { AdminHeader } from "#components/layout/admin/AdminHeader.js";
 import { AdminSidebar } from "#components/layout/admin/AdminSidebar.js";
 import { BaseSidebarLayout } from "#components/layout/base/BaseSidebarLayout.js";
 
-export const adminMenu: AdminMenuItem[] = [
+export const adminMenu: MenuItem[] = [
   {
     path: "/admin/dashboard",
     label: "대시보드",
@@ -21,7 +21,7 @@ export const adminMenu: AdminMenuItem[] = [
     label: "파일 관리",
     icon: FileText,
   },
-] as const satisfies AdminMenuItem[];
+] as const satisfies MenuItem[];
 
 export function AdminLayout(): JSX.Element {
   return (

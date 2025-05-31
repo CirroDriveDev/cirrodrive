@@ -1,8 +1,5 @@
 import { useNavigate } from "react-router";
 import { useTrashEntryList } from "#services/useTrashEntryList.js";
-import { Header } from "#components/layout/Header.js";
-import { Sidebar } from "#components/layout/Sidebar.js";
-import { SidebarLayout } from "#components/layout/SidebarLayout.js";
 import { useBoundStore } from "#store/useBoundStore.js";
 import { LoadingSpinner } from "#components/shared/LoadingSpinner.js";
 import { useSearchBarStore } from "#store/useSearchBarStore.js";
@@ -27,17 +24,15 @@ export function TrashPage(): JSX.Element {
     ) ?? [];
 
   return (
-    <SidebarLayout header={<Header />} sidebar={<Sidebar />}>
-      <div className="flex w-full flex-grow flex-col items-center">
-        <div className="flex h-16 w-full items-center space-x-4 p-4">
-          <FolderName folderId={null} folderName="휴지통" />
-        </div>
-        <div className="flex w-full px-4">
-          {trashEntryListQuery.isLoading || !trashEntryListQuery.data ?
-            <LoadingSpinner />
-          : <TrashEntryList entries={filteredEntries} />}
-        </div>
+    <div className="flex w-full flex-grow flex-col items-center">
+      <div className="flex h-16 w-full items-center space-x-4 p-4">
+        <FolderName folderId={null} folderName="휴지통" />
       </div>
-    </SidebarLayout>
+      <div className="flex w-full px-4">
+        {trashEntryListQuery.isLoading || !trashEntryListQuery.data ?
+          <LoadingSpinner />
+        : <TrashEntryList entries={filteredEntries} />}
+      </div>
+    </div>
   );
 }

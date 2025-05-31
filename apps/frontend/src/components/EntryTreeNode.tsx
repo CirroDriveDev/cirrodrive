@@ -54,7 +54,7 @@ export function EntryTreeNode({
       {/* 파일 */}
       <Button
         variant={buttonVariant}
-        className="flex h-max justify-start space-x-2 p-1"
+        className="flex h-max justify-between space-x-2 p-1"
         onClick={(e) => {
           if (onClick) {
             onClick(e, entry);
@@ -63,6 +63,11 @@ export function EntryTreeNode({
           }
         }}
       >
+        {isOpen ?
+          <FolderOpenIcon />
+        : <FolderClosedIcon />}
+        <span>{entry.id === user!.rootFolderId ? "내 파일" : entry.name}</span>
+        <span className="flex-grow" />
         <div
           className="z-10"
           onClick={(e) => {
@@ -74,11 +79,6 @@ export function EntryTreeNode({
             <ChevronUp />
           : <ChevronDown />}
         </div>
-
-        {isOpen ?
-          <FolderOpenIcon />
-        : <FolderClosedIcon />}
-        <span>{entry.id === user!.rootFolderId ? "내 파일" : entry.name}</span>
       </Button>
 
       {/* 하위 엔트리 */}

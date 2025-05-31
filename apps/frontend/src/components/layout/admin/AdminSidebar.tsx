@@ -9,9 +9,9 @@ import {
   SidebarMenuButton,
 } from "#shadcn/components/Sidebar.js";
 import { AdminSidebarHeader } from "#components/layout/admin/AdminSidebarHeader.js";
-import { type AdminMenuItem } from "#components/layout/admin/adminMenuItem.js";
+import { type MenuItem } from "#types/menuItem.js";
 
-export function AdminSidebar({ menu }: { menu: AdminMenuItem[] }) {
+export function AdminSidebar({ menu }: { menu: MenuItem[] }) {
   return (
     <Sidebar>
       <AdminSidebarHeader />
@@ -30,7 +30,7 @@ export function AdminSidebar({ menu }: { menu: AdminMenuItem[] }) {
   );
 }
 
-function AdminSidebarMenuItem({ item }: { item: AdminMenuItem }): JSX.Element {
+function AdminSidebarMenuItem({ item }: { item: MenuItem }): JSX.Element {
   const location = useLocation();
   return (
     <SidebarMenuItem>

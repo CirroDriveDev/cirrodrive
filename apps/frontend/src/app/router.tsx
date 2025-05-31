@@ -37,6 +37,8 @@ import { Subscribe } from "#pages/subscribe.js";
 import { TestPage } from "#pages/test.js";
 import { ChangePasswordPage } from "#pages/changspassword.js";
 import { AdminLayout } from "#components/layout/admin/AdminLayout.js";
+import { UserWorkspaceLayout } from "#components/layout/user/UserWorkspaceLayout.js";
+import { UserLayout } from "#components/layout/user/UserLayout.js";
 
 function AdminRoute(): JSX.Element {
   const { admin } = useAdminStore();
@@ -125,6 +127,7 @@ export function Router(): JSX.Element {
       <CheckAuth />
       <Routes>
         <Route path="test" element={<TestPage />} />
+
         <Route element={<GuestRoute />}>
           <Route index element={<LandingPage />} />
           <Route path="login" element={<LoginPage />} />
@@ -135,21 +138,27 @@ export function Router(): JSX.Element {
           <Route path="download" element={<DownloadByCodePage />} />
           <Route path="c/:code" element={<CodePage />} />
         </Route>
+
         <Route element={<UserRoute />}>
-          <Route path="folder/:folderId" element={<FolderPage />} />
-          <Route path="trash" element={<TrashPage />} />
-          <Route path="documents" element={<DocumentsPage />} />
-          <Route path="photos" element={<PhotosPage />} />
-          <Route path="recent" element={<RecentPage />} />
-          <Route path="search" element={<SearchResultsPage />} />
-          <Route path="subscribe" element={<Subscribe />} />
-          <Route path="mypage" element={<MyPage />} />
-          <Route path="changspassword" element={<ChangePasswordPage />} />
-          <Route path="billing">
-            <Route path="success/:planId" element={<Success />} />
-            <Route path="fail" element={<Fail />} />
+          <Route element={<UserWorkspaceLayout />}>
+            <Route path="folder/:folderId" element={<FolderPage />} />
+            <Route path="trash" element={<TrashPage />} />
+            <Route path="documents" element={<DocumentsPage />} />
+            <Route path="photos" element={<PhotosPage />} />
+            <Route path="recent" element={<RecentPage />} />
+            <Route path="search" element={<SearchResultsPage />} />
+          </Route>
+          <Route element={<UserLayout />}>
+            <Route path="subscribe" element={<Subscribe />} />
+            <Route path="mypage" element={<MyPage />} />
+            <Route path="changspassword" element={<ChangePasswordPage />} />
+            <Route path="billing">
+              <Route path="success/:planId" element={<Success />} />
+              <Route path="fail" element={<Fail />} />
+            </Route>
           </Route>
         </Route>
+
         <Route
           path="admin/login"
           element={
@@ -158,6 +167,7 @@ export function Router(): JSX.Element {
             </AdminLoginGuard>
           }
         />
+
         <Route path="admin" element={<AdminRoute />}>
           <Route element={<AdminLayout />}>
             <Route path="user" element={<AdminUserPage />} />
@@ -165,6 +175,7 @@ export function Router(): JSX.Element {
             <Route path="dashboard" element={<AdminDashboardPage />} />
           </Route>
         </Route>
+
         <Route path="*" element={<NotFoundPage />} />
       </Routes>
     </BrowserRouter>

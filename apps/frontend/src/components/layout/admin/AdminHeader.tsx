@@ -19,9 +19,9 @@ import {
   DropdownMenuTrigger,
 } from "#shadcn/components/DropdownMenu.js";
 import { BaseHeader } from "#components/layout/base/BaseHeader.js";
-import { type AdminMenuItem } from "#components/layout/admin/adminMenuItem.js";
+import { type MenuItem } from "#types/menuItem.js";
 
-export function AdminHeader({ menu }: { menu: AdminMenuItem[] }): JSX.Element {
+export function AdminHeader({ menu }: { menu: MenuItem[] }): JSX.Element {
   return (
     <BaseHeader>
       <SidebarTrigger className="-ml-1" />
@@ -44,11 +44,7 @@ function HeaderSeparator(): JSX.Element {
   );
 }
 
-function AdminHeaderBreadcrumb({
-  menu,
-}: {
-  menu: AdminMenuItem[];
-}): JSX.Element {
+function AdminHeaderBreadcrumb({ menu }: { menu: MenuItem[] }): JSX.Element {
   const location = window.location.pathname;
 
   // 현재 경로에 해당하는 메뉴 항목 찾기
