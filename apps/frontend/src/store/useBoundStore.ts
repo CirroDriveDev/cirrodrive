@@ -3,6 +3,7 @@ import { devtools, persist } from "zustand/middleware";
 import { immer } from "zustand/middleware/immer";
 import type { StateCreator } from "zustand";
 import type { UserDTO } from "@cirrodrive/schemas/user";
+import type { AdminUser } from "#types/admin.js";
 
 // ------------------------------------
 // Store Slice Interfaces
@@ -117,12 +118,19 @@ export interface JwtStore {
   clearToken: () => void;
 }
 
+export interface AdminStore {
+  admin: AdminUser | null;
+  setAdmin: (admin: AdminUser) => void;
+  clearAdmin: () => void;
+}
+
 // 모든 슬라이스를 포함하는 상태 타입
 export type StoreState = UserStore &
   ModalStore &
   SearchBarStore &
   RenameStore &
-  JwtStore;
+  JwtStore &
+  AdminStore;
 
 // ------------------------------------
 // Store Slice Creators
@@ -234,6 +242,27 @@ export const createJwtSlice: StateCreator<
     }),
 });
 
+export const createAdminSlice: StateCreator<
+  StoreState,
+  [
+    ["zustand/immer", never],
+    ["zustand/persist", unknown],
+    ["zustand/devtools", never],
+  ],
+  [],
+  AdminStore
+> = (set) => ({
+  admin: null,
+  setAdmin: (admin) =>
+    set((state) => {
+      state.admin = admin;
+    }),
+  clearAdmin: () =>
+    set((state) => {
+      state.admin = null;
+    }),
+});
+
 // ------------------------------------
 // Store Hook
 // ------------------------------------
@@ -266,6 +295,7 @@ export const useBoundStore = create<StoreState>()(
         ...createSearchBarSlice(...opts),
         ...createRenameSlice(...opts),
         ...createJwtSlice(...opts), // 추가: JWT 슬라이스
+        ...createAdminSlice(...opts), // 추가: Admin 슬라이스
       })),
       // persist 미들웨어의 옵션
       {
