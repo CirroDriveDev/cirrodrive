@@ -5,7 +5,7 @@ import { type Response } from "express";
 import { container } from "#loaders/inversify.loader";
 import { logger } from "#loaders/logger.loader";
 import { AdminAuthService } from "#services/admin.auth.service";
-import { router, adminProcedure } from "#loaders/trpc.loader";
+import { router, adminProcedure, procedure } from "#loaders/trpc.loader";
 
 const adminAuthService = container.get<AdminAuthService>(AdminAuthService);
 
@@ -20,7 +20,7 @@ export const protectedSessionRouter = router({
   /**
    * 관리자 로그인
    */
-  login: adminProcedure
+  login: procedure
     .input(
       z.object({
         email: z.string().email(),
