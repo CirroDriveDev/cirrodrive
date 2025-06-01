@@ -4,6 +4,10 @@ import { immer } from "zustand/middleware/immer";
 import type { StateCreator } from "zustand";
 import type { UserDTO } from "@cirrodrive/schemas/user";
 import type { AdminUser } from "#types/admin.js";
+import {
+  type FileTransferStatus,
+  type FileTransfer,
+} from "#types/file-transfer.js";
 
 // ------------------------------------
 // Store Slice Interfaces
@@ -124,13 +128,51 @@ export interface AdminStore {
   clearAdmin: () => void;
 }
 
+/**
+ * 파일 전송(업로드/다운로드) 상태 관리를 위한 스토어
+ */
+export interface TransferStore {
+  /**
+   * 현재 진행 중이거나 기록된 파일 전송 목록
+   */
+  transfers: FileTransfer[];
+  /**
+   * 파일 전송 항목을 추가
+   *
+   * @param transfer - 추가할 파일 전송 객체
+   */
+  addTransfer: (transfer: FileTransfer) => void;
+  /**
+   * 특정 전송 항목의 진행률(progress) 갱신
+   *
+   * @param id - 전송 항목의 ID
+   * @param progress - 진행률(0~100)
+   */
+  updateProgress: (id: string, progress: number) => void;
+  /**
+   * 특정 전송 항목의 상태 및 에러 메시지 갱신
+   *
+   * @param id - 전송 항목의 ID
+   * @param status - 전송 상태
+   * @param error - 에러 메시지(선택)
+   */
+  setStatus: (id: string, status: FileTransferStatus, error?: string) => void;
+  /**
+   * 전송 항목을 목록에서 제거
+   *
+   * @param id - 전송 항목의 ID
+   */
+  removeTransfer: (id: string) => void;
+}
+
 // 모든 슬라이스를 포함하는 상태 타입
 export type StoreState = UserStore &
   ModalStore &
   SearchBarStore &
   RenameStore &
   JwtStore &
-  AdminStore;
+  AdminStore &
+  TransferStore;
 
 // ------------------------------------
 // Store Slice Creators
@@ -263,6 +305,40 @@ export const createAdminSlice: StateCreator<
     }),
 });
 
+export const createTransferSlice: StateCreator<
+  StoreState,
+  [
+    ["zustand/immer", never],
+    ["zustand/persist", unknown],
+    ["zustand/devtools", never],
+  ],
+  [],
+  TransferStore
+> = (set) => ({
+  transfers: [],
+  addTransfer: (transfer) =>
+    set((state) => {
+      state.transfers.push(transfer);
+    }),
+  updateProgress: (id, progress) =>
+    set((state) => {
+      const found = state.transfers.find((item) => item.id === id);
+      if (found) found.progress = progress;
+    }),
+  setStatus: (id, status, error) =>
+    set((state) => {
+      const found = state.transfers.find((item) => item.id === id);
+      if (found) {
+        found.status = status;
+        if (error !== undefined) found.error = error;
+      }
+    }),
+  removeTransfer: (id) =>
+    set((state) => {
+      state.transfers = state.transfers.filter((item) => item.id !== id);
+    }),
+});
+
 // ------------------------------------
 // Store Hook
 // ------------------------------------
@@ -296,6 +372,7 @@ export const useBoundStore = create<StoreState>()(
         ...createRenameSlice(...opts),
         ...createJwtSlice(...opts),
         ...createAdminSlice(...opts),
+        ...createTransferSlice(...opts),
       })),
       // persist 미들웨어의 옵션
       {
