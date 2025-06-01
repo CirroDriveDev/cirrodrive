@@ -10,9 +10,29 @@ on:
   workflow_dispatch:
 
 jobs:
+  check-ci-status:
+    name: Check CI Status
+    runs-on: ubuntu-22.04
+    if: >-
+      github.event_name == 'workflow_dispatch' || 
+      github.event.workflow_run.conclusion == 'success'
+    steps:
+      - name: Get workflow details
+        if: github.event_name == 'workflow_run'
+        run: |
+          echo "CI 파이프라인이 성공적으로 완료되었습니다."
+          echo "워크플로우 ID: ${{ github.event.workflow_run.id }}"
+          echo "워크플로우 이름: ${{ github.event.workflow_run.name }}"
+          echo "브랜치: ${{ github.event.workflow_run.head_branch }}"
+
+      - name: Manual trigger info
+        if: github.event_name == 'workflow_dispatch'
+        run: echo "CD 파이프라인이 수동으로 실행되었습니다."
+
   build-and-push-backend:
     name: Build and Push Backend Docker Image
     runs-on: ubuntu-22.04
+    needs: check-ci-status
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -41,6 +61,7 @@ jobs:
   build-and-push-frontend:
     name: Build and Push Frontend Docker Image
     runs-on: ubuntu-22.04
+    needs: check-ci-status
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
