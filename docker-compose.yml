@@ -6,11 +6,10 @@ services:
       context: .
       dockerfile: apps/frontend/Dockerfile
     container_name: cirrodrive-frontend
-    ports:
-      - "${APP_CLIENT_PORT}:${APP_CLIENT_PORT}"
     restart: always
     environment:
       - TZ=Asia/Seoul
+      - FRONTEND_PORT=${APP_CLIENT_PORT}
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:${APP_CLIENT_PORT}"]
       interval: 10s
@@ -29,8 +28,6 @@ services:
       context: .
       dockerfile: apps/backend/Dockerfile
     container_name: cirrodrive-backend
-    ports:
-      - "${APP_SERVER_PORT}:${APP_SERVER_PORT}"
     restart: always
     environment:
       - NODE_ENV=production
@@ -60,6 +57,54 @@ services:
       options:
         max-size: "10m"
         max-file: "10"
+
+  reverse-proxy:
+    build:
+      context: ./apps/reverse-proxy
+      dockerfile: Dockerfile
+    image: zetabs/cirrodrive:reverse-proxy
+    container_name: cirrodrive-reverse-proxy
+    ports:
+      - "80:80"
+      - "443:443"
+    environment:
+      - DOMAIN=${APP_PUBLIC_HOST}
+      - FRONTEND_PORT=${APP_CLIENT_PORT}
+      - BACKEND_PORT=${APP_SERVER_PORT}
+    volumes:
+      - ./apps/reverse-proxy/certbot/conf:/etc/letsencrypt
+      - ./apps/reverse-proxy/certbot/www:/var/www/certbot
+    depends_on:
+      frontend:
+        condition: service_healthy
+      backend:
+        condition: service_healthy
+    restart: always
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:80"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+      start_period: 15s
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "10"
+    networks:
+      - default
+
+  certbot:
+    image: certbot/certbot
+    container_name: cirrodrive-certbot
+    volumes:
+      - ./apps/reverse-proxy/certbot/conf:/etc/letsencrypt
+      - ./apps/reverse-proxy/certbot/www:/var/www/certbot
+    # SSL 인증서 발급/갱신 시에만 사용하는 서비스
+    profiles:
+      - ssl
+    networks:
+      - default
 
 volumes:
   cirrodrive-app-data:

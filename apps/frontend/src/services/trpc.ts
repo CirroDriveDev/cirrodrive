@@ -15,5 +15,5 @@ export const trpc = createTRPCReact<AppRouter>();
 export const { TRPCProvider, useTRPC, useTRPCClient } =
   createTRPCContext<AppRouter>();
 
-export const TRPC_PATH = "/trpc";
-export const TRPC_URL = `http://${env.VITE_API_HOST}:${env.VITE_API_PORT}${TRPC_PATH}`;
+export const TRPC_PATH = "trpc";
+export const TRPC_URL = `http://${env.VITE_API_HOST}/${TRPC_PATH}`;

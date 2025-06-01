@@ -91,6 +91,32 @@ jobs:
           push: true
           tags: ${{ secrets.DOCKERHUB_USERNAME }}/cirrodrive:frontend
 
+  build-and-push-reverse-proxy:
+    name: Build and Push Reverse Proxy Docker Image
+    runs-on: ubuntu-22.04
+    needs: check-ci-status
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 1 # 최적화: 불필요한 Git 히스토리 가져오지 않음
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Log in to DockerHub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+      - name: Build and push reverse-proxy image
+        uses: docker/build-push-action@v5
+        with:
+          context: ./apps/reverse-proxy
+          file: ./apps/reverse-proxy/Dockerfile
+          push: true
+          tags: ${{ secrets.DOCKERHUB_USERNAME }}/cirrodrive:reverse-proxy
+
   database-migration:
     name: database-migration
     runs-on: ubuntu-22.04
@@ -119,7 +145,13 @@ jobs:
   prepare-release:
     name: Prepare Release
     runs-on: ubuntu-22.04
-    needs: [build-and-push-backend, build-and-push-frontend, database-migration]
+    needs:
+      [
+        build-and-push-backend,
+        build-and-push-frontend,
+        build-and-push-reverse-proxy,
+        database-migration,
+      ]
     environment: production
     steps:
       - name: Prepare Docker Environment
@@ -141,6 +173,11 @@ jobs:
               docker pull ${{ secrets.DOCKERHUB_USERNAME }}/cirrodrive:frontend
             } || { echo "프론트엔드 이미지 가져오기 실패"; exit 1; }
 
+            docker pull ${{ secrets.DOCKERHUB_USERNAME }}/cirrodrive:reverse-proxy || {
+              docker system prune -a -f &&
+              docker pull ${{ secrets.DOCKERHUB_USERNAME }}/cirrodrive:reverse-proxy
+            } || { echo "리버스 프록시 이미지 가져오기 실패"; exit 1; }
+
   deployment:
     name: Deployment
     runs-on: ubuntu-22.04
@@ -149,7 +186,7 @@ jobs:
     env:
       NODE_ENV: production
       APP_SERVER_PORT: 8000
-      APP_CLIENT_PORT: 80
+      APP_CLIENT_PORT: 3000
       APP_PUBLIC_HOST: cirrodrive.kro.kr
       DATABASE_URL: ${{ secrets.DATABASE_URL }}
       AUTH_JWT_SECRET: ${{ secrets.AUTH_JWT_SECRET }}
