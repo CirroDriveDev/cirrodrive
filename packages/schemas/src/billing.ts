@@ -1,24 +1,21 @@
 import { z } from "zod";
 
-export const BillingStatusEnum = z.enum([
+// enums
+export const SubscriptionStatusEnum = z.enum([
+  "TRIAL",
   "ACTIVE",
   "CANCELED",
-  "TRIALING",
-  "PAST_DUE",
-  "PAUSED",
-  "INCOMPLETE",
   "EXPIRED",
+  "UNPAID",
 ]);
-export const BillingMethodEnum = z.enum(["CARD"]);
+
 export const PaymentStatusEnum = z.enum([
-  "SUCCEEDED",
-  "FAILED",
+  "READY",
+  "IN_PROGRESS",
+  "DONE",
   "CANCELED",
-  "REFUNDED",
-  "PENDING",
+  "FAILED",
 ]);
-export const CardTypeEnum = z.enum(["CREDIT", "DEBIT", "GIFT"]);
-export const CardOwnerTypeEnum = z.enum(["PERSONAL", "CORPORATE"]);
 
 export const MethodK2ESchema = z.enum(["카드"]).transform((val) => {
   if (val === "카드") return "CARD" as const;
@@ -45,75 +42,76 @@ export const OwnerTypeK2ESchema = z.enum(["개인", "법인"]).transform((val) =
   if (val === "법인") return "CORPORATE" as const;
   throw new Error("지원하지 않는 소유자 타입입니다.");
 });
+export const IntervalEnum = z.enum(["MONTHLY", "YEARLY"]);
 
 export const PlanSchema = z.object({
-  id: z.string().uuid(),
+  id: z.string(),
   name: z.string(),
-  description: z.string().optional().nullable(),
-  features: z.any().optional().nullable(),
   price: z.number().int(),
-  trialPeriodDays: z.number().int().optional().nullable(),
-  currency: z.string(),
-  interval: z.string(),
-  intervalCount: z.number().int(),
-  isActive: z.boolean(),
+  interval: IntervalEnum,
+  storageLimit: z.number().int(),
+  trialDays: z.number().int(),
+  isDefault: z.boolean(),
   createdAt: z.coerce.date(),
   updatedAt: z.coerce.date(),
 });
 
 export const SubscriptionSchema = z.object({
-  id: z.string().uuid(),
+  id: z.string(),
+  userId: z.string(),
+  planId: z.string(),
+  status: SubscriptionStatusEnum,
+  startedAt: z.coerce.date(),
+  expiresAt: z.coerce.date(),
+  nextBillingAt: z.coerce.date(),
+  canceledAt: z.coerce.date().optional().nullable(),
+  cancellationReason: z.string().optional().nullable(),
+  trialEndsAt: z.coerce.date().optional().nullable(),
+});
+
+export const BillingMethodEnum = z.enum(["CARD"]);
+export const CardTypeEnum = z.enum(["CREDIT", "DEBIT", "GIFT"]);
+export const CardOwnerTypeEnum = z.enum(["PERSONAL", "CORPORATE"]);
+
+export const BillingSchema = z.object({
+  id: z.string(),
+  userId: z.string(),
   mId: z.string(),
   customerKey: z.string(),
   authenticatedAt: z.coerce.date(),
   method: BillingMethodEnum,
   billingKey: z.string(),
-  startedAt: z.coerce.date(),
-  nextBillingAt: z.coerce.date(),
-  status: BillingStatusEnum,
-  canceledAt: z.coerce.date().optional().nullable(),
+  cardIssuerCode: z.string(),
+  cardAcquirerCode: z.string(),
+  cardNumber: z.string(),
+  cardType: CardTypeEnum,
+  cardOwnerType: CardOwnerTypeEnum,
+  cardCompany: z.string(),
+  priority: z.number().int(),
   createdAt: z.coerce.date(),
   updatedAt: z.coerce.date(),
-  userId: z.string(),
-  cardId: z.string(),
-  planId: z.string(),
 });
 
 export const PaymentSchema = z.object({
-  id: z.string().uuid(),
+  id: z.string(),
+  subscriptionId: z.string(),
+  userId: z.string(),
   amount: z.number().int(),
-  method: BillingMethodEnum,
+  currency: z.string(),
+  paymentKey: z.string(),
+  orderId: z.string(),
   status: PaymentStatusEnum,
-  transactionId: z.string(),
-  refundedAt: z.coerce.date().optional().nullable(),
-  canceledAt: z.coerce.date().optional().nullable(),
-  failedAt: z.coerce.date().optional().nullable(),
+  approvedAt: z.coerce.date().optional().nullable(),
   receiptUrl: z.string().optional().nullable(),
-  rawResponse: z.any().optional().nullable(),
+  canceledAt: z.coerce.date().optional().nullable(),
+  cancelReason: z.string().optional().nullable(),
   createdAt: z.coerce.date(),
-  updatedAt: z.coerce.date(),
+});
+
+export const UsageRecordSchema = z.object({
+  id: z.string(),
   userId: z.string(),
-  subscriptionId: z.string(),
+  usedStorage: z.number().int(),
+  usedTraffic: z.number().int(),
+  recordedAt: z.coerce.date(),
 });
-
-export const SubscriptionHistorySchema = z.object({
-  id: z.string().uuid(),
-  subscriptionId: z.string(),
-  oldPlanId: z.string(),
-  newPlanId: z.string(),
-  changedAt: z.coerce.date(),
-});
-
-export const CardSchema = z.object({
-  id: z.string().uuid(),
-  cardCompany: z.string(),
-  issuerCode: z.string(),
-  acquirerCode: z.string(),
-  number: z.string(),
-  cardType: CardTypeEnum,
-  ownerType: CardOwnerTypeEnum,
-  createdAt: z.coerce.date(),
-  userId: z.string(),
-});
-
-export type Plan = z.infer<typeof PlanSchema>;

@@ -8,12 +8,10 @@ describe("Database Utils", () => {
   const testData = {
     name: "Free",
     description: "기본 기능을 무료로 제공합니다.",
-    features: { storage: "1GB" },
     price: 0,
-    trialPeriodDays: 0,
-    currency: "KRW",
-    interval: "MONTH",
-    intervalCount: 1,
+    interval: "MONTHLY",
+    storageLimit: 1024, // 1GB = 1024MB
+    trialDays: 0,
   } as const;
 
   // 테스트 전에 환경 확인

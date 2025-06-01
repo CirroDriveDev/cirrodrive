@@ -1,75 +1,35 @@
 import { injectable } from "inversify";
-import {
-  Prisma,
-  type Subscription,
-  type $Enums,
-} from "@cirrodrive/database/prisma";
+import { Prisma, Subscription } from "@cirrodrive/database/prisma";
 import { BaseRepository } from "#repositories/base.repository";
-import { DBNotFoundError } from "#errors/db-error-classes";
 
 @injectable()
 export class SubscriptionRepository extends BaseRepository {
-  // Create
-  public async create(
+  async create(
     data: Prisma.SubscriptionUncheckedCreateInput,
   ): Promise<Subscription> {
     return this.prisma.subscription.create({ data });
   }
 
-  // Read
-  public async listByUserId(userId: string): Promise<Subscription[]> {
-    const result = await this.prisma.subscription.findMany({
-      where: { userId },
-    });
-    if (!result) {
-      throw new DBNotFoundError("Subscription (userId)", { userId });
-    }
-    return result;
+  async findById(id: string): Promise<Subscription | null> {
+    return this.prisma.subscription.findUnique({ where: { id } });
   }
 
-  public async findById(id: string): Promise<Subscription | null> {
-    return this.prisma.subscription.findUnique({
-      where: { id },
-    });
+  async findByUserId(userId: string): Promise<Subscription | null> {
+    return this.prisma.subscription.findUnique({ where: { userId } });
   }
 
-  public async findActiveByUserId(
-    userId: string,
-  ): Promise<Subscription | null> {
-    return this.prisma.subscription.findFirst({
-      where: {
-        userId,
-        status: "ACTIVE",
-      },
-    });
+  async findAll(): Promise<Subscription[]> {
+    return this.prisma.subscription.findMany();
   }
 
-  // Update
-  public async updateStatusById(
+  async updateById(
     id: string,
-    status: $Enums.BillingStatus,
+    data: Prisma.SubscriptionUpdateInput,
   ): Promise<Subscription> {
-    return this.prisma.subscription.update({
-      where: { id },
-      data: { status },
-    });
+    return this.prisma.subscription.update({ where: { id }, data });
   }
 
-  // 카드 정보 변경
-  public async updateCardById(
-    id: string,
-    cardId: string,
-  ): Promise<Subscription> {
-    return this.prisma.subscription.update({
-      where: { id },
-      data: { cardId },
-    });
-  }
-
-  // Delete
-  public async deleteById(id: string): Promise<Subscription> {
-    return this.prisma.subscription.delete({
-      where: { id },
-    });
+  async deleteById(id: string): Promise<Subscription> {
+    return this.prisma.subscription.delete({ where: { id } });
   }
 }

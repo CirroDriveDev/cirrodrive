@@ -3,8 +3,8 @@ model User {
   username        String   @unique
   hashedPassword  String
   email           String   @unique
-  currentPlanId   String
-  currentPlan     Plan     @relation(fields: [currentPlanId], references: [id], onDelete: Cascade)
+  currentPlanId   String?
+  currentPlan     Plan?    @relation("CurrentPlan", fields: [currentPlanId], references: [id], onDelete: Cascade)
   usedStorage     Int      @default(0)
   profileImageUrl String?  @unique
   createdAt       DateTime @default(now())
@@ -17,16 +17,15 @@ model User {
   trashFolderId String @unique
   trashFolder   Folder @relation(name: "TrashFolder", fields: [trashFolderId], references: [id], onDelete: Cascade)
 
-  sessions     Session[]
-  folders      Folder[]       @relation(name: "OwnerToFolder")
-  files        FileMetadata[]
-  Subscription Subscription[]
+  sessions Session[]
+  folders  Folder[]       @relation(name: "OwnerToFolder")
+  files    FileMetadata[]
 
-  Cards Card[]
-
-  Transaction Transaction[]
-
-  payments Payment[]
+  // Relations
+  subscription Subscription?
+  billings     Billing[]
+  payments     Payment[]
+  usageRecords UsageRecord[]
 }
 
 model Session {

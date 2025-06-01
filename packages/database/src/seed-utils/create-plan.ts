@@ -8,42 +8,34 @@ import { prisma } from "#client";
  *
  *   - Name: 요금제 이름
  *   - Description: 요금제 설명
- *   - Features: 요금제 기능
  *   - Price: 요금제 가격
- *   - TrialPeriodDays: 체험 기간(일)
- *   - Currency: 가격의 통화 단위
- *   - Interval: 결제 주기(DAY, WEEK, MONTH, YEAR 등)
- *   - IntervalCount: 결제 주기 횟수
+ *   - Interval: 결제 주기(MONTHLY, YEARLY)
+ *   - StorageLimit: 저장 용량(Byte 단위)
+ *   - TrialDays: 체험 기간(일)
  */
 export async function createPlan({
   name,
   description,
-  features,
   price,
-  trialPeriodDays,
-  currency,
   interval,
-  intervalCount,
+  storageLimit,
+  trialDays,
 }: {
   name: string;
   description: string;
-  features: object;
   price: number;
-  trialPeriodDays: number;
-  currency: string;
-  interval: $Enums.PlanInterval;
-  intervalCount: number;
+  interval: $Enums.Interval;
+  storageLimit: number;
+  trialDays: number;
 }) {
   const plan = await prisma.plan.upsert({
     create: {
       name,
       description,
-      features,
       price,
-      trialPeriodDays,
-      currency,
       interval,
-      intervalCount,
+      storageLimit,
+      trialDays,
     },
     where: {
       name,
