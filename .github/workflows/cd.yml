@@ -137,7 +137,20 @@ jobs:
             mkdir -p /home/${{ secrets.SERVER_USER }}/cirrodrive-deploy
 
             cd /home/${{ secrets.SERVER_USER }}/cirrodrive-deploy
-            git pull
+
+            # 현재 브랜치 정보 가져오기
+            git fetch origin
+
+            # 현재 워크플로우가 실행된 브랜치로 체크아웃
+            CURRENT_BRANCH="${{ github.ref_name }}"
+            echo "현재 브랜치로 체크아웃: $CURRENT_BRANCH"
+
+            # 브랜치 체크아웃 (로컬 브랜치가 없으면 생성)
+            git checkout -B $CURRENT_BRANCH origin/$CURRENT_BRANCH || {
+              echo "브랜치 체크아웃 실패, 기본 브랜치로 fallback"
+              git checkout main
+            }
+
             pnpm install
             pnpm run db:push
             pnpm run db:seed
