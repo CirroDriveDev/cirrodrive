@@ -100,4 +100,35 @@ export class SubscriptionService {
     });
     return subscription;
   }
+
+  /**
+   * 구독의 결제 수단(카드)을 다른 카드로 변경합니다.
+   *
+   * @param subscriptionId - 변경할 구독 ID
+   * @param newCardId - 새 카드 ID
+   * @returns 변경된 구독 객체
+   */
+  public async changeSubscriptionCard({
+    subscriptionId,
+    newCardId,
+  }: {
+    subscriptionId: string;
+    newCardId: string;
+  }) {
+    // 구독이 존재하는지 확인
+    const subscription =
+      await this.subscriptionRepository.findById(subscriptionId);
+    if (!subscription) throw new Error("Subscription not found");
+
+    // 카드가 존재하는지 확인
+    const card = await this.cardRepository.findById(newCardId);
+    if (!card) throw new Error("Card not found");
+
+    // 구독의 카드 정보 변경
+    const updated = await this.subscriptionRepository.updateCardById(
+      subscriptionId,
+      newCardId,
+    );
+    return updated;
+  }
 }

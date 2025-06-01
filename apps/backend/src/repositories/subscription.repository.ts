@@ -27,6 +27,12 @@ export class SubscriptionRepository extends BaseRepository {
     return result;
   }
 
+  public async findById(id: string): Promise<Subscription | null> {
+    return this.prisma.subscription.findUnique({
+      where: { id },
+    });
+  }
+
   public async findActiveByUserId(
     userId: string,
   ): Promise<Subscription | null> {
@@ -37,6 +43,7 @@ export class SubscriptionRepository extends BaseRepository {
       },
     });
   }
+
   // Update
   public async updateStatusById(
     id: string,
@@ -45,6 +52,17 @@ export class SubscriptionRepository extends BaseRepository {
     return this.prisma.subscription.update({
       where: { id },
       data: { status },
+    });
+  }
+
+  // 카드 정보 변경
+  public async updateCardById(
+    id: string,
+    cardId: string,
+  ): Promise<Subscription> {
+    return this.prisma.subscription.update({
+      where: { id },
+      data: { cardId },
     });
   }
 
