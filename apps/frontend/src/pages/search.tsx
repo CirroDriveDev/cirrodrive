@@ -1,20 +1,16 @@
 import { useSearchParams } from "react-router";
 import { EntryList } from "#components/EntryList.js";
 import { LoadingSpinner } from "#components/shared/LoadingSpinner.js";
-import { useEntryByUserList } from "#services/useEntryListByUser.js";
+import { trpc } from "#services/trpc.js";
 import { FolderName } from "#components/FolderName.js";
 
 export function SearchResultsPage(): JSX.Element {
   const [searchParams] = useSearchParams();
   const searchTerm = searchParams.get("q") ?? ""; // URL에서 검색어 읽기
 
-  const { query: entryListByUserQuery } = useEntryByUserList(); // 사용자 파일 목록 가져오기
-
-  // 검색어로 필터링
-  const filteredEntries =
-    entryListByUserQuery.data?.filter((entry) =>
-      entry.name.toLowerCase().includes(searchTerm.toLowerCase()),
-    ) ?? [];
+  const { data: entries, isLoading } = trpc.entry.search.useQuery({
+    searchTerm,
+  });
 
   return (
     <div className="flex w-full flex-grow flex-col items-center">
@@ -23,11 +19,11 @@ export function SearchResultsPage(): JSX.Element {
       </div>
       <div className="flex w-full px-4">
         {(() => {
-          if (entryListByUserQuery.isLoading || !entryListByUserQuery.data) {
+          if (isLoading) {
             return <LoadingSpinner />;
           }
-          if (filteredEntries.length > 0) {
-            return <EntryList entries={filteredEntries} />; // 검색어로 필터링된 결과 출력
+          if (entries && entries.length > 0) {
+            return <EntryList entries={entries} />; // 검색 결과 출력
           }
           return (
             <div className="w-full text-center text-gray-500">

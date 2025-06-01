@@ -2,6 +2,7 @@ import { z } from "zod";
 import { TRPCError } from "@trpc/server";
 import {
   entryDTOSchema,
+  type RecursiveEntryDTO,
   recursiveEntrySchema,
   type EntryDTO,
 } from "@cirrodrive/schemas/entry";
@@ -122,7 +123,7 @@ export const entryRouter = router({
           .map((folder) => ({
             id: folder.id,
             name: folder.name,
-            type: "folder",
+            type: "folder" as const, // Explicitly type as "folder"
             parentFolderId: folder.parentFolderId,
             createdAt: folder.createdAt,
             updatedAt: folder.updatedAt,
@@ -135,7 +136,7 @@ export const entryRouter = router({
           .map((file) => ({
             id: file.id,
             name: file.name,
-            type: "file",
+            type: "file" as const, // Explicitly type as "file"
             parentFolderId: file.parentFolderId,
             createdAt: file.createdAt,
             updatedAt: file.updatedAt,
@@ -198,6 +199,80 @@ export const entryRouter = router({
         throw new TRPCError({
           code: "INTERNAL_SERVER_ERROR",
           message: "휴지통 엔트리 목록을 조회하는 중 오류가 발생했습니다.",
+          cause: error,
+        });
+      }
+    }),
+  search: authedProcedure
+    .input(
+      z.object({
+        searchTerm: z.string(), // 검색어
+      }),
+    )
+    .output(entryDTOSchema.array())
+    .query(async ({ input, ctx }) => {
+      const { searchTerm } = input;
+      const { user } = ctx;
+
+      try {
+        // 모든 하위 엔트리 포함 (파일 + 폴더 재귀 조회)
+        const recursiveEntries = await folderService.getRecursively({
+          folderId: user.rootFolderId,
+          include: "entry", // 폴더와 파일 모두 포함
+        });
+
+        // 평탄화 함수: 재귀적으로 모든 엔트리를 평탄화
+        const flattenEntries = (entry: RecursiveEntryDTO): EntryDTO[] => {
+          const entries: EntryDTO[] = [];
+
+          if (entry.type === "folder" && entry.entries) {
+            for (const subEntry of entry.entries) {
+              entries.push(...flattenEntries(subEntry));
+            }
+          }
+
+          // 명시적으로 타입 변환 처리
+          const entryDTO: EntryDTO =
+            entry.type === "folder" ?
+              {
+                id: entry.id,
+                name: entry.name,
+                type: "folder",
+                parentFolderId: entry.parentFolderId,
+                createdAt: entry.createdAt,
+                updatedAt: entry.updatedAt,
+                trashedAt: entry.trashedAt,
+                size: null, // 폴더는 항상 null
+              }
+            : {
+                id: entry.id,
+                name: entry.name,
+                type: "file",
+                parentFolderId: entry.parentFolderId,
+                createdAt: entry.createdAt,
+                updatedAt: entry.updatedAt,
+                trashedAt: entry.trashedAt,
+                size: entry.size, // 파일은 숫자 값
+              };
+
+          entries.push(entryDTO);
+
+          return entries;
+        };
+
+        const allEntries = flattenEntries(recursiveEntries);
+
+        // 검색어로 필터링
+        const lowerSearch = searchTerm.toLowerCase();
+        const filtered = allEntries.filter((entry) =>
+          entry.name.toLowerCase().includes(lowerSearch),
+        );
+
+        return filtered;
+      } catch (error) {
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: "검색 중 오류가 발생했습니다.",
           cause: error,
         });
       }
