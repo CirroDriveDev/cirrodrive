@@ -23,16 +23,23 @@ interface UseUploadFilesOptions {
   useUploader: UseUploader;
   onSuccess?: (results: UploadResultSuccess[]) => void;
   onError?: (results: UploadResultError[]) => void;
+  onSingleFileSuccess?: (result: UploadResultSuccess) => void;
+  onSingleFileError?: (result: UploadResultError) => void;
 }
 
 interface UseUploadSingleFileOptions {
   useUploader: UseUploader;
+  onSingleFileSuccess?: (result: UploadResultSuccess) => void;
+  onSingleFileError?: (result: UploadResultError) => void;
 }
 
 export function useUploadFiles(options: UseUploadFilesOptions) {
   const [isPending, setIsPending] = useState(false);
+  const [uploadResults, setUploadResults] = useState<UploadResult[]>([]);
   const { uploadSingleFile } = useUploadSingleFile({
     useUploader: options.useUploader,
+    onSingleFileSuccess: options.onSingleFileSuccess,
+    onSingleFileError: options.onSingleFileError,
   });
 
   const uploadFiles = async (uploadRequests: UploadRequest[]) => {
@@ -51,6 +58,7 @@ export function useUploadFiles(options: UseUploadFilesOptions) {
     );
 
     setIsPending(false);
+    setUploadResults(results);
 
     const success = results.filter((r): r is UploadResultSuccess => r.success);
     const errors = results.filter((r): r is UploadResultError => !r.success);
@@ -62,11 +70,12 @@ export function useUploadFiles(options: UseUploadFilesOptions) {
   return {
     isPending,
     uploadFiles,
+    uploadResults,
   };
 }
 
 export function useUploadSingleFile(options: UseUploadSingleFileOptions) {
-  const { useUploader } = options;
+  const { useUploader, onSingleFileSuccess, onSingleFileError } = options;
   const { upload } = useUploader();
   const completeUploadMutation = trpc.file.upload.completeUpload.useMutation();
   const { addTransfer, updateProgress, setStatus } = useTransferStore();
@@ -124,21 +133,28 @@ export function useUploadSingleFile(options: UseUploadSingleFileOptions) {
 
           setStatus(id, "success");
           toast.success(`✅ ${file.name} 업로드 완료`);
+          onSingleFileSuccess?.(result);
           return result;
         } catch {
           const result: UploadResultError = {
             success: false,
-            file
+            file,
+            error: "업로드 등록 실패",
           };
+          setStatus(id, "error", result.error);
           toast.error(`❌ ${file.name} 등록 실패`);
+          onSingleFileError?.(result);
           return result;
         }
       } else {
         const result: UploadResultError = {
           success: false,
           file,
+          error: "S3 업로드 실패",
         };
+        setStatus(id, "error", result.error);
         toast.error(`❌ ${file.name} 업로드 실패`);
+        onSingleFileError?.(result);
         return result;
       }
     } catch (err: unknown) {
@@ -162,8 +178,10 @@ export function useUploadSingleFile(options: UseUploadSingleFileOptions) {
       const result: UploadResultError = {
         success: false,
         file,
+        error: errorMessage,
       };
 
+      onSingleFileError?.(result);
       return result;
     }
   };
