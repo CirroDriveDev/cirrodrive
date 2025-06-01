@@ -15,11 +15,13 @@ import { PlanService } from "#services/plan.service";
 import { Transactional } from "#decorators/transactional";
 import { ExternalPaymentError } from "#errors/error-classes";
 import { PaymentRepository } from "#repositories/payment.repository";
+import { UserService } from "#services/user.service";
 
 @injectable()
 export class BillingService {
   constructor(
     @inject(Symbols.Logger) private readonly logger: Logger,
+    @inject(UserService) private readonly userService: UserService,
     @inject(TossPaymentsService) private readonly toss: TossPaymentsService,
     @inject(PlanService) private readonly planService: PlanService,
     @inject(SubscriptionRepository)
@@ -129,6 +131,10 @@ export class BillingService {
       }
       }
 
+      await this.userService.updatePlan({
+        userId: billing.customerKey,
+        planId,
+      });
 
       return { success: true };
     } catch (error) {
