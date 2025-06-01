@@ -1,4 +1,5 @@
 export type FileTransferType = "upload" | "download";
+
 export type FileTransferStatus =
   | "pending"
   | "inProgress"
@@ -15,6 +16,7 @@ interface FileTransferBase {
   error?: string;
   retry: () => void;
   cancel: () => void;
+  isRetry?: boolean; // ✅ 여기 추가
 }
 
 export interface FileUploadItem extends FileTransferBase {

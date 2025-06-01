@@ -28,7 +28,6 @@ export interface UploadResultSuccess {
 export interface UploadResultError {
   success: false;
   file: File;
-  error: string;
 }
 
 export type UploadResult = UploadResultSuccess | UploadResultError;
