@@ -50,10 +50,12 @@ export class PlanService {
   public calculateNextBillingAt({
     interval,
     intervalCount,
+    trialPeriodDays,
     from = new Date(),
   }: {
     interval: $Enums.PlanInterval;
     intervalCount: number;
+    trialPeriodDays: number;
     from?: Date;
   }): Date {
     const date = new Date(from);
@@ -66,6 +68,7 @@ export class PlanService {
     } else if (interval === $Enums.PlanInterval.YEAR) {
       date.setFullYear(date.getFullYear() + intervalCount);
     }
+    date.setDate(date.getDate() + trialPeriodDays);
     return date;
   }
   /**

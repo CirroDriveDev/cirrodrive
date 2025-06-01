@@ -79,11 +79,19 @@ export class BillingService {
         nextBillingAt: this.planService.calculateNextBillingAt({
           interval: plan.interval,
           intervalCount: plan.intervalCount,
+          trialPeriodDays: plan.trialPeriodDays ?? 0,
         }),
         cardId: card.id,
         planId,
       });
 
+      if (plan.trialPeriodDays) {
+        // 무료 체험 기간이 있는 경우, 구독 상태를 TRIAL로 설정
+        await this.subscriptionRepository.updateStatusById(
+          subscription.id,
+          $Enums.BillingStatus.TRIALING,
+        );
+      } else {
       // 결제 시도
       try {
         const payment = await this.toss.approveBillingPayment({
@@ -119,6 +127,8 @@ export class BillingService {
           { cause: paymentError, planId, customerKey },
         );
       }
+      }
+
 
       return { success: true };
     } catch (error) {
