@@ -22,9 +22,10 @@ class TestService {
       name: `test-plan-${id}`,
       description: "desc",
       price: 1000,
-      interval: "MONTH",
+      interval: "MONTHLY",
       intervalCount: 1,
-      currency: "KRW",
+      durationDays: 30,
+      storageLimit: 1024 * 1024, // 1GB
     });
     return this.planRepo.findById(id);
   }
@@ -36,9 +37,10 @@ class TestService {
       name: `fail-plan-${id}`,
       description: "desc",
       price: 1000,
-      interval: "MONTH",
+      interval: "MONTHLY",
       intervalCount: 1,
-      currency: "KRW",
+      durationDays: 30,
+      storageLimit: 1024 * 1024, // 1GB
     });
     throw new Error("fail");
   }
@@ -51,9 +53,10 @@ class TestService {
       name: `nested-plan-${id}`,
       description: "desc",
       price: 1000,
-      interval: "MONTH",
+      interval: "MONTHLY",
       intervalCount: 1,
-      currency: "KRW",
+      durationDays: 30,
+      storageLimit: 1024 * 1024, // 1GB
     });
     return prisma.plan.findMany({ where: { id: { contains: id } } });
   }

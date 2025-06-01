@@ -13,7 +13,12 @@ export class BillingRepository extends BaseRepository {
   }
 
   async listByUserId(userId: string): Promise<Billing[]> {
-    return this.prisma.billing.findMany({ where: { userId } });
+    return this.prisma.billing.findMany({
+      where: { userId },
+      orderBy: {
+        priority: "asc",
+      },
+    });
   }
 
   async findAll(): Promise<Billing[]> {

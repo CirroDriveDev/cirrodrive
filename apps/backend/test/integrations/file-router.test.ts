@@ -74,6 +74,7 @@ describe("fileUploadRouter", () => {
         createdAt: new Date(),
         updatedAt: new Date(),
         isAdmin: false,
+        trialUsed: false,
         rootFolderId: "root_folder_id",
         trashFolderId: "trash_folder_id",
       };

@@ -10,6 +10,7 @@ describe("Database Utils", () => {
     description: "기본 기능을 무료로 제공합니다.",
     price: 0,
     interval: "MONTHLY",
+    intervalCount: 1, // 기본값은 1로 설정
     storageLimit: 1024, // 1GB = 1024MB
     trialDays: 0,
   } as const;

@@ -53,19 +53,15 @@ export class PlanService {
     trialPeriodDays,
     from = new Date(),
   }: {
-    interval: $Enums.PlanInterval;
+    interval: $Enums.Interval;
     intervalCount: number;
     trialPeriodDays: number;
     from?: Date;
   }): Date {
     const date = new Date(from);
-    if (interval === $Enums.PlanInterval.DAY) {
-      date.setDate(date.getDate() + intervalCount);
-    } else if (interval === $Enums.PlanInterval.WEEK) {
-      date.setDate(date.getDate() + intervalCount * 7);
-    } else if (interval === $Enums.PlanInterval.MONTH) {
+    if (interval === $Enums.Interval.MONTHLY) {
       date.setMonth(date.getMonth() + intervalCount);
-    } else if (interval === $Enums.PlanInterval.YEAR) {
+    } else if (interval === $Enums.Interval.YEARLY) {
       date.setFullYear(date.getFullYear() + intervalCount);
     }
     date.setDate(date.getDate() + trialPeriodDays);
@@ -92,12 +88,10 @@ export class PlanService {
         });
       }
 
-      const features = plan.features as { quota?: number };
-
       return {
         planId: plan.id,
-        quota: features?.quota,
         description: plan.description ?? undefined,
+        quota: plan.storageLimit ?? undefined, // MB 단위로 반환
       };
     } catch (error) {
       throw new TRPCError({

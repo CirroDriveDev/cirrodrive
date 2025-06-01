@@ -16,11 +16,8 @@ import { FileAccessCodeService } from "#services/file-access-code.service";
 import { PlanRepository } from "#repositories/plan.repository";
 import { PlanService } from "#services/plan.service";
 import { SubscriptionRepository } from "#repositories/subscription.repository";
-import { CardRepository } from "#repositories/card.repository";
-import { TransactionRepository } from "#repositories/transaction.repository";
 import { BillingService } from "#services/billing.service";
 import { TossPaymentsService } from "#services/toss-payments.service";
-import { SubscriptionHistoryRepository } from "#repositories/subscription-history.repository";
 import { PaymentRepository } from "#repositories/payment.repository";
 import { UserRepository } from "#repositories/user.repository";
 import { FileUploadService } from "#services/file.upload.service";
@@ -30,8 +27,10 @@ import { AdminSessionRepository } from "#repositories/admin-session.repository";
 import { AdminAuthService } from "#services/admin.auth.service";
 import { CloudFrontService } from "#services/cloud-front.service";
 import { SubscriptionService } from "#services/subscription.service";
-import { PaymentHistoryService } from "#services/payment-history.service";
-import { CardService } from "#services/card.service";
+import { PaymentService } from "#services/payment.service";
+import { SubscriptionManagerService } from "#services/subscription-manager.service";
+import { UsageRecordRepository } from "#repositories/usage-record.repository";
+import { BillingRepository } from "#repositories/billing.repository";
 
 const inversifyLogger = logger.child({ prefix: "Inversify" });
 
@@ -56,14 +55,13 @@ container.bind(PrismaClient).toConstantValue(prisma);
 container.bind(FileAccessCodeRepository).toSelf();
 container.bind(PlanRepository).toSelf();
 container.bind(SubscriptionRepository).toSelf();
-container.bind(CardRepository).toSelf();
-container.bind(TransactionRepository).toSelf();
-container.bind(SubscriptionHistoryRepository).toSelf();
 container.bind(PaymentRepository).toSelf();
 container.bind(UserRepository).toSelf();
 container.bind(FileMetadataRepository).toSelf();
 container.bind(AdminUserRepository).toSelf();
 container.bind(AdminSessionRepository).toSelf();
+container.bind(UsageRecordRepository).toSelf();
+container.bind(BillingRepository).toSelf();
 
 // Services
 container.bind(UserService).toSelf();
@@ -81,8 +79,8 @@ container.bind(FileUploadService).toSelf();
 container.bind(AdminAuthService).toSelf();
 container.bind(CloudFrontService).toSelf();
 container.bind(SubscriptionService).toSelf();
-container.bind(PaymentHistoryService).toSelf();
-container.bind(CardService).toSelf();
+container.bind(PaymentService).toSelf();
+container.bind(SubscriptionManagerService).toSelf();
 
 inversifyLogger.info("Inversify loaded successfully");
 

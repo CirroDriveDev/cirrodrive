@@ -1,24 +1,17 @@
 import { z } from "zod";
 import { TRPCError } from "@trpc/server";
+import { PlanSchema } from "@cirrodrive/schemas/billing";
 import { router, authedProcedure } from "#loaders/trpc.loader";
 import { container } from "#loaders/inversify.loader";
 import { BillingService } from "#services/billing.service";
 import { PlanService } from "#services/plan.service";
+import { SubscriptionManagerService } from "#services/subscription-manager.service";
 
+const subscriptionManagerService = container.get<SubscriptionManagerService>(
+  SubscriptionManagerService,
+);
 const billingService = container.get<BillingService>(BillingService);
 const planService = container.get<PlanService>(PlanService);
-
-/**
- * 요금제(plan) 정보에 대한 zod 스키마
- */
-const PlanSchema = z.object({
-  id: z.string(),
-  name: z.string(),
-  interval: z.string(),
-  intervalCount: z.number(),
-  price: z.number(),
-  currency: z.string(),
-});
 
 /**
  * Billing 관련 tRPC 라우터
@@ -48,11 +41,42 @@ export const billingRouter = router({
     .mutation(async ({ input }) => {
       const { authKey, customerKey, planId } = input;
       try {
-        return await billingService.confirmAgreement({
+        const billing = await billingService.registerBilling({
           authKey,
           customerKey,
-          planId,
         });
+
+        if (!billing) {
+          throw new TRPCError({
+            code: "NOT_FOUND",
+            message: "결제 인증에 실패했습니다.",
+          });
+        }
+
+        const plan = await planService.getPlan(planId);
+
+        if (!plan) {
+          throw new TRPCError({
+            code: "NOT_FOUND",
+            message: "존재하지 않는 요금제입니다.",
+          });
+        }
+
+        const subscription = await subscriptionManagerService.subscribeToPlan({
+          userId: billing.userId,
+          planId: plan.id,
+        });
+
+        if (!subscription) {
+          throw new TRPCError({
+            code: "INTERNAL_SERVER_ERROR",
+            message: "구독 생성에 실패했습니다.",
+          });
+        }
+
+        return {
+          success: true,
+        };
       } catch (err: unknown) {
         const error = err instanceof Error ? err : new Error("Unknown error");
         if (error.message.includes("요금제")) {

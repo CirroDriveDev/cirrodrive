@@ -1,9 +1,9 @@
 import { z } from "zod";
 import { router, authedProcedure } from "#loaders/trpc.loader";
 import { container } from "#loaders/inversify.loader";
-import { PaymentHistoryService } from "#services/payment-history.service";
+import { PaymentService } from "#services/payment.service";
 
-const paymentHistoryService = container.get(PaymentHistoryService);
+const paymentService = container.get(PaymentService);
 
 const PaymentSchema = z.object({
   id: z.string(),
@@ -26,7 +26,7 @@ export const paymentRouter = router({
    * @param input.cursor - 페이징 커서 (옵션)
    * @returns 결제 내역 배열 및 다음 커서 (더 불러올 내역이 없으면 nextCursor는 null)
    */
-  getPaymentHistory: authedProcedure
+  getPayment: authedProcedure
     .input(
       z.object({
         limit: z.number().int().min(1).max(100).optional().default(20),
@@ -43,12 +43,11 @@ export const paymentRouter = router({
       const userId = ctx.user.id;
       const { limit, cursor } = input;
 
-      const { payments, nextCursor } =
-        await paymentHistoryService.getPaymentHistory({
-          userId,
-          limit,
-          cursor,
-        });
+      const { payments, nextCursor } = await paymentService.getPaymentHistory({
+        userId,
+        limit,
+        cursor,
+      });
 
       return {
         payments: payments ?? [],

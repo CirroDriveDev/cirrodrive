@@ -3,13 +3,14 @@ model User {
   username        String   @unique
   hashedPassword  String
   email           String   @unique
-  currentPlanId   String?
-  currentPlan     Plan?    @relation("CurrentPlan", fields: [currentPlanId], references: [id], onDelete: Cascade)
+  currentPlanId   String
+  currentPlan     Plan     @relation("CurrentPlan", fields: [currentPlanId], references: [id], onDelete: Cascade)
   usedStorage     Int      @default(0)
   profileImageUrl String?  @unique
   createdAt       DateTime @default(now())
   updatedAt       DateTime @updatedAt
   isAdmin         Boolean  @default(false)
+  trialUsed       Boolean  @default(false)
 
   rootFolderId String @unique
   rootFolder   Folder @relation(name: "RootFolder", fields: [rootFolderId], references: [id], onDelete: Cascade)

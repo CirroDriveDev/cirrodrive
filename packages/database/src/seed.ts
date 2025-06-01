@@ -10,6 +10,7 @@ export async function seed() {
     description: "기본 기능을 무료로 제공합니다.",
     price: 0,
     interval: "MONTHLY",
+    intervalCount: 1, // 기본값은 1로 설정
     storageLimit: 1024, // 1GB = 1024MB
     trialDays: 0,
   });
@@ -20,6 +21,7 @@ export async function seed() {
     description: "더 넉넉한 저장 공간과 합리적인 가격.",
     price: 4900,
     interval: "MONTHLY",
+    intervalCount: 1, // 기본값은 1로 설정
     storageLimit: 20 * 1024, // 20GB = 20480MB
     trialDays: 7,
   });
@@ -30,6 +32,7 @@ export async function seed() {
     description: "최대 저장 공간과 우선 지원 제공.",
     price: 9900,
     interval: "MONTHLY",
+    intervalCount: 1, // 기본값은 1로 설정
     storageLimit: 100 * 1024, // 100GB = 102400MB
     trialDays: 14,
   });

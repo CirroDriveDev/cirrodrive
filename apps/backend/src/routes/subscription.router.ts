@@ -1,6 +1,5 @@
-import { z } from "zod";
 import { TRPCError } from "@trpc/server";
-import { type $Enums } from "@cirrodrive/database/prisma";
+import { subscriptionDTOSchema } from "@cirrodrive/schemas/billing";
 import { authedProcedure, router } from "#loaders/trpc.loader";
 import { container } from "#loaders/inversify.loader";
 import { SubscriptionService } from "#services/subscription.service";
@@ -17,23 +16,27 @@ export const subscriptionRouter = router({
    */
   getCurrent: authedProcedure
     // 반환 데이터 스키마 정의
-    .output(
-      z.object({
-        name: z.string(), // 요금제 이름
-        status: z.enum(["active", "inactive", "canceled", "expired"]), // 구독 상태 (매핑된 상태)
-        billingDate: z.string().nullable(), // 구독 시작일 (YYYY-MM-DD)
-        expirationDate: z.string().nullable(), // 구독 만료일 (YYYY-MM-DD)
-        price: z.number(), // 요금제 가격
-      }),
-    )
+    .output(subscriptionDTOSchema)
     .query(async ({ ctx }) => {
       // 현재 로그인한 사용자의 ID
       const userId = ctx.user.id;
 
       try {
         // BillingService를 통해 현재 구독 정보 조회
-        const subscription =
-          await subscriptionService.getCurrentSubscription(userId);
+        const currentSubscription =
+          await subscriptionService.findCurrentByUser(userId);
+
+        // 구독 정보가 없으면 404 에러 발생
+        if (!currentSubscription) {
+          throw new TRPCError({
+            code: "NOT_FOUND",
+            message: "현재 활성화된 구독 정보가 없습니다.",
+          });
+        }
+
+        const subscription = await subscriptionService.getByIdWithPlan(
+          currentSubscription.id,
+        );
 
         // 구독 정보 없으면 404 에러 발생
         if (!subscription) {
@@ -43,50 +46,8 @@ export const subscriptionRouter = router({
           });
         }
 
-        // 구독 정보 구조분해 할당
-        const { plan, subscription: sub } = subscription;
-
-        /**
-         * BillingStatus를 UI에 보여줄 상태로 변환하는 함수
-         *
-         * @param status BillingStatus
-         * @returns Active | "inactive" | "canceled" | "expired"
-         */
-        function mapStatus(
-          status: $Enums.BillingStatus,
-        ): "active" | "inactive" | "canceled" | "expired" {
-          switch (status) {
-            case "ACTIVE":
-              return "active"; // 활성화 상태
-            case "CANCELED":
-              return "canceled"; // 취소 상태
-            case "EXPIRED":
-              return "expired"; // 만료 상태
-            // 다음 상태들은 모두 비활성 상태로 처리
-            case "TRIALING":
-            case "PAST_DUE":
-            case "PAUSED":
-            case "INCOMPLETE":
-              return "inactive";
-            default: {
-              // Exhaustive 체크용 (모든 상태 커버 안 될 시 에러)
-              const _exhaustiveCheck: never = status;
-              return _exhaustiveCheck;
-            }
-          }
-        }
-
-        // 구독 상태 매핑
-        const status = mapStatus(sub.status);
-
         // 필요한 데이터만 뽑아서 반환
-        return {
-          name: plan.name, // 요금제 이름
-          status, // 매핑된 구독 상태
-          billingDate: sub.startedAt ? sub.startedAt.slice(0, 10) : null, // 시작일 (YYYY-MM-DD)
-          expirationDate: sub.expiredAt ? sub.expiredAt.slice(0, 10) : null, // 만료일 (YYYY-MM-DD)
-          price: plan.price, // 요금제 가격
-        };
+        return subscriptionDTOSchema.parse(subscription);
       } catch {
         // 에러 발생 시 INTERNAL_SERVER_ERROR로 응답
         throw new TRPCError({

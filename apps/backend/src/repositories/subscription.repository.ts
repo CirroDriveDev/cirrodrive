@@ -10,12 +10,30 @@ export class SubscriptionRepository extends BaseRepository {
     return this.prisma.subscription.create({ data });
   }
 
-  async findById(id: string): Promise<Subscription | null> {
-    return this.prisma.subscription.findUnique({ where: { id } });
+  async getById(id: string): Promise<Subscription> {
+    return this.prisma.subscription.findUniqueOrThrow({
+      where: { id },
+    });
+  }
+
+  async getByIdWithPlan(id: string) {
+    return this.prisma.subscription.findUniqueOrThrow({
+      where: { id },
+      include: {
+        plan: true,
+      },
+    });
   }
 
   async findByUserId(userId: string): Promise<Subscription | null> {
     return this.prisma.subscription.findUnique({ where: { userId } });
+  }
+
+  async findCurrentByUser(userId: string): Promise<Subscription | null> {
+    return this.prisma.subscription.findFirst({
+      where: { userId, status: { in: ["TRIAL", "ACTIVE"] } },
+      orderBy: { startedAt: "desc" },
+    });
   }
 
   async findAll(): Promise<Subscription[]> {

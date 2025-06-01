@@ -18,6 +18,7 @@ export async function createPlan({
   description,
   price,
   interval,
+  intervalCount,
   storageLimit,
   trialDays,
 }: {
@@ -25,15 +26,23 @@ export async function createPlan({
   description: string;
   price: number;
   interval: $Enums.Interval;
+  intervalCount: number;
   storageLimit: number;
   trialDays: number;
 }) {
+  const durationDays = {
+    MONTHLY: 30,
+    YEARLY: 365,
+  }[interval];
+
   const plan = await prisma.plan.upsert({
     create: {
       name,
       description,
       price,
       interval,
+      intervalCount,
+      durationDays,
       storageLimit,
       trialDays,
     },

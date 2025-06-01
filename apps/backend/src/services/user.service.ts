@@ -331,6 +331,27 @@ export class UserService {
     return user;
   }
 
+  public async updateTrialUsed({ userId }: { userId: string }): Promise<User> {
+    this.logger.info(
+      {
+        methodName: "updateTrialUsed",
+        userId,
+      },
+      "사용자 무료 체험 사용 여부 업데이트 시작",
+    );
+    const user = await this.userRepository.updateById(userId, {
+      trialUsed: true,
+    });
+    this.logger.info(
+      {
+        methodName: "updateTrialUsed",
+        userId,
+      },
+      "사용자 무료 체험 사용 여부 업데이트 완료",
+    );
+    return user;
+  }
+
   /**
    * 사용자를 삭제합니다.
    *

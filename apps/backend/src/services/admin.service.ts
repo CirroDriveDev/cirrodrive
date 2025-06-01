@@ -9,7 +9,7 @@ import { Symbols } from "#types/symbols";
 import { env } from "#loaders/env.loader";
 import { PlanService } from "#services/plan.service";
 import { BillingService } from "#services/billing.service";
-import { PaymentHistoryService } from "#services/payment-history.service";
+import { PaymentService } from "#services/payment.service";
 
 @injectable()
 export class AdminService {
@@ -21,8 +21,8 @@ export class AdminService {
     private fileModel: Prisma.FileMetadataDelegate,
     @inject(PlanService) private planService: PlanService,
     @inject(BillingService) private billingService: BillingService,
-    @inject(PaymentHistoryService)
-    private paymentHistoryService: PaymentHistoryService,
+    @inject(PaymentService)
+    private paymentService: PaymentService,
   ) {
     this.logger = logger.child({ serviceName: "AdminService" });
   }
@@ -892,8 +892,8 @@ export class AdminService {
       });
     }
 
-    // 3. paymentHistoryService의 getPaymentHistory 메서드를 호출해 해당 유저의 결제 내역을 페이징 조회한다.
-    const paymentHistory = await this.paymentHistoryService.getPaymentHistory({
+    // 3. paymentService의 getPaymentHistory 메서드를 호출해 해당 유저의 결제 내역을 페이징 조회한다.
+    const paymentHistory = await this.paymentService.getPaymentHistory({
       userId,
       limit: paymentLimit,
       cursor: paymentCursor,

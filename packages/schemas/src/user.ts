@@ -36,6 +36,7 @@ export const userSchema = z.object({
   rootFolderId: z.string(),
   trashFolderId: z.string(),
   isAdmin: z.boolean().default(false),
+  trialUsed: z.boolean().default(false),
   createdAt: z.date(),
   updatedAt: z.date(),
 });

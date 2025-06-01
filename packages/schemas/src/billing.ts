@@ -69,6 +69,10 @@ export const SubscriptionSchema = z.object({
   trialEndsAt: z.coerce.date().optional().nullable(),
 });
 
+export const subscriptionDTOSchema = SubscriptionSchema.extend({
+  plan: PlanSchema,
+});
+
 export const BillingMethodEnum = z.enum(["CARD"]);
 export const CardTypeEnum = z.enum(["CREDIT", "DEBIT", "GIFT"]);
 export const CardOwnerTypeEnum = z.enum(["PERSONAL", "CORPORATE"]);
