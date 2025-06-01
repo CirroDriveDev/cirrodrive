@@ -11,7 +11,7 @@ export async function seed() {
     price: 0,
     interval: "MONTHLY",
     intervalCount: 1, // 기본값은 1로 설정
-    storageLimit: 1024, // 1GB = 1024MB
+    storageLimit: 1024, // 1GB
     trialDays: 0,
   });
 
@@ -22,7 +22,18 @@ export async function seed() {
     price: 4900,
     interval: "MONTHLY",
     intervalCount: 1, // 기본값은 1로 설정
-    storageLimit: 20 * 1024, // 20GB = 20480MB
+    storageLimit: 100 * 1024, // 100GB
+    trialDays: 0,
+  });
+
+  // 스탠다드 요금제 생성
+  await createPlan({
+    name: "Standard",
+    description: "더 넉넉한 저장 공간과 합리적인 가격.",
+    price: 49000,
+    interval: "YEARLY",
+    intervalCount: 1, // 기본값은 1로 설정
+    storageLimit: 100 * 1024, // 100GB
     trialDays: 7,
   });
 
@@ -33,8 +44,19 @@ export async function seed() {
     price: 9900,
     interval: "MONTHLY",
     intervalCount: 1, // 기본값은 1로 설정
-    storageLimit: 100 * 1024, // 100GB = 102400MB
-    trialDays: 14,
+    storageLimit: 1 * 1024 * 1024, // 1TB
+    trialDays: 0,
+  });
+
+  // 프로 요금제 생성
+  await createPlan({
+    name: "Pro",
+    description: "최대 저장 공간과 우선 지원 제공.",
+    price: 99000,
+    interval: "YEARLY",
+    intervalCount: 1, // 기본값은 1로 설정
+    storageLimit: 1 * 1024 * 1024, // 1TB
+    trialDays: 7,
   });
 
   await createUser(

@@ -47,7 +47,10 @@ export async function createPlan({
       trialDays,
     },
     where: {
-      name,
+      name_interval: {
+        name,
+        interval,
+      },
     },
     update: {},
   });

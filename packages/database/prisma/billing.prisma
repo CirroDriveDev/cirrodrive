@@ -24,7 +24,7 @@ enum Interval {
 model Plan {
   // 도메인 데이터
   id            String         @id @default(uuid())
-  name          String         @unique
+  name          String
   description   String?
   price         Int // in KRW
   interval      Interval
@@ -39,6 +39,9 @@ model Plan {
   // 관계
   subscriptions Subscription[]
   users         User[]         @relation("CurrentPlan")
+
+  // 유니크 제약 조건
+  @@unique([name, interval])
 }
 
 // 구독 정보
