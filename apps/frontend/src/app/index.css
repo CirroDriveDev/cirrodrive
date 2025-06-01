@@ -83,3 +83,20 @@
     @apply bg-background text-foreground;
   }
 }
+
+.custom-scrollbar {
+  scrollbar-width: thin; /* Firefox */
+  scrollbar-color: #a3a3a3 transparent; /* Firefox */
+}
+.custom-scrollbar::-webkit-scrollbar {
+  width: 8px; /* Chrome, Safari, Opera */
+  background: transparent;
+  border-radius: 8px;
+}
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background: #a3a3a3;
+  border-radius: 8px;
+}
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: #737373;
+}

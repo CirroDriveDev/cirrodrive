@@ -11,6 +11,7 @@ import { UserSidebar } from "#components/layout/user/UserSidebar.js";
 import { BaseSidebarLayout } from "#components/layout/base/BaseSidebarLayout.js";
 import type { MenuItem } from "#types/menuItem.js";
 import { useUserStore } from "#store/useUserStore.js";
+import { TransferPanel } from "#components/FileTransferPanel.js";
 
 export function UserWorkspaceLayout(): JSX.Element {
   const { user } = useUserStore();
@@ -47,6 +48,7 @@ export function UserWorkspaceLayout(): JSX.Element {
       header={<UserHeader />}
       sidebar={<UserSidebar menu={userMenu} />}
     >
+      <TransferPanel />
       <Outlet />
     </BaseSidebarLayout>
   );

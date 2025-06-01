@@ -7,7 +7,6 @@ import {
   SidebarMenu,
   SidebarMenuItem,
   SidebarMenuButton,
-  SidebarFooter,
 } from "#shadcn/components/Sidebar.js";
 import { StorageStatus } from "#components/StorageStatus.js";
 import type { MenuItem } from "#types/menuItem.js";
@@ -27,11 +26,8 @@ export function UserSidebar({ menu }: { menu: MenuItem[] }) {
             </SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>
-      </SidebarContent>
-      <SidebarFooter>
-        {/* 저장소 상태 표시 */}
         <StorageStatus />
-      </SidebarFooter>
+      </SidebarContent>
     </Sidebar>
   );
 }
