@@ -1,11 +1,12 @@
 import { injectable, inject } from "inversify";
 import type { Prisma, User } from "@cirrodrive/database/prisma";
-import { hash, verify  } from "@node-rs/argon2";
+import { hash, verify } from "@node-rs/argon2";
 import { jwtVerify } from "jose";
 import type { Logger } from "pino";
 import { Symbols } from "#types/symbols";
 import { createSecretKey } from "#utils/jwt";
 import { PlanService } from "#services/plan.service";
+import { UserRepository } from "#repositories/user.repository";
 
 /**
  * 사용자 서비스입니다.
@@ -17,6 +18,7 @@ export class UserService {
     @inject(Symbols.UserModel) private userModel: Prisma.UserDelegate,
     @inject(Symbols.FolderModel) private folderModel: Prisma.FolderDelegate,
     @inject(PlanService) private planService: PlanService,
+    @inject(UserRepository) private userRepository: UserRepository,
   ) {
     this.logger = logger.child({ serviceName: "UserService" });
   }
@@ -296,6 +298,39 @@ export class UserService {
     }
   }
 
+  public async updatePlan({
+    userId,
+    planId,
+  }: {
+    userId: string;
+    planId: string;
+  }): Promise<User> {
+    this.logger.info(
+      {
+        methodName: "updatePlan",
+        userId,
+        planId,
+      },
+      "사용자 요금제 업데이트 시작",
+    );
+    const user = await this.userRepository.updateById(userId, {
+      currentPlan: {
+        connect: {
+          id: planId,
+        },
+      },
+    });
+    this.logger.info(
+      {
+        methodName: "updatePlan",
+        userId,
+        planId,
+      },
+      "사용자 요금제 업데이트 완료",
+    );
+    return user;
+  }
+
   /**
    * 사용자를 삭제합니다.
    *
@@ -481,7 +516,7 @@ export class UserService {
       throw error; // 에러 다시 던짐
     }
   }
-    /**
+  /**
    * 현재 비밀번호를 확인하고 새 비밀번호로 변경합니다.
    *
    * @param userId - 비밀번호를 변경할 사용자 ID
