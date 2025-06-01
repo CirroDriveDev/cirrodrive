@@ -94,41 +94,15 @@ export class BillingService {
           $Enums.BillingStatus.TRIALING,
         );
       } else {
-        // 결제 시도
-        try {
-          const payment = await this.toss.approveBillingPayment({
-            billingKey: billing.billingKey,
-            amount: plan.price,
-            customerKey: billing.customerKey,
-            orderId: `${planId}-${Date.now()}`,
-            orderName: plan.name,
-          });
-
-          // 결제 정보 저장
-          await this.paymentRepository.createFromPayment(
-            payment,
-            billing.customerKey,
-            subscription.id,
-            planId,
-          );
-
-          // 결제 성공 시 구독 상태를 ACTIVE로 변경
-          await this.subscriptionRepository.updateStatusById(
-            subscription.id,
-            $Enums.BillingStatus.ACTIVE,
-          );
-        } catch (paymentError) {
-          this.logger.error(
-            { err: paymentError, planId, customerKey },
-            "Payment attempt failed",
-          );
-          throw new ExternalPaymentError(
-            paymentError instanceof Error ?
-              paymentError.message
-            : "Unknown payment error",
-            { cause: paymentError, planId, customerKey },
-          );
-        }
+        await this.approveAndRecordPayment({
+          billingKey: billing.billingKey,
+          amount: plan.price,
+          customerKey: billing.customerKey,
+          orderId: `${planId}-${Date.now()}`,
+          orderName: plan.name,
+          subscriptionId: subscription.id,
+          planId,
+        });
       }
 
       await this.userService.updatePlan({
@@ -215,5 +189,69 @@ export class BillingService {
       ownerType: OwnerTypeK2ESchema.parse(billing.card.ownerType),
     });
     return card;
+  }
+
+  /**
+   * 결제 승인 및 결제 정보 저장, 구독 상태 갱신을 처리합니다.
+   *
+   * @param params.billingKey - 결제용 Billing Key
+   * @param params.amount - 결제 금액
+   * @param params.customerKey - 고객 Key
+   * @param params.orderId - 주문 ID
+   * @param params.orderName - 주문명
+   * @param params.subscriptionId - 구독 ID
+   * @param params.planId - 요금제 ID
+   */
+  private async approveAndRecordPayment({
+    billingKey,
+    amount,
+    customerKey,
+    orderId,
+    orderName,
+    subscriptionId,
+    planId,
+  }: {
+    billingKey: string;
+    amount: number;
+    customerKey: string;
+    orderId: string;
+    orderName: string;
+    subscriptionId: string;
+    planId: string;
+  }) {
+    try {
+      const payment = await this.toss.approveBillingPayment({
+        billingKey,
+        amount,
+        customerKey,
+        orderId,
+        orderName,
+      });
+
+      // 결제 정보 저장
+      await this.paymentRepository.createFromPayment(
+        payment,
+        customerKey,
+        subscriptionId,
+        planId,
+      );
+
+      // 결제 성공 시 구독 상태를 ACTIVE로 변경
+      await this.subscriptionRepository.updateStatusById(
+        subscriptionId,
+        $Enums.BillingStatus.ACTIVE,
+      );
+    } catch (paymentError) {
+      this.logger.error(
+        { err: paymentError, planId, customerKey },
+        "Payment attempt failed",
+      );
+      throw new ExternalPaymentError(
+        paymentError instanceof Error ?
+          paymentError.message
+        : "Unknown payment error",
+        { cause: paymentError, planId, customerKey },
+      );
+    }
   }
 }
