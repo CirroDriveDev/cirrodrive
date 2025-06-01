@@ -7,6 +7,7 @@ import {
   CardContent,
   CardFooter,
 } from "#shadcn/components/Card.js";
+import { formatStorage } from "#utils/formatStorage.js";
 
 interface PlanCardProps {
   plan: PlanDTO;
@@ -18,6 +19,8 @@ export function PlanCard({ plan, onChangePlan, isCurrentPlan }: PlanCardProps) {
   const description = plan.description && (
     <p className="mt-1 text-sm text-muted-foreground">{plan.description}</p>
   );
+  const isFreePlan = plan.price === 0;
+  const isHighlight = isFreePlan || isCurrentPlan;
 
   let intervalText = null;
   if (plan.price > 0) {
@@ -36,13 +39,13 @@ export function PlanCard({ plan, onChangePlan, isCurrentPlan }: PlanCardProps) {
 
   return (
     <Card
-      className={`flex min-h-96 w-full max-w-xs flex-col justify-between border shadow-md ${!isCurrentPlan ? "border-primary ring-2 ring-primary" : "border-muted"}`}
+      className={`flex min-h-96 w-full max-w-xs flex-col justify-between border shadow-md ${!isHighlight ? "border-primary ring-2 ring-primary" : "border-muted"}`}
     >
       <div className="flex w-full flex-col">
         <CardHeader>
           <div className="flex items-center justify-between">
             <CardTitle className="text-xl font-bold">{plan.name}</CardTitle>
-            {!isCurrentPlan ?
+            {!isHighlight ?
               <span className="ml-2 rounded bg-primary px-2 py-0.5 text-xs font-semibold text-white">
                 변경 가능
               </span>
@@ -63,7 +66,7 @@ export function PlanCard({ plan, onChangePlan, isCurrentPlan }: PlanCardProps) {
           {plan.storageLimit > 0 && (
             <div className="text-sm text-muted-foreground">
               <span className="font-medium text-primary">저장 용량:</span>{" "}
-              {(plan.storageLimit / 1024).toLocaleString()} GB
+              {formatStorage(plan.storageLimit)}
             </div>
           )}
         </CardContent>
