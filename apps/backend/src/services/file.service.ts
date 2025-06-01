@@ -747,4 +747,61 @@ export class FileService {
       throw new Error("파일 복원 중 오류가 발생했습니다.");
     }
   }
+  /**
+   * 비회원 파일 중 하루가 지난 파일을 정리합니다.
+   * 하루가 지난 파일은 영구 삭제됩니다 (메타데이터만 삭제).
+   */
+  public async cleanUpExpiredGuestFiles(): Promise<void> {
+    try {
+      // 로그 시작 - 메서드 진입
+      this.logger.info(
+        { methodName: "cleanUpExpiredGuestFiles" },
+        "비회원 파일 정리 시작",
+      );
+
+      // 하루 전 시간 계산 (현재 시간에서 24시간 뺀 시간)
+      const expiredDate = new Date(Date.now() - 24 * 60 * 60 * 1000);
+
+      // 조건에 맞는 비회원 파일 조회
+      // - ownerId가 null (비회원)
+      // - createdAt이 하루 전보다 이전
+      const expiredFiles = await this.fileMetadataModel.findMany({
+        where: {
+          ownerId: null,
+          createdAt: {
+            lt: expiredDate,
+          },
+        },
+      });
+
+      // 조회된 파일들을 순회하면서 메타데이터 삭제
+      for (const file of expiredFiles) {
+        await this.fileMetadataModel.delete({
+          where: { id: file.id },
+        });
+
+        // 각 파일 삭제 후 로그 기록
+        this.logger.info(
+          { fileId: file.id },
+          "비회원 파일 메타데이터 삭제 완료",
+        );
+      }
+
+      // 전체 처리 완료 로그
+      this.logger.info(
+        {
+          methodName: "cleanUpExpiredGuestFiles",
+          count: expiredFiles.length,
+        },
+        "비회원 파일 정리 완료",
+      );
+    } catch (error) {
+      // 오류 발생 시 로그 기록 및 예외 던지기
+      this.logger.error(
+        { methodName: "cleanUpExpiredGuestFiles", error },
+        "비회원 파일 정리 중 오류 발생",
+      );
+      throw new Error("비회원 파일 정리 중 오류가 발생했습니다.");
+    }
+  }
 }

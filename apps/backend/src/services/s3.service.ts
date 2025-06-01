@@ -263,4 +263,28 @@ export class S3Service implements S3ServiceInterface {
 
     return signedDownloadUrl;
   }
+    /**
+   * S3에서 비회원 파일(키 목록)을 삭제합니다.
+   * 하루 지난 파일을 판단하는 로직은 이 서비스 바깥에서 처리되어야 합니다.
+   *
+   * @param keys - 삭제할 S3 객체 키 배열
+   */
+  public async deleteExpiredGuestFiles(keys: string[]): Promise<void> {
+    if (keys.length === 0) {
+      this.logger.info("삭제할 비회원 S3 파일이 없습니다.");
+      return;
+    }
+
+    this.logger.info({ count: keys.length }, "비회원 S3 파일 삭제 시작");
+
+    try {
+      await this.deleteObjects(keys);
+
+      this.logger.info({ count: keys.length }, "비회원 S3 파일 삭제 완료");
+    } catch (error) {
+      this.logger.error({ error }, "비회원 S3 파일 삭제 실패");
+      throw error;
+    }
+  }
+
 }
