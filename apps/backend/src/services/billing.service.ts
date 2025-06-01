@@ -75,6 +75,14 @@ export class BillingService {
     return billing;
   }
 
+  public async getById(id: string) {
+    const billing = await this.billingRepository.findById(id);
+    if (!billing) {
+      throw new Error(`Billing with id ${id} not found.`);
+    }
+    return billing;
+  }
+
   /**
    * UserId로 빌링 객체 조회
    */

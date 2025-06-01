@@ -43,9 +43,10 @@ model Plan {
 
 // 구독 정보
 model Subscription {
-  id     String @id @default(uuid())
-  userId String @unique
-  planId String
+  id        String @id @default(uuid())
+  userId    String @unique
+  planId    String
+  billingId String
 
   status             SubscriptionStatus
   startedAt          DateTime
@@ -57,6 +58,7 @@ model Subscription {
 
   user     User      @relation(fields: [userId], references: [id])
   plan     Plan      @relation(fields: [planId], references: [id])
+  billing  Billing   @relation(fields: [billingId], references: [id])
   payments Payment[]
 }
 
@@ -76,16 +78,22 @@ enum CardOwnerType {
   CORPORATE // 법인
 }
 
+enum BillingStatus {
+  VALID // 유효한 결제 수단
+  INVALID // 유효하지 않은 결제 수단
+  EXPIRED // 만료된 결제 수단
+}
+
 // 구독 결제 정보
 model Billing {
-  id               String        @id @default(uuid())
+  id               String         @id @default(uuid())
   userId           String
   // 도메인 데이터
   mId              String
   customerKey      String
   authenticatedAt  DateTime
   method           BillingMethod
-  billingKey       String        @unique
+  billingKey       String         @unique
   // 카드 정보
   cardIssuerCode   String
   cardAcquirerCode String
@@ -96,10 +104,12 @@ model Billing {
   // 내부 데이터
   priority         Int
   // 메타데이터
-  createdAt        DateTime      @default(now())
-  updatedAt        DateTime      @updatedAt()
+  status           BillingStatus  @default(VALID)
+  createdAt        DateTime       @default(now())
+  updatedAt        DateTime       @updatedAt()
   // 관계
-  user             User          @relation(fields: [userId], references: [id])
+  user             User           @relation(fields: [userId], references: [id])
+  Subscription     Subscription[]
 }
 
 // 결제 내역

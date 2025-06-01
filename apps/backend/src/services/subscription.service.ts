@@ -18,6 +18,7 @@ export class SubscriptionService {
   public async create(data: {
     userId: string;
     planId: string;
+    billingId: string;
     status: $Enums.SubscriptionStatus;
     startedAt: Date;
     expiresAt: Date;

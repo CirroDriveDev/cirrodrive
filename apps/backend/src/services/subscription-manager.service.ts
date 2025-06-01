@@ -1,11 +1,14 @@
 import { inject, injectable } from "inversify";
 import type { Logger } from "pino";
+import { $Enums } from "@cirrodrive/database/prisma";
 import { Symbols } from "#types/symbols";
 import { SubscriptionService } from "#services/subscription.service";
 import { UserService } from "#services/user.service";
 import { PlanService } from "#services/plan.service";
 import { dayjs } from "#loaders/dayjs.loader";
 import { PaymentService } from "#services/payment.service";
+import { BillingService } from "#services/billing.service";
+import { Transactional } from "#decorators/transactional";
 
 @injectable()
 export class SubscriptionManagerService {
@@ -15,22 +18,32 @@ export class SubscriptionManagerService {
     @inject(UserService) private readonly userService: UserService,
     @inject(PlanService) private readonly planService: PlanService,
     @inject(PaymentService) private readonly paymentService: PaymentService,
+    @inject(BillingService) private readonly billingService: BillingService,
     @inject(Symbols.Logger)
     private logger: Logger,
   ) {
     this.logger = logger.child({ serviceName: "SubscriptionManagerService" });
   }
 
+  @Transactional()
   public async subscribeToPlan({
     userId,
     planId,
+    billingId,
   }: {
     userId: string;
     planId: string;
+    billingId: string;
   }) {
     const plan = await this.planService.getPlan(planId);
     const current = await this.subscriptionService.findCurrentByUser(userId); // TRIAL, ACTIVE, etc.
     const user = await this.userService.get({ id: userId });
+
+    const billing = await this.billingService.getById(billingId);
+
+    if (billing.status !== $Enums.BillingStatus.VALID) {
+      throw new Error("유효한 결제 수단이 필요합니다.");
+    }
 
     if (!user) {
       throw new Error("사용자를 찾을 수 없습니다.");
@@ -73,6 +86,7 @@ export class SubscriptionManagerService {
     const newSubscription = await this.subscriptionService.create({
       userId,
       planId,
+      billingId,
       status: isEligibleForTrial ? "TRIAL" : "ACTIVE",
       startedAt: new Date(),
       expiresAt,
@@ -82,15 +96,12 @@ export class SubscriptionManagerService {
 
     // ✅ 유료 시작 시 즉시 결제
     if (!isEligibleForTrial) {
-      const payment = await this.paymentService.charge({
+      await this.paymentService.charge({
         subscriptionId: newSubscription.id,
         userId,
         amount: plan.price,
         orderId: `sub-${newSubscription.id}`,
       });
-      if (!payment) {
-        throw new Error("결제 승인에 실패했습니다.");
-      }
     }
 
     // ✅ 사용자 정보 업데이트 (무료 체험 사용 여부)

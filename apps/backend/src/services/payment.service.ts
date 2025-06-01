@@ -42,41 +42,33 @@ export class PaymentService {
       await this.subscriptionService.getByIdWithPlan(subscriptionId);
 
     // 2. 사용자 결제 정보 조회
-    const billingList = await this.billingService.listByUserId(userId);
-
-    if (billingList.length === 0) {
-      throw new Error(
-        "사용자의 결제 정보가 없습니다. 결제 정보를 등록해주세요.",
-      );
-    }
+    const billing = await this.billingService.getById(subscription.billingId);
 
     // 3. 결제 승인
-    for (const billing of billingList) {
-      const { billingKey, customerKey } = billing;
-      const tossPayment = await this.tossPaymentsService.approveBillingPayment({
-        billingKey,
-        amount,
-        customerKey,
-        orderId,
-        orderName: subscription.plan.name,
-      });
+    const { billingKey, customerKey } = billing;
+    const tossPayment = await this.tossPaymentsService.approveBillingPayment({
+      billingKey,
+      amount,
+      customerKey,
+      orderId,
+      orderName: subscription.plan.name,
+    });
 
-      const payment = await this.paymentRepository.create({
-        subscriptionId: subscription.id,
-        userId,
-        amount,
-        orderId: `${orderId}-${billing.id}`,
-        status: tossPayment.status as $Enums.PaymentStatus,
-        paymentKey: tossPayment.paymentKey,
-        currency: tossPayment.currency,
-        approvedAt:
-          tossPayment.approvedAt ? new Date(tossPayment.approvedAt) : undefined,
-        receiptUrl: tossPayment.receipt?.url,
-      });
+    const payment = await this.paymentRepository.create({
+      subscriptionId: subscription.id,
+      userId,
+      amount,
+      orderId: `${orderId}-${billing.id}`,
+      status: tossPayment.status as $Enums.PaymentStatus,
+      paymentKey: tossPayment.paymentKey,
+      currency: tossPayment.currency,
+      approvedAt:
+        tossPayment.approvedAt ? new Date(tossPayment.approvedAt) : undefined,
+      receiptUrl: tossPayment.receipt?.url,
+    });
 
-      if (tossPayment.status === "DONE") {
-        return payment;
-      }
+    if (tossPayment.status === "DONE") {
+      return payment;
     }
 
     await this.subscriptionService.markAsUnpaid(subscriptionId);
