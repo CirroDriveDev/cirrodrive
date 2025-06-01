@@ -21,7 +21,9 @@ export function FolderPage(): JSX.Element {
     if (!alreadyRefreshed) {
       // refreshed 쿼리 파라미터 추가 후 새로고침
       searchParams.set("refreshed", "true");
-      void navigate(`${location.pathname}?${searchParams.toString()}`, { replace: true });
+      void navigate(`${location.pathname}?${searchParams.toString()}`, {
+        replace: true,
+      });
       window.location.reload();
     }
   }, [location, navigate]);

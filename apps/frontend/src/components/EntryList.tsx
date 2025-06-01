@@ -48,8 +48,8 @@ export function EntryList({ entries }: EntryListProps): JSX.Element {
       const bComp = sortKey === "updatedAt" ? new Date(bVal).getTime() : bVal;
 
       if (typeof aComp === "string" && typeof bComp === "string") {
-        return sortOrder === "asc"
-          ? aComp.localeCompare(bComp)
+        return sortOrder === "asc" ?
+            aComp.localeCompare(bComp)
           : bComp.localeCompare(aComp);
       }
 
@@ -87,10 +87,7 @@ export function EntryList({ entries }: EntryListProps): JSX.Element {
         >
           수정 날짜 {renderArrow("updatedAt")}
         </div>
-        <div
-          className="w-20 cursor-pointer"
-          onClick={() => handleSort("size")}
-        >
+        <div className="w-20 cursor-pointer" onClick={() => handleSort("size")}>
           크기 {renderArrow("size")}
         </div>
       </div>

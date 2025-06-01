@@ -50,12 +50,12 @@ export function useUploadFiles(options: UseUploadFilesOptions) {
     const limit = pLimit(3);
 
     await Promise.all(
-      uploadRequests.map((request) => limit(() => uploadSingleFile(request)))
+      uploadRequests.map((request) => limit(() => uploadSingleFile(request))),
     );
 
     setIsPending(false);
-    const success = uploadResults.filter(r => r.success);
-    const errors = uploadResults.filter(r => !r.success);
+    const success = uploadResults.filter((r) => r.success);
+    const errors = uploadResults.filter((r) => !r.success);
 
     if (success.length > 0) options.onSuccess?.(success);
     if (errors.length > 0) options.onError?.(errors);
@@ -108,7 +108,7 @@ export function useUploadSingleFile(options: UseUploadSingleFileOptions) {
               setUploadResult(result);
               onError?.(result);
             },
-          }
+          },
         );
       } else {
         const result: UploadResultError = {

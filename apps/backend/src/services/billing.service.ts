@@ -94,41 +94,41 @@ export class BillingService {
           $Enums.BillingStatus.TRIALING,
         );
       } else {
-      // 결제 시도
-      try {
-        const payment = await this.toss.approveBillingPayment({
-          billingKey: billing.billingKey,
-          amount: plan.price,
-          customerKey: billing.customerKey,
-          orderId: `${planId}-${Date.now()}`,
-          orderName: plan.name,
-        });
+        // 결제 시도
+        try {
+          const payment = await this.toss.approveBillingPayment({
+            billingKey: billing.billingKey,
+            amount: plan.price,
+            customerKey: billing.customerKey,
+            orderId: `${planId}-${Date.now()}`,
+            orderName: plan.name,
+          });
 
-        // 결제 정보 저장
-        await this.paymentRepository.createFromPayment(
-          payment,
-          billing.customerKey,
-          subscription.id,
-          planId,
-        );
+          // 결제 정보 저장
+          await this.paymentRepository.createFromPayment(
+            payment,
+            billing.customerKey,
+            subscription.id,
+            planId,
+          );
 
-        // 결제 성공 시 구독 상태를 ACTIVE로 변경
-        await this.subscriptionRepository.updateStatusById(
-          subscription.id,
-          $Enums.BillingStatus.ACTIVE,
-        );
-      } catch (paymentError) {
-        this.logger.error(
-          { err: paymentError, planId, customerKey },
-          "Payment attempt failed",
-        );
-        throw new ExternalPaymentError(
-          paymentError instanceof Error ?
-            paymentError.message
-          : "Unknown payment error",
-          { cause: paymentError, planId, customerKey },
-        );
-      }
+          // 결제 성공 시 구독 상태를 ACTIVE로 변경
+          await this.subscriptionRepository.updateStatusById(
+            subscription.id,
+            $Enums.BillingStatus.ACTIVE,
+          );
+        } catch (paymentError) {
+          this.logger.error(
+            { err: paymentError, planId, customerKey },
+            "Payment attempt failed",
+          );
+          throw new ExternalPaymentError(
+            paymentError instanceof Error ?
+              paymentError.message
+            : "Unknown payment error",
+            { cause: paymentError, planId, customerKey },
+          );
+        }
       }
 
       await this.userService.updatePlan({

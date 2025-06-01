@@ -61,25 +61,31 @@ export function FileSearchBar(): JSX.Element {
         </SelectContent>
       </Select>
 
-      {activeFields.updatedAt ? <Input
+      {activeFields.updatedAt ?
+        <Input
           type="date"
           className="w-48"
           onChange={(e) => setFilter("updatedAt", e.target.value)}
-        /> : null}
+        />
+      : null}
 
-      {activeFields.minSizeMB ? <Input
+      {activeFields.minSizeMB ?
+        <Input
           type="number"
           placeholder="최소 크기(MB)"
           className="w-32"
           onChange={(e) => setFilter("minSizeMB", e.target.value)}
-        /> : null}
+        />
+      : null}
 
-      {activeFields.maxSizeMB ? <Input
+      {activeFields.maxSizeMB ?
+        <Input
           type="number"
           placeholder="최대 크기(MB)"
           className="w-32"
           onChange={(e) => setFilter("maxSizeMB", e.target.value)}
-        /> : null}
+        />
+      : null}
 
       <DropdownMenu>
         <DropdownMenuTrigger asChild>

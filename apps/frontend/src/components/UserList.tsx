@@ -82,8 +82,8 @@ export function UserList({ users }: UserListProps): JSX.Element {
       if (bValue === null) return -1;
 
       if (typeof aValue === "string" && typeof bValue === "string") {
-        return sortOrder === "asc"
-          ? aValue.localeCompare(bValue)
+        return sortOrder === "asc" ?
+            aValue.localeCompare(bValue)
           : bValue.localeCompare(aValue);
       }
 
@@ -92,8 +92,8 @@ export function UserList({ users }: UserListProps): JSX.Element {
       }
 
       if (aValue instanceof Date && bValue instanceof Date) {
-        return sortOrder === "asc"
-          ? aValue.getTime() - bValue.getTime()
+        return sortOrder === "asc" ?
+            aValue.getTime() - bValue.getTime()
           : bValue.getTime() - aValue.getTime();
       }
 
@@ -145,19 +145,14 @@ export function UserList({ users }: UserListProps): JSX.Element {
 
       {/* List */}
       <div className="flex h-[720px] w-full flex-col divide-y divide-muted-foreground overflow-auto border-y border-y-muted-foreground">
-        {sortedUsers.length > 0 ? (
+        {sortedUsers.length > 0 ?
           sortedUsers.map((user) => (
-            <UserItem
-              key={user.id}
-              user={user}
-              onDelete={handleUserDelete}
-            />
+            <UserItem key={user.id} user={user} onDelete={handleUserDelete} />
           ))
-        ) : (
-          <div className="px-16 py-4 text-muted-foreground">
+        : <div className="px-16 py-4 text-muted-foreground">
             검색 결과가 없습니다.
           </div>
-        )}
+        }
       </div>
     </div>
   );

@@ -1,7 +1,12 @@
 import { useState } from "react";
 import { toast } from "react-toastify";
 import { Button } from "#shadcn/components/Button.js";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "#shadcn/components/Dialog.js";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "#shadcn/components/Dialog.js";
 import { Progress } from "#shadcn/components/Progress.js";
 import { useEntryList } from "#services/useEntryList.js";
 import { selectFile } from "#utils/selectFile.js";
@@ -32,21 +37,21 @@ export function UploadButton({ folderId }: FolderViewProps): JSX.Element {
         onProgress: (percent) => {
           setFiles((prev) =>
             prev.map((item) =>
-              item.file === file ? { ...item, progress: percent } : item
-            )
+              item.file === file ? { ...item, progress: percent } : item,
+            ),
           );
         },
       });
 
       setFiles((prev) =>
         prev.map((item) =>
-          item.file === file
-            ? {
-                ...item,
-                status: result.success ? "done" : "error",
-              }
-            : item
-        )
+          item.file === file ?
+            {
+              ...item,
+              status: result.success ? "done" : "error",
+            }
+          : item,
+        ),
       );
 
       if (result.success) {
@@ -63,8 +68,8 @@ export function UploadButton({ folderId }: FolderViewProps): JSX.Element {
 
       setFiles((prev) =>
         prev.map((item) =>
-          item.file === file ? { ...item, status: "canceled" } : item
-        )
+          item.file === file ? { ...item, status: "canceled" } : item,
+        ),
       );
     }
   };

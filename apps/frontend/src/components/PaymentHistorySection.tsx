@@ -27,9 +27,9 @@ export function PaymentHistorySection(): JSX.Element {
 
   /**
    * 결제 상태에 따라 텍스트와 스타일 클래스 반환
-   * 
+   *
    * @param status "paid" | "failed" | "pending"
-   * @returns { text: string, className: string }
+   * @returns {text: string, className: string}
    */
   const getStatusInfo = (status: "paid" | "failed" | "pending") => {
     if (status === "paid") {
@@ -63,13 +63,17 @@ export function PaymentHistorySection(): JSX.Element {
 
               return (
                 <TableRow key={p.id}>
-                  <TableCell>{new Date(p.paidAt).toLocaleDateString()}</TableCell>
+                  <TableCell>
+                    {new Date(p.paidAt).toLocaleDateString()}
+                  </TableCell>
                   <TableCell>₩{p.amount.toLocaleString()}</TableCell>
                   <TableCell>{p.method}</TableCell>
                   <TableCell>
                     <span className={className}>{text}</span>
                   </TableCell>
-                  <TableCell className="text-right">{p.description ?? "-"}</TableCell>
+                  <TableCell className="text-right">
+                    {p.description ?? "-"}
+                  </TableCell>
                 </TableRow>
               );
             })}

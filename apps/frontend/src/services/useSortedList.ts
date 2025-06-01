@@ -10,8 +10,7 @@ interface UseSortedListResult<T> {
 }
 
 /**
- * useSortedList 훅은 주어진 리스트에 대해 정렬 상태를 관리하고,
- * 정렬된 결과와 상태 변경 함수를 제공합니다.
+ * UseSortedList 훅은 주어진 리스트에 대해 정렬 상태를 관리하고, 정렬된 결과와 상태 변경 함수를 제공합니다.
  *
  * @param list 원본 리스트
  * @param defaultKey 초기 정렬 키
@@ -21,7 +20,7 @@ interface UseSortedListResult<T> {
 export function useSortedList<T extends Record<string, unknown>>(
   list: T[],
   defaultKey: keyof T,
-  defaultOrder: SortOrder = "asc"
+  defaultOrder: SortOrder = "asc",
 ): UseSortedListResult<T> {
   const [sortKey, setSortKey] = useState<keyof T | null>(defaultKey);
   const [sortOrder, setSortOrder] = useState<SortOrder>(defaultOrder);
@@ -42,8 +41,8 @@ export function useSortedList<T extends Record<string, unknown>>(
       const bComp = bVal as string | number | Date;
 
       if (typeof aComp === "string" && typeof bComp === "string") {
-        return sortOrder === "asc"
-          ? aComp.localeCompare(bComp)
+        return sortOrder === "asc" ?
+            aComp.localeCompare(bComp)
           : bComp.localeCompare(aComp);
       }
 
@@ -52,8 +51,8 @@ export function useSortedList<T extends Record<string, unknown>>(
       }
 
       if (aComp instanceof Date && bComp instanceof Date) {
-        return sortOrder === "asc"
-          ? aComp.getTime() - bComp.getTime()
+        return sortOrder === "asc" ?
+            aComp.getTime() - bComp.getTime()
           : bComp.getTime() - aComp.getTime();
       }
 

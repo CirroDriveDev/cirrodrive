@@ -15,14 +15,17 @@ export const usePresignedPostUploader: UseUploader = () => {
   // Presigned POST 정보 가져오기
   const getS3PresignedPost = async (file: File) => {
     const contentType = file.type || "application/octet-stream";
-    const result = await mutation.getS3PresignedPostAsync(file.name, contentType);
+    const result = await mutation.getS3PresignedPostAsync(
+      file.name,
+      contentType,
+    );
     return result.presignedPost; // { url, fields }
   };
 
   // 실제 S3에 업로드
   const upload = async (
     file: File,
-    options?: S3UploadOptions
+    options?: S3UploadOptions,
   ): Promise<S3UploadResult> => {
     const presignedPost = await getS3PresignedPost(file);
     const { url, fields } = presignedPost;
@@ -61,7 +64,9 @@ export const usePresignedPostUploader: UseUploader = () => {
             key: fields.key,
           });
         } else {
-          const error = new Error(`Upload failed: ${xhr.status} ${xhr.statusText}`);
+          const error = new Error(
+            `Upload failed: ${xhr.status} ${xhr.statusText}`,
+          );
           reject(error);
         }
       };

@@ -55,19 +55,24 @@ export function MyPlanSection(): JSX.Element {
       </CardHeader>
       <CardContent className="space-y-2 text-sm text-muted-foreground">
         <div>
-          <span className="font-medium text-primary">요금제 이름:</span> {subscription.name}
+          <span className="font-medium text-primary">요금제 이름:</span>{" "}
+          {subscription.name}
         </div>
         <div>
-          <span className="font-medium text-primary">상태:</span> {subscription.status}
+          <span className="font-medium text-primary">상태:</span>{" "}
+          {subscription.status}
         </div>
         <div>
-          <span className="font-medium text-primary">다음 결제일:</span> {subscription.billingDate}
+          <span className="font-medium text-primary">다음 결제일:</span>{" "}
+          {subscription.billingDate}
         </div>
         <div>
-          <span className="font-medium text-primary">만료일:</span> {subscription.expirationDate}
+          <span className="font-medium text-primary">만료일:</span>{" "}
+          {subscription.expirationDate}
         </div>
         <div>
-          <span className="font-medium text-primary">가격:</span> {subscription.price.toLocaleString()}원
+          <span className="font-medium text-primary">가격:</span>{" "}
+          {subscription.price.toLocaleString()}원
         </div>
       </CardContent>
     </Card>

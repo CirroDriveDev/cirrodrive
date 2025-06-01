@@ -15,7 +15,11 @@ export function StorageStatus(): JSX.Element {
 
   // 로딩 상태 표시
   if (isPending) {
-    return <div className="text-sm text-muted-foreground">저장소 정보를 불러오는 중...</div>;
+    return (
+      <div className="text-sm text-muted-foreground">
+        저장소 정보를 불러오는 중...
+      </div>
+    );
   }
 
   return (
@@ -34,7 +38,9 @@ export function StorageStatus(): JSX.Element {
       </div>
 
       {/* 경고 메시지 */}
-      {isNearLimit ? <div className="text-sm text-red-600">⚠️ 저장공간이 거의 찼습니다.</div> : null}
+      {isNearLimit ?
+        <div className="text-sm text-red-600">⚠️ 저장공간이 거의 찼습니다.</div>
+      : null}
     </div>
   );
 }

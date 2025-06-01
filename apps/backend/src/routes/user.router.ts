@@ -7,7 +7,8 @@ import { logger } from "#loaders/logger.loader";
 import { router, procedure, authedProcedure } from "#loaders/trpc.loader";
 
 const userService = container.get<UserService>(UserService);
-const passwordSchema = z.string()
+const passwordSchema = z
+  .string()
   .min(8)
   .regex(/[A-Z]/, "영어 대문자를 포함해야 합니다.")
   .regex(/[0-9]/, "숫자를 포함해야 합니다.")
@@ -241,46 +242,46 @@ export const userRouter = router({
       }
     }),
   changePassword: procedure
-  .input(
-    z.object({
-      currentPassword: z.string().min(8),  // 현재 비밀번호, 최소 8자
-      newPassword: passwordSchema,         // 새 비밀번호, passwordSchema로 유효성 검사
+    .input(
+      z.object({
+        currentPassword: z.string().min(8), // 현재 비밀번호, 최소 8자
+        newPassword: passwordSchema, // 새 비밀번호, passwordSchema로 유효성 검사
+      }),
+    )
+    .output(userDTOSchema) // 반환값 스키마 (유저 DTO)
+    .mutation(async ({ input, ctx }) => {
+      logger.info({ requestId: ctx.req.id }, "user.changePassword 요청 시작");
+
+      if (!ctx.user) {
+        throw new TRPCError({
+          code: "UNAUTHORIZED",
+          message: "로그인이 필요합니다.",
+        });
+      }
+
+      try {
+        const { currentPassword, newPassword } = input;
+
+        // 서비스에서 비밀번호 변경 처리
+        const user = await userService.changePassword({
+          userId: ctx.user.id,
+          currentPassword,
+          newPassword,
+        });
+
+        logger.info({ requestId: ctx.req.id }, "user.changePassword 요청 성공");
+
+        return user;
+      } catch (error) {
+        logger.error(
+          { requestId: ctx.req.id, error },
+          "user.changePassword 요청 실패",
+        );
+
+        throw new TRPCError({
+          code: "UNAUTHORIZED",
+          message: "현재 비밀번호가 올바르지 않습니다.",
+        });
+      }
     }),
-  )
-  .output(userDTOSchema)                   // 반환값 스키마 (유저 DTO)
-  .mutation(async ({ input, ctx }) => {
-    logger.info({ requestId: ctx.req.id }, "user.changePassword 요청 시작");
-
-    if (!ctx.user) {
-      throw new TRPCError({
-        code: "UNAUTHORIZED",
-        message: "로그인이 필요합니다.",
-      });
-    }
-
-    try {
-      const { currentPassword, newPassword } = input;
-
-      // 서비스에서 비밀번호 변경 처리
-      const user = await userService.changePassword({
-        userId: ctx.user.id,
-        currentPassword,
-        newPassword,
-      });
-
-      logger.info({ requestId: ctx.req.id }, "user.changePassword 요청 성공");
-
-      return user;
-    } catch (error) {
-      logger.error(
-        { requestId: ctx.req.id, error },
-        "user.changePassword 요청 실패",
-      );
-
-      throw new TRPCError({
-        code: "UNAUTHORIZED",
-        message: "현재 비밀번호가 올바르지 않습니다.",
-      });
-    }
-  }),
 });

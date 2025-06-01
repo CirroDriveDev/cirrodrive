@@ -9,22 +9,34 @@ export function useStorage() {
   const query = trpc.storage.getUsage.useQuery();
 
   return {
-    /** 사용한 저장소 크기 (bytes) */
+    /**
+     * 사용한 저장소 크기 (bytes)
+     */
     used: query.data?.used ?? 0,
 
-    /** 총 할당된 저장소 크기 (bytes) */
+    /**
+     * 총 할당된 저장소 크기 (bytes)
+     */
     quota: query.data?.quota ?? 0,
 
-    /** 사용 중인 요금제 ID */
+    /**
+     * 사용 중인 요금제 ID
+     */
     planId: query.data?.planId ?? "unknown",
 
-    /** 저장소가 90% 이상 찼는지 여부 */
+    /**
+     * 저장소가 90% 이상 찼는지 여부
+     */
     isNearLimit: query.data?.isNearLimit ?? false,
 
-    /** 데이터 요청 중인지 여부 */
+    /**
+     * 데이터 요청 중인지 여부
+     */
     isPending: query.isPending,
 
-    /** 요청 에러 객체 */
+    /**
+     * 요청 에러 객체
+     */
     error: query.error,
   };
 }
