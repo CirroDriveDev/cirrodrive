@@ -10,8 +10,8 @@ on:
   workflow_dispatch:
 
 jobs:
-  build-and-push:
-    name: Build and Push Docker Images
+  build-and-push-backend:
+    name: Build and Push Backend Docker Image
     runs-on: ubuntu-22.04
     steps:
       - name: Checkout repository
@@ -38,6 +38,24 @@ jobs:
           push: true
           tags: ${{ secrets.DOCKERHUB_USERNAME }}/cirrodrive:backend
 
+  build-and-push-frontend:
+    name: Build and Push Frontend Docker Image
+    runs-on: ubuntu-22.04
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 1 # 최적화: 불필요한 Git 히스토리 가져오지 않음
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Log in to DockerHub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
       - name: Build and push frontend image
         uses: docker/build-push-action@v5
         with:
@@ -55,7 +73,7 @@ jobs:
   database-migration:
     name: database-migration
     runs-on: ubuntu-22.04
-    needs: build-and-push
+    needs: [build-and-push-backend, build-and-push-frontend]
     environment: production
     env:
       DATABASE_URL: ${{ secrets.DATABASE_URL }}
