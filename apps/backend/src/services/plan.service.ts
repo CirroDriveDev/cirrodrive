@@ -36,7 +36,29 @@ export class PlanService {
 
   public async getDefaultPlan() {
     this.logger.debug("Fetching default plan");
-    return await this.planRepotitory.getByName("Free");
+    const plans = await this.planRepotitory.listByName("Free");
+    if (plans.length === 0) {
+      this.logger.error("Default plan not found");
+      throw new TRPCError({
+        code: "NOT_FOUND",
+        message: "Default plan not found",
+      });
+    }
+
+    if (plans.length > 1) {
+      this.logger.warn("Multiple default plans found, returning the first one");
+      this.logger.warn(
+        "This may indicate a data integrity issue. Please check your database.",
+      );
+      this.logger.warn(
+        "If you are running in development mode, consider resetting your database.",
+      );
+      this.logger.warn(
+        "If you are running in production mode, please contact support.",
+      );
+    }
+
+    return plans[0];
   }
 
   /**

@@ -22,8 +22,8 @@ export class PlanRepository extends BaseRepository {
     return plan;
   }
 
-  public async getByName(name: string): Promise<Plan> {
-    const plan = await this.prisma.plan.findUnique({ where: { name } });
+  public async listByName(name: string): Promise<Plan[]> {
+    const plan = await this.prisma.plan.findMany({ where: { name } });
     if (!plan) {
       throw new Error(`Plan with name ${name} not found`);
     }
