@@ -40,6 +40,7 @@ import { AdminLayout } from "#components/layout/admin/AdminLayout.js";
 import { UserWorkspaceLayout } from "#components/layout/user/UserWorkspaceLayout.js";
 import { GuestLayout } from "#components/layout/guest/GuestLayout.js";
 import { MyPageLayout } from "#components/layout/user/MyPageLayout.js";
+import { AccountCreationPage } from "#pages/admin/createuser.js";
 
 function AdminRoute(): JSX.Element {
   const { admin } = useAdminStore();
@@ -180,6 +181,7 @@ export function Router(): JSX.Element {
             <Route path="user" element={<AdminUserPage />} />
             <Route path="file" element={<AdminFilePage />} />
             <Route path="dashboard" element={<AdminDashboardPage />} />
+            <Route path="creat" element={<AccountCreationPage />} />
           </Route>
         </Route>
 

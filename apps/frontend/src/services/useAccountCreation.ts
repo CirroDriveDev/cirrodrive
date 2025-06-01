@@ -1,4 +1,4 @@
-// useAccountCreation.ts
+import { toast } from "react-toastify"; // Ensure toast is properly imported
 import { useState } from "react";
 import { z, type ZodFormattedError } from "zod";
 import type {
@@ -9,8 +9,8 @@ import type {
 import type { TRPCClientErrorLike } from "@trpc/client";
 import type { UseTRPCMutationOptions } from "@trpc/react-query/shared";
 import { trpc } from "#services/trpc.js";
+import { useEmailCode } from "#services/useEmailCode.js";
 
-// 계정 생성 폼 유효성 검사 스키마
 const accountCreationSchema = z
   .object({
     username: z.string().min(1, "이름을 입력하세요."),
@@ -19,8 +19,13 @@ const accountCreationSchema = z
     confirmPassword: z
       .string()
       .min(8, "비밀번호 확인도 최소 8자 이상이어야 합니다."),
+    profileImageUrl: z
+      .string()
+      .url("올바른 URL 형식이어야 합니다.")
+      .optional()
+      .or(z.literal("")), // 빈 문자열 허용
     isAdmin: z.boolean(),
-    profileImageUrl: z.string().optional(),
+    verificationCode: z.string().optional(),
   })
   .refine((data) => data.password === data.confirmPassword, {
     message: "비밀번호가 일치하지 않습니다.",
@@ -29,7 +34,6 @@ const accountCreationSchema = z
 
 type AccountCreationInput = z.infer<typeof accountCreationSchema>;
 
-// TRPC Mutation 옵션 타입 (protected.user.create 프로시저)
 type UseAccountCreationOptions = UseTRPCMutationOptions<
   RouterInput["protected"]["user"]["create"],
   TRPCClientErrorLike<AppRouter>,
@@ -37,6 +41,13 @@ type UseAccountCreationOptions = UseTRPCMutationOptions<
 >;
 
 export interface UseAccountCreationReturn {
+  email: string;
+  verificationCode: string;
+  timer: number;
+  cooldown: number;
+  isEmailVerified: boolean;
+  sendError?: string;
+  verifyError?: string;
   input: AccountCreationInput;
   validationError: ZodFormattedError<AccountCreationInput> | undefined;
   submissionError: string | undefined;
@@ -45,6 +56,9 @@ export interface UseAccountCreationReturn {
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>,
   ) => void;
   handleFormSubmit: (e: React.FormEvent) => void;
+  handleCodeInputChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
+  handleSendCode: () => Promise<void>;
+  handleVerifyCode: () => Promise<void>;
 }
 
 export const useAccountCreation = (
@@ -55,30 +69,47 @@ export const useAccountCreation = (
     email: "",
     password: "",
     confirmPassword: "",
-    isAdmin: false,
     profileImageUrl: "",
+    isAdmin: false,
+    verificationCode: "",
   });
 
   const [validationError, setValidationError] =
     useState<ZodFormattedError<AccountCreationInput>>();
   const [submissionError, setSubmissionError] = useState<string>();
 
+  const {
+    email,
+    verificationCode,
+    handleCodeInputChange,
+    handleSendCode,
+    handleVerifyCode,
+    timer,
+    cooldown,
+    isEmailVerified,
+    sendError,
+    verifyError,
+  } = useEmailCode();
+
   const mutation = trpc.protected.user.create.useMutation({
     ...opts,
-    onSuccess: (_data: RouterOutput["protected"]["user"]["create"]) => {
-      // 로그인 성공 후 처리 (예: 알림, 폼 리셋 등)
+    onSuccess: (_data) => {
       setSubmissionError(undefined);
       setInput({
         username: "",
         email: "",
         password: "",
         confirmPassword: "",
-        isAdmin: false,
         profileImageUrl: "",
+        isAdmin: false,
+        verificationCode: "",
       });
+      toast.success("계정 생성이 완료되었습니다."); // 성공 메시지 표시
     },
     onError: (error) => {
-      setSubmissionError(error.message || "계정 생성에 실패했습니다.");
+      setSubmissionError(
+        error.message || "사용자 생성 중 오류가 발생했습니다.",
+      );
     },
   });
 
@@ -94,20 +125,31 @@ export const useAccountCreation = (
 
   const handleFormSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    const result = accountCreationSchema.safeParse(input);
+
+    if (!isEmailVerified) {
+      setSubmissionError("이메일 인증이 필요합니다.");
+      return;
+    }
+
+    const result = accountCreationSchema.safeParse({
+      ...input,
+      email,
+      verificationCode,
+    });
+
     if (result.success) {
       setValidationError(undefined);
-      // 서버에 넘길 데이터: confirmPassword는 제거하고, profileImageUrl를 빈 문자열 대신 null 처리
-      const { username, email, password, isAdmin, profileImageUrl } =
-        result.data;
+
+      const { username, password, isAdmin, profileImageUrl } = result.data;
+
       mutation.mutate({
         username,
         email,
         password,
         isAdmin,
-        profileImageUrl: profileImageUrl ?? null,
         usedStorage: 0,
         currentPlanId: "",
+        profileImageUrl: profileImageUrl ?? null,
       });
     } else {
       setValidationError(result.error.format());
@@ -116,11 +158,21 @@ export const useAccountCreation = (
   };
 
   return {
+    email,
+    verificationCode,
+    timer,
+    cooldown,
+    isEmailVerified,
+    sendError,
+    verifyError,
     input,
     validationError,
     submissionError,
     mutation,
     handleInputChange,
     handleFormSubmit,
+    handleCodeInputChange,
+    handleSendCode,
+    handleVerifyCode,
   };
 };
