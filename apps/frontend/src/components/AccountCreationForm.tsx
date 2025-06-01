@@ -1,4 +1,3 @@
-import { toast } from "react-toastify";
 import { Button } from "#shadcn/components/Button.js";
 import { FormInputField } from "#components/shared/FormInputField.js";
 import { useAccountCreation } from "#services/useAccountCreation.js";
@@ -23,7 +22,7 @@ export function AccountCreationForm(): JSX.Element {
     mutation,
   } = useAccountCreation({
     onSuccess: () => {
-      toast.success("계정 생성이 완료되었습니다.");
+      // 메시지 표시 로직은 useAccountCreation에서 처리
     },
     retry: 0,
   });
@@ -119,7 +118,9 @@ export function AccountCreationForm(): JSX.Element {
               type="checkbox"
               name="isAdmin"
               checked={isAdmin}
-              onChange={handleInputChange}
+              onChange={(e) => {
+                handleInputChange(e);
+              }}
               id="isAdmin"
             />
             <label htmlFor="isAdmin" className="ml-2">

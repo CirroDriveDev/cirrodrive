@@ -104,7 +104,12 @@ export const useAccountCreation = (
         isAdmin: false,
         verificationCode: "",
       });
-      toast.success("계정 생성이 완료되었습니다."); // 성공 메시지 표시
+      // 관리자 계정 여부에 따라 다른 메시지 표시
+      if (input.isAdmin) {
+        toast.success("관리자 계정 생성이 완료되었습니다.");
+      } else {
+        toast.success("계정 생성이 완료되었습니다.");
+      }
     },
     onError: (error) => {
       setSubmissionError(
