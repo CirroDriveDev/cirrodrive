@@ -146,6 +146,21 @@ export const PaymentSchema = z.object({
   createdAt: z.coerce.date(),
 });
 
+export const paymentDTOSchema = PaymentSchema.pick({
+  id: true,
+  subscriptionId: true,
+  userId: true,
+  amount: true,
+  currency: true,
+  status: true,
+  approvedAt: true,
+  receiptUrl: true,
+  createdAt: true,
+});
+
+export type PaymentStatus = z.infer<typeof PaymentStatusEnum>;
+export type PaymentDTO = z.infer<typeof paymentDTOSchema>;
+
 export const UsageRecordSchema = z.object({
   id: z.string(),
   userId: z.string(),

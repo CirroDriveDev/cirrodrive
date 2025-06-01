@@ -20,6 +20,31 @@ export class PaymentRepository extends BaseRepository {
     return this.prisma.payment.findMany({ where: { subscriptionId } });
   }
 
+  /**
+   * 사용자 ID로 결제 목록을 커서 기반으로 페이징 조회합니다.
+   *
+   * @param userId 사용자 ID
+   * @param pageSize 페이지당 항목 수
+   * @param cursor 커서(마지막 항목의 id)
+   * @returns 결제 목록 배열
+   */
+  async listByUserId(
+    userId: string,
+    options: {
+      pageSize?: number;
+      cursor?: string;
+    },
+  ): Promise<Payment[]> {
+    const { pageSize, cursor } = options;
+    return this.prisma.payment.findMany({
+      where: { userId },
+      take: pageSize,
+      orderBy: { createdAt: "desc" },
+      cursor: cursor ? { id: cursor } : undefined,
+      skip: cursor ? 1 : 0,
+    });
+  }
+
   async findAll(): Promise<Payment[]> {
     return this.prisma.payment.findMany();
   }

@@ -1,19 +1,10 @@
 import { z } from "zod";
+import { paymentDTOSchema } from "@cirrodrive/schemas/billing";
 import { router, authedProcedure } from "#loaders/trpc.loader";
 import { container } from "#loaders/inversify.loader";
 import { PaymentService } from "#services/payment.service";
 
 const paymentService = container.get(PaymentService);
-
-const PaymentSchema = z.object({
-  id: z.string(),
-  amount: z.number(),
-  currency: z.string(),
-  status: z.enum(["paid", "failed", "pending"]),
-  paidAt: z.string().datetime(),
-  method: z.string(),
-  description: z.string().nullable(),
-});
 
 export const paymentRouter = router({
   /**
@@ -35,7 +26,7 @@ export const paymentRouter = router({
     )
     .output(
       z.object({
-        payments: z.array(PaymentSchema),
+        payments: z.array(paymentDTOSchema),
         nextCursor: z.string().nullable(),
       }),
     )

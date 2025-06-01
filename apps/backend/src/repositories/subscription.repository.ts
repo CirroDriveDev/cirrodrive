@@ -26,7 +26,7 @@ export class SubscriptionRepository extends BaseRepository {
   }
 
   async findByUserId(userId: string): Promise<Subscription | null> {
-    return this.prisma.subscription.findUnique({ where: { userId } });
+    return this.prisma.subscription.findFirst({ where: { userId } });
   }
 
   async findCurrentByUser(userId: string): Promise<Subscription | null> {
