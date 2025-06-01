@@ -10,10 +10,12 @@ export function Fail(): JSX.Element {
 
   return (
     <div className="flex h-full flex-col items-center justify-center space-y-6 p-4">
-      <h1 className="text-4xl font-extrabold text-red-700">결제 실패</h1>
+      <h1 className="text-4xl font-extrabold text-red-700">
+        결제수단 등록 실패
+      </h1>
       <p className="max-w-2xl text-center text-lg text-red-600">
-        죄송합니다. 결제에 실패하였습니다. 잠시 후 다시 시도하거나 고객 지원에
-        문의해 주세요.
+        죄송합니다. 결제수단 등록에 실패하였습니다. 잠시 후 다시 시도하거나 고객
+        지원에 문의해 주세요.
       </p>
       <Button
         variant="default"

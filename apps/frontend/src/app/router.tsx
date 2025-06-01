@@ -31,7 +31,6 @@ import { useBoundStore } from "#store/useBoundStore.js";
 import { useAdminStore } from "#store/useAdminStore.js";
 import { MyPage } from "#pages/mypage/mypage.js";
 import { AdminDashboardPage } from "#pages/admin/dashboard.js";
-import { ConfirmPage } from "#pages/billing/success/[plan-id].js";
 import { Success } from "#pages/billing/success.js";
 import { Fail } from "#pages/billing/fail.js";
 import { TestPage } from "#pages/test.js";
@@ -164,7 +163,6 @@ export function Router(): JSX.Element {
 
             <Route path="billing">
               <Route path="success" element={<Success />} />
-              <Route path="success/:planId" element={<ConfirmPage />} />
               <Route path="fail" element={<Fail />} />
               <Route path="confirm/:planId" element={<BillingConfirmPage />} />
             </Route>

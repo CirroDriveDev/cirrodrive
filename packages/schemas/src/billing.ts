@@ -120,6 +120,7 @@ export const BillingDTOSchema = BillingSchema.pick({
   method: true,
   cardIssuerCode: true,
   cardAcquirerCode: true,
+  cardNumber: true,
   cardType: true,
   cardOwnerType: true,
   cardCompany: true,

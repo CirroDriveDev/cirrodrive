@@ -89,4 +89,49 @@ export class BillingService {
   public async listByUserId(userId: string) {
     return this.billingRepository.listByUserId(userId);
   }
+
+  /**
+   * 빌링이 사용 중인지 확인
+   *
+   * @param userId 사용자 ID
+   * @param billingId 빌링 ID
+   */
+  public async isBillingUsed(billingId: string) {
+    const billing =
+      await this.billingRepository.findByIdWithSubscriptions(billingId);
+
+    if (!billing) {
+      throw new Error(`Billing with id ${billingId} not found.`);
+    }
+
+    // 빌링이 구독에 사용 중인지 확인
+    const isUsed = billing.subscriptions.some(
+      (subscription) =>
+        subscription.status === "ACTIVE" || subscription.status === "TRIAL",
+    );
+
+    return isUsed;
+  }
+
+  /**
+   * 빌링 삭제
+   *
+   * @param billingId 빌링 ID
+   */
+  @Transactional()
+  public async deleteById(billingId: string) {
+    const billing = await this.billingRepository.findById(billingId);
+    if (!billing) {
+      throw new Error(`Billing with id ${billingId} not found.`);
+    }
+
+    // 빌링이 사용 중인지 확인
+    const isUsed = await this.isBillingUsed(billingId);
+    if (isUsed) {
+      throw new Error("Billing is currently in use and cannot be deleted.");
+    }
+
+    // 빌링 삭제
+    return this.billingRepository.deleteById(billingId);
+  }
 }

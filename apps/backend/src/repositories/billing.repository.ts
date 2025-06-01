@@ -21,6 +21,15 @@ export class BillingRepository extends BaseRepository {
     });
   }
 
+  async findByIdWithSubscriptions(id: string) {
+    return this.prisma.billing.findUnique({
+      where: { id },
+      include: {
+        subscriptions: true,
+      },
+    });
+  }
+
   async findAll(): Promise<Billing[]> {
     return this.prisma.billing.findMany();
   }

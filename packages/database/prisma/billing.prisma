@@ -44,7 +44,7 @@ model Plan {
 // 구독 정보
 model Subscription {
   id        String @id @default(uuid())
-  userId    String @unique
+  userId    String
   planId    String
   billingId String
 
@@ -109,7 +109,7 @@ model Billing {
   updatedAt        DateTime       @updatedAt()
   // 관계
   user             User           @relation(fields: [userId], references: [id])
-  Subscription     Subscription[]
+  subscriptions    Subscription[]
 }
 
 // 결제 내역

@@ -8,7 +8,7 @@ export function useBillingAuth(successUrl: string, failUrl: string) {
   const { user } = useBoundStore();
 
   return {
-    requestBillingAuth: async (planId: string): Promise<void> => {
+    requestBillingAuth: async (): Promise<void> => {
       if (!user) {
         throw new Error("User is not logged in");
       }
@@ -19,7 +19,7 @@ export function useBillingAuth(successUrl: string, failUrl: string) {
       try {
         await payment.requestBillingAuth({
           method: "CARD",
-          successUrl: `${location.origin}/${successUrl}/${planId}`,
+          successUrl: `${location.origin}/${successUrl}`,
           failUrl: `${location.origin}/${failUrl}`,
           customerName: user.username,
           customerEmail: user.email,

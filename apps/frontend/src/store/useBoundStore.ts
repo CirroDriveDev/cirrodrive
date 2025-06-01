@@ -233,10 +233,12 @@ export const useBoundStore = create<StoreState>()(
         ...createRedirectSlice(...opts),
       })),
       {
-        name: "store",
-        partialize: (state) => ({
-          user: state.user,
-          admin: state.admin,
+        name: "store", // 로컬 스토리지에 저장될 이름
+        // partialize 함수를 사용하여 특정 state만 저장
+        partialize: (slices) => ({
+          user: slices.user,
+          admin: slices.admin, // admin도 저장
+          redirectPath: slices.redirectPath,
         }),
       }
     )

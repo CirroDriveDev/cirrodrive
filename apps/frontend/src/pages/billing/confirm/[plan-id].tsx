@@ -1,6 +1,8 @@
 import { useEffect, useMemo, useState } from "react";
-import { useParams } from "react-router";
+import { useNavigate, useParams } from "react-router";
 import { type BillingDTO, type PlanDTO } from "@cirrodrive/schemas/billing";
+import { CreditCardIcon, PlusIcon } from "lucide-react";
+import { getQueryKey } from "@trpc/react-query";
 import { trpc } from "#services/trpc.js";
 import {
   Card,
@@ -33,6 +35,8 @@ import {
   DialogClose,
 } from "#shadcn/components/Dialog.js";
 import { useBillingAuth } from "#services/billing/useBillingAuth.js";
+import { useRedirectStore } from "#store/useRedirectStore.js";
+import { queryClient } from "#app/provider/queryClient.js";
 
 /**
  * 요금제 결제 확인 페이지
@@ -44,10 +48,6 @@ export function BillingConfirmPage() {
   const plan = trpc.plan.get.useQuery(
     { id: planId ?? "" },
     { enabled: Boolean(planId) },
-  );
-  const { requestBillingAuth } = useBillingAuth(
-    "billing/success",
-    "billing/fail",
   );
 
   if (plan.isLoading) {
@@ -66,11 +66,8 @@ export function BillingConfirmPage() {
   }
 
   return (
-    <div className="flex min-h-screen flex-col items-center justify-center gap-4">
+    <div className="flex h-full flex-col items-center justify-center gap-4">
       <h1 className="text-2xl font-bold">요금제 결제 확인</h1>
-      <p>
-        선택한 요금제: <span className="font-mono">{planId}</span>
-      </p>
       <PaymentConfirmCard plan={plan.data} />
     </div>
   );
@@ -81,15 +78,45 @@ export function PaymentConfirmCard({ plan }: { plan: PlanDTO }) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [dialogOpen, setDialogOpen] = useState(false);
+  const [selectedBilling, setSelectedBilling] = useState<BillingDTO | null>(
+    null,
+  );
   const { mutateAsync: subscribe } = trpc.billing.subscribeToPlan.useMutation();
+  const { setRedirectPath, clearRedirectPath } = useRedirectStore();
+  const { requestBillingAuth } = useBillingAuth(
+    "billing/success",
+    "billing/fail",
+  );
+  const navigate = useNavigate();
+
+  const handleBillingAuth = async () => {
+    if (!plan.id) {
+      setError("유효하지 않은 요금제입니다.");
+      return;
+    }
+    setRedirectPath(`/billing/confirm/${plan.id}`);
+    try {
+      await requestBillingAuth();
+    } catch {
+      clearRedirectPath();
+    }
+  };
 
   const handleConfirm = async () => {
     if (!agree) return;
+    if (!selectedBilling) {
+      setError("결제수단을 선택해주세요.");
+      return;
+    }
     setLoading(true);
     setError("");
     try {
       // 서버 API 호출 예: /api/subscribe
-      await subscribe({ planId: plan.id });
+      await subscribe({
+        planId: plan.id,
+        billingId: selectedBilling?.id,
+      });
+      void navigate("/mypage");
     } catch (e) {
       setError((e as Error).message);
     } finally {
@@ -113,10 +140,6 @@ export function PaymentConfirmCard({ plan }: { plan: PlanDTO }) {
         <CardTitle>{plan.name} 업그레이드</CardTitle>
       </CardHeader>
       <CardContent className="space-y-6">
-        {/* 결제수단 표시 영역 */}
-        <div className="mb-4">
-          <BillingMethodDialog open={dialogOpen} onOpenChange={setDialogOpen} />
-        </div>
         <Table>
           <TableBody>
             <TableRow>
@@ -126,10 +149,6 @@ export function PaymentConfirmCard({ plan }: { plan: PlanDTO }) {
             <TableRow>
               <TableCell className="font-medium">금액</TableCell>
               <TableCell>{priceText}</TableCell>
-            </TableRow>
-            <TableRow>
-              <TableCell className="font-medium">설명</TableCell>
-              <TableCell>{plan.description ?? "-"}</TableCell>
             </TableRow>
             <TableRow>
               <TableCell className="font-medium">결제 주기</TableCell>
@@ -151,6 +170,16 @@ export function PaymentConfirmCard({ plan }: { plan: PlanDTO }) {
             )}
           </TableBody>
         </Table>
+        {/* 결제수단 표시 영역 */}
+        <div className="mb-4">
+          <BillingMethodDialog
+            open={dialogOpen}
+            onOpenChange={setDialogOpen}
+            selectedBilling={selectedBilling}
+            onSelectBilling={setSelectedBilling}
+            onBillingAuth={handleBillingAuth}
+          />
+        </div>
         <div className="flex items-start space-x-2">
           <Checkbox
             id="terms"
@@ -184,43 +213,43 @@ export function PaymentConfirmCard({ plan }: { plan: PlanDTO }) {
 function BillingMethodDialog({
   open,
   onOpenChange,
+  selectedBilling,
+  onSelectBilling,
+  onBillingAuth,
 }: {
   open: boolean;
   onOpenChange: (open: boolean) => void;
+  selectedBilling: BillingDTO | null;
+  onSelectBilling: (method: BillingDTO) => void;
+  onBillingAuth: () => Promise<void>;
 }) {
-  const [selectedBilling, setSelectedBilling] = useState<BillingDTO | null>(
-    null,
-  );
   const billingList = trpc.billing.getBillingMethods.useQuery();
-
-  // 결제수단 우선순위 높은 것 선택
   const billingMethods = useMemo(
     () => billingList.data ?? [],
     [billingList.data],
   );
   useEffect(() => {
     if (billingMethods.length > 0) {
-      // priority가 낮을수록 우선순위 높음
       const sorted = [...billingMethods].sort(
         (a, b) => a.priority - b.priority,
       );
-      setSelectedBilling(sorted[0]);
-    } else {
-      setSelectedBilling(null);
+      onSelectBilling(sorted[0]);
     }
-  }, [billingMethods]);
+  }, [billingMethods, onSelectBilling]);
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogTrigger asChild>
         <Button
           variant="outline"
-          className="w-full justify-start"
+          className="flex w-full justify-start space-x-2"
           type="button"
         >
+          <CreditCardIcon />
           {selectedBilling ?
             <span>
-              {selectedBilling.cardCompany} {selectedBilling.cardType} (우선순위{" "}
-              {selectedBilling.priority})
+              {selectedBilling.cardCompany} {selectedBilling.cardType} (
+              {selectedBilling.cardNumber})
             </span>
           : <span className="text-muted-foreground">결제수단 등록</span>}
         </Button>
@@ -236,29 +265,29 @@ function BillingMethodDialog({
           {billingMethods.length > 0 ?
             <>
               {billingMethods.map((method) => (
-                <Button
-                  key={method.id}
-                  variant={
-                    selectedBilling?.id === method.id ? "default" : "outline"
-                  }
-                  className="w-full justify-start"
-                  onClick={() => onSelectBilling(method)}
-                >
-                  {method.cardCompany} {method.cardType} (우선순위{" "}
-                  {method.priority})
-                </Button>
+                <DialogClose asChild key={method.id}>
+                  <BillingMethodItem
+                    method={method}
+                    selected={selectedBilling?.id === method.id}
+                    onClick={() => onSelectBilling(method)}
+                  />
+                </DialogClose>
               ))}
             </>
-          : <div className="text-sm text-muted-foreground">
-              등록된 결제수단이 없습니다.
-            </div>
-          }
-          {/* 결제수단 등록 폼은 실제 구현 필요. 아래는 자리 표시자 */}
-          <Button variant="secondary" className="w-full mt-2" disabled>
-            + 새 결제수단 등록 (구현 필요)
+          : null}
+          <Button
+            variant="secondary"
+            className="flex w-full mt-2 space-x-2"
+            onClick={onBillingAuth}
+          >
+            <PlusIcon />
+            <span>새 결제수단 등록</span>
           </Button>
         </div>
         <DialogFooter>
+          {/* <Button type="button" variant="outline" disabled>
+            결제수단 관리(준비 중)
+          </Button> */}
           <DialogClose asChild>
             <Button type="button" variant="outline">
               닫기
@@ -267,5 +296,69 @@ function BillingMethodDialog({
         </DialogFooter>
       </DialogContent>
     </Dialog>
+  );
+}
+
+function BillingMethodItem({
+  method,
+  selected,
+  onClick,
+}: {
+  method: BillingDTO;
+  selected: boolean;
+  onClick: () => void;
+}) {
+  const isUsed = trpc.billing.isBillingUsed.useQuery({ billingId: method.id });
+  const { mutateAsync: deleteBilling } =
+    trpc.billing.deleteBilling.useMutation();
+  const queryKey = getQueryKey(trpc.billing.getBillingMethods);
+
+  const handleDelete = async () => {
+    await deleteBilling({ billingId: method.id });
+    await queryClient.invalidateQueries({ queryKey });
+  };
+
+  return (
+    <div className="flex items-center justify-between space-x-2 relative">
+      <Button
+        key={method.id}
+        variant={selected ? "default" : "outline"}
+        className="flex w-full justify-between space-x-2"
+        onClick={onClick}
+      >
+        <CreditCardIcon />
+        <span>
+          {method.cardCompany} {method.cardType} ({method.cardNumber})
+        </span>
+        <span className="flex-grow" />
+      </Button>
+      <Dialog>
+        <DialogTrigger asChild>
+          <Button
+            variant={isUsed.data ? "ghost" : "secondary"}
+            className="w-16 h-8 absolute right-2"
+            disabled={isUsed.data}
+          >
+            {isUsed.data ? "사용 중" : "삭제"}
+          </Button>
+        </DialogTrigger>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>결제수단 삭제</DialogTitle>
+            <DialogDescription>
+              정말로 이 결제수단을 삭제하시겠습니까? 삭제 후 복구할 수 없습니다.
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <Button variant="destructive" onClick={handleDelete}>
+              삭제
+            </Button>
+            <DialogClose asChild>
+              <Button variant="outline">취소</Button>
+            </DialogClose>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+    </div>
   );
 }

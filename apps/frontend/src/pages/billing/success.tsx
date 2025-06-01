@@ -1,30 +1,40 @@
-import { useNavigate } from "react-router";
-import { trpc } from "#services/trpc.js";
-import { Button } from "#shadcn/components/Button.js";
+import { useNavigate, useSearchParams } from "react-router";
+import { useEffect, useRef } from "react";
+import { useConfirmBillingAuthorization } from "#services/billing/useConfirmBillingAuthorization.js";
+import { LoadingSpinner } from "#components/shared/LoadingSpinner.js";
+import { useRedirectStore } from "#store/useRedirectStore.js";
 
 export function Success(): JSX.Element | null {
   const navigate = useNavigate();
-  const currentPlan = trpc.billing.getCurrentPlan.useQuery();
+  const [searchParams] = useSearchParams();
+  const authKey = searchParams.get("authKey")!;
+  const customerKey = searchParams.get("customerKey")!;
+
+  const { redirectPath } = useRedirectStore();
+
+  const { confirm } = useConfirmBillingAuthorization();
+
+  const called = useRef(false);
+
+  useEffect(() => {
+    if (called.current) return;
+    called.current = true;
+    confirm({
+      authKey,
+      customerKey,
+    })
+      .then(() => {
+        void navigate(redirectPath ?? "/mypage/plans");
+      })
+      .catch(() => {
+        void navigate("/billing/fail");
+      });
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- test
+  }, [authKey, customerKey]);
 
   return (
     <div className="flex min-h-screen items-center justify-center">
-      <div className="text-center">
-        <h1 className="text-2xl font-bold mb-4">
-          서비스를 이용해주셔서 감사합니다!
-        </h1>
-        <p className="text-lg mb-2">
-          {currentPlan.data?.name}으로 요금제 변경이 완료되었습니다.
-        </p>
-        <p className="text-lg mb-4">새로운 요금제를 이용해 주세요.</p>
-        <Button
-          className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
-          onClick={() => {
-            void navigate("/mypage/plans");
-          }}
-        >
-          요금제 관리로 이동
-        </Button>
-      </div>
+      <LoadingSpinner />
     </div>
-  ); // 로딩 스피너를 보여줍니다.
+  );
 }

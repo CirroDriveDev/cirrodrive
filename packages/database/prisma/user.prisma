@@ -23,10 +23,10 @@ model User {
   files    FileMetadata[]
 
   // Relations
-  subscription Subscription?
-  billings     Billing[]
-  payments     Payment[]
-  usageRecords UsageRecord[]
+  subscriptions Subscription[]
+  billings      Billing[]
+  payments      Payment[]
+  usageRecords  UsageRecord[]
 }
 
 model Session {
