@@ -59,7 +59,19 @@ export const PlanSchema = z.object({
   updatedAt: z.coerce.date(),
 });
 
-export type PlanDTO = z.infer<typeof PlanSchema>;
+export const planDTOSchema = PlanSchema.pick({
+  id: true,
+  name: true,
+  description: true,
+  price: true,
+  interval: true,
+  intervalCount: true,
+  durationDays: true,
+  storageLimit: true,
+  trialDays: true,
+});
+
+export type PlanDTO = z.infer<typeof planDTOSchema>;
 
 export const SubscriptionSchema = z.object({
   id: z.string(),
@@ -100,6 +112,22 @@ export const BillingSchema = z.object({
   createdAt: z.coerce.date(),
   updatedAt: z.coerce.date(),
 });
+
+// 프론트엔드에 노출 가능한 BillingDTO (민감 정보 제외)
+export const BillingDTOSchema = BillingSchema.pick({
+  id: true,
+  userId: true,
+  method: true,
+  cardIssuerCode: true,
+  cardAcquirerCode: true,
+  cardType: true,
+  cardOwnerType: true,
+  cardCompany: true,
+  priority: true,
+  createdAt: true,
+});
+
+export type BillingDTO = z.infer<typeof BillingDTOSchema>;
 
 export const PaymentSchema = z.object({
   id: z.string(),
