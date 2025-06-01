@@ -1,7 +1,7 @@
 import { useNavigate } from "react-router";
 import { toast } from "react-toastify";
-import { MyPlanSection } from "#pages/mypage/myplansection.js";
-import { PaymentHistorySection } from "#pages/mypage/paymenthistorysection.js"; // ✅ 추가
+import { MyPlanSection } from "#components/MyPlanSection.js";
+import { PaymentHistorySection } from "#components/PaymentHistorySection.js"; // ✅ 추가
 import { Button } from "#shadcn/components/Button.js";
 
 export function MyPage(): JSX.Element {
