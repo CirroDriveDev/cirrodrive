@@ -1,3 +1,5 @@
+import type { TossBilling } from "@cirrodrive/schemas/toss";
+import { MethodK2ESchema } from "@cirrodrive/schemas/billing";
 import { inject, injectable } from "inversify";
 import { $Enums } from "@cirrodrive/database/prisma";
 import { PlanService } from "#services/plan.service";
@@ -55,5 +57,47 @@ export class SubscriptionService {
           typeof card?.number === "string" ? card.number.slice(-4) : undefined,
       },
     };
+  }
+
+  /**
+   * 구독 정보를 생성하고 저장합니다.
+   *
+   * @param billing - TossBilling 객체
+   * @param startedAt - 구독 시작일 (기본값: 현재 날짜)
+   * @param nextBillingAt - 다음 결제일
+   * @param status - 구독 상태 (기본값: INCOMPLETE)
+   * @param cardId - 카드 ID
+   * @param planId - 요금제 ID
+   * @returns 생성된 Subscription 객체
+   */
+  public async createSubscriptionWithBilling({
+    billing,
+    startedAt = new Date(),
+    nextBillingAt,
+    status = $Enums.BillingStatus.INCOMPLETE,
+    cardId,
+    planId,
+  }: {
+    billing: TossBilling;
+    startedAt?: Date;
+    nextBillingAt: Date;
+    status?: $Enums.BillingStatus;
+    cardId: string;
+    planId: string;
+  }) {
+    const subscription = await this.subscriptionRepository.create({
+      mId: billing.mId,
+      customerKey: billing.customerKey,
+      authenticatedAt: billing.authenticatedAt,
+      method: MethodK2ESchema.parse(billing.method),
+      billingKey: billing.billingKey,
+      startedAt,
+      nextBillingAt,
+      status,
+      cardId,
+      planId,
+      userId: billing.customerKey,
+    });
+    return subscription;
   }
 }

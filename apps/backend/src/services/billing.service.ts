@@ -1,8 +1,6 @@
 import { injectable, inject } from "inversify";
 import type { Logger } from "pino";
 import { $Enums } from "@cirrodrive/database/prisma";
-import type { TossBilling } from "@cirrodrive/schemas/toss";
-import { MethodK2ESchema } from "@cirrodrive/schemas/billing";
 import { TossPaymentsService } from "#services/toss-payments.service";
 import { SubscriptionRepository } from "#repositories/subscription.repository";
 import { Symbols } from "#types/symbols";
@@ -12,6 +10,7 @@ import { ExternalPaymentError } from "#errors/error-classes";
 import { PaymentRepository } from "#repositories/payment.repository";
 import { UserService } from "#services/user.service";
 import { CardService } from "#services/card.service";
+import { SubscriptionService } from "#services/subscription.service";
 
 @injectable()
 export class BillingService {
@@ -26,6 +25,8 @@ export class BillingService {
     private readonly paymentRepository: PaymentRepository,
     @inject(CardService)
     private readonly cardService: CardService,
+    @inject(SubscriptionService)
+    private readonly subscriptionService: SubscriptionService,
   ) {
     this.logger = logger.child({ serviceName: "BillingService" });
   }
@@ -72,16 +73,17 @@ export class BillingService {
       }
 
       // 구독 정보 생성 및 저장
-      const subscription = await this.createSubscriptionWithBilling({
-        billing,
-        nextBillingAt: this.planService.calculateNextBillingAt({
-          interval: plan.interval,
-          intervalCount: plan.intervalCount,
-          trialPeriodDays: plan.trialPeriodDays ?? 0,
-        }),
-        cardId: card.id,
-        planId,
-      });
+      const subscription =
+        await this.subscriptionService.createSubscriptionWithBilling({
+          billing,
+          nextBillingAt: this.planService.calculateNextBillingAt({
+            interval: plan.interval,
+            intervalCount: plan.intervalCount,
+            trialPeriodDays: plan.trialPeriodDays ?? 0,
+          }),
+          cardId: card.id,
+          planId,
+        });
 
       if (plan.trialPeriodDays) {
         // 무료 체험 기간이 있는 경우, 구독 상태를 TRIAL로 설정
@@ -120,50 +122,6 @@ export class BillingService {
         { cause: error, authKey, customerKey },
       );
     }
-  }
-
-  /**
-   * 구독 정보를 생성하고 저장합니다.
-   *
-   * @param billing - TossBilling 객체
-   * @param startedAt - 구독 시작일 (기본값: 현재 날짜)
-   * @param nextBillingAt - 다음 결제일
-   * @param status - 구독 상태 (기본값: INCOMPLETE)
-   * @param cardId - 카드 ID
-   * @param planId - 요금제 ID
-   * @returns 생성된 Subscription 객체
-   */
-  @Transactional()
-  public async createSubscriptionWithBilling({
-    billing,
-    startedAt = new Date(),
-    nextBillingAt,
-    status = $Enums.BillingStatus.INCOMPLETE,
-    cardId,
-    planId,
-  }: {
-    billing: TossBilling;
-    startedAt?: Date;
-    nextBillingAt: Date;
-    status?: $Enums.BillingStatus;
-    cardId: string;
-    planId: string;
-  }) {
-    // SubscriptionRepository를 통해 구독 정보 저장
-    const subscription = await this.subscriptionRepository.create({
-      mId: billing.mId,
-      customerKey: billing.customerKey,
-      authenticatedAt: billing.authenticatedAt,
-      method: MethodK2ESchema.parse(billing.method),
-      billingKey: billing.billingKey,
-      startedAt,
-      nextBillingAt,
-      status,
-      cardId,
-      planId,
-      userId: billing.customerKey,
-    });
-    return subscription;
   }
 
   /**
