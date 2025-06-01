@@ -43,7 +43,11 @@ RUN --mount=type=secret,id=VITE_API_HOST,env=VITE_API_HOST \
 FROM nginx:alpine AS runner
 
 # Nginx 설정 복사
-COPY --from=builder /cirrodrive/apps/frontend/nginx.conf /etc/nginx/nginx.conf
+COPY --from=builder /cirrodrive/apps/frontend/nginx.conf /etc/nginx/nginx.conf.template
+
+# entrypoint 스크립트 복사
+COPY --from=builder /cirrodrive/apps/frontend/entrypoint.sh /docker-entrypoint.sh
+RUN chmod +x /docker-entrypoint.sh
 
 # 빌드된 정적 웹사이트를 Nginx의 정적 파일 제공 디렉토리로 복사
 COPY --from=builder /cirrodrive/apps/frontend/dist /usr/share/nginx/html
@@ -51,8 +55,8 @@ COPY --from=builder /cirrodrive/apps/frontend/dist /usr/share/nginx/html
 # 헬스체크를 위한 curl 설치
 RUN apk add --no-cache curl
 
-# 포트 설정
+# 포트 설정 (기본값으로 80 사용, 런타임에 환경변수로 변경 가능)
 EXPOSE 80
 
 # 실행 명령어
-CMD ["nginx", "-g", "daemon off;"]
+ENTRYPOINT ["/docker-entrypoint.sh"]

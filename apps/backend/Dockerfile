@@ -39,6 +39,9 @@ RUN --mount=type=cache,id=pnpm,target=/pnpm/store pnpm install --prod --frozen-l
 # 패키지 연결 확인
 RUN ls -alR /cirrodrive/apps/backend/node_modules/@cirrodrive*
 
+# 헬스체크를 위한 curl 설치
+RUN apk add --no-cache curl
+
 # 실행 환경 설정 
 ENV NODE_ENV=production
 
