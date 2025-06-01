@@ -22,7 +22,7 @@ export class CloudFrontService {
       expiresInSeconds?: number;
     },
   ): string {
-    const url = `https://${this.DOMAIN}${key}`;
+    const url = `https://${this.DOMAIN}/${key}`;
     const expiresInSeconds = options?.expiresInSeconds ?? this.expiresInSeconds;
     const dateLessThan = new Date(Date.now() + expiresInSeconds * 1000);
     const dateGreaterThan = new Date(Date.now() - 60 * 1000); // 1 minute before now
