@@ -13,7 +13,7 @@ import { trpc } from "#services/trpc";
  * }}
  */
 export function usePaymentHistory(limit = 20) {
-  const query = trpc.billing.getPaymentHistory.useQuery({ limit });
+  const query = trpc.payment.getPaymentHistory.useQuery({ limit });
 
   return {
     payments: query.data?.payments ?? [],
