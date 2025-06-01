@@ -21,29 +21,6 @@ const PlanSchema = z.object({
 });
 
 /**
- * 구독(subscription) 정보에 대한 zod 스키마
- */
-const SubscriptionSchema = z.object({
-  startedAt: z.string().datetime(),
-  expiredAt: z.string().datetime(),
-  status: z.enum(["active", "canceled", "expired"]),
-  billingKeyLast4: z.string().optional(),
-});
-
-/**
- * 결제 내역(payment) 정보에 대한 zod 스키마
- */
-const PaymentSchema = z.object({
-  id: z.string(),
-  amount: z.number(),
-  currency: z.string(),
-  status: z.enum(["paid", "failed", "pending"]),
-  paidAt: z.string().datetime(),
-  method: z.string(),
-  description: z.string().nullable(),
-});
-
-/**
  * Billing 관련 tRPC 라우터
  *
  * @remarks
@@ -110,86 +87,6 @@ export const billingRouter = router({
     const plan = await planService.getCurrentPlanByUserId(userId);
     return plan;
   }),
-
-  /**
-   * 현재 사용자의 구독 및 요금제 정보를 반환
-   *
-   * @returns 구독 및 요금제 정보
-   * @throws NOT_FOUND (구독 정보 없음)
-   */
-  getCurrentSubscription: authedProcedure
-    .output(
-      z.object({
-        plan: PlanSchema,
-        subscription: SubscriptionSchema,
-      }),
-    )
-    .query(async ({ ctx }) => {
-      const userId = ctx.user.id;
-      const subscriptionInfo =
-        await billingService.getCurrentSubscription(userId);
-      if (!subscriptionInfo) {
-        throw new TRPCError({
-          code: "NOT_FOUND",
-          message: "현재 구독 정보를 찾을 수 없습니다.",
-        });
-      }
-      const status = subscriptionInfo.subscription.status.toLowerCase() as
-        | "active"
-        | "canceled"
-        | "expired";
-      return {
-        ...subscriptionInfo,
-        subscription: {
-          ...subscriptionInfo.subscription,
-          status,
-        },
-      };
-    }),
-
- /**
- * 결제 내역 조회 (페이징 지원)
- *
- * @description
- * 사용자의 결제 내역을 조회합니다. 페이징을 위해 limit 및 cursor를 사용할 수 있습니다.
- * 결제 내역이 없을 경우 payments는 빈 배열로 반환되며, 에러는 발생하지 않습니다.
- * 클라이언트는 빈 배열 여부로 결제 내역 유무를 판단해야 합니다.
- *
- * @param input.limit - 조회 개수 (기본값: 20, 최대: 100)
- * @param input.cursor - 페이징 커서 (옵션)
- *
- * @returns 결제 내역 배열 및 다음 커서 (더 불러올 내역이 없으면 nextCursor는 null)
- */
-
-getPaymentHistory: authedProcedure
-  .input(
-    z.object({
-      limit: z.number().int().min(1).max(100).optional().default(20),
-      cursor: z.string().optional(),
-    }),
-  )
-  .output(
-    z.object({
-      payments: z.array(PaymentSchema),
-      nextCursor: z.string().nullable(),
-    }),
-  )
-  .query(async ({ input, ctx }) => {
-    const userId = ctx.user.id;
-    const { limit, cursor } = input;
-
-    const { payments, nextCursor } = await billingService.getPaymentHistory({
-      userId,
-      limit,
-      cursor,
-    });
-
-    return {
-      payments: payments ?? [],
-      nextCursor: nextCursor ?? null,
-    };
-  }),
-
 
   /**
    * 특정 요금제의 할당량(Quota) 정보 반환

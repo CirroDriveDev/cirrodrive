@@ -29,6 +29,8 @@ import { AdminUserRepository } from "#repositories/admin-user.repository";
 import { AdminSessionRepository } from "#repositories/admin-session.repository";
 import { AdminAuthService } from "#services/admin.auth.service";
 import { CloudFrontService } from "#services/cloud-front.service";
+import { SubscriptionService } from "#services/subscription.service";
+import { PaymentHistoryService } from "#services/payment-history.service";
 
 const inversifyLogger = logger.child({ prefix: "Inversify" });
 
@@ -77,6 +79,8 @@ container.bind(TossPaymentsService).toSelf();
 container.bind(FileUploadService).toSelf();
 container.bind(AdminAuthService).toSelf();
 container.bind(CloudFrontService).toSelf();
+container.bind(SubscriptionService).toSelf();
+container.bind(PaymentHistoryService).toSelf();
 
 inversifyLogger.info("Inversify loaded successfully");
 

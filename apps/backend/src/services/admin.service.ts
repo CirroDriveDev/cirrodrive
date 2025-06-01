@@ -9,7 +9,7 @@ import { Symbols } from "#types/symbols";
 import { env } from "#loaders/env.loader";
 import { PlanService } from "#services/plan.service";
 import { BillingService } from "#services/billing.service";
-
+import { PaymentHistoryService } from "#services/payment-history.service";
 
 @injectable()
 export class AdminService {
@@ -21,133 +21,136 @@ export class AdminService {
     private fileModel: Prisma.FileMetadataDelegate,
     @inject(PlanService) private planService: PlanService,
     @inject(BillingService) private billingService: BillingService,
+    @inject(PaymentHistoryService)
+    private paymentHistoryService: PaymentHistoryService,
   ) {
     this.logger = logger.child({ serviceName: "AdminService" });
   }
 
   /**
- * 새로운 사용자(일반 사용자 또는 관리자)를 생성합니다.
- *
- * 프론트엔드에서 사용자 생성 시:
- * - username: 텍스트 입력
- * - password: 텍스트 입력
- * - email: 텍스트 입력
- * - profileImageUrl: 선택적 이미지 URL
- * - usedStorage: 보통 0으로 초기화
- * - isAdmin: 관리자 권한 부여 여부 (체크박스, 체크 시 true, 미체크 시 false)
- * - planId: 사용자에게 적용할 요금제 ID
- *
- * 관리자 계정 생성을 원할 경우 isAdmin을 true로 설정합니다.
- * 단, 실제 관리자 권한 생성은 호출하는 쪽에서 권한 검증을 반드시 해야 합니다.
- *
- * @param username - 사용자 이름
- * @param password - 비밀번호
- * @param email - 이메일
- * @param profileImageUrl - 프로필 이미지 URL
- * @param usedStorage - 사용된 저장 공간
- * @param isAdmin - 관리자 여부 (true면 관리자 생성)
- * @returns 생성된 사용자
- * @throws 생성 중 오류가 발생한 경우
- */
-public async create({
-  username,
-  password,
-  email,
-  profileImageUrl,
-  usedStorage,
-  isAdmin,
-}: {
-  username: string;
-  password: string;
-  email: string;
-  planId: string;
-  profileImageUrl: string | null;
-  usedStorage: number;
-  isAdmin: boolean;  // 체크박스 값으로 true/false 전달
-}): Promise<User> {
-  try {
-    this.logger.info(
-      {
-        methodName: "create",
-        username,
-        email,
-        isAdmin,
-      },
-      isAdmin ? "관리자 계정 생성 시작" : "일반 사용자 계정 생성 시작",
-    );
+   * 새로운 사용자(일반 사용자 또는 관리자)를 생성합니다.
+   *
+   * 프론트엔드에서 사용자 생성 시:
+   *
+   * - Username: 텍스트 입력
+   * - Password: 텍스트 입력
+   * - Email: 텍스트 입력
+   * - ProfileImageUrl: 선택적 이미지 URL
+   * - UsedStorage: 보통 0으로 초기화
+   * - IsAdmin: 관리자 권한 부여 여부 (체크박스, 체크 시 true, 미체크 시 false)
+   * - PlanId: 사용자에게 적용할 요금제 ID
+   *
+   * 관리자 계정 생성을 원할 경우 isAdmin을 true로 설정합니다. 단, 실제 관리자 권한 생성은 호출하는 쪽에서 권한 검증을 반드시
+   * 해야 합니다.
+   *
+   * @param username - 사용자 이름
+   * @param password - 비밀번호
+   * @param email - 이메일
+   * @param profileImageUrl - 프로필 이미지 URL
+   * @param usedStorage - 사용된 저장 공간
+   * @param isAdmin - 관리자 여부 (true면 관리자 생성)
+   * @returns 생성된 사용자
+   * @throws 생성 중 오류가 발생한 경우
+   */
+  public async create({
+    username,
+    password,
+    email,
+    profileImageUrl,
+    usedStorage,
+    isAdmin,
+  }: {
+    username: string;
+    password: string;
+    email: string;
+    planId: string;
+    profileImageUrl: string | null;
+    usedStorage: number;
+    isAdmin: boolean; // 체크박스 값으로 true/false 전달
+  }): Promise<User> {
+    try {
+      this.logger.info(
+        {
+          methodName: "create",
+          username,
+          email,
+          isAdmin,
+        },
+        isAdmin ? "관리자 계정 생성 시작" : "일반 사용자 계정 생성 시작",
+      );
 
-    // 관리자 생성 권한 체크 필요 (예시)
-    // if (isAdmin && !callerHasAdminRights) {
-    //   throw new TRPCError({ code: "FORBIDDEN", message: "관리자 권한이 필요합니다." });
-    // }
+      // 관리자 생성 권한 체크 필요 (예시)
+      // if (isAdmin && !callerHasAdminRights) {
+      //   throw new TRPCError({ code: "FORBIDDEN", message: "관리자 권한이 필요합니다." });
+      // }
 
-    const hashedPassword = await hash(password);
+      const hashedPassword = await hash(password);
 
-    // planId를 직접 받는 게 맞으면 아래 코드로 변경 가능
-    const plan = await this.planService.getDefaultPlan();
-    // const plan = await this.planService.getPlanById(planId);
+      // planId를 직접 받는 게 맞으면 아래 코드로 변경 가능
+      const plan = await this.planService.getDefaultPlan();
+      // const plan = await this.planService.getPlanById(planId);
 
-    const user = await this.userModel.create({
-      data: {
-        username,
-        email,
-        hashedPassword,
-        profileImageUrl,
-        usedStorage,
-        isAdmin,
-        rootFolder: {
-          create: {
-            name: "root",
+      const user = await this.userModel.create({
+        data: {
+          username,
+          email,
+          hashedPassword,
+          profileImageUrl,
+          usedStorage,
+          isAdmin,
+          rootFolder: {
+            create: {
+              name: "root",
+            },
+          },
+          trashFolder: {
+            create: {
+              name: "trash",
+            },
+          },
+          currentPlan: {
+            connect: {
+              id: plan.id,
+            },
           },
         },
-        trashFolder: {
-          create: {
-            name: "trash",
-          },
-        },
-        currentPlan: {
-          connect: {
-            id: plan.id,
-          },
-        },
-      },
-    });
+      });
 
-    // rootFolder, trashFolder owner 연결
-    await this.folderModel.update({
-      where: {
-        id: user.rootFolderId,
-      },
-      data: {
-        owner: {
-          connect: {
-            id: user.id,
+      // rootFolder, trashFolder owner 연결
+      await this.folderModel.update({
+        where: {
+          id: user.rootFolderId,
+        },
+        data: {
+          owner: {
+            connect: {
+              id: user.id,
+            },
           },
         },
-      },
-    });
+      });
 
-    await this.folderModel.update({
-      where: {
-        id: user.trashFolderId,
-      },
-      data: {
-        owner: {
-          connect: {
-            id: user.id,
+      await this.folderModel.update({
+        where: {
+          id: user.trashFolderId,
+        },
+        data: {
+          owner: {
+            connect: {
+              id: user.id,
+            },
           },
         },
-      },
-    });
+      });
 
-    return user;
-  } catch (error) {
-    if (error instanceof Error) {
-      this.logger.error(error.message);
+      return user;
+    } catch (error) {
+      if (error instanceof Error) {
+        this.logger.error(error.message);
+      }
+      throw error;
     }
-    throw error;
   }
-}
   /**
    * 주어진 ID를 가진 사용자를 삭제합니다.
    *
@@ -790,27 +793,24 @@ public async create({
       throw error;
     }
   }
-    /**
+  /**
    * 관리자 로그인 처리 (username 또는 email 사용 가능)
-   * 
+   *
    * @param usernameOrEmail - 사용자 이름 또는 이메일
    * @param password - 비밀번호
    * @returns 관리자 권한이 있는 사용자 객체
    * @throws 사용자 없음, 비밀번호 불일치, 관리자 권한 없을 경우 예외 발생
    */
-  public async login(
-    usernameOrEmail: string,
-    password: string,
-  ): Promise<User> {
-    this.logger.info({ methodName: "login", usernameOrEmail }, "관리자 로그인 시도");
+  public async login(usernameOrEmail: string, password: string): Promise<User> {
+    this.logger.info(
+      { methodName: "login", usernameOrEmail },
+      "관리자 로그인 시도",
+    );
 
     // username 또는 email로 사용자 조회
     const user = await this.userModel.findFirst({
       where: {
-        OR: [
-          { username: usernameOrEmail },
-          { email: usernameOrEmail },
-        ],
+        OR: [{ username: usernameOrEmail }, { email: usernameOrEmail }],
       },
     });
 
@@ -845,11 +845,11 @@ public async create({
 
   /**
    * 관리자 로그인 후 세션 토큰 생성
-   * 
+   *
    * @param usernameOrEmail - 사용자 이름 또는 이메일
    * @param password - 비밀번호
    * @returns JWT 세션 토큰 (1시간 유효)
-   * @throws login 메서드에서 발생하는 예외 전파
+   * @throws Login 메서드에서 발생하는 예외 전파
    */
   public async loginAndCreateSession(
     usernameOrEmail: string,
@@ -867,7 +867,7 @@ public async create({
 
     return token;
   }
-    public async getUserWithPaymentHistory(params: {
+  public async getUserWithPaymentHistory(params: {
     userId: string;
     paymentLimit: number;
     paymentCursor?: string;
@@ -886,16 +886,14 @@ public async create({
     // 2. 조회된 유저가 없으면, TRPCError를 던져서 'NOT_FOUND' 에러를 발생시킨다.
     //    - 클라이언트에서는 이 에러를 받아 사용자 미존재를 인지할 수 있다.
     if (!user) {
-      throw new TRPCError({ code: "NOT_FOUND", message: "사용자를 찾을 수 없습니다." });
+      throw new TRPCError({
+        code: "NOT_FOUND",
+        message: "사용자를 찾을 수 없습니다.",
+      });
     }
 
-    // 3. billingService의 getPaymentHistory 메서드를 호출해
-    //    해당 유저의 결제 내역을 페이징 조회한다.
-    //    - userId: 조회 대상 유저 ID
-    //    - limit: 한 번에 조회할 결제 내역 최대 개수
-    //    - cursor: 다음 페이지 조회를 위한 커서 ID (선택)
-    //    - 반환값은 결제 내역 배열과 다음 페이지 커서 정보가 포함되어 있다.
-    const paymentHistory = await this.billingService.getPaymentHistory({
+    // 3. paymentHistoryService의 getPaymentHistory 메서드를 호출해 해당 유저의 결제 내역을 페이징 조회한다.
+    const paymentHistory = await this.paymentHistoryService.getPaymentHistory({
       userId,
       limit: paymentLimit,
       cursor: paymentCursor,
