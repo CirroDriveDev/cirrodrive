@@ -1,4 +1,4 @@
-import { ChevronRight } from "lucide-react";
+import { ChevronRight, PlusIcon } from "lucide-react";
 import { useEffect } from "react";
 import { toast } from "react-toastify";
 import { EntryList } from "#components/EntryList.js";
@@ -13,6 +13,7 @@ import { FileUploadDropzoneOverlay } from "#components/FileUploadDropzoneOverlay
 import { useRenameStore } from "#store/useRenameStore.js";
 import { UploadButton } from "#components/UploadButton.js";
 import { useFileSearchBarStore } from "#store/useFileSearchBarStore.js";
+import { FileSearchBar } from "#components/layout/FileSearchBar.js";
 
 interface FolderViewProps {
   folderId: string;
@@ -92,9 +93,20 @@ export function FolderView({ folderId }: FolderViewProps): JSX.Element {
       </div>
 
       {/* 버튼 영역 */}
-      <div className="flex w-full space-x-4 px-4 pb-4">
+      <div className="flex w-full space-x-4 px-4 pb-4 justify-between">
+        {/* ✅ 검색바 */}
+        <div className="flex w-full px-4 pb-2">
+          <FileSearchBar />
+        </div>
+        <div className="flex-grow" />
         <UploadButton folderId={folderId} />
-        <Button onClick={createFolder}>폴더 생성</Button>
+        <Button
+          onClick={createFolder}
+          className="flex items-center justify-between"
+        >
+          <PlusIcon />
+          <span>폴더</span>
+        </Button>
       </div>
 
       {/* 파일 목록 */}

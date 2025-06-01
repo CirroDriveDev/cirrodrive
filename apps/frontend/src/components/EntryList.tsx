@@ -1,7 +1,6 @@
 import { useState, useMemo } from "react";
 import { type EntryDTO } from "@cirrodrive/schemas/entry";
 import { EntryItem } from "#components/EntryItem.js";
-import { FileSearchBar } from "#components/layout/FileSearchBar.js";
 
 interface EntryListProps {
   entries: EntryDTO[];
@@ -68,11 +67,6 @@ export function EntryList({ entries }: EntryListProps): JSX.Element {
 
   return (
     <div className="flex w-full flex-col">
-      {/* ✅ 검색바 */}
-      <div className="flex w-full px-4 pb-2">
-        <FileSearchBar />
-      </div>
-
       {/* Header */}
       <div className="flex w-full gap-x-4 px-16 py-2 text-sm font-semibold">
         <div
