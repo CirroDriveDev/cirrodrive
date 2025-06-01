@@ -163,20 +163,64 @@ jobs:
           script: |
             # Docker 이미지 최신 버전 가져오기
 
-            docker pull ${{ secrets.DOCKERHUB_USERNAME }}/cirrodrive:backend || {
-              docker system prune -a -f &&
-              docker pull ${{ secrets.DOCKERHUB_USERNAME }}/cirrodrive:backend
-            } || { echo "백엔드 이미지 가져오기 실패"; exit 1; }
+            echo "Docker 이미지 pull 시작..."
 
-            docker pull ${{ secrets.DOCKERHUB_USERNAME }}/cirrodrive:frontend || {
-              docker system prune -a -f &&
-              docker pull ${{ secrets.DOCKERHUB_USERNAME }}/cirrodrive:frontend
-            } || { echo "프론트엔드 이미지 가져오기 실패"; exit 1; }
+            # 기존 컨테이너 정리
+            docker container prune -f || true
 
-            docker pull ${{ secrets.DOCKERHUB_USERNAME }}/cirrodrive:reverse-proxy || {
-              docker system prune -a -f &&
-              docker pull ${{ secrets.DOCKERHUB_USERNAME }}/cirrodrive:reverse-proxy
-            } || { echo "리버스 프록시 이미지 가져오기 실패"; exit 1; }
+            # 네트워크 정리
+            docker network prune -f || true
+
+            # 사용하지 않는 볼륨 정리
+            docker volume prune -f || true
+
+            # 개별 이미지 pull
+            pull_image_with_retry() {
+              local image_name=$1
+              local max_retries=3
+              local retry_count=0
+              
+              while [ $retry_count -lt $max_retries ]; do
+                echo "이미지 pull 시도 ($((retry_count + 1))/$max_retries): $image_name"
+                
+                if docker pull "$image_name"; then
+                  echo "✅ 성공적으로 이미지를 가져왔습니다: $image_name"
+                  return 0
+                else
+                  echo "❌ 이미지 pull 실패: $image_name"
+                  retry_count=$((retry_count + 1))
+                  
+                  if [ $retry_count -lt $max_retries ]; then
+                    echo "디스크 공간 정리 후 재시도..."
+                    # 댕글링 이미지만 삭제
+                    docker image prune -f || true
+                    sleep 5
+                  fi
+                fi
+              done
+              
+              echo "❌ 최대 재시도 횟수 초과: $image_name"
+              return 1
+            }
+
+            # 각 이미지 pull
+            pull_image_with_retry "${{ secrets.DOCKERHUB_USERNAME }}/cirrodrive:backend" || { 
+              echo "백엔드 이미지 가져오기 최종 실패"; exit 1; 
+            }
+
+            pull_image_with_retry "${{ secrets.DOCKERHUB_USERNAME }}/cirrodrive:frontend" || { 
+              echo "프론트엔드 이미지 가져오기 최종 실패"; exit 1; 
+            }
+
+            pull_image_with_retry "${{ secrets.DOCKERHUB_USERNAME }}/cirrodrive:reverse-proxy" || { 
+              echo "리버스 프록시 이미지 가져오기 최종 실패"; exit 1; 
+            }
+
+            echo "✅ 모든 Docker 이미지가 성공적으로 업데이트되었습니다"
+
+            # 최종 이미지 확인
+            echo "현재 사용 가능한 cirrodrive 이미지:"
+            docker images | grep cirrodrive || echo "cirrodrive 이미지를 찾을 수 없습니다"
 
   deployment:
     name: Deployment
