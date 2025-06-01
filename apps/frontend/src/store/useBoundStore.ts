@@ -58,13 +58,32 @@ export interface TransferStore {
   removeTransfer: (id: string) => void;
 }
 
+export interface RedirectStore {
+  /**
+   * 리다이렉트할 경로
+   */
+  redirectPath: string | null;
+  /**
+   * 리다이렉트 경로를 설정
+   *
+   * @param path - 리다이렉트할 경로
+   */
+  setRedirectPath: (path: string) => void;
+  /**
+   * 리다이렉트 경로를 초기화
+   */
+  clearRedirectPath: () => void;
+}
+
+// 모든 슬라이스를 포함하는 상태 타입
 export type StoreState = UserStore &
   ModalStore &
   SearchBarStore &
   RenameStore &
   JwtStore &
   AdminStore &
-  TransferStore;
+  TransferStore &
+  RedirectStore;
 
 // ------------------------------------
 // Store Slice Creators
@@ -174,6 +193,27 @@ export const createTransferSlice: StateCreator<StoreState, [["zustand/immer", ne
     }),
 });
 
+export const createRedirectSlice: StateCreator<
+  StoreState,
+  [
+    ["zustand/immer", never],
+    ["zustand/persist", unknown],
+    ["zustand/devtools", never],
+  ],
+  [],
+  RedirectStore
+> = (set) => ({
+  redirectPath: null,
+  setRedirectPath: (path) =>
+    set((state) => {
+      state.redirectPath = path;
+    }),
+  clearRedirectPath: () =>
+    set((state) => {
+      state.redirectPath = null;
+    }),
+});
+
 // ------------------------------------
 // Store Hook
 // ------------------------------------
@@ -181,14 +221,16 @@ export const createTransferSlice: StateCreator<StoreState, [["zustand/immer", ne
 export const useBoundStore = create<StoreState>()(
   devtools(
     persist(
-      immer((...a) => ({
-        ...createUserSlice(...a),
-        ...createModalSlice(...a),
-        ...createSearchBarSlice(...a),
-        ...createRenameSlice(...a),
-        ...createJwtSlice(...a),
-        ...createAdminSlice(...a),
-        ...createTransferSlice(...a),
+      // immer 미들웨어를 사용하여 불변성을 유지하면서 상태를 업데이트
+      immer((...opts) => ({
+        ...createUserSlice(...opts),
+        ...createModalSlice(...opts),
+        ...createSearchBarSlice(...opts),
+        ...createRenameSlice(...opts),
+        ...createJwtSlice(...opts),
+        ...createAdminSlice(...opts),
+        ...createTransferSlice(...opts),
+        ...createRedirectSlice(...opts),
       })),
       {
         name: "store",
