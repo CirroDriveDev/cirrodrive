@@ -94,7 +94,7 @@ jobs:
   database-migration:
     name: database-migration
     runs-on: ubuntu-22.04
-    needs: [build-and-push-backend, build-and-push-frontend]
+    needs: check-ci-status
     environment: production
     env:
       DATABASE_URL: ${{ secrets.DATABASE_URL }}
@@ -119,7 +119,7 @@ jobs:
   prepare-release:
     name: Prepare Release
     runs-on: ubuntu-22.04
-    needs: database-migration
+    needs: [build-and-push-backend, build-and-push-frontend, database-migration]
     environment: production
     steps:
       - name: Prepare Docker Environment
@@ -164,24 +164,6 @@ jobs:
       AWS_CLOUDFRONT_EXPIRES_IN_SECONDS: 3600
       PAYMENT_TOSS_SECRET_KEY: ${{ secrets.PAYMENT_TOSS_SECRET_KEY }}
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-        with:
-          sparse-checkout: |
-            docker-compose.yml
-          sparse-checkout-cone-mode: false
-          fetch-depth: 1 # 최적화: 불필요한 Git 히스토리 가져오지 않음
-
-      - name: Copy Docker Compose file to server
-        uses: appleboy/scp-action@v0.1.4
-        with:
-          host: ${{ secrets.SERVER_HOST }}
-          username: ${{ secrets.SERVER_USER }}
-          key: ${{ secrets.SERVER_SSH_KEY }}
-          source: "docker-compose.yml"
-          target: "/home/${{ secrets.SERVER_USER }}/cirrodrive-deploy"
-          overwrite: true
-
       - name: Deploy and Start Containers
         uses: appleboy/ssh-action@v1
         with:
