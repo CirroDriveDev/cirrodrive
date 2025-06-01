@@ -33,7 +33,7 @@ import { MyPage } from "#pages/mypage/mypage.js";
 import { AdminDashboardPage } from "#pages/admin/dashboard.js";
 import { Success } from "#pages/billing/success/[plan-id].js";
 import { Fail } from "#pages/billing/fail.js";
-import { Subscriptions } from "#pages/mypage/subscriptions.js";
+import { PlansPage } from "#pages/mypage/plans.js";
 import { TestPage } from "#pages/test.js";
 import { EditProfilePage } from "#pages/mypage/edit-profile.js";
 import { AdminLayout } from "#components/layout/admin/AdminLayout.js";
@@ -151,14 +151,18 @@ export function Router(): JSX.Element {
             <Route path="recent" element={<RecentPage />} />
             <Route path="search" element={<SearchResultsPage />} />
           </Route>
-          <Route path="mypage" element={<MyPageLayout />}>
-            <Route index element={<MyPage />} />
-            <Route path="subscriptions" element={<Subscriptions />} />
-            <Route path="edit-profile" element={<EditProfilePage />} />
-          </Route>
-          <Route path="billing">
-            <Route path="success/:planId" element={<Success />} />
-            <Route path="fail" element={<Fail />} />
+
+          <Route element={<MyPageLayout />}>
+            <Route path="mypage">
+              <Route index element={<MyPage />} />
+              <Route path="plans" element={<PlansPage />} />
+              <Route path="edit-profile" element={<EditProfilePage />} />
+            </Route>
+
+            <Route path="billing">
+              <Route path="success/:planId" element={<Success />} />
+              <Route path="fail" element={<Fail />} />
+            </Route>
           </Route>
         </Route>
 

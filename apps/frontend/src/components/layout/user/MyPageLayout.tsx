@@ -13,8 +13,8 @@ export function MyPageLayout(): JSX.Element {
       icon: UserIcon,
     },
     {
-      path: "/mypage/subscriptions",
-      label: "구독 관리",
+      path: "/mypage/plans",
+      label: "요금제",
       icon: CreditCardIcon,
     },
     {
