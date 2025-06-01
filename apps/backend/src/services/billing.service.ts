@@ -1,21 +1,17 @@
 import { injectable, inject } from "inversify";
 import type { Logger } from "pino";
-import { $Enums, type Card } from "@cirrodrive/database/prisma";
+import { $Enums } from "@cirrodrive/database/prisma";
 import type { TossBilling } from "@cirrodrive/schemas/toss";
-import {
-  CardTypeK2ESchema,
-  MethodK2ESchema,
-  OwnerTypeK2ESchema,
-} from "@cirrodrive/schemas/billing";
+import { MethodK2ESchema } from "@cirrodrive/schemas/billing";
 import { TossPaymentsService } from "#services/toss-payments.service";
 import { SubscriptionRepository } from "#repositories/subscription.repository";
 import { Symbols } from "#types/symbols";
-import { CardRepository } from "#repositories/card.repository";
 import { PlanService } from "#services/plan.service";
 import { Transactional } from "#decorators/transactional";
 import { ExternalPaymentError } from "#errors/error-classes";
 import { PaymentRepository } from "#repositories/payment.repository";
 import { UserService } from "#services/user.service";
+import { CardService } from "#services/card.service";
 
 @injectable()
 export class BillingService {
@@ -26,10 +22,10 @@ export class BillingService {
     @inject(PlanService) private readonly planService: PlanService,
     @inject(SubscriptionRepository)
     private readonly subscriptionRepository: SubscriptionRepository,
-    @inject(CardRepository)
-    private readonly cardRepository: CardRepository,
     @inject(PaymentRepository)
     private readonly paymentRepository: PaymentRepository,
+    @inject(CardService)
+    private readonly cardService: CardService,
   ) {
     this.logger = logger.child({ serviceName: "BillingService" });
   }
@@ -60,7 +56,7 @@ export class BillingService {
       const billing = await this.toss.issueBillingKey({ authKey, customerKey });
 
       // Billing 정보로 카드 생성
-      const card = await this.createCardFromBilling(billing);
+      const card = await this.cardService.createCardFromBilling(billing);
 
       const previousSubscription =
         await this.subscriptionRepository.findActiveByUserId(
@@ -168,27 +164,6 @@ export class BillingService {
       userId: billing.customerKey,
     });
     return subscription;
-  }
-
-  /**
-   * Billing 객체에서 카드 정보를 추출하여 카드 객체를 생성합니다.
-   *
-   * @param billing - TossBilling 객체
-   * @returns - 생성된 카드 객체
-   */
-  @Transactional()
-  private async createCardFromBilling(billing: TossBilling): Promise<Card> {
-    // CardRepository를 통해 카드 정보 저장
-    const card = await this.cardRepository.create({
-      userId: billing.customerKey,
-      acquirerCode: billing.card.acquirerCode,
-      cardCompany: billing.cardCompany,
-      cardType: CardTypeK2ESchema.parse(billing.card.cardType),
-      issuerCode: billing.card.issuerCode,
-      number: billing.card.number,
-      ownerType: OwnerTypeK2ESchema.parse(billing.card.ownerType),
-    });
-    return card;
   }
 
   /**
