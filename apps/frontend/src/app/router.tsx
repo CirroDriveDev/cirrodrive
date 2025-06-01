@@ -32,8 +32,8 @@ import { useAdminStore } from "#store/useAdminStore.js";
 import { MyPage } from "#pages/mypage/mypage.js";
 import { AdminDashboardPage } from "#pages/admin/dashboard.js";
 import { ConfirmPage } from "#pages/billing/success/[plan-id].js";
+import { Success } from "#pages/billing/success.js";
 import { Fail } from "#pages/billing/fail.js";
-import { PlansPage } from "#pages/mypage/plans.js";
 import { TestPage } from "#pages/test.js";
 import { EditProfilePage } from "#pages/mypage/edit-profile.js";
 import { AdminLayout } from "#components/layout/admin/AdminLayout.js";
@@ -41,7 +41,8 @@ import { UserWorkspaceLayout } from "#components/layout/user/UserWorkspaceLayout
 import { GuestLayout } from "#components/layout/guest/GuestLayout.js";
 import { MyPageLayout } from "#components/layout/user/MyPageLayout.js";
 import { AccountCreationPage } from "#pages/admin/createuser.js";
-import { Success } from "#pages/billing/success.js";
+import { BillingConfirmPage } from "#pages/billing/confirm/[plan-id].js";
+import { PlansPage } from "#pages/mypage/plans.js";
 
 function AdminRoute(): JSX.Element {
   const { admin } = useAdminStore();
@@ -165,6 +166,7 @@ export function Router(): JSX.Element {
               <Route path="success" element={<Success />} />
               <Route path="success/:planId" element={<ConfirmPage />} />
               <Route path="fail" element={<Fail />} />
+              <Route path="confirm/:planId" element={<BillingConfirmPage />} />
             </Route>
           </Route>
         </Route>

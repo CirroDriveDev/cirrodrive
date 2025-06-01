@@ -1,6 +1,6 @@
 import { z } from "zod";
 import { TRPCError } from "@trpc/server";
-import { PlanSchema } from "@cirrodrive/schemas/billing";
+import { BillingDTOSchema, PlanSchema } from "@cirrodrive/schemas/billing";
 import { router, authedProcedure } from "#loaders/trpc.loader";
 import { container } from "#loaders/inversify.loader";
 import { BillingService } from "#services/billing.service";
@@ -21,16 +21,36 @@ const planService = container.get<PlanService>(PlanService);
  */
 export const billingRouter = router({
   /**
-   * 결제 인증 및 약정 확정
+   * 결제 수단 추가
    *
-   * @throws NOT_FOUND, UNAUTHORIZED, INTERNAL_SERVER_ERROR
+   * @param input.authKey - 결제 인증 키
+   * @param input.customerKey - 고객 키
    */
   registerBilling: authedProcedure
     .input(
       z.object({
         authKey: z.string(),
         customerKey: z.string(),
+      }),
+    )
+    .output(BillingDTOSchema)
+    .mutation(async ({ input }) => {
+      const { authKey, customerKey } = input;
+      const billing = await billingService.registerBilling({
+        authKey,
+        customerKey,
+      });
+      return BillingDTOSchema.parse(billing);
+    }),
+
+  /**
+   * 요금제 구독 생성
+   */
+  subscribeToPlan: authedProcedure
+    .input(
+      z.object({
         planId: z.string().uuid(),
+        billingId: z.string().uuid(),
       }),
     )
     .output(
@@ -38,67 +58,30 @@ export const billingRouter = router({
         success: z.literal(true),
       }),
     )
-    .mutation(async ({ input }) => {
-      const { authKey, customerKey, planId } = input;
-      try {
-        const billing = await billingService.registerBilling({
-          authKey,
-          customerKey,
-        });
+    .mutation(async ({ input, ctx }) => {
+      const userId = ctx.user.id;
+      const { planId, billingId } = input;
 
-        if (!billing) {
-          throw new TRPCError({
-            code: "NOT_FOUND",
-            message: "결제 인증에 실패했습니다.",
-          });
-        }
+      await subscriptionManagerService.subscribeToPlan({
+        userId,
+        planId,
+        billingId,
+      });
 
-        const plan = await planService.getPlan(planId);
+      return { success: true };
+    }),
 
-        if (!plan) {
-          throw new TRPCError({
-            code: "NOT_FOUND",
-            message: "존재하지 않는 요금제입니다.",
-          });
-        }
-
-        const subscription = await subscriptionManagerService.subscribeToPlan({
-          userId: billing.userId,
-          planId: plan.id,
-        });
-
-        if (!subscription) {
-          throw new TRPCError({
-            code: "INTERNAL_SERVER_ERROR",
-            message: "구독 생성에 실패했습니다.",
-          });
-        }
-
-        return {
-          success: true,
-        };
-      } catch (err: unknown) {
-        const error = err instanceof Error ? err : new Error("Unknown error");
-        if (error.message.includes("요금제")) {
-          throw new TRPCError({
-            code: "NOT_FOUND",
-            message: "존재하지 않는 요금제입니다.",
-          });
-        }
-        if (
-          error.message.includes("billing key") ||
-          error.message.includes("고객 인증")
-        ) {
-          throw new TRPCError({
-            code: "UNAUTHORIZED",
-            message: "고객 인증에 실패했습니다.",
-          });
-        }
-        throw new TRPCError({
-          code: "INTERNAL_SERVER_ERROR",
-          message: "결제 인증 중 알 수 없는 오류가 발생했습니다.",
-        });
-      }
+  /**
+   * 현재 사용자가 등록한 결제 수단 목록 반환
+   *
+   * @returns 결제 수단 목록
+   */
+  getBillingMethods: authedProcedure
+    .output(z.array(BillingDTOSchema))
+    .query(async ({ ctx }) => {
+      const userId = ctx.user.id;
+      const billingMethods = await billingService.listByUserId(userId);
+      return billingMethods.map((method) => BillingDTOSchema.parse(method));
     }),
 
   /**
