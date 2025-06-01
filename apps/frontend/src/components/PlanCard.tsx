@@ -1,3 +1,4 @@
+import { type PlanDTO } from "@cirrodrive/schemas/billing";
 import { Button } from "#shadcn/components/Button.js";
 import {
   Card,
@@ -6,10 +7,9 @@ import {
   CardContent,
   CardFooter,
 } from "#shadcn/components/Card.js";
-import type { PlanCardData } from "#types/plan-card.js";
 
 interface PlanCardProps {
-  plan: PlanCardData;
+  plan: PlanDTO;
   onChangePlan?: (planId: string) => void;
   isCurrentPlan?: boolean;
 }
@@ -28,21 +28,10 @@ export function PlanCard({ plan, onChangePlan, isCurrentPlan }: PlanCardProps) {
   }
 
   const trialPeriod =
-    plan.trialPeriodDays ?
+    plan.trialDays ?
       <div className="mb-2 text-xs text-blue-600">
-        {plan.trialPeriodDays}일 무료 체험
+        {plan.trialDays}일 무료 체험
       </div>
-    : null;
-
-  const features =
-    plan.features && Object.entries(plan.features).length > 0 ?
-      <ul className="list-disc space-y-1 pl-5 text-sm">
-        {Object.entries(plan.features).map(([key, value]) => (
-          <li key={key} className="text-muted-foreground">
-            {typeof value === "string" ? value : key}
-          </li>
-        ))}
-      </ul>
     : null;
 
   return (
@@ -67,11 +56,16 @@ export function PlanCard({ plan, onChangePlan, isCurrentPlan }: PlanCardProps) {
               {plan.price.toLocaleString()}
             </span>
             <span className="text-base font-medium text-muted-foreground">
-              {plan.currency} {intervalText}
+              KRW {intervalText}
             </span>
           </div>
           {trialPeriod}
-          {features}
+          {plan.storageLimit > 0 && (
+            <div className="text-sm text-muted-foreground">
+              <span className="font-medium text-primary">저장 용량:</span>{" "}
+              {(plan.storageLimit / 1024).toLocaleString()} GB
+            </div>
+          )}
         </CardContent>
       </div>
       <CardFooter>
@@ -79,7 +73,7 @@ export function PlanCard({ plan, onChangePlan, isCurrentPlan }: PlanCardProps) {
           className="w-full"
           type="button"
           onClick={() => onChangePlan?.(plan.id)}
-          disabled={!plan.isActive || isCurrentPlan}
+          disabled={isCurrentPlan}
           variant={!isCurrentPlan ? "default" : "outline"}
         >
           {!isCurrentPlan ? "선택" : "현재 이용중"}

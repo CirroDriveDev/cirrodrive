@@ -25,7 +25,7 @@ export const billingRouter = router({
    *
    * @throws NOT_FOUND, UNAUTHORIZED, INTERNAL_SERVER_ERROR
    */
-  confirm: authedProcedure
+  registerBilling: authedProcedure
     .input(
       z.object({
         authKey: z.string(),

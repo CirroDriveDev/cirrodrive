@@ -47,14 +47,19 @@ export const IntervalEnum = z.enum(["MONTHLY", "YEARLY"]);
 export const PlanSchema = z.object({
   id: z.string(),
   name: z.string(),
+  description: z.string().optional().nullable(),
   price: z.number().int(),
   interval: IntervalEnum,
+  intervalCount: z.number().int(),
+  durationDays: z.number().int(),
   storageLimit: z.number().int(),
   trialDays: z.number().int(),
   isDefault: z.boolean(),
   createdAt: z.coerce.date(),
   updatedAt: z.coerce.date(),
 });
+
+export type PlanDTO = z.infer<typeof PlanSchema>;
 
 export const SubscriptionSchema = z.object({
   id: z.string(),
@@ -101,7 +106,7 @@ export const PaymentSchema = z.object({
   subscriptionId: z.string(),
   userId: z.string(),
   amount: z.number().int(),
-  currency: z.string(),
+  currency: z.string().default("KRW"),
   paymentKey: z.string(),
   orderId: z.string(),
   status: PaymentStatusEnum,

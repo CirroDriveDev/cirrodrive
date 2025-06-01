@@ -1,11 +1,11 @@
 import { useNavigate, useParams, useSearchParams } from "react-router";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useConfirmBillingAuthorization } from "#services/billing/useConfirmBillingAuthorization.js";
 import { LoadingSpinner } from "#components/shared/LoadingSpinner.js";
 import { trpc } from "#services/trpc.js";
 import { Button } from "#shadcn/components/Button.js";
 
-export function Success(): JSX.Element | null {
+export function ConfirmPage(): JSX.Element | null {
   const navigate = useNavigate();
   const { planId } = useParams<{ planId: string }>();
   const [searchParams] = useSearchParams();
@@ -16,15 +16,19 @@ export function Success(): JSX.Element | null {
   const currentPlan = trpc.billing.getCurrentPlan.useQuery(undefined, {
     enabled: !success,
   });
+  const called = useRef(false);
 
   useEffect(() => {
+    if (called.current) return;
+    called.current = true;
     confirm({
       authKey,
       customerKey,
       planId: planId!,
     })
-      .then(() => {
+      .then(async () => {
         setSuccess(true);
+        await currentPlan.refetch();
       })
       .catch(() => {
         void navigate("/billing/fail");
@@ -54,5 +58,5 @@ export function Success(): JSX.Element | null {
         </div>
       : <LoadingSpinner />}
     </div>
-  ); // 로딩 스피너를 보여줍니다.
+  );
 }

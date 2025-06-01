@@ -23,7 +23,7 @@ enum Interval {
 // 요금제
 model Plan {
   // 도메인 데이터
-  id            String         @id @default(cuid())
+  id            String         @id @default(uuid())
   name          String         @unique
   description   String?
   price         Int // in KRW
@@ -43,7 +43,7 @@ model Plan {
 
 // 구독 정보
 model Subscription {
-  id     String @id @default(cuid())
+  id     String @id @default(uuid())
   userId String @unique
   planId String
 
@@ -78,7 +78,7 @@ enum CardOwnerType {
 
 // 구독 결제 정보
 model Billing {
-  id               String        @id @default(cuid())
+  id               String        @id @default(uuid())
   userId           String
   // 도메인 데이터
   mId              String
@@ -104,7 +104,7 @@ model Billing {
 
 // 결제 내역
 model Payment {
-  id             String @id @default(cuid())
+  id             String @id @default(uuid())
   subscriptionId String
   userId         String
 
@@ -127,7 +127,7 @@ model Payment {
 }
 
 model UsageRecord {
-  id          String   @id @default(cuid())
+  id          String   @id @default(uuid())
   userId      String
   usedStorage Int // MB
   usedTraffic Int // MB

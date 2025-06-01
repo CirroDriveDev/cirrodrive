@@ -16,7 +16,7 @@ interface ConfirmBillingInput {
  * @returns Confirm 함수와 mutation 상태값을 반환합니다.
  */
 export function useConfirmBillingAuthorization() {
-  const mutation = trpc.billing.confirm.useMutation();
+  const mutation = trpc.billing.registerBilling.useMutation();
 
   return {
     /**

@@ -1,7 +1,6 @@
 import { PlanCard } from "#components/PlanCard.js";
 import { useBillingAuth } from "#services/billing/useBillingAuth.js";
 import { trpc } from "#services/trpc.js";
-import { type PlanCardData } from "#types/plan-card.js";
 
 export function PlansPage(): JSX.Element {
   const planList = trpc.plan.list.useQuery();
@@ -52,7 +51,7 @@ export function PlansPage(): JSX.Element {
         .map((plan) => (
           <PlanCard
             key={plan.id}
-            plan={plan as PlanCardData}
+            plan={plan}
             onChangePlan={handleSubscribe}
             isCurrentPlan={currentPlan.data?.id === plan.id}
           />
