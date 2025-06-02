@@ -51,7 +51,6 @@ export function TransferPanel() {
   }, [transfers]);
 
   const clearAllTransfers = () => {
-    const count = transfers.length;
     transfers.forEach((item) => removeTransfer(item.id));
   };
 

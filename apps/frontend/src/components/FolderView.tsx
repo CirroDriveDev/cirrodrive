@@ -1,6 +1,5 @@
 import { ChevronRight, PlusIcon } from "lucide-react";
 import { useEffect } from "react";
-import { toast } from "react-toastify";
 import { EntryList } from "#components/EntryList.js";
 import { LoadingSpinner } from "#components/shared/LoadingSpinner.js";
 import { Button } from "#shadcn/components/Button.js";
@@ -119,7 +118,7 @@ export function FolderView({ folderId }: FolderViewProps): JSX.Element {
         <div className="pointer-events-none absolute h-full w-full">
           <FileUploadDropzoneOverlay
             folderId={folderId}
-            onSingleFileSuccess={(result) => {
+            onSingleFileSuccess={() => {
               void entryListQuery.refetch();
             }}
           />
