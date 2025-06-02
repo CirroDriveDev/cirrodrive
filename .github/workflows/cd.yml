@@ -124,6 +124,9 @@ jobs:
     environment: production
     env:
       DATABASE_URL: ${{ secrets.DATABASE_URL }}
+      AUTH_DEFAULT_ADMIN_EMAIL: ${{ secrets.AUTH_DEFAULT_ADMIN_EMAIL }}
+      AUTH_DEFAULT_ADMIN_PASSWORD: ${{ secrets.AUTH_DEFAULT_ADMIN_PASSWORD }}
+      AUTH_DEFAULT_ADMIN_USERNAME: ${{ secrets.AUTH_DEFAULT_ADMIN_USERNAME }}
     steps:
       - name: Prepare Docker Environment
         uses: appleboy/ssh-action@v1
@@ -131,7 +134,7 @@ jobs:
           host: ${{ secrets.SERVER_HOST }}
           username: ${{ secrets.SERVER_USER }}
           key: ${{ secrets.SERVER_SSH_KEY }}
-          envs: DATABASE_URL
+          envs: DATABASE_URL,AUTH_DEFAULT_ADMIN_EMAIL,AUTH_DEFAULT_ADMIN_PASSWORD,AUTH_DEFAULT_ADMIN_USERNAME
           script: |
             # 배포 디렉토리 확인 및 생성
             mkdir -p /home/${{ secrets.SERVER_USER }}/cirrodrive-deploy

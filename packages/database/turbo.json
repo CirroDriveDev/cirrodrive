@@ -4,37 +4,72 @@
   "tasks": {
     "db:generate": {
       "dependsOn": ["build"],
-      "env": ["DATABASE_URL"],
+      "env": [
+        "DATABASE_URL",
+        "AUTH_DEFAULT_ADMIN_EMAIL",
+        "AUTH_DEFAULT_ADMIN_PASSWORD",
+        "AUTH_DEFAULT_ADMIN_USERNAME"
+      ],
       "inputs": ["prisma/**"],
       "outputs": ["dist/**"]
     },
     "db:push": {
       "cache": false,
       "dependsOn": ["build"],
-      "env": ["DATABASE_URL"]
+      "env": [
+        "DATABASE_URL",
+        "AUTH_DEFAULT_ADMIN_EMAIL",
+        "AUTH_DEFAULT_ADMIN_PASSWORD",
+        "AUTH_DEFAULT_ADMIN_USERNAME"
+      ]
     },
     "db:seed": {
       "cache": false,
       "dependsOn": ["build", "db:push"],
-      "env": ["DATABASE_URL"]
+      "env": [
+        "DATABASE_URL",
+        "AUTH_DEFAULT_ADMIN_EMAIL",
+        "AUTH_DEFAULT_ADMIN_PASSWORD",
+        "AUTH_DEFAULT_ADMIN_USERNAME"
+      ]
     },
     "db:studio": {
       "cache": false,
       "dependsOn": ["build"],
-      "env": ["DATABASE_URL"],
+      "env": [
+        "DATABASE_URL",
+        "AUTH_DEFAULT_ADMIN_EMAIL",
+        "AUTH_DEFAULT_ADMIN_PASSWORD",
+        "AUTH_DEFAULT_ADMIN_USERNAME"
+      ],
       "persistent": true
     },
     "dev": {
       "dependsOn": ["db:seed"],
-      "env": ["DATABASE_URL"]
+      "env": [
+        "DATABASE_URL",
+        "AUTH_DEFAULT_ADMIN_EMAIL",
+        "AUTH_DEFAULT_ADMIN_PASSWORD",
+        "AUTH_DEFAULT_ADMIN_USERNAME"
+      ]
     },
     "test": {
       "dependsOn": ["db:push"],
-      "env": ["DATABASE_URL"]
+      "env": [
+        "DATABASE_URL",
+        "AUTH_DEFAULT_ADMIN_EMAIL",
+        "AUTH_DEFAULT_ADMIN_PASSWORD",
+        "AUTH_DEFAULT_ADMIN_USERNAME"
+      ]
     },
     "test:ci": {
       "dependsOn": ["db:push"],
-      "env": ["DATABASE_URL"]
+      "env": [
+        "DATABASE_URL",
+        "AUTH_DEFAULT_ADMIN_EMAIL",
+        "AUTH_DEFAULT_ADMIN_PASSWORD",
+        "AUTH_DEFAULT_ADMIN_USERNAME"
+      ]
     }
   }
 }
