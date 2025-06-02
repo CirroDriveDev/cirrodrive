@@ -53,3 +53,5 @@ yarn-error.log*
 *.pem
 .stfolder*
 .stignore
+
+certbot
