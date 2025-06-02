@@ -1,7 +1,6 @@
 import { createTRPCContext } from "@trpc/tanstack-react-query";
 import { createTRPCReact } from "@trpc/react-query";
 import type { AppRouter } from "@cirrodrive/backend/app-router";
-import { env } from "#app/env.js";
 
 /**
  * API를 호출하기 위한 trpc 인스턴스입니다.

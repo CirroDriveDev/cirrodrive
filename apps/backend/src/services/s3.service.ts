@@ -263,9 +263,8 @@ export class S3Service implements S3ServiceInterface {
 
     return signedDownloadUrl;
   }
-    /**
-   * S3에서 비회원 파일(키 목록)을 삭제합니다.
-   * 하루 지난 파일을 판단하는 로직은 이 서비스 바깥에서 처리되어야 합니다.
+  /**
+   * S3에서 비회원 파일(키 목록)을 삭제합니다. 하루 지난 파일을 판단하는 로직은 이 서비스 바깥에서 처리되어야 합니다.
    *
    * @param keys - 삭제할 S3 객체 키 배열
    */
@@ -286,5 +285,4 @@ export class S3Service implements S3ServiceInterface {
       throw error;
     }
   }
-
 }

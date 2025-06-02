@@ -165,7 +165,12 @@ export const createAdminSlice: StateCreator<
   clearAdmin: () => set(() => ({ admin: null })),
 });
 
-export const createTransferSlice: StateCreator<StoreState, [["zustand/immer", never]], [], TransferStore> = (set) => ({
+export const createTransferSlice: StateCreator<
+  StoreState,
+  [["zustand/immer", never]],
+  [],
+  TransferStore
+> = (set) => ({
   transfers: [],
   addTransfer: (transfer) =>
     set((state) => {
@@ -240,7 +245,7 @@ export const useBoundStore = create<StoreState>()(
           admin: slices.admin, // admin도 저장
           redirectPath: slices.redirectPath,
         }),
-      }
-    )
-  )
+      },
+    ),
+  ),
 );

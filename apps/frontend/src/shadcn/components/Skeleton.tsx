@@ -1,4 +1,3 @@
-/* eslint-disable -- shadcn */
 import { cn } from "#shadcn/lib/utils.js";
 
 function Skeleton({

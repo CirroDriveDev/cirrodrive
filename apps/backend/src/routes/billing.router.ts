@@ -59,7 +59,7 @@ export const billingRouter = router({
       const isUsed = await billingService.isBillingUsed(billingId);
       return isUsed;
     }),
-  
+
   /**
    * 결제 수단 삭제
    *
@@ -90,7 +90,7 @@ export const billingRouter = router({
       // 결제 수단 삭제
       await billingService.deleteById(billingId);
       return { success: true };
-    }), 
+    }),
 
   /**
    * 요금제 구독 생성

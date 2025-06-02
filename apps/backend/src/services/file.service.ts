@@ -748,8 +748,7 @@ export class FileService {
     }
   }
   /**
-   * 비회원 파일 중 하루가 지난 파일을 정리합니다.
-   * 하루가 지난 파일은 영구 삭제됩니다 (메타데이터만 삭제).
+   * 비회원 파일 중 하루가 지난 파일을 정리합니다. 하루가 지난 파일은 영구 삭제됩니다 (메타데이터만 삭제).
    */
   public async cleanUpExpiredGuestFiles(): Promise<void> {
     try {

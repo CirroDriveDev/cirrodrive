@@ -52,9 +52,9 @@ export function useUploadFiles(options: UseUploadFilesOptions) {
         limit(() =>
           uploadSingleFile(request).then((result) => {
             results.push(result);
-          })
-        )
-      )
+          }),
+        ),
+      ),
     );
 
     setIsPending(false);
@@ -81,9 +81,14 @@ export function useUploadSingleFile(options: UseUploadSingleFileOptions) {
   const { addTransfer, updateProgress, setStatus } = useTransferStore();
 
   const uploadSingleFile = async (
-    uploadRequest: UploadRequest
+    uploadRequest: UploadRequest,
   ): Promise<UploadResult> => {
-    const { file, folderId, signal: externalSignal, onProgress } = uploadRequest;
+    const {
+      file,
+      folderId,
+      signal: externalSignal,
+      onProgress,
+    } = uploadRequest;
     const id = crypto.randomUUID();
     const controller = new AbortController();
     const signal = externalSignal ?? controller.signal;

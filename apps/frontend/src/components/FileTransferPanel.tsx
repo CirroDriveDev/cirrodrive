@@ -141,11 +141,9 @@ function FileTransferItem({ item }: { item: FileTransfer }) {
   };
 
   const typeIcon =
-    item.type === "upload" ? (
+    item.type === "upload" ?
       <UploadCloud className="w-4 h-4" />
-    ) : (
-      <Download className="w-4 h-4" />
-    );
+    : <Download className="w-4 h-4" />;
 
   return (
     <li className="h-12 flex items-center justify-between gap-4">
