@@ -31,6 +31,7 @@ import { PaymentService } from "#services/payment.service";
 import { SubscriptionManagerService } from "#services/subscription-manager.service";
 import { UsageRecordRepository } from "#repositories/usage-record.repository";
 import { BillingRepository } from "#repositories/billing.repository";
+import { StorageService } from "#services/storage.service";
 
 const inversifyLogger = logger.child({ prefix: "Inversify" });
 
@@ -81,6 +82,7 @@ container.bind(CloudFrontService).toSelf();
 container.bind(SubscriptionService).toSelf();
 container.bind(PaymentService).toSelf();
 container.bind(SubscriptionManagerService).toSelf();
+container.bind(StorageService).toSelf();
 
 inversifyLogger.info("Inversify loaded successfully");
 

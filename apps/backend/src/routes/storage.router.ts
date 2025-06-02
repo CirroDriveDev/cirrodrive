@@ -1,5 +1,10 @@
 import { z } from "zod";
 import { router, authedProcedure } from "#loaders/trpc.loader";
+import { container } from "#loaders/inversify.loader";
+import { StorageService } from "#services/storage.service";
+
+// 서비스 인스턴스 생성
+const storageService = container.get(StorageService);
 
 export const storageRouter = router({
   /**
@@ -16,7 +21,8 @@ export const storageRouter = router({
         isNearLimit: z.boolean(), // 사용량이 90% 이상 여부
       }),
     )
-    .query(() => {
-      throw new Error("Not implemented yet");
+    .query(async ({ ctx }) => {
+      const { user } = ctx;
+      return await storageService.getUsage(user.id);
     }),
 });

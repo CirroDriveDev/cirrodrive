@@ -44,4 +44,23 @@ export class FileMetadataRepository extends BaseRepository {
   public async deleteById(id: string): Promise<FileMetadata> {
     return this.prisma.fileMetadata.delete({ where: { id } });
   }
+
+  /**
+   * 사용자가 소유한 모든 파일의 총 크기를 계산합니다.
+   *
+   * @param ownerId - 사용자 ID
+   * @returns 총 파일 크기 (bytes)
+   */
+  public async calculateTotalSizeByOwner(ownerId: string): Promise<number> {
+    const result = await this.prisma.fileMetadata.aggregate({
+      where: {
+        ownerId,
+      },
+      _sum: {
+        size: true,
+      },
+    });
+
+    return result._sum.size ?? 0;
+  }
 }

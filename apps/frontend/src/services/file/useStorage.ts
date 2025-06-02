@@ -6,9 +6,7 @@ import { trpc } from "#services/trpc";
  * @returns 저장소 사용량, 총 할당량, 요금제 ID, 용량 초과 여부, 로딩 및 에러 상태
  */
 export function useStorage() {
-  const query = trpc.storage.getUsage.useQuery(undefined, {
-    enabled: false,
-  });
+  const query = trpc.storage.getUsage.useQuery();
 
   return {
     /**
