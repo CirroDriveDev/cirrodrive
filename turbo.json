@@ -7,6 +7,7 @@
     },
     "//#docker:attach": {
       "cache": false,
+      "dependsOn": ["dev:mock:up", "^db:seed", "//#docker:build"],
       "persistent": true
     },
     "//#docker:build": {
@@ -16,7 +17,8 @@
       "cache": false
     },
     "//#docker:up": {
-      "cache": false
+      "cache": false,
+      "dependsOn": ["dev:mock:up", "^db:seed", "//#docker:build"]
     },
     "build": {
       "dependsOn": ["^build"],
@@ -24,6 +26,14 @@
     },
     "clean": {
       "cache": false
+    },
+    "db:push": {
+      "cache": false,
+      "dependsOn": ["@cirrodrive/database#db:push"]
+    },
+    "db:seed": {
+      "cache": false,
+      "dependsOn": ["@cirrodrive/database#db:seed"]
     },
     "dev": {
       "cache": false,
