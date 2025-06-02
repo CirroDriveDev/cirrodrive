@@ -1,9 +1,3 @@
-import { AlertTriangle } from "lucide-react";
-import {
-  Alert,
-  AlertDescription,
-  AlertTitle,
-} from "#shadcn/components/Alert.js";
 import { trpc } from "#services/trpc.js";
 import { LoadingSpinner } from "#components/shared/LoadingSpinner.js";
 import {
@@ -35,16 +29,6 @@ export function MyPlanSection(): JSX.Element {
       <div className="flex justify-center items-center">
         <LoadingSpinner />
       </div>
-    );
-  }
-
-  if (currentSubscription.error) {
-    return (
-      <Alert variant="destructive">
-        <AlertTriangle className="h-4 w-4" />
-        <AlertTitle>구독 정보를 불러오지 못했습니다.</AlertTitle>
-        <AlertDescription>잠시 후 다시 시도해주세요.</AlertDescription>
-      </Alert>
     );
   }
 
