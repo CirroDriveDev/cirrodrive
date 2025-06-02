@@ -15,7 +15,4 @@ export const { TRPCProvider, useTRPC, useTRPCClient } =
   createTRPCContext<AppRouter>();
 
 export const TRPC_PATH = "trpc";
-const protocol = import.meta.env.PROD ? "https" : "http";
-const port =
-  import.meta.env.VITE_API_PORT ? `:${import.meta.env.VITE_API_PORT}` : "";
-export const TRPC_URL = `${protocol}://${import.meta.env.VITE_API_HOST}${port}/${TRPC_PATH}`;
+export const TRPC_URL = `https://cirrodrive.site/${TRPC_PATH}`;
