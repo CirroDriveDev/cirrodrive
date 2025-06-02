@@ -66,7 +66,7 @@ export async function runPrismaCommand(
 }
 
 export async function clearDatabase(): Promise<void> {
-  if (env.MODE !== "test") {
+  if (process.env.NODE_ENV !== "test" || env.MODE !== "test") {
     throw new Error("This function should only be used in test environment");
   }
 
