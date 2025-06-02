@@ -166,7 +166,6 @@ jobs:
         build-and-push-backend,
         build-and-push-frontend,
         build-and-push-reverse-proxy,
-        database-migration,
       ]
     environment: production
     steps:
@@ -241,14 +240,13 @@ jobs:
   deployment:
     name: Deployment
     runs-on: ubuntu-22.04
-    needs: prepare-release
+    needs: [prepare-release, database-migration]
     environment: production
     env:
       NODE_ENV: production
-      APP_SERVER_PORT: 8000
-      APP_CLIENT_PORT: 3000
       APP_PUBLIC_HOST: ${{ secrets.APP_PUBLIC_HOST }}
-      DATABASE_URL: ${{ secrets.DATABASE_URL }}
+      APP_BACKEND_PORT: 8000
+      APP_FRONTEND_PORT: 3000
       AUTH_JWT_SECRET: ${{ secrets.AUTH_JWT_SECRET }}
       AUTH_DEFAULT_ADMIN_USERNAME: ${{ secrets.AUTH_DEFAULT_ADMIN_USERNAME }}
       AUTH_DEFAULT_ADMIN_PASSWORD: ${{ secrets.AUTH_DEFAULT_ADMIN_PASSWORD }}
@@ -260,6 +258,7 @@ jobs:
       AWS_CLOUDFRONT_PRIVATE_KEY: ${{ secrets.AWS_CLOUDFRONT_PRIVATE_KEY }}
       AWS_CLOUDFRONT_EXPIRES_IN_SECONDS: 3600
       PAYMENT_TOSS_SECRET_KEY: ${{ secrets.PAYMENT_TOSS_SECRET_KEY }}
+      DATABASE_URL: ${{ secrets.DATABASE_URL }}
     steps:
       - name: Deploy and Start Containers
         uses: appleboy/ssh-action@v1
@@ -267,14 +266,14 @@ jobs:
           host: ${{ secrets.SERVER_HOST }}
           username: ${{ secrets.SERVER_USER }}
           key: ${{ secrets.SERVER_SSH_KEY }}
-          envs: NODE_ENV,APP_SERVER_PORT,APP_CLIENT_PORT,APP_PUBLIC_HOST,DATABASE_URL,AUTH_JWT_SECRET,AUTH_DEFAULT_ADMIN_USERNAME,AUTH_DEFAULT_ADMIN_PASSWORD,AWS_REGION,AWS_SES_SOURCE_EMAIL,AWS_S3_BUCKET,AWS_CLOUDFRONT_DOMAIN,AWS_CLOUDFRONT_KEY_PAIR_ID,AWS_CLOUDFRONT_PRIVATE_KEY,AWS_CLOUDFRONT_EXPIRES_IN_SECONDS,PAYMENT_TOSS_SECRET_KEY
+          envs: NODE_ENV,APP_BACKEND_PORT,APP_FRONTEND_PORT,APP_PUBLIC_HOST,AUTH_JWT_SECRET,AUTH_DEFAULT_ADMIN_USERNAME,AUTH_DEFAULT_ADMIN_PASSWORD,AWS_REGION,AWS_SES_SOURCE_EMAIL,AWS_S3_BUCKET,AWS_CLOUDFRONT_DOMAIN,AWS_CLOUDFRONT_KEY_PAIR_ID,AWS_CLOUDFRONT_PRIVATE_KEY,AWS_CLOUDFRONT_EXPIRES_IN_SECONDS,PAYMENT_TOSS_SECRET_KEY,DATABASE_URL
           script: |
             # 작업 디렉토리로 이동
             cd /home/${{ secrets.SERVER_USER }}/cirrodrive-deploy
 
             # Docker 컨테이너 재시작
-            docker-compose down
-            docker-compose up -d || { echo "Docker 컨테이너 시작 실패"; exit 1; }
+            pnpm run docker:down
+            pnpm run docker:up || { echo "Docker 컨테이너 시작 실패"; exit 1; }
 
   validate-deployment:
     name: Validate Deployment

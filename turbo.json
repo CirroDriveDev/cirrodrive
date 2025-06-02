@@ -2,9 +2,24 @@
   "$schema": "https://turbo.build/schema.json",
   "globalEnv": ["NODE_ENV", "MODE", "PROD", "DEV", "TEST"],
   "tasks": {
+    "//#dev:mock:up": {
+      "cache": false
+    },
+    "//#docker:attach": {
+      "cache": false,
+      "persistent": true
+    },
+    "//#docker:build": {
+      "cache": false
+    },
+    "//#docker:down": {
+      "cache": false
+    },
+    "//#docker:up": {
+      "cache": false
+    },
     "build": {
       "dependsOn": ["^build"],
-      "inputs": ["$TURBO_DEFAULT$", ".env*"],
       "outputs": [".cache/tsbuildinfo.json", "dist/**"]
     },
     "clean": {
@@ -12,6 +27,7 @@
     },
     "dev": {
       "cache": false,
+      "dependsOn": ["//#dev:mock:up"],
       "persistent": true
     },
     "format": {

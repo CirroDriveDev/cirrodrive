@@ -34,7 +34,7 @@ export const expressLoader = (): Express => {
       credentials: true,
       origin: [
         `http://${env.APP_PUBLIC_HOST}`,
-        `http://${env.APP_PUBLIC_HOST}:${env.APP_CLIENT_PORT}`,
+        `http://${env.APP_PUBLIC_HOST}:${env.APP_FRONTEND_PORT}`,
       ],
     }),
   );

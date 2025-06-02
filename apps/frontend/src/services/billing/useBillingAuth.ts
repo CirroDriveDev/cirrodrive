@@ -1,7 +1,6 @@
 import { useState } from "react";
 import { loadTossPayments } from "@tosspayments/tosspayments-sdk";
 import { useBoundStore } from "#store/useBoundStore.js";
-import { env } from "#app/env.js";
 
 export function useBillingAuth(successUrl: string, failUrl: string) {
   const [isLoading, setIsLoading] = useState(false);
@@ -12,7 +11,9 @@ export function useBillingAuth(successUrl: string, failUrl: string) {
       if (!user) {
         throw new Error("User is not logged in");
       }
-      const tossPayments = await loadTossPayments(env.VITE_TOSS_CLIENT_KEY);
+      const tossPayments = await loadTossPayments(
+        import.meta.env.VITE_TOSS_CLIENT_KEY,
+      );
       const payment = tossPayments.payment({ customerKey: user.id });
 
       setIsLoading(true);

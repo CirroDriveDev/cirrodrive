@@ -17,7 +17,8 @@ export default defineConfig({
   server: {
     proxy: {
       "/trpc": {
-        target: "http://localhost:3000",
+        // eslint-disable-next-line turbo/no-undeclared-env-vars -- false positive, this is declared in the backend's turbo.json
+        target: `http://localhost:${process.env.APP_BACKEND_PORT}`,
         changeOrigin: true,
         rewrite: (path) => path,
       },

@@ -3,16 +3,16 @@
   "extends": ["//"],
   "tasks": {
     "build": {
-      "env": ["VITE_API_HOST", "VITE_API_PORT", "VITE_TOSS_CLIENT_KEY"]
+      "env": ["VITE_TOSS_CLIENT_KEY"]
     },
     "dev": {
-      "env": ["VITE_API_HOST", "VITE_API_PORT", "VITE_TOSS_CLIENT_KEY"]
+      "env": ["VITE_TOSS_CLIENT_KEY", "APP_BACKEND_PORT"]
     },
     "test": {
-      "env": ["VITE_API_HOST", "VITE_API_PORT", "VITE_TOSS_CLIENT_KEY"]
+      "env": ["VITE_TOSS_CLIENT_KEY"]
     },
     "test:ci": {
-      "env": ["VITE_API_HOST", "VITE_API_PORT", "VITE_TOSS_CLIENT_KEY"]
+      "env": ["VITE_TOSS_CLIENT_KEY"]
     }
   }
 }

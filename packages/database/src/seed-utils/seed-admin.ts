@@ -1,5 +1,4 @@
 import { hash } from "@node-rs/argon2";
-import { getEnv } from "@cirrodrive/utils/env";
 import { z } from "zod";
 import { prisma } from "#client";
 
@@ -9,7 +8,7 @@ const envSchema = z.object({
   AUTH_DEFAULT_ADMIN_USERNAME: z.string().min(1),
 });
 
-const env = getEnv(envSchema);
+const env = envSchema.parse(process.env);
 
 export async function createAdmin(
   email: string,

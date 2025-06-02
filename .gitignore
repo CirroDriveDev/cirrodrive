@@ -7,8 +7,6 @@ node_modules
 .pnpm-store
 
 # local env files
-.env
-.env.production
 .env*.local
 
 # app data

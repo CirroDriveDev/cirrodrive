@@ -17,8 +17,8 @@ function load(): express.Application {
 }
 
 function startServer(app: express.Application): void {
-  server = app.listen(env.APP_SERVER_PORT, () => {
-    logger.info(`Server listening on port: ${env.APP_SERVER_PORT}`);
+  server = app.listen(env.APP_BACKEND_PORT, () => {
+    logger.info(`Server listening on port: ${env.APP_BACKEND_PORT}`);
     logger.info(`Currently running on ${env.MODE} mode.`);
   });
 

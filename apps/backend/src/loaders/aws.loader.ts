@@ -6,18 +6,18 @@ import { logger as baseLogger } from "#loaders/logger.loader";
 const logger = baseLogger.child({ prefix: "aws" });
 logger.info("Loading AWS SDK...");
 
-if (env.DEV || env.TEST) {
+if (env.DEV) {
   logger.info(`Running in ${env.MODE} mode. Using MinIO for S3.`);
 }
 
 export const s3Client = new S3Client({
   region: env.AWS_REGION,
-  ...(!env.PROD && {
+  ...(env.DEV && {
     credentials: {
-      accessKeyId: env.AWS_S3_ACCESS_KEY!,
-      secretAccessKey: env.AWS_S3_SECRET_KEY!,
+      accessKeyId: process.env.AWS_S3_ACCESS_KEY!,
+      secretAccessKey: process.env.AWS_S3_SECRET_KEY!,
     },
-    endpoint: env.AWS_S3_ENDPOINT!,
+    endpoint: process.env.AWS_S3_ENDPOINT!,
     forcePathStyle: true,
   }),
 });

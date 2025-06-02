@@ -9,9 +9,9 @@ services:
     restart: always
     environment:
       - TZ=Asia/Seoul
-      - FRONTEND_PORT=${APP_CLIENT_PORT}
+      - FRONTEND_PORT=${APP_FRONTEND_PORT}
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:${APP_CLIENT_PORT}"]
+      test: ["CMD", "curl", "-f", "http://localhost:${APP_FRONTEND_PORT}"]
       interval: 10s
       timeout: 5s
       retries: 3
@@ -31,10 +31,10 @@ services:
     restart: always
     environment:
       - NODE_ENV=production
-      - APP_SERVER_PORT=${APP_SERVER_PORT}
-      - APP_CLIENT_PORT=${APP_CLIENT_PORT}
+      - MODE=production
       - APP_PUBLIC_HOST=${APP_PUBLIC_HOST}
-      - DATABASE_URL=${DATABASE_URL}
+      - APP_BACKEND_PORT=${APP_BACKEND_PORT}
+      - APP_FRONTEND_PORT=${APP_FRONTEND_PORT}
       - AUTH_JWT_SECRET=${AUTH_JWT_SECRET}
       - AUTH_DEFAULT_ADMIN_USERNAME=${AUTH_DEFAULT_ADMIN_USERNAME}
       - AUTH_DEFAULT_ADMIN_PASSWORD=${AUTH_DEFAULT_ADMIN_PASSWORD}
@@ -46,8 +46,9 @@ services:
       - AWS_CLOUDFRONT_PRIVATE_KEY=${AWS_CLOUDFRONT_PRIVATE_KEY}
       - AWS_CLOUDFRONT_EXPIRES_IN_SECONDS=${AWS_CLOUDFRONT_EXPIRES_IN_SECONDS}
       - PAYMENT_TOSS_SECRET_KEY=${PAYMENT_TOSS_SECRET_KEY}
+      - DATABASE_URL=${DATABASE_URL}
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:${APP_SERVER_PORT}/health"]
+      test: ["CMD", "curl", "-f", "http://localhost:${APP_BACKEND_PORT}/health"]
       interval: 10s
       timeout: 5s
       retries: 3
@@ -69,8 +70,8 @@ services:
       - "443:443"
     environment:
       - DOMAIN=${APP_PUBLIC_HOST}
-      - FRONTEND_PORT=${APP_CLIENT_PORT}
-      - BACKEND_PORT=${APP_SERVER_PORT}
+      - FRONTEND_PORT=${APP_FRONTEND_PORT}
+      - BACKEND_PORT=${APP_BACKEND_PORT}
     volumes:
       - ./apps/reverse-proxy/certbot/conf:/etc/letsencrypt
       - ./apps/reverse-proxy/certbot/www:/var/www/certbot
@@ -105,7 +106,3 @@ services:
       - ssl
     networks:
       - default
-
-volumes:
-  cirrodrive-app-data:
-    external: false

@@ -34,9 +34,7 @@ RUN --mount=type=cache,id=pnpm,target=/pnpm/store pnpm install --frozen-lockfile
 COPY --from=pruner /cirrodrive/out/full/ .
 
 # 프론트엔드 빌드
-RUN --mount=type=secret,id=VITE_API_HOST,env=VITE_API_HOST \
-  --mount=type=secret,id=VITE_API_PORT,env=VITE_API_PORT \
-  --mount=type=secret,id=VITE_TOSS_CLIENT_KEY,env=VITE_TOSS_CLIENT_KEY \
+RUN --mount=type=secret,id=VITE_TOSS_CLIENT_KEY,env=VITE_TOSS_CLIENT_KEY \
   pnpm turbo run build --filter=@cirrodrive/frontend...;
 
 # 프로덕션 배포를 위한 Nginx 설정

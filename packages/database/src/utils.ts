@@ -2,7 +2,6 @@ import path, { dirname } from "node:path";
 import { fileURLToPath } from "node:url";
 import { spawn } from "cross-spawn";
 import which from "npm-which";
-import { getEnv } from "@cirrodrive/utils/env";
 import { z } from "zod";
 
 const __filename = fileURLToPath(import.meta.url);
@@ -11,16 +10,16 @@ const __dirname = dirname(__filename);
 // 현재 파일의 디렉토리 경로를 구함
 // src 디렉토리에서 packages/database 루트로 이동
 const databasePath = path.resolve(__dirname, "..");
-process.stdout.write(`envDir: ${databasePath}\n`);
 
-const env = getEnv(
-  z.object({
-    DATABASE_URL: z.string().url(),
-  }),
-  {
-    envDir: databasePath,
-  },
-);
+const envSchema = z.object({
+  MODE: z.enum(["development", "test", "production"]),
+  DATABASE_URL: z.string().url(),
+});
+
+const env = envSchema.parse({
+  MODE: process.env.MODE,
+  DATABASE_URL: process.env.DATABASE_URL,
+});
 
 export async function runPrismaCommand(
   command: string,
@@ -67,7 +66,7 @@ export async function runPrismaCommand(
 }
 
 export async function clearDatabase(): Promise<void> {
-  if (process.env.NODE_ENV !== "test" || env.NODE_ENV !== "test") {
+  if (env.MODE !== "test") {
     throw new Error("This function should only be used in test environment");
   }
 
