@@ -94,20 +94,7 @@ jobs:
         run: find . -name ".env*" -type f -print -delete
 
       - name: Start compose services
-        run: docker compose -f docker-compose-ci.yml up -d
-
-      - name: Wait for MariaDB healthcheck
-        run: |
-          for i in {1..30}; do
-            status=$(docker inspect --format='{{.State.Health.Status}}' $(docker compose -f docker-compose-ci.yml ps -q db))
-            echo "MariaDB health status: $status"
-            if [ "$status" = "healthy" ]; then
-              echo "MariaDB is healthy!"
-              exit 0
-            fi
-            sleep 2
-          done
-          echo "MariaDB did not become healthy in time" && exit 1
+        run: pnpm dev:mock:up
 
       - name: Run tests
         run: pnpm test:ci
