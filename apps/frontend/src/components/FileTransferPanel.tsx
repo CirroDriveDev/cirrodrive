@@ -7,8 +7,8 @@ import {
   XIcon,
   Trash2,
 } from "lucide-react";
-import { toast } from "sonner";
 import { CollapsibleTrigger } from "@radix-ui/react-collapsible";
+import { toast } from "react-toastify";
 import { Progress } from "#shadcn/components/Progress.js";
 import {
   Card,
@@ -32,7 +32,7 @@ function formatSize(size: number): string {
 
 export function TransferPanel() {
   const { transfers, removeTransfer } = useTransferStore();
-  const [isVisible, setIsVisible] = useState(true);
+  const [isVisible, setIsVisible] = useState(false);
   const prevStatuses = useRef(new Map<string, string>());
 
   // ✅ 새 전송이 시작되면 자동으로 패널 열림
@@ -64,7 +64,7 @@ export function TransferPanel() {
     if (count > 0) {
       toast.info(`🗑️ ${count}개의 항목이 모두 삭제되었습니다`);
     } else {
-      toast.message("삭제할 항목이 없습니다");
+      toast.info("삭제할 항목이 없습니다");
     }
   };
 
