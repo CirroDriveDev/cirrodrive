@@ -121,12 +121,6 @@ export function FolderView({ folderId }: FolderViewProps): JSX.Element {
             folderId={folderId}
             onSingleFileSuccess={(result) => {
               void entryListQuery.refetch();
-              toast.success(`파일 업로드 성공: ${result.file.name}`);
-            }}
-            onSingleFileError={(result) => {
-              toast.error(
-                `파일 업로드에 실패했습니다: ${result.error || "알 수 없는 오류"}`,
-              );
             }}
           />
         </div>

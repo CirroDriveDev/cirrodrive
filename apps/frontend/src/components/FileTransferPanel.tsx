@@ -8,7 +8,6 @@ import {
   Trash2,
 } from "lucide-react";
 import { CollapsibleTrigger } from "@radix-ui/react-collapsible";
-import { toast } from "react-toastify";
 import { Progress } from "#shadcn/components/Progress.js";
 import {
   Card,
@@ -46,13 +45,6 @@ export function TransferPanel() {
     transfers.forEach((item) => {
       const prev = prevStatuses.current.get(item.id);
       if (prev !== item.status) {
-        if (item.status === "success") {
-          toast.success(`✅ ${item.file.name} 업로드 완료`);
-        } else if (item.status === "error") {
-          toast.error(`❌ ${item.file.name} 업로드 실패`);
-        } else if (item.status === "cancelled") {
-          toast.warning(`⚠️ ${item.file.name} 업로드 취소됨`);
-        }
         prevStatuses.current.set(item.id, item.status);
       }
     });
@@ -61,11 +53,6 @@ export function TransferPanel() {
   const clearAllTransfers = () => {
     const count = transfers.length;
     transfers.forEach((item) => removeTransfer(item.id));
-    if (count > 0) {
-      toast.info(`🗑️ ${count}개의 항목이 모두 삭제되었습니다`);
-    } else {
-      toast.info("삭제할 항목이 없습니다");
-    }
   };
 
   if (!isVisible) return null;
@@ -131,13 +118,11 @@ function FileTransferItem({ item }: { item: FileTransfer }) {
   const cancelItem = () => {
     item.cancel();
     setStatus(item.id, "cancelled");
-    toast.warning(`⚠️ ${item.file.name} 업로드 취소됨`);
   };
 
   const retryItem = () => {
     item.retry();
     removeTransfer(item.id);
-    toast.info(`🔁 ${item.file.name} 재시작됨`);
   };
 
   const typeIcon =
