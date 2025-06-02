@@ -14,6 +14,15 @@ export default defineConfig({
     setupFiles: "./test/vitest-setup.ts",
     outputFile: ".cache/vitest-report.json",
   },
+  server: {
+    proxy: {
+      "/trpc": {
+        target: "http://localhost:3000",
+        changeOrigin: true,
+        rewrite: (path) => path,
+      },
+    },
+  },
   plugins: [
     react(),
     ValidateEnv({
