@@ -47,6 +47,8 @@ services:
       - AWS_CLOUDFRONT_EXPIRES_IN_SECONDS=${AWS_CLOUDFRONT_EXPIRES_IN_SECONDS}
       - PAYMENT_TOSS_SECRET_KEY=${PAYMENT_TOSS_SECRET_KEY}
       - DATABASE_URL=${DATABASE_URL}
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:${APP_BACKEND_PORT}/health"]
       interval: 10s
