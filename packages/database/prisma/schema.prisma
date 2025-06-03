@@ -12,3 +12,10 @@ datasource db {
   url               = env("DATABASE_URL")
   shadowDatabaseUrl = env("SHADOW_DATABASE_URL")
 }
+
+generator zod {
+  provider          = "prisma-zod-generator"
+  output            = "../dist/zod"
+  isGenerateSelect  = true
+  isGenerateInclude = true
+}
