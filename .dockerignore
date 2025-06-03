@@ -1,10 +1,14 @@
-node_modules
+# Ignore directories
 .git
-.gitignore
-*.md
-dist
-coverage
+**/node_modules
+**/.turbo
+**/.cache
+**/dist
+**/logs
+**/coverage
+
+# Ignore files
+**/.gitignore
+**/*.md
 *.log
-.turbo
-logs
 *.env*
