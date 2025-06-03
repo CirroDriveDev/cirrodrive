@@ -52,7 +52,7 @@ export const protectedSessionRouter = router({
         // DTO 변환: id를 string으로 변환, password 등 민감 정보 제거
         return {
           id: String(admin.id),
-          email: admin.email,
+          email: admin.email ?? "",
           createdAt: admin.createdAt,
           username: admin.username,
         };
