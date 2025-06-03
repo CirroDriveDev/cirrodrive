@@ -13,9 +13,14 @@
       "inputs": ["prisma/**"],
       "outputs": ["dist/**"]
     },
-    "db:push": {
+    "db:healthcheck": {
       "cache": false,
       "dependsOn": ["build"],
+      "env": ["DATABASE_URL"]
+    },
+    "db:push": {
+      "cache": false,
+      "dependsOn": ["build", "db:healthcheck"],
       "env": [
         "DATABASE_URL",
         "AUTH_DEFAULT_ADMIN_EMAIL",

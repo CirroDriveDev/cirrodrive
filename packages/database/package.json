@@ -9,6 +9,7 @@
       "import": "./dist/prisma/index.js"
     },
     "#client": "./src/client.ts",
+    "#healthcheck": "./src/healthcheck.ts",
     "#seed": "./src/seed.ts",
     "#src/*": "./src/*.ts",
     "#test/*": "./test/*.ts"
@@ -19,6 +20,7 @@
       "import": "./dist/prisma/index.js"
     },
     "./client": "./src/client.ts",
+    "./healthcheck": "./src/healthcheck.ts",
     "./seed": "./src/seed.ts",
     "./utils": "./src/utils.ts"
   },
@@ -29,6 +31,7 @@
     "clean": "git clean -xdf .cache .turbo node_modules dist",
     "db:deploy": "prisma migrate deploy",
     "db:generate": "prisma generate",
+    "db:healthcheck": "tsx src/healthcheck.ts",
     "db:migrate": "prisma migrate dev --skip-generate --create-only --name init",
     "db:push": "prisma db push --accept-data-loss --force-reset --skip-generate",
     "db:seed": "prisma db seed",
@@ -46,8 +49,9 @@
     "@dotenvx/dotenvx": "catalog:",
     "@node-rs/argon2": "^2.0.2",
     "@prisma/client": "^6.8.2",
+    "mysql2": "^3.14.1",
     "prisma": "^6.8.2",
-    "vite-node": "^2.1.9",
+    "tsx": "catalog:",
     "zod": "catalog:"
   },
   "devDependencies": {
@@ -69,6 +73,6 @@
   },
   "prisma": {
     "schema": "./prisma",
-    "seed": "vite-node src/seed.ts"
+    "seed": "tsx src/seed.ts"
   }
 }
