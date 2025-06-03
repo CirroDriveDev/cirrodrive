@@ -1,5 +1,10 @@
 import { injectable, inject } from "inversify";
-import type { Prisma, User, FileMetadata , AdminUser } from "@cirrodrive/database/prisma";
+import type {
+  Prisma,
+  User,
+  FileMetadata,
+  AdminUser,
+} from "@cirrodrive/database/prisma";
 import { hash, verify } from "@node-rs/argon2";
 import type { Logger } from "pino";
 import { TRPCError } from "@trpc/server";
@@ -339,18 +344,20 @@ export class AdminService {
     order?: "asc" | "desc";
   }): Promise<FileMetadata[]> {
     try {
-
       this.logger.info(
         { methodName: "getAllUserFiles", limit, offset, sortBy, order },
         "파일 목록 조회 시작",
       );
 
       // 파일 목록 조회
+      // sortBy가 "uploadDate"이면 실제 정렬 필드로 "createdAt"을 사용합니다.
+      const sortingField = sortBy === "uploadDate" ? "createdAt" : sortBy;
+
       const files = await this.fileModel.findMany({
         take: limit,
         skip: offset,
         orderBy: {
-          [sortBy]: order === "desc" ? "desc" : "asc", // 정렬 기준
+          [sortingField]: order === "desc" ? "desc" : "asc", // 정렬 기준
         },
         include: {
           owner: true, // 소유자 정보 포함
@@ -895,7 +902,7 @@ export class AdminService {
       paymentHistory,
     };
   }
-   /**
+  /**
    * 관리자 계정을 생성합니다.
    *
    * @param username - 관리자 이름
