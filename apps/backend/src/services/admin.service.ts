@@ -329,27 +329,13 @@ export class AdminService {
     offset,
     sortBy = "uploadDate",
     order = "desc",
-    currentUserId, // 현재 로그인된 사용자 ID
   }: {
     limit: number;
     offset: number;
     sortBy?: "uploadDate" | "owner";
     order?: "asc" | "desc";
-    currentUserId: string; // 현재 로그인된 사용자의 ID
   }): Promise<FileMetadata[]> {
     try {
-      // 관리자 인증: 현재 사용자가 관리자 권한을 가지고 있는지 확인
-      const user = await this.userModel.findUnique({
-        where: { id: currentUserId },
-      });
-
-      // 관리자가 아니면 오류를 반환
-      if (!user?.isAdmin) {
-        throw new TRPCError({
-          code: "UNAUTHORIZED",
-          message: "관리자만 접근할 수 있습니다.",
-        });
-      }
 
       this.logger.info(
         { methodName: "getAllUserFiles", limit, offset, sortBy, order },

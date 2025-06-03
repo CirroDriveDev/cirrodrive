@@ -207,7 +207,6 @@ export const protectedUserRouter = router({
         { requestId: ctx.req.id },
         "protected.user.listFiles 요청 시작",
       );
-      const currentUserId = ctx.admin.id;
 
       try {
         const files = await adminService.getAllUserFiles({
@@ -215,7 +214,6 @@ export const protectedUserRouter = router({
           offset: input.offset,
           sortBy: input.sortBy,
           order: input.order,
-          currentUserId,
         });
 
         logger.info(
