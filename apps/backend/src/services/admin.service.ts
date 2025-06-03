@@ -1,5 +1,5 @@
 import { injectable, inject } from "inversify";
-import type { Prisma, User, FileMetadata } from "@cirrodrive/database/prisma";
+import type { Prisma, User, FileMetadata , AdminUser } from "@cirrodrive/database/prisma";
 import { hash, verify } from "@node-rs/argon2";
 import type { Logger } from "pino";
 import { TRPCError } from "@trpc/server";
@@ -10,6 +10,7 @@ import { env } from "#loaders/env.loader";
 import { PlanService } from "#services/plan.service";
 import { BillingService } from "#services/billing.service";
 import { PaymentService } from "#services/payment.service";
+import { AdminUserRepository } from "#repositories/admin-user.repository";
 
 @injectable()
 export class AdminService {
@@ -23,6 +24,8 @@ export class AdminService {
     @inject(BillingService) private billingService: BillingService,
     @inject(PaymentService)
     private paymentService: PaymentService,
+    @inject(AdminUserRepository)
+    private adminUserRepo: AdminUserRepository,
   ) {
     this.logger = logger.child({ serviceName: "AdminService" });
   }
@@ -891,5 +894,72 @@ export class AdminService {
       user,
       paymentHistory,
     };
+  }
+   /**
+   * 관리자 계정을 생성합니다.
+   *
+   * @param username - 관리자 이름
+   * @param password - 비밀번호
+   * @param email - 이메일 (null 허용, 이메일 인증 없이 생성 시 null 가능)
+   * @returns 생성된 AdminUser 객체 반환
+   * @throws 이메일이 이미 등록되어 있으면 TRPCError(CONFLICT) 예외 발생
+   */
+  public async createAdmin({
+    username,
+    password,
+    email,
+  }: {
+    username: string;
+    password: string;
+    email: string | null;
+  }): Promise<AdminUser> {
+    try {
+      // 함수 호출 로그 기록
+      this.logger.info(
+        { methodName: "createAdmin", username, email },
+        "어드민 계정 생성 시작",
+      );
+
+      // 이메일이 존재할 경우에만 중복 검사 수행
+      if (email) {
+        const existing = await this.adminUserRepo.findByEmail(email);
+        if (existing) {
+          // 중복 이메일이 있으면 충돌 오류 발생
+          throw new TRPCError({
+            code: "CONFLICT",
+            message: "이미 등록된 이메일입니다.",
+          });
+        }
+      }
+
+      // 비밀번호를 Argon2로 해시 처리
+      const hashedPassword = await hash(password);
+
+      // Prisma에 전달할 생성 데이터 객체 준비
+      // 이메일이 null일 경우 이메일 필드를 제외함으로써 타입 오류 방지
+      const createData: {
+        username: string;
+        password: string;
+        email?: string;
+      } = {
+        username,
+        password: hashedPassword,
+      };
+
+      // 이메일이 존재하면 createData에 포함
+      if (email) {
+        createData.email = email;
+      }
+
+      // 어드민 계정 생성
+      const admin = await this.adminUserRepo.create(createData);
+
+      // 생성된 어드민 반환
+      return admin;
+    } catch (error) {
+      // 에러 발생 시 로그 기록 후 예외 던짐
+      this.logger.error({ err: error }, "어드민 계정 생성 실패");
+      throw error;
+    }
   }
 }
