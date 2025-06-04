@@ -9,18 +9,10 @@ import cookieParser from "cookie-parser";
 import helmet from "helmet";
 import { StatusCodes } from "http-status-codes";
 import cors from "cors";
-import { createExpressMiddleware } from "@trpc/server/adapters/express";
 import { loggerMiddleware } from "#loaders/logger.loader";
 import { env } from "#loaders/env.loader";
-import { appRouter } from "#routes/app.router";
-import { createContext } from "#loaders/trpc.loader";
-
-export const TRPC_PATH = "/trpc";
-
-export const trpcMiddleware = createExpressMiddleware({
-  router: appRouter,
-  createContext,
-});
+import { trpcMiddleware } from "#loaders/trpc.middleware.loader";
+import { TRPC_PATH } from "#loaders/trpc.loader";
 
 /**
  * Express application instance.
