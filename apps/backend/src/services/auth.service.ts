@@ -159,6 +159,91 @@ export class AuthService {
   }
 
   /**
+   * 사용자의 활성 세션 목록을 조회합니다.
+   *
+   * @param userId - 사용자 ID
+   * @param currentSessionToken - 현재 세션 토큰
+   * @returns 세션 목록
+   */
+  public async getUserSessions({
+    userId,
+    currentSessionToken,
+  }: {
+    userId: string;
+    currentSessionToken?: string;
+  }): Promise<
+    {
+      id: string;
+      deviceName: string;
+      ipAddress: string;
+      lastActivity: string;
+      isCurrent: boolean;
+    }[]
+  > {
+    this.logger.info(
+      { methodName: "getUserSessions" },
+      "사용자 세션 목록 조회 중",
+    );
+
+    const sessions = await this.sessionModel.findMany({
+      where: {
+        userId,
+        expiresAt: {
+          gt: new Date(), // 만료되지 않은 세션만
+        },
+      },
+      orderBy: {
+        expiresAt: "desc", // 최신 활동 순
+      },
+    });
+
+    const currentSessionId =
+      currentSessionToken ? this.encodeToken(currentSessionToken) : null;
+
+    return sessions.map((session) => ({
+      id: session.id,
+      deviceName: this.getDeviceNameFromUserAgent(), // 실제 환경에서는 User-Agent 파싱 필요
+      ipAddress: "0.0.0.0", // 실제 환경에서는 세션 생성 시 IP 저장 필요
+      lastActivity: session.expiresAt.toISOString(),
+      isCurrent: session.id === currentSessionId,
+    }));
+  }
+
+  /**
+   * 특정 세션을 로그아웃합니다 (원격 로그아웃).
+   *
+   * @param sessionId - 세션 ID
+   * @param userId - 사용자 ID (보안을 위한 검증용)
+   */
+  public async logoutSpecificSession({
+    sessionId,
+    userId,
+  }: {
+    sessionId: string;
+    userId: string;
+  }): Promise<void> {
+    this.logger.info(
+      { methodName: "logoutSpecificSession" },
+      "특정 세션 로그아웃 중",
+    );
+
+    // 해당 세션이 요청한 사용자의 것인지 확인
+    const session = await this.sessionModel.findUnique({
+      where: { id: sessionId },
+    });
+
+    if (!session) {
+      throw new Error("세션을 찾을 수 없습니다.");
+    }
+
+    if (session.userId !== userId) {
+      throw new Error("권한이 없습니다.");
+    }
+
+    await this.invalidateSession({ sessionId });
+  }
+
+  /**
    * 세션을 생성합니다.
    *
    * @param token - 세션 토큰
@@ -219,5 +304,13 @@ export class AuthService {
    */
   private encodeToken(token: string): string {
     return encodeHexLowerCase(sha256(new TextEncoder().encode(token)));
+  }
+
+  /**
+   * User-Agent에서 디바이스 이름을 추출합니다. 실제 환경에서는 더 정교한 파싱이 필요합니다.
+   */
+  private getDeviceNameFromUserAgent(): string {
+    // 간단한 예시 - 실제로는 User-Agent 파싱 라이브러리 사용 권장
+    return "Web Browser";
   }
 }

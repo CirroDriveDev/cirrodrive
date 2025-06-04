@@ -15,8 +15,8 @@ export const subscriptionRouter = router({
    * @throws INTERNAL_SERVER_ERROR - 서버 오류 발생 시
    */
   getCurrent: authedProcedure
-    // 반환 데이터 스키마 정의
-    .output(subscriptionDTOSchema)
+    // 반환 데이터 스키마 정의 - null 허용
+    .output(subscriptionDTOSchema.nullable())
     .query(async ({ ctx }) => {
       // 현재 로그인한 사용자의 ID
       const userId = ctx.user.id;
@@ -26,24 +26,18 @@ export const subscriptionRouter = router({
         const currentSubscription =
           await subscriptionService.findCurrentByUser(userId);
 
-        // 구독 정보가 없으면 404 에러 발생
+        // 구독 정보가 없으면 null 반환
         if (!currentSubscription) {
-          throw new TRPCError({
-            code: "NOT_FOUND",
-            message: "현재 활성화된 구독 정보가 없습니다.",
-          });
+          return null;
         }
 
         const subscription = await subscriptionService.getByIdWithPlan(
           currentSubscription.id,
         );
 
-        // 구독 정보 없으면 404 에러 발생
+        // 구독 정보 없으면 null 반환
         if (!subscription) {
-          throw new TRPCError({
-            code: "NOT_FOUND",
-            message: "구독 정보를 찾을 수 없습니다.",
-          });
+          return null;
         }
 
         // 필요한 데이터만 뽑아서 반환

@@ -164,6 +164,76 @@ export const userRouter = router({
       throw Error("알 수 없는 오류가 발생했습니다.");
     }
   }),
+
+  deleteAccount: authedProcedure
+    .input(
+      z.object({
+        password: z.string().min(1, "비밀번호를 입력해주세요."),
+        confirmText: z
+          .string()
+          .refine(
+            (text) => text === "영구 삭제",
+            "확인 텍스트가 일치하지 않습니다.",
+          ),
+      }),
+    )
+    .output(
+      z.object({
+        success: z.boolean(),
+        message: z.string(),
+      }),
+    )
+    .mutation(async ({ input, ctx }) => {
+      logger.info({ requestId: ctx.req.id }, "user.deleteAccount 요청 시작");
+
+      try {
+        // 비밀번호 검증
+        const user = await userService.get({ id: ctx.user.id });
+        if (!user) {
+          throw new TRPCError({
+            code: "NOT_FOUND",
+            message: "사용자를 찾을 수 없습니다.",
+          });
+        }
+
+        const isPasswordValid = await userService.verifyPassword({
+          userId: ctx.user.id,
+          password: input.password,
+        });
+
+        if (!isPasswordValid) {
+          throw new TRPCError({
+            code: "UNAUTHORIZED",
+            message: "비밀번호가 올바르지 않습니다.",
+          });
+        }
+
+        // 계정 삭제
+        await userService.delete({ id: ctx.user.id });
+
+        logger.info({ requestId: ctx.req.id }, "user.deleteAccount 요청 성공");
+
+        return {
+          success: true,
+          message: "계정이 성공적으로 삭제되었습니다.",
+        };
+      } catch (error) {
+        logger.error(
+          { requestId: ctx.req.id, error },
+          "user.deleteAccount 요청 실패",
+        );
+
+        if (error instanceof TRPCError) {
+          throw error;
+        }
+
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: "계정 삭제 중 오류가 발생했습니다.",
+        });
+      }
+    }),
+
   findUsername: procedure
     .input(
       z.object({

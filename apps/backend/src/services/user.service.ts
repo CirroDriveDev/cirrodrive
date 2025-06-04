@@ -598,4 +598,62 @@ export class UserService {
       throw error;
     }
   }
+
+  /**
+   * 사용자의 비밀번호를 검증합니다.
+   *
+   * @param userId - 사용자 ID
+   * @param password - 검증할 비밀번호
+   * @returns 비밀번호 일치 여부
+   */
+  public async verifyPassword({
+    userId,
+    password,
+  }: {
+    userId: string;
+    password: string;
+  }): Promise<boolean> {
+    try {
+      this.logger.info(
+        {
+          methodName: "verifyPassword",
+          userId,
+        },
+        "비밀번호 검증 시작",
+      );
+
+      // 사용자 조회
+      const user = await this.userModel.findUnique({
+        where: { id: userId },
+      });
+
+      if (!user) {
+        return false;
+      }
+
+      // 비밀번호 검증
+      const isMatch = await verify(user.hashedPassword, password);
+
+      this.logger.info(
+        {
+          methodName: "verifyPassword",
+          userId,
+          isMatch,
+        },
+        "비밀번호 검증 완료",
+      );
+
+      return isMatch;
+    } catch (error: unknown) {
+      this.logger.error(
+        {
+          methodName: "verifyPassword",
+          userId,
+          error,
+        },
+        "비밀번호 검증 실패",
+      );
+      return false;
+    }
+  }
 }
