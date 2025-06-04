@@ -2,7 +2,7 @@ import { toast } from "react-toastify"; // react-toastify에서 toast 가져오�
 import { trpc } from "#services/trpc"; // TRPC 클라이언트 인스턴스
 
 export function useAdminDeleteFile() {
-  const deleteMutation = trpc.protected.user.deleteFile.useMutation();
+  const deleteMutation = trpc.protected.file.deleteFile.useMutation();
 
   const deleteFile = async (fileId: string): Promise<boolean> => {
     try {

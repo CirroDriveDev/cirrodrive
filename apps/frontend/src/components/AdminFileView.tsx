@@ -6,8 +6,8 @@ import { useAdminSearchBarStore } from "#store/useAdminSearchBarStore.js";
 import { formatSize } from "#utils/formatSize"; // 파일 크기 포맷 함수
 
 export function AdminFileView(): JSX.Element {
-  // TRPC의 protected.user.listFiles 프로시저를 사용하여 파일 데이터를 조회합니다.
-  const { data: files, isLoading } = trpc.protected.user.listFiles.useQuery({});
+  // TRPC의 protected.file.listFiles 프로시저를 사용하여 파일 데이터를 조회합니다.
+  const { data: files, isLoading } = trpc.protected.file.listFiles.useQuery({});
 
   // 파일 목록 데이터 변환: owner 필드를 보완하고, type을 "file"로 고정합니다.
   const transformedEntries = useMemo(() => {
