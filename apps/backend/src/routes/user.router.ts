@@ -126,10 +126,10 @@ export const userRouter = router({
 
   update: authedProcedure
     .input(
-      userSchema.pick({
-        username: true,
-        password: true,
-        email: true,
+      z.object({
+        username: userSchema.shape.username.optional(),
+        password: userSchema.shape.password.optional(),
+        email: userSchema.shape.email.optional(),
       }),
     )
     .output(userDTOSchema)
@@ -137,8 +137,7 @@ export const userRouter = router({
       logger.info({ requestId: ctx.req.id }, "user.update 요청 시작");
 
       try {
-        const user = await userService.update({
-          id: ctx.user.id,
+        const user = await userService.update(ctx.user.id, {
           username: input.username,
           password: input.password,
           email: input.email,

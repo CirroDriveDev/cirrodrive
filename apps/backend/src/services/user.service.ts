@@ -250,43 +250,35 @@ export class UserService {
    * 사용자를 수정합니다.
    *
    * @param id - 사용자 ID
-   * @param username - 사용자 이름
-   * @param password - 비밀번호
-   * @param email - 이메일
+   * @param data - 수정할 사용자 데이터
+   * @param data.username - 사용자 이름
+   * @param data.password - 비밀번호
+   * @param data.email - 이메일
    * @returns 수정된 사용자
    */
-  public async update({
-    id,
-    username,
-    password,
-    email,
-  }: {
-    id: string;
-    username: string;
-    password: string;
-    email: string;
-  }): Promise<User> {
+  public async update(
+    id: string,
+    data: {
+      username?: string;
+      password?: string;
+      email?: string;
+    },
+  ): Promise<User> {
     try {
       this.logger.info(
         {
           methodName: "updateUser",
           id,
-          username,
-          password: "********",
-          email,
         },
         "사용자 수정 시작",
       );
 
-      const hashedPassword = await hash(password);
+      const hashedPassword =
+        data.password ? await hash(data.password) : undefined;
 
-      const user = await this.userModel.update({
-        data: {
-          username,
-          hashedPassword,
-          email,
-        },
-        where: { id },
+      const user = await this.userRepository.updateById(id, {
+        ...data,
+        hashedPassword,
       });
 
       return user;
