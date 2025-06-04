@@ -1,59 +1,99 @@
-import { FileItem } from "./FileItem.js";
+import { AdminFileItem } from "#components/AdminFileItem.js";
+import { LoadingSpinner } from "#components/shared/LoadingSpinner.js";
 import { useAdminSearchBarStore } from "#store/useAdminSearchBarStore.js";
-import type { TempFile } from "#hooks/useTempFileList.js";
+import { useAdminFileList } from "#services/admin/useAdminFileList.js";
+import { useAdminDeleteFile } from "#services/admin/useAdminDeleteFile.js";
 import type { SortOrder } from "#services/useSortedList.js";
 
-interface AdminFileListProps {
-  files: TempFile[];
-  onDelete: (id: string) => void;
-  sortKey: keyof TempFile | null; // ✅ null 허용
+// Type for file with owner information from API
+interface FileWithOwner {
+  id: string;
+  name: string;
+  extension: string;
+  size: number;
+  key: string;
+  createdAt: Date;
+  updatedAt: Date;
+  trashedAt: Date | null;
+  hash: string;
+  parentFolderId: string | null;
+  restoreFolderId: string | null;
+  ownerId: string | null;
+  owner: {
+    id: string;
+    username: string;
+    email: string;
+    currentPlanId: string;
+    usedStorage: number;
+    profileImageUrl: string | null;
+    createdAt: Date;
+    updatedAt: Date;
+    isAdmin: boolean;
+    trialUsed: boolean;
+    trashFolderId: string;
+    rootFolderId: string;
+  } | null;
+}
+
+interface AdminFileProps {
+  sortKey: string | null;
   sortOrder: SortOrder;
-  changeSort: (key: keyof TempFile) => void;
+  changeSort: (key: string) => void;
 }
 
 export function AdminFileList({
-  files,
-  onDelete,
   sortKey,
   sortOrder,
   changeSort,
-}: AdminFileListProps): JSX.Element {
+}: AdminFileProps): JSX.Element {
   const { searchTerms } = useAdminSearchBarStore();
+  const { files, isLoading } = useAdminFileList();
+  const { deleteFile } = useAdminDeleteFile();
 
-  const filteredFiles = files.filter((file) => {
+  // Use files directly from API without transformation
+  const apiFiles = files as FileWithOwner[];
+
+  if (isLoading) {
+    return (
+      <div className="flex w-full items-center justify-center p-4">
+        <LoadingSpinner />
+      </div>
+    );
+  }
+
+  const filteredFiles = apiFiles.filter((file) => {
     const keyword = (s: string): string => s.trim().toLowerCase();
     const matches = [];
 
     if (searchTerms.name) {
       matches.push(file.name.toLowerCase().includes(keyword(searchTerms.name)));
     }
-    if (searchTerms.ownerName) {
+    if (searchTerms.updatedAt) {
       matches.push(
-        file.ownerName.toLowerCase().includes(keyword(searchTerms.ownerName)),
-      );
-    }
-    if (searchTerms.currentPlanId) {
-      matches.push(
-        file.currentPlanId
-          .toLowerCase()
-          .includes(keyword(searchTerms.currentPlanId)),
-      );
-    }
-    if (searchTerms.createdAt) {
-      matches.push(
-        new Date(file.createdAt)
+        new Date(file.updatedAt)
           .toISOString()
-          .startsWith(searchTerms.createdAt),
+          .startsWith(searchTerms.updatedAt),
       );
+    }
+    if (searchTerms.size) {
+      const sizeKB = (file.size / 1024).toFixed(2);
+      matches.push(sizeKB.includes(keyword(searchTerms.size)));
+    }
+    if (searchTerms.id) {
+      matches.push(file.id.toLowerCase().includes(keyword(searchTerms.id)));
     }
 
     if (matches.length === 0) return true;
     return matches.some(Boolean);
   });
 
-  const renderArrow = (key: keyof TempFile): "▲" | "▼" | null => {
+  const renderArrow = (key: string): "▲" | "▼" | null => {
     if (sortKey !== key) return null;
     return sortOrder === "asc" ? "▲" : "▼";
+  };
+
+  const handleDelete = async (id: string) => {
+    await deleteFile(id);
   };
 
   return (
@@ -68,9 +108,9 @@ export function AdminFileList({
         </div>
         <div
           className="w-52 cursor-pointer"
-          onClick={() => changeSort("createdAt")}
+          onClick={() => changeSort("updatedAt")}
         >
-          생성일 {renderArrow("createdAt")}
+          수정일 {renderArrow("updatedAt")}
         </div>
         <div
           className="w-24 cursor-pointer text-right"
@@ -80,15 +120,15 @@ export function AdminFileList({
         </div>
         <div
           className="w-40 cursor-pointer text-center"
-          onClick={() => changeSort("ownerName")}
+          onClick={() => changeSort("updatedAt")}
         >
-          유저 이름 {renderArrow("ownerName")}
+          수정날짜 {renderArrow("updatedAt")}
         </div>
         <div
           className="w-24 cursor-pointer text-center"
-          onClick={() => changeSort("currentPlanId")}
+          onClick={() => changeSort("id")}
         >
-          등급 {renderArrow("currentPlanId")}
+          파일 ID {renderArrow("id")}
         </div>
         <div className="w-8 shrink-0 text-center">⋯</div>
       </div>
@@ -97,7 +137,7 @@ export function AdminFileList({
       <div className="flex h-[720px] w-full flex-col divide-y divide-muted-foreground overflow-auto border-y border-y-muted-foreground">
         {filteredFiles.length > 0 ?
           filteredFiles.map((file) => (
-            <FileItem key={file.id} file={file} onDelete={onDelete} />
+            <AdminFileItem key={file.id} file={file} onDelete={handleDelete} />
           ))
         : <div className="px-16 py-4 text-muted-foreground">
             검색 결과가 없습니다.
