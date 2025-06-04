@@ -37,7 +37,17 @@ export class SubscriptionService {
 
   // 구독 단건 조회 (Plan 정보 포함)
   public async getByIdWithPlan(id: string) {
-    return this.subscriptionRepository.getByIdWithPlan(id);
+    const subscription = await this.subscriptionRepository.getByIdWithPlan(id);
+    if (!subscription) return null;
+    
+    // Plan의 BigInt storageLimit을 number로 변환
+    return {
+      ...subscription,
+      plan: {
+        ...subscription.plan,
+        storageLimit: Number(subscription.plan.storageLimit),
+      },
+    };
   }
 
   // 현재 구독 조회 (TRIAL, ACTIVE, etc.)

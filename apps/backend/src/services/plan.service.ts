@@ -21,17 +21,29 @@ export class PlanService {
 
   public async getAllPlans() {
     this.logger.debug("Fetching all plans");
-    return await this.planRepotitory.listAll();
+    const plans = await this.planRepotitory.listAll();
+    return plans.map(plan => ({
+      ...plan,
+      storageLimit: Number(plan.storageLimit),
+    }));
   }
 
   public async getPlan(planId: string) {
     this.logger.debug(`Fetching plan with ID: ${planId}`);
-    return await this.planRepotitory.getById(planId);
+    const plan = await this.planRepotitory.getById(planId);
+    return {
+      ...plan,
+      storageLimit: Number(plan.storageLimit),
+    };
   }
 
   public async getCurrentPlanByUserId(userId: string) {
     this.logger.debug(`Fetching current plan for user ID: ${userId}`);
-    return await this.userRepository.getCurrentPlanByUserId(userId);
+    const plan = await this.userRepository.getCurrentPlanByUserId(userId);
+    return {
+      ...plan,
+      storageLimit: Number(plan.storageLimit),
+    };
   }
 
   public async getDefaultPlan() {
@@ -58,7 +70,10 @@ export class PlanService {
       );
     }
 
-    return plans[0];
+    return {
+      ...plans[0],
+      storageLimit: Number(plans[0].storageLimit),
+    };
   }
 
   /**
@@ -113,7 +128,7 @@ export class PlanService {
       return {
         planId: plan.id,
         description: plan.description ?? undefined,
-        quota: plan.storageLimit ?? undefined, // MB 단위로 반환
+        quota: plan.storageLimit ? Number(plan.storageLimit) : undefined, // BigInt를 number로 변환
       };
     } catch (error) {
       throw new TRPCError({

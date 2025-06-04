@@ -11,6 +11,7 @@ import {
 import { trpc } from "#services/trpc.js";
 import { entryUpdatedEvent } from "#services/entryUpdatedEvent.js";
 import { useTransferStore } from "#store/useTransferStore.js";
+import { useStorageActions } from "#hooks/useStorageActions.js";
 
 export interface UploadRequest {
   file: File;
@@ -79,6 +80,7 @@ export function useUploadSingleFile(options: UseUploadSingleFileOptions) {
   const { upload } = useUploader();
   const completeUploadMutation = trpc.file.upload.completeUpload.useMutation();
   const { addTransfer, updateProgress, setStatus } = useTransferStore();
+  const utils = trpc.useUtils();
 
   const uploadSingleFile = async (
     uploadRequest: UploadRequest,
@@ -128,6 +130,7 @@ export function useUploadSingleFile(options: UseUploadSingleFileOptions) {
           });
 
           void entryUpdatedEvent();
+          void utils.storage.getUsage.invalidate();
 
           const result: UploadResultSuccess = {
             success: true,

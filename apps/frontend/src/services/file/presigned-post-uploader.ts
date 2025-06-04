@@ -18,6 +18,7 @@ export const usePresignedPostUploader: UseUploader = () => {
     const result = await mutation.getS3PresignedPostAsync(
       file.name,
       contentType,
+      file.size,
     );
     return result.presignedPost; // { url, fields }
   };

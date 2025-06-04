@@ -14,6 +14,7 @@ export const useTrash = (id: string): UseTrash => {
   const queryClient = useQueryClient();
   const [isMutating, setIsMutating] = useState(false);
   const [success, setSuccess] = useState<boolean | null>(null);
+  const utils = trpc.useUtils();
 
   // 파일 휴지통 이동 Mutation
   const fileMutation = trpc.file.trash.useMutation({
@@ -24,6 +25,7 @@ export const useTrash = (id: string): UseTrash => {
     onSuccess: async () => {
       await queryClient.invalidateQueries({ queryKey: entryListQueryKey });
       await queryClient.invalidateQueries({ queryKey: trashEntryListQueryKey });
+      void utils.storage.getUsage.invalidate();
       setSuccess(true);
     },
     onError: () => {
@@ -43,6 +45,7 @@ export const useTrash = (id: string): UseTrash => {
     onSuccess: async () => {
       await queryClient.invalidateQueries({ queryKey: entryListQueryKey });
       await queryClient.invalidateQueries({ queryKey: trashEntryListQueryKey });
+      void utils.storage.getUsage.invalidate();
       setSuccess(true);
     },
     onError: () => {

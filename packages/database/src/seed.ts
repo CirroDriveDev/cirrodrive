@@ -11,7 +11,7 @@ export async function seed() {
     price: 0,
     interval: "MONTHLY",
     intervalCount: 1, // 기본값은 1로 설정
-    storageLimit: 1024, // 1GB
+    storageLimit: 1024 * 1024 * 1024, // 1GB in bytes
     trialDays: 0,
   });
 
@@ -22,7 +22,7 @@ export async function seed() {
     price: 4900,
     interval: "MONTHLY",
     intervalCount: 1, // 기본값은 1로 설정
-    storageLimit: 100 * 1024, // 100GB
+    storageLimit: 100 * 1024 * 1024 * 1024, // 100GB in bytes
     trialDays: 0,
   });
 
@@ -33,7 +33,7 @@ export async function seed() {
     price: 49000,
     interval: "YEARLY",
     intervalCount: 1, // 기본값은 1로 설정
-    storageLimit: 100 * 1024, // 100GB
+    storageLimit: 100 * 1024 * 1024 * 1024, // 100GB in bytes
     trialDays: 7,
   });
 
@@ -44,7 +44,7 @@ export async function seed() {
     price: 9900,
     interval: "MONTHLY",
     intervalCount: 1, // 기본값은 1로 설정
-    storageLimit: 1 * 1024 * 1024, // 1TB
+    storageLimit: 1024 * 1024 * 1024 * 1024, // 1TB in bytes
     trialDays: 0,
   });
 
@@ -55,7 +55,7 @@ export async function seed() {
     price: 99000,
     interval: "YEARLY",
     intervalCount: 1, // 기본값은 1로 설정
-    storageLimit: 1 * 1024 * 1024, // 1TB
+    storageLimit: 1024 * 1024 * 1024 * 1024, // 1TB in bytes
     trialDays: 7,
   });
 

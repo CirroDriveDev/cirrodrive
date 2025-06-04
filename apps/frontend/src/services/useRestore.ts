@@ -14,6 +14,7 @@ export const useRestore = (id: string): UseRestore => {
   const queryClient = useQueryClient();
   const [isMutating, setIsMutating] = useState(false);
   const [success, setSuccess] = useState<boolean | null>(null);
+  const utils = trpc.useUtils();
 
   // 파일 복원 Mutation
   const fileMutation = trpc.file.restoreFromTrash.useMutation({
@@ -24,6 +25,7 @@ export const useRestore = (id: string): UseRestore => {
     onSuccess: async () => {
       await queryClient.invalidateQueries({ queryKey: entryListQueryKey });
       await queryClient.invalidateQueries({ queryKey: trashEntryListQueryKey });
+      void utils.storage.getUsage.invalidate();
       setSuccess(true); // 성공 상태
     },
     onError: () => {
@@ -43,6 +45,7 @@ export const useRestore = (id: string): UseRestore => {
     onSuccess: async () => {
       await queryClient.invalidateQueries({ queryKey: entryListQueryKey });
       await queryClient.invalidateQueries({ queryKey: trashEntryListQueryKey });
+      void utils.storage.getUsage.invalidate();
       setSuccess(true); // 성공 상태
     },
     onError: () => {

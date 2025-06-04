@@ -1,5 +1,6 @@
 import { inject, injectable } from "inversify";
 import { $Enums } from "@cirrodrive/database/prisma";
+import { TRPCError } from "@trpc/server";
 import { PaymentRepository } from "#repositories/payment.repository";
 import { TossPaymentsService } from "#services/toss-payments.service";
 import { UserService } from "#services/user.service";
@@ -40,6 +41,13 @@ export class PaymentService {
     // 2. 구독 정보 조회
     const subscription =
       await this.subscriptionService.getByIdWithPlan(subscriptionId);
+    
+    if (!subscription) {
+      throw new TRPCError({
+        code: "NOT_FOUND",
+        message: "구독 정보를 찾을 수 없습니다.",
+      });
+    }
 
     // 2. 사용자 결제 정보 조회
     const billing = await this.billingService.getById(subscription.billingId);

@@ -15,17 +15,19 @@ export function useGetS3PresignedPost() {
 
   return {
     /**
-     * 파일 이름과 타입을 받아 Presigned Post를 요청합니다.
+     * 파일 정보를 받아 Presigned Post를 요청합니다.
      *
      * @param fileName - 업로드할 파일 이름
      * @param fileType - 업로드할 파일의 MIME 타입
+     * @param fileSize - 업로드할 파일의 크기 (bytes)
      * @returns
      */
-    getS3PresignedPost: (fileName: string, fileType: string) => {
+    getS3PresignedPost: (fileName: string, fileType: string, fileSize: number) => {
       mutation.mutate(
         {
           fileName,
           fileType,
+          fileSize,
         },
         {
           onSuccess: () => {
@@ -35,17 +37,19 @@ export function useGetS3PresignedPost() {
       );
     },
     /**
-     * 파일 이름과 타입을 받아 Presigned Post를 요청합니다.
+     * 파일 정보를 받아 Presigned Post를 요청합니다.
      *
      * @param fileName - 업로드할 파일 이름
      * @param fileType - 업로드할 파일의 MIME 타입
+     * @param fileSize - 업로드할 파일의 크기 (bytes)
      * @returns PresignedPost
      */
-    getS3PresignedPostAsync: async (fileName: string, fileType: string) => {
+    getS3PresignedPostAsync: async (fileName: string, fileType: string, fileSize: number) => {
       return await mutation.mutateAsync(
         {
           fileName,
           fileType,
+          fileSize,
         },
         {
           onSuccess: () => {

@@ -11,6 +11,7 @@ interface UseFileDelete {
 export const useFileDelete = (fileId: string): UseFileDelete => {
   const [isMutatingFile, setIsMutatingFile] = useState(false);
   const [success, setSuccess] = useState<boolean | null>(null);
+  const utils = trpc.useUtils();
 
   const mutation = trpc.file.delete.useMutation({
     onMutate: () => {
@@ -19,6 +20,7 @@ export const useFileDelete = (fileId: string): UseFileDelete => {
     },
     onSuccess: async () => {
       await entryUpdatedEvent();
+      void utils.storage.getUsage.invalidate();
       setSuccess(true); // 요청 성공 시 성공 여부를 true로 설정
     },
     onError: () => {

@@ -50,8 +50,8 @@ export class StorageService {
       // 2. 사용자가 업로드한 파일들의 총 크기 계산
       const usedStorage = await this.calculateUsedStorage(userId);
 
-      // 3. 요금제 할당량 (bytes 단위로 변환)
-      const quota = currentPlan.storageLimit;
+      // 3. 요금제 할당량 (BigInt에서 number로 변환)
+      const quota = Number(currentPlan.storageLimit);
 
       // 4. 사용량이 90% 이상인지 확인
       const isNearLimit = quota > 0 ? usedStorage / quota >= 0.9 : false;

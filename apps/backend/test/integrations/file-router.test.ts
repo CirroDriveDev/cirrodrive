@@ -26,6 +26,7 @@ describe("fileUploadRouter", () => {
       const input = {
         fileName: "testfile.png",
         fileType: "image/png",
+        fileSize: 1024 * 1024, // 1MB
       };
 
       const mockPresignedPost: PresignedPost = {

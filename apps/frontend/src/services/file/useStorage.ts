@@ -7,6 +7,11 @@ import { trpc } from "#services/trpc";
  */
 export function useStorage() {
   const query = trpc.storage.getUsage.useQuery();
+  const utils = trpc.useUtils();
+
+  const invalidateStorage = () => {
+    void utils.storage.getUsage.invalidate();
+  };
 
   return {
     /**
@@ -38,5 +43,10 @@ export function useStorage() {
      * 요청 에러 객체
      */
     error: query.error,
+
+    /**
+     * 저장소 사용량 데이터를 새로고침하는 함수
+     */
+    invalidateStorage,
   };
 }

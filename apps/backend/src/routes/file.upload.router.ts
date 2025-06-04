@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { TRPCError } from "@trpc/server";
 import { s3PresignedPostSchema } from "@cirrodrive/schemas/s3";
 import { fileMetadataDTOSchema } from "@cirrodrive/schemas/file-metadata";
 import { router, procedure } from "#loaders/trpc.loader";
@@ -7,12 +8,14 @@ import { container } from "#loaders/inversify.loader";
 import { S3Service } from "#services/s3.service";
 import { FileUploadService } from "#services/file.upload.service";
 import { FileAccessCodeService } from "#services/file-access-code.service";
+import { StorageService } from "#services/storage.service";
 
 const s3Service = container.get<S3Service>(S3Service);
 const fileAccessCodeService = container.get<FileAccessCodeService>(
   FileAccessCodeService,
 );
 const fileUploadService = container.get<FileUploadService>(FileUploadService);
+const storageService = container.get<StorageService>(StorageService);
 
 export const fileUploadRouter = router({
   /**
@@ -20,23 +23,48 @@ export const fileUploadRouter = router({
    *
    * @param fileName - 업로드할 파일의 이름
    * @param fileType - 업로드할 파일의 MIME 타입
+   * @param fileSize - 업로드할 파일의 크기 (bytes)
    */
   getS3PresignedPost: procedure
     .input(
       z.object({
         fileName: fileMetadataDTOSchema.shape.name,
         fileType: s3PresignedPostSchema.shape.fields.shape["Content-Type"],
+        fileSize: z.number().positive(),
       }),
     )
     .mutation(async ({ input, ctx }) => {
-      const { fileName, fileType } = input;
+      const { fileName, fileType, fileSize } = input;
       const { user } = ctx;
       const userId = user?.id ?? "anonymous";
 
       logger.debug("getS3PresignedPost", {
         fileName,
         fileType,
+        fileSize,
       });
+
+      // 인증된 사용자의 경우 할당량 검증
+      if (user) {
+        const storageStatus = await storageService.getUsage(user.id);
+        const newUsage = storageStatus.used + fileSize;
+
+        if (newUsage > storageStatus.quota) {
+          const remainingBytes = storageStatus.quota - storageStatus.used;
+          throw new TRPCError({
+            code: "FORBIDDEN",
+            message: `저장 공간이 부족합니다. 사용 가능한 용량: ${Math.max(0, remainingBytes)} bytes`,
+          });
+        }
+
+        logger.info("Storage quota check passed", {
+          userId: user.id,
+          currentUsage: storageStatus.used,
+          fileSize,
+          newUsage,
+          quota: storageStatus.quota,
+        });
+      }
 
       const presignedPost = await s3Service.createPresignedPost({
         fileName,
@@ -47,6 +75,7 @@ export const fileUploadRouter = router({
       logger.debug("S3 Presigned Post", {
         fileName,
         contentType: fileType,
+        fileSize,
         userId,
         presignedPost,
       });

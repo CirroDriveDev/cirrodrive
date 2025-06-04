@@ -11,6 +11,7 @@ interface UseFolderDelete {
 export const useFolderDelete = (folderId: string): UseFolderDelete => {
   const [isMutatingFolder, setIsMutatingFolder] = useState(false);
   const [success, setSuccess] = useState<boolean | null>(null);
+  const utils = trpc.useUtils();
 
   const mutation = trpc.folder.delete.useMutation({
     onMutate: () => {
@@ -19,6 +20,7 @@ export const useFolderDelete = (folderId: string): UseFolderDelete => {
     },
     onSuccess: async () => {
       await entryUpdatedEvent();
+      void utils.storage.getUsage.invalidate();
       setSuccess(true); // 요청 성공 시 성공 여부를 true로 설정
     },
     onError: () => {

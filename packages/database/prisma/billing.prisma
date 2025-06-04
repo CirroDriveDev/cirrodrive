@@ -30,7 +30,7 @@ model Plan {
   interval      Interval
   intervalCount Int // 1 for monthly, 12 for yearly
   durationDays  Int // in days
-  storageLimit  Int // in Byte
+  storageLimit  BigInt // in Byte
   trialDays     Int            @default(0)
   isDefault     Boolean        @default(false)
   // 메타데이터
