@@ -2,10 +2,10 @@ import { create } from "zustand";
 
 interface AdminSearchBarState {
   searchTerms: {
-    name: string;
-    ownerName: string;
-    currentPlanId: string;
-    createdAt: string;
+    name: string; // 파일이름
+    updatedAt: string; // 수정날짜
+    size: string; // 크기
+    id: string; // ID
   };
   setSearchTerm: (
     field: keyof AdminSearchBarState["searchTerms"],
@@ -17,9 +17,9 @@ interface AdminSearchBarState {
 export const useAdminSearchBarStore = create<AdminSearchBarState>((set) => ({
   searchTerms: {
     name: "",
-    ownerName: "",
-    currentPlanId: "",
-    createdAt: "",
+    updatedAt: "",
+    size: "",
+    id: "",
   },
   setSearchTerm: (field, value) =>
     set((state) => ({
@@ -29,9 +29,9 @@ export const useAdminSearchBarStore = create<AdminSearchBarState>((set) => ({
     set({
       searchTerms: {
         name: "",
-        ownerName: "",
-        currentPlanId: "",
-        createdAt: "",
+        updatedAt: "",
+        size: "",
+        id: "",
       },
     }),
 }));

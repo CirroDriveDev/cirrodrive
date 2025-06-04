@@ -1,12 +1,18 @@
-// AdminEntryItem.tsx
 import { useRef } from "react";
 import type { EntryDTO } from "@cirrodrive/schemas/entry";
+import { MoreVertical } from "lucide-react";
 import { EntryIcon } from "#components/EntryIcon.js";
 import { useContainerDimensions } from "#hooks/useContainerDimensions";
 import { formatSize } from "#utils/formatSize";
 import { inferFileType } from "#utils/inferFileType";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuGroup,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "#shadcn/components/DropdownMenu.js";
 
-// 이 컴포넌트는 owner 정보가 반드시 포함된 항목을 전제로 합니다.
 export interface AdminEntryItemProps {
   entry: EntryDTO & {
     owner: {
@@ -16,39 +22,60 @@ export interface AdminEntryItemProps {
       rootFolderId: string;
     };
   };
+  onDelete: (id: string) => void;
 }
 
-export function AdminEntryItem({ entry }: AdminEntryItemProps): JSX.Element {
-  const { name, type, updatedAt, owner } = entry;
+export function AdminEntryItem({
+  entry,
+  onDelete,
+}: AdminEntryItemProps): JSX.Element {
+  const { name, type, updatedAt, owner, id } = entry;
   const nameRef = useRef<HTMLDivElement>(null);
   const { width } = useContainerDimensions(nameRef);
-
+  const maxChars = width ? Math.floor(width / 8) - 4 : 20;
   const truncatedName =
-    name.length > width / 8 - 4 ?
-      `${name.slice(0, Math.floor(width / 8 - 4))}...`
-    : name;
-
+    name.length > maxChars ? `${name.slice(0, maxChars)}...` : name;
   const displaySize =
     type === "file" && entry.size !== null ? formatSize(entry.size) : "-";
   const iconVariant = type === "folder" ? "folder" : inferFileType(name);
   const ownerName = owner.username ?? owner.email ?? "Unknown";
 
   return (
-    <div className="flex w-full items-center px-4 py-2">
-      {/* 아이콘 영역 */}
-      <div className="flex w-8 items-center justify-center">
-        <EntryIcon variant={iconVariant} />
+    <div className="flex w-full items-center px-5 py-10 h-12 text-base">
+      {/* 왼쪽 – 파일이름 영역: 아이콘 + 파일 이름, 열 폭 96 */}
+      <div className="flex items-center w-96 gap-2 ">
+        <div className="w-8 flex items-center justify-center">
+          <EntryIcon variant={iconVariant} />
+        </div>
+        <div className="flex-1 truncate" ref={nameRef}>
+          {truncatedName}
+        </div>
       </div>
-      {/* 이름 영역 */}
-      <div className="flex flex-grow items-center" ref={nameRef}>
-        <div className="select-none truncate">{truncatedName}</div>
+      {/* 중앙 – 수정 날짜 (열 폭 60) */}
+      <div className="ms-4 w-60 text-left">
+        {new Date(updatedAt).toLocaleString()}
       </div>
-      {/* 수정일 표시 */}
-      <div className="w-52 text-nowrap">{updatedAt.toLocaleString()}</div>
-      {/* 파일 크기 표시 */}
-      <div className="w-20 text-right">{displaySize}</div>
-      {/* 소유자 정보 표시 */}
-      <div className="w-32 text-right">{ownerName}</div>
+      {/* 중앙 – 파일 크기 (열 폭 44) */}
+      <div className="w-44 ms-36 text-left">{displaySize}</div>
+      {/* 중앙 – 소유자 (열 폭 36) */}
+      <div className="ms-32 w-36 text-sm ">{ownerName}</div>
+      {/* 오른쪽 – 액션열: 파일 삭제 드롭다운 (열 폭 10) */}
+      <div className="ms-20 w-10 shrink-0 text-center">
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <button type="button" title="파일 삭제">
+              <MoreVertical />
+            </button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent className="w-48">
+            <DropdownMenuGroup>
+              <DropdownMenuItem onClick={() => onDelete(id)}>
+                <span className="text-sm font-medium ">파일 삭제</span>
+              </DropdownMenuItem>
+            </DropdownMenuGroup>
+          </DropdownMenuContent>
+        </DropdownMenu>
+      </div>
     </div>
   );
 }
