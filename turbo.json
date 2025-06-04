@@ -51,7 +51,7 @@
     },
     "test": {
       "cache": false,
-      "dependsOn": ["@cirrodrive/database#build"],
+      "dependsOn": ["//#dev:mock:up", "@cirrodrive/database#build"],
       "env": ["MODE"],
       "persistent": true
     },
