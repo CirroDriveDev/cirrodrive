@@ -29,12 +29,12 @@ import { UploadByCodePage } from "#pages/upload.js";
 import { trpc } from "#services/trpc.js";
 import { useBoundStore } from "#store/useBoundStore.js";
 import { useAdminStore } from "#store/useAdminStore.js";
-import { MyPage } from "#pages/mypage/mypage.js";
+import { MyPage } from "#pages/mypage/profile.js";
 import { AdminDashboardPage } from "#pages/admin/dashboard.js";
 import { Success } from "#pages/billing/success.js";
 import { Fail } from "#pages/billing/fail.js";
 import { TestPage } from "#pages/test.js";
-import { EditProfilePage } from "#pages/mypage/edit-profile.js";
+import { SecurityPage } from "#pages/mypage/security.js";
 import { AdminLayout } from "#components/layout/admin/AdminLayout.js";
 import { UserWorkspaceLayout } from "#components/layout/user/UserWorkspaceLayout.js";
 import { GuestLayout } from "#components/layout/guest/GuestLayout.js";
@@ -42,6 +42,8 @@ import { MyPageLayout } from "#components/layout/user/MyPageLayout.js";
 import { AccountCreationPage } from "#pages/admin/createuser.js";
 import { BillingConfirmPage } from "#pages/billing/confirm/[plan-id].js";
 import { PlansPage } from "#pages/mypage/plans.js";
+import { SubscriptionPage } from "#pages/mypage/subscription.js";
+import { PaymentsPage } from "#pages/mypage/payments.js";
 
 function AdminRoute(): JSX.Element {
   const { admin } = useAdminStore();
@@ -156,9 +158,12 @@ export function Router(): JSX.Element {
 
           <Route element={<MyPageLayout />}>
             <Route path="mypage">
-              <Route index element={<MyPage />} />
+              <Route index element={<Navigate to="profile" />} />
+              <Route path="profile" element={<MyPage />} />
+              <Route path="security" element={<SecurityPage />} />
+              <Route path="subscription" element={<SubscriptionPage />} />
+              <Route path="payments" element={<PaymentsPage />} />
               <Route path="plans" element={<PlansPage />} />
-              <Route path="edit-profile" element={<EditProfilePage />} />
             </Route>
 
             <Route path="billing">

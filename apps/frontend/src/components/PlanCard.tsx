@@ -24,10 +24,7 @@ export function PlanCard({ plan, onChangePlan, isCurrentPlan }: PlanCardProps) {
 
   let intervalText = null;
   if (plan.price > 0) {
-    intervalText =
-      plan.intervalCount > 1 ?
-        `/ ${plan.intervalCount} ${plan.interval}`
-      : `/ ${plan.interval}`;
+    intervalText = `/ ${plan.intervalCount > 1 ? plan.intervalCount : ""} ${{ MONTHLY: "월", YEARLY: "년" }[plan.interval]}`;
   }
 
   const trialPeriod =
@@ -42,7 +39,7 @@ export function PlanCard({ plan, onChangePlan, isCurrentPlan }: PlanCardProps) {
       className={`flex min-h-96 w-full max-w-xs flex-col justify-between border shadow-md ${!isHighlight ? "border-primary ring-2 ring-primary" : "border-muted"}`}
     >
       <div className="flex w-full flex-col">
-        <CardHeader>
+        <CardHeader className="flex flex-col h-28">
           <div className="flex items-center justify-between">
             <CardTitle className="text-xl font-bold">{plan.name}</CardTitle>
             {!isHighlight ?
@@ -58,30 +55,33 @@ export function PlanCard({ plan, onChangePlan, isCurrentPlan }: PlanCardProps) {
             <span className="text-3xl font-extrabold">
               {plan.price.toLocaleString()}
             </span>
+            <div className="flex-grow" />
             <span className="text-base font-medium text-muted-foreground">
               KRW {intervalText}
             </span>
           </div>
-          {trialPeriod}
           {plan.storageLimit > 0 && (
             <div className="text-sm text-muted-foreground">
               <span className="font-medium text-primary">저장 용량:</span>{" "}
               {formatStorage(plan.storageLimit)}
             </div>
           )}
+          {trialPeriod}
         </CardContent>
       </div>
-      <CardFooter>
-        <Button
-          className="w-full"
-          type="button"
-          onClick={() => onChangePlan?.(plan.id)}
-          disabled={isCurrentPlan}
-          variant={!isCurrentPlan ? "default" : "outline"}
-        >
-          {!isCurrentPlan ? "선택" : "현재 이용중"}
-        </Button>
-      </CardFooter>
+      {!isFreePlan ?
+        <CardFooter>
+          <Button
+            className="w-full"
+            type="button"
+            onClick={() => onChangePlan?.(plan.id)}
+            disabled={isCurrentPlan}
+            variant={!isCurrentPlan ? "default" : "outline"}
+          >
+            {!isCurrentPlan ? "선택" : "현재 이용중"}
+          </Button>
+        </CardFooter>
+      : null}
     </Card>
   );
 }

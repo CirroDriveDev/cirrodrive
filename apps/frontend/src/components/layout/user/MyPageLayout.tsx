@@ -8,19 +8,29 @@ import { UserSidebar } from "#components/layout/user/UserSidebar.js";
 export function MyPageLayout(): JSX.Element {
   const mypageMenu: MenuItem[] = [
     {
-      path: "/mypage",
-      label: "마이페이지",
+      path: "/mypage/profile",
+      label: "내 정보",
       icon: UserIcon,
     },
     {
-      path: "/mypage/plans",
-      label: "요금제",
+      path: "/mypage/security",
+      label: "보안 설정",
+      icon: SettingsIcon,
+    },
+    {
+      path: "/mypage/subscription",
+      label: "내 요금제",
       icon: CreditCardIcon,
     },
     {
-      path: "/mypage/edit-profile",
-      label: "회원 정보 수정",
-      icon: SettingsIcon,
+      path: "/mypage/payments",
+      label: "결제 내역",
+      icon: CreditCardIcon,
+    },
+    {
+      path: "/mypage/plans",
+      label: "요금제 변경",
+      icon: CreditCardIcon,
     },
   ];
 
