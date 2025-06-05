@@ -10,6 +10,7 @@ import type { AppRouter } from "@cirrodrive/backend/app-router";
  * @see \@/src/app/provider/trpcClient.ts
  */
 export const trpc = createTRPCReact<AppRouter>();
+export const useUtils = trpc.useUtils;
 
 export const { TRPCProvider, useTRPC, useTRPCClient } =
   createTRPCContext<AppRouter>();
