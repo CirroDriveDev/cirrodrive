@@ -36,6 +36,19 @@ export const AdminUserGetOutputDTOSchema = userSchema
 
 export type AdminUserGetOutputDTO = z.infer<typeof AdminUserGetOutputDTOSchema>;
 
+export const AdminUserCreateInputDTOSchema = userSchema
+  .pick({
+    username: true,
+    password: true,
+    email: true,
+    trialUsed: true,
+  })
+  .required();
+
+export type AdminUserCreateInputDTO = z.infer<
+  typeof AdminUserCreateInputDTOSchema
+>;
+
 export const AdminUserUpdateInputDTOSchema = userSchema
   .pick({
     id: true,

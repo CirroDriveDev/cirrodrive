@@ -1,11 +1,11 @@
 import { useState, useMemo } from "react";
-import type { UserDTO } from "@cirrodrive/schemas/user";
+import { type AdminUserGetOutputDTO } from "@cirrodrive/schemas/admin";
 import { AdminUserItem } from "./AdminUserItem.js";
 import { useUserSearchBarStore } from "#store/useUserSearchBarStore.js";
 import { useUserDelete } from "#services/admin/useDeleteUser.js";
 
 interface UserListProps {
-  users: UserDTO[];
+  users: AdminUserGetOutputDTO[];
 }
 
 type SortKey = "id" | "username" | "email" | "createdAt" | "currentPlanId";

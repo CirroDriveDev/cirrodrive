@@ -167,6 +167,7 @@ export const protectedUserRouter = router({
         offset: z.number().optional().default(0),
       }),
     )
+    .output(z.array(AdminUserGetOutputDTOSchema))
     .query(async ({ input, ctx }) => {
       logger.info({ requestId: ctx.req.id }, "protected.user.list 요청 시작");
 

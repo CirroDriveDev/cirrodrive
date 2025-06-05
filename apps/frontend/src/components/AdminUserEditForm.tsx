@@ -4,11 +4,7 @@ import {
   type AdminUserUpdateInputDTO,
   AdminUserUpdateInputDTOSchema,
 } from "@cirrodrive/schemas/admin";
-import { useQuery } from "@tanstack/react-query";
-import { useEffect } from "react";
-import { useAdminUserUpdate } from "#services/useAdminUserUpdate.js";
-import { useTRPC } from "#services/trpc.js";
-import { Button } from "#shadcn/components/Button.js";
+import { toast } from "react-toastify";
 import { Input } from "#shadcn/components/Input.js";
 import {
   Form,
@@ -18,55 +14,40 @@ import {
   FormLabel,
   FormMessage,
 } from "#shadcn/components/Form.js";
-import { LoadingSpinner } from "#components/shared/LoadingSpinner.js";
 import { LoadingButton } from "#components/shared/LoadingButton.js";
+import { useAdminUserUpdate } from "#services/useAdminUserUpdate.js";
 
-interface UserEditFormProps {
-  id: string;
-  onSubmitSuccess?: () => void;
+interface AdminUserFormProps {
+  defaultValues: AdminUserUpdateInputDTO;
+  onSubmit: (data: AdminUserUpdateInputDTO) => void;
 }
 
 export function AdminUserEditForm({
-  id,
-  onSubmitSuccess,
-}: UserEditFormProps): JSX.Element {
-  const trpc = useTRPC();
-
-  const { updateUser, isPending, isError, error } = useAdminUserUpdate();
-
-  const { data: user, isLoading: isUserLoading } = useQuery({
-    ...trpc.protected.user.get.queryOptions({ id }),
-    enabled: Boolean(id),
-  });
+  defaultValues,
+  onSubmit,
+}: AdminUserFormProps): JSX.Element {
+  const { updateUser, isPending } = useAdminUserUpdate();
 
   const form = useForm<AdminUserUpdateInputDTO>({
     resolver: zodResolver(AdminUserUpdateInputDTOSchema),
-    defaultValues: {
-      username: "",
-      password: undefined,
-      email: "",
-    },
+    defaultValues,
   });
 
-  useEffect(() => {
-    if (user) {
-      form.reset(user);
-    }
-  }, [user, form]);
-
-  if (isUserLoading) {
-    return <LoadingSpinner />;
-  }
-
-  const onSubmit = (data: AdminUserUpdateInputDTO) => {
+  const handleSubmit = (data: AdminUserUpdateInputDTO) => {
     updateUser(data, {
-      onSuccess: onSubmitSuccess,
+      onSuccess: () => {
+        onSubmit(data);
+        toast.success("사용자 정보가 성공적으로 업데이트되었습니다.");
+      },
+      onError: (err) => {
+        toast.error(`사용자 정보 업데이트 실패: ${err.message}`);
+      },
     });
   };
 
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+      <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-4">
         <FormField
           control={form.control}
           name="username"
@@ -109,22 +90,7 @@ export function AdminUserEditForm({
           )}
         />
 
-        {isError && error ?
-          <div className="text-red-500 text-sm">
-            {(error as { message?: string })?.message ??
-              "사용자 수정 중 오류가 발생했습니다."}
-          </div>
-        : null}
-
         <div className="flex justify-end space-x-2">
-          <Button
-            type="button"
-            variant="outline"
-            onClick={onSubmitSuccess}
-            disabled={Boolean(isPending)}
-          >
-            취소
-          </Button>
           <LoadingButton
             type="submit"
             isLoading={isPending}

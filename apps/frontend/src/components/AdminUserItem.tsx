@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { MoreVertical } from "lucide-react";
-import type { UserDTO } from "@cirrodrive/schemas/user";
+import type { AdminUserGetOutputDTO } from "@cirrodrive/schemas/admin";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -17,19 +17,19 @@ import {
 import { AdminUserEditForm } from "#components/AdminUserEditForm.js";
 
 interface UserItemProps {
-  user: UserDTO;
+  user: AdminUserGetOutputDTO;
   onDelete: (id: string) => void;
 }
 
 export function AdminUserItem({ user, onDelete }: UserItemProps): JSX.Element {
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
-  const displayDate = new Date(user.createdAt).toLocaleDateString();
+  const displayDate = user.createdAt.toLocaleDateString();
 
-  const handleEditUser = () => {
+  const openEditDialog = () => {
     setIsEditDialogOpen(true);
   };
 
-  const handleCloseEdit = () => {
+  const closeAdminUpdateUser = () => {
     setIsEditDialogOpen(false);
   };
 
@@ -53,7 +53,7 @@ export function AdminUserItem({ user, onDelete }: UserItemProps): JSX.Element {
                 <DropdownMenuItem asChild>
                   <button
                     type="button"
-                    onClick={handleEditUser}
+                    onClick={openEditDialog}
                     className="w-full px-2 py-1 text-left"
                   >
                     사용자 수정
@@ -79,7 +79,10 @@ export function AdminUserItem({ user, onDelete }: UserItemProps): JSX.Element {
           <DialogHeader>
             <DialogTitle>사용자 수정</DialogTitle>
           </DialogHeader>
-          <AdminUserEditForm id={user.id} onSubmitSuccess={handleCloseEdit} />
+          <AdminUserEditForm
+            defaultValues={user}
+            onSubmit={closeAdminUpdateUser}
+          />
         </DialogContent>
       </Dialog>
     </>
