@@ -790,6 +790,53 @@ export class AdminService {
     this.logger.info({ usernameOrEmail }, "관리자 로그인 성공");
     return user;
   }
+  /**
+   * 특정 기간 동안 탈퇴한 유저 수를 반환합니다.
+   *
+   * 입력된 기간(`"1d"` 혹은 `"1w"`) 동안 탈퇴한 유저 수를 데이터베이스에서 집계하여 반환합니다.
+   *
+   * @param period - 탈퇴 유저 수를 조회할 기간 (`"1d"` 또는 `"1w"`)
+   * @returns `{ number }` - 지정된 기간 동안 탈퇴한 유저 수
+   * @throws 탈퇴한 유저 수 조회 중 오류가 발생하면 해당 에러를 throw합니다.
+   */
+  public async getDeletedUsersCount(period: "1d" | "1w"): Promise<number> {
+  try {
+    const startDate = this.getStartDate(period);
+    this.logger.info(
+      { methodName: "getDeletedUsersCount", period },
+      "탈퇴 유저 수 조회 시작",
+    );
+
+    const count = await this.userModel.count({
+      where: {
+        createdAt: {
+          gte: startDate,
+        },
+      },
+    });
+
+    this.logger.info({ period, count }, "탈퇴 유저 수 조회 성공");
+    return count;
+  } catch (error: unknown) {
+    if (error instanceof Error) {
+      this.logger.error({ error: error.message, period }, "탈퇴 유저 수 조회 실패");
+    } else {
+      this.logger.error({ error: String(error), period }, "탈퇴 유저 수 조회 실패");
+    }
+    throw error;
+  }
+}
+
+private getStartDate(period: "1d" | "1w"): Date {
+  const now = dayjs();
+  if (period === "1d") {
+    return now.subtract(1, "day").toDate();
+  }
+  if (period === "1w") {
+    return now.subtract(1, "week").toDate();
+  }
+  throw new Error("Invalid period");
+}
 
   /**
    * 관리자 로그인 후 세션 토큰 생성
