@@ -22,7 +22,7 @@ export const downloadFileFromUrl = async (opts: {
       if (xhr.status === 200) {
         if (lastProgress < 1) opts.onProgress?.(1);
 
-        const blobUrl = URL.createObjectURL(xhr.response);
+        const blobUrl = URL.createObjectURL(xhr.response as Blob);
         const a = document.createElement("a");
         a.href = blobUrl;
         a.download = opts.name;

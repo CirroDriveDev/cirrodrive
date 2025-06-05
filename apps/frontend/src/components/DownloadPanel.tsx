@@ -30,7 +30,7 @@ function formatSize(size: number): string {
 }
 
 export function DownloadPanel() {
-  const { transfers, removeTransfer, setStatus } = useTransferStore();
+  const { transfers, removeTransfer} = useTransferStore();
   const downloads = transfers.filter((item) => item.type === "download");
   const [isVisible, setIsVisible] = useState(true);
   const prevStatuses = useRef(new Map<string, string>());
