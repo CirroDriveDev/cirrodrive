@@ -4,9 +4,9 @@ import { immer } from "zustand/middleware/immer";
 import type { StateCreator } from "zustand";
 import type { UserDTO } from "@cirrodrive/schemas/user";
 import type { AdminUser } from "#types/admin.js";
-import {
-  type FileTransferStatus,
-  type FileTransfer,
+import type {
+  FileTransfer,
+  FileTransferStatus,
 } from "#types/file-transfer.js";
 
 // ------------------------------------
@@ -59,23 +59,11 @@ export interface TransferStore {
 }
 
 export interface RedirectStore {
-  /**
-   * 리다이렉트할 경로
-   */
   redirectPath: string | null;
-  /**
-   * 리다이렉트 경로를 설정
-   *
-   * @param path - 리다이렉트할 경로
-   */
   setRedirectPath: (path: string) => void;
-  /**
-   * 리다이렉트 경로를 초기화
-   */
   clearRedirectPath: () => void;
 }
 
-// 모든 슬라이스를 포함하는 상태 타입
 export type StoreState = UserStore &
   ModalStore &
   SearchBarStore &
@@ -89,23 +77,13 @@ export type StoreState = UserStore &
 // Store Slice Creators
 // ------------------------------------
 
-export const createUserSlice: StateCreator<
-  StoreState,
-  [["zustand/immer", never]],
-  [],
-  UserStore
-> = (set) => ({
+export const createUserSlice: StateCreator<StoreState, [["zustand/immer", never]], [], UserStore> = (set) => ({
   user: null,
   setUser: (user) => set(() => ({ user })),
   clearUser: () => set(() => ({ user: null })),
 });
 
-export const createModalSlice: StateCreator<
-  StoreState,
-  [["zustand/immer", never]],
-  [],
-  ModalStore
-> = (set) => ({
+export const createModalSlice: StateCreator<StoreState, [["zustand/immer", never]], [], ModalStore> = (set) => ({
   isOpen: false,
   title: "",
   content: null,
@@ -122,55 +100,30 @@ export const createModalSlice: StateCreator<
     })),
 });
 
-export const createSearchBarSlice: StateCreator<
-  StoreState,
-  [["zustand/immer", never]],
-  [],
-  SearchBarStore
-> = (set) => ({
+export const createSearchBarSlice: StateCreator<StoreState, [["zustand/immer", never]], [], SearchBarStore> = (set) => ({
   searchTerm: "",
   setSearchTerm: (term) => set(() => ({ searchTerm: term })),
 });
 
-export const createRenameSlice: StateCreator<
-  StoreState,
-  [["zustand/immer", never]],
-  [],
-  RenameStore
-> = (set) => ({
+export const createRenameSlice: StateCreator<StoreState, [["zustand/immer", never]], [], RenameStore> = (set) => ({
   folderId: null,
   setFolderId: (folderId) => set(() => ({ folderId })),
   clearFolderId: () => set(() => ({ folderId: null })),
 });
 
-export const createJwtSlice: StateCreator<
-  StoreState,
-  [["zustand/immer", never]],
-  [],
-  JwtStore
-> = (set) => ({
+export const createJwtSlice: StateCreator<StoreState, [["zustand/immer", never]], [], JwtStore> = (set) => ({
   token: null,
   setToken: (token) => set(() => ({ token })),
   clearToken: () => set(() => ({ token: null })),
 });
 
-export const createAdminSlice: StateCreator<
-  StoreState,
-  [["zustand/immer", never]],
-  [],
-  AdminStore
-> = (set) => ({
+export const createAdminSlice: StateCreator<StoreState, [["zustand/immer", never]], [], AdminStore> = (set) => ({
   admin: null,
   setAdmin: (admin) => set(() => ({ admin })),
   clearAdmin: () => set(() => ({ admin: null })),
 });
 
-export const createTransferSlice: StateCreator<
-  StoreState,
-  [["zustand/immer", never]],
-  [],
-  TransferStore
-> = (set) => ({
+export const createTransferSlice: StateCreator<StoreState, [["zustand/immer", never]], [], TransferStore> = (set) => ({
   transfers: [],
   addTransfer: (transfer) =>
     set((state) => {
@@ -198,16 +151,7 @@ export const createTransferSlice: StateCreator<
     }),
 });
 
-export const createRedirectSlice: StateCreator<
-  StoreState,
-  [
-    ["zustand/immer", never],
-    ["zustand/persist", unknown],
-    ["zustand/devtools", never],
-  ],
-  [],
-  RedirectStore
-> = (set) => ({
+export const createRedirectSlice: StateCreator<StoreState, [["zustand/immer", never]], [], RedirectStore> = (set) => ({
   redirectPath: null,
   setRedirectPath: (path) =>
     set((state) => {
@@ -219,14 +163,9 @@ export const createRedirectSlice: StateCreator<
     }),
 });
 
-// ------------------------------------
-// Store Hook
-// ------------------------------------
-
 export const useBoundStore = create<StoreState>()(
   devtools(
     persist(
-      // immer 미들웨어를 사용하여 불변성을 유지하면서 상태를 업데이트
       immer((...opts) => ({
         ...createUserSlice(...opts),
         ...createModalSlice(...opts),
@@ -238,14 +177,13 @@ export const useBoundStore = create<StoreState>()(
         ...createRedirectSlice(...opts),
       })),
       {
-        name: "store", // 로컬 스토리지에 저장될 이름
-        // partialize 함수를 사용하여 특정 state만 저장
+        name: "store",
         partialize: (slices) => ({
           user: slices.user,
-          admin: slices.admin, // admin도 저장
+          admin: slices.admin,
           redirectPath: slices.redirectPath,
         }),
-      },
-    ),
-  ),
+      }
+    )
+  )
 );
