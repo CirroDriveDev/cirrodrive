@@ -8,7 +8,6 @@
       "types": "./dist/prisma/index.d.ts",
       "import": "./dist/prisma/index.js"
     },
-    "#schemas": "./dist/zod/schemas/index.ts",
     "#client": "./src/client.ts",
     "#healthcheck": "./src/healthcheck.ts",
     "#seed": "./src/seed.ts",
@@ -20,7 +19,6 @@
       "types": "./dist/prisma/index.d.ts",
       "import": "./dist/prisma/index.js"
     },
-    "./schemas": "./dist/zod/schemas/index.ts",
     "./client": "./src/client.ts",
     "./healthcheck": "./src/healthcheck.ts",
     "./seed": "./src/seed.ts",
@@ -53,7 +51,6 @@
     "@prisma/client": "^6.8.2",
     "mysql2": "^3.14.1",
     "prisma": "^6.8.2",
-    "prisma-zod-generator": "^0.8.13",
     "tsx": "catalog:",
     "zod": "catalog:"
   },
