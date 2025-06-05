@@ -35,17 +35,20 @@ import { useRenameStore } from "#store/useRenameStore.js";
 interface EntryItemProps {
   entry: EntryDTO;
   onDoubleClick?: (e: React.MouseEvent<HTMLDivElement>) => void;
+  isChecked?: boolean;
+  onCheckChange?: (checked: boolean) => void;
 }
 
 export function EntryItem({
   entry,
   onDoubleClick,
+  isChecked = false,
+  onCheckChange,
 }: EntryItemProps): JSX.Element {
   const { id, name, type, size, trashedAt } = entry;
   const navigate = useNavigate();
   const { folderId, clearFolderId } = useRenameStore();
 
-  // 이름 변경
   const [isEditing, setIsEditing] = useState(false);
   const [newName, setNewName] = useState(name);
   const { handleRenameFile, handleRenameFolder, isRenaming } = useFileRename(
@@ -60,12 +63,11 @@ export function EntryItem({
     return clearFolderId;
   }, [folderId, id, type, clearFolderId]);
 
-  // 변수 이름 변경: newName1 -> newNameValue
   const handleRename = (newNameValue: string): void => {
     if (type === "folder") {
-      handleRenameFolder(newNameValue); // 폴더 이름 변경
+      handleRenameFolder(newNameValue);
     } else {
-      handleRenameFile(newNameValue); // 파일 이름 변경
+      handleRenameFile(newNameValue);
     }
   };
 
@@ -81,50 +83,30 @@ export function EntryItem({
     setIsEditing(false);
   };
 
-  const handleKeyDown = (
-    event: React.KeyboardEvent<HTMLInputElement>,
-  ): void => {
-    if (event.key === "Enter") {
-      handleRenameSubmit();
-    } else if (event.key === "Escape") {
-      handleCancel();
-    }
+  const handleKeyDown = (event: React.KeyboardEvent<HTMLInputElement>): void => {
+    if (event.key === "Enter") handleRenameSubmit();
+    else if (event.key === "Escape") handleCancel();
   };
 
-  // 이름 출력
   const nameRef = useRef<HTMLDivElement>(null);
   const { width } = useContainerDimensions(nameRef);
   const truncatedName =
     name.length > width / 8 - 4 ? `${name.slice(0, width / 8 - 4)}...` : name;
 
-  // 정보 출력
   const displayUpdatedAt = entry.updatedAt.toLocaleString();
   const displaySize = size ? formatSize(size) : "-";
   const iconVariant = type === "folder" ? type : inferFileType(name);
 
-  // 다운로드
   const { downloadSingleFile } = useDownloadSingleFile();
-
-  // 이동
   const { openMoveModal } = useMoveEntry(entry);
-
-  // 코드 생성
   const { get: getCode } = useGetCodeByFileId(type === "file" ? id : null);
-
-  // 휴지통
   const { handleTrash } = useTrash(id);
-  const { handleRestore } = useRestore(id); // 복원하기
-
-  // 완전 삭제
+  const { handleRestore } = useRestore(id);
   const { handleFileDelete } = useFileDelete(id);
   const { handleFolderDelete } = useFolderDelete(id);
-
   const deleteEntry = type === "folder" ? handleFolderDelete : handleFileDelete;
 
-  // 이벤트 핸들러
-  const handleDoubleClick = async (
-    e: React.MouseEvent<HTMLDivElement>,
-  ): Promise<void> => {
+  const handleDoubleClick = async (e: React.MouseEvent<HTMLDivElement>): Promise<void> => {
     if (onDoubleClick) {
       onDoubleClick(e);
     } else if (type === "folder") {
@@ -139,16 +121,29 @@ export function EntryItem({
       className="flex w-full cursor-pointer items-center justify-between gap-4 px-4 py-2 hover:bg-accent"
       onDoubleClick={handleDoubleClick}
     >
+      {/* ✅ 체크박스 열: w-8로 아이콘과 정렬 */}
+      <div className="flex w-8 items-center justify-center">
+        {type === "file" && (
+          <input
+            type="checkbox"
+            checked={isChecked}
+            onChange={(e) => onCheckChange?.(e.target.checked)}
+            onClick={(e) => e.stopPropagation()}
+          />
+        )}
+      </div>
+
+      {/* ✅ 아이콘 열 */}
       <div className="flex w-8 items-center justify-center">
         <EntryIcon variant={iconVariant} />
       </div>
+
+      {/* 이름 */}
       <div className="flex min-w-32 flex-grow items-center gap-2" ref={nameRef}>
-        {isEditing ?
+        {isEditing ? (
           <div
             className="flex items-center gap-2"
-            onKeyDown={(e) => {
-              e.stopPropagation();
-            }}
+            onKeyDown={(e) => e.stopPropagation()}
           >
             <input
               type="text"
@@ -161,30 +156,37 @@ export function EntryItem({
               onKeyDown={handleKeyDown}
               autoFocus
               onFocus={(e) => e.currentTarget.select()}
-              disabled={isRenaming} // 이름 변경 중에는 입력 비활성화
+              disabled={isRenaming}
               className="rounded border text-sm"
             />
             <button
               type="button"
               onClick={handleCancel}
               className={`text-sm ${isRenaming ? "text-gray-400" : "text-red-500"}`}
-              disabled={isRenaming} // 이름 변경 중 취소 버튼 비활성화
+              disabled={isRenaming}
             >
               취소
             </button>
           </div>
-        : <div className="select-none truncate">
-            {isRenaming ?
+        ) : (
+          <div className="select-none truncate">
+            {isRenaming ? (
               <span className="flex items-center text-sm text-gray-400">
                 <Loader className="mr-2 animate-spin" size={16} />
                 저장 중...
               </span>
-            : truncatedName}
+            ) : (
+              truncatedName
+            )}
           </div>
-        }
+        )}
       </div>
+
+      {/* 날짜, 크기 */}
       <div className="w-52 text-nowrap">{displayUpdatedAt}</div>
       <div className="w-20">{displaySize}</div>
+
+      {/* 메뉴 */}
       <div className="flex w-8 items-center justify-center">
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
@@ -194,63 +196,54 @@ export function EntryItem({
           </DropdownMenuTrigger>
           <DropdownMenuContent
             className="w-56"
-            onCloseAutoFocus={(e) => {
-              e.preventDefault();
-            }}
+            onCloseAutoFocus={(e) => e.preventDefault()}
           >
-            {!trashedAt ?
+            {!trashedAt ? (
               <DropdownMenuGroup>
-                {type === "file" ?
+                {type === "file" && (
                   <DropdownMenuItem
                     onClick={() => downloadSingleFile({ fileId: id, name })}
                   >
                     <DownloadIcon />
                     <span>다운로드</span>
                   </DropdownMenuItem>
-                : null}
+                )}
                 <DropdownMenuItem
-                  onClick={() => {
-                    setTimeout(() => {
-                      setIsEditing(true);
-                    }, 0);
-                  }}
+                  onClick={() => setTimeout(() => setIsEditing(true), 0)}
                   className="hover:bg-accent"
-                  onPointerLeave={(event) => event.preventDefault()}
-                  onPointerMove={(event) => event.preventDefault()}
+                  onPointerLeave={(e) => e.preventDefault()}
+                  onPointerMove={(e) => e.preventDefault()}
                 >
                   <Edit2 />
                   <span>이름 변경</span>
                 </DropdownMenuItem>
-                {type === "file" ?
+                {type === "file" && (
                   <DropdownMenuItem onClick={getCode}>
                     <Activity />
                     <span>코드 공유하기</span>
                   </DropdownMenuItem>
-                : null}
+                )}
                 <DropdownMenuItem onClick={openMoveModal}>
                   <MoveIcon />
                   <span>이동</span>
                 </DropdownMenuItem>
-                {["file", "folder"].includes(type) && (
-                  <DropdownMenuItem onClick={() => handleTrash(type)}>
-                    <Trash2 />
-                    <span>휴지통</span>
-                  </DropdownMenuItem>
-                )}
+                <DropdownMenuItem onClick={() => handleTrash(type)}>
+                  <Trash2 />
+                  <span>휴지통</span>
+                </DropdownMenuItem>
               </DropdownMenuGroup>
-            : <DropdownMenuGroup>
-                {["file", "folder"].includes(type) && (
-                  <DropdownMenuItem onClick={() => handleRestore(type)}>
-                    <Activity />
-                    <span>복원하기</span>
-                  </DropdownMenuItem>
-                )}
+            ) : (
+              <DropdownMenuGroup>
+                <DropdownMenuItem onClick={() => handleRestore(type)}>
+                  <Activity />
+                  <span>복원하기</span>
+                </DropdownMenuItem>
                 <DropdownMenuItem onClick={deleteEntry}>
                   <Trash2Icon />
                   <span>삭제하기</span>
                 </DropdownMenuItem>
               </DropdownMenuGroup>
-            }
+            )}
           </DropdownMenuContent>
         </DropdownMenu>
       </div>
