@@ -1,6 +1,10 @@
 import { z } from "zod";
 import { TRPCError } from "@trpc/server";
-import { userInputSchema } from "@cirrodrive/schemas/admin";
+import {
+  userInputSchema,
+  AdminUserUpdateInputDTOSchema,
+  AdminUserGetOutputDTOSchema,
+} from "@cirrodrive/schemas/admin";
 import { router, adminProcedure } from "#loaders/trpc.loader";
 import { container } from "#loaders/inversify.loader";
 import { AdminService } from "#services/admin.service";
@@ -44,19 +48,15 @@ export const protectedUserRouter = router({
     }),
 
   update: adminProcedure
-    .input(
-      userInputSchema.extend({
-        userId: z.string(),
-      }),
-    )
+    .input(AdminUserUpdateInputDTOSchema)
     .mutation(async ({ input, ctx }) => {
       logger.info(
         { requestId: ctx.req.id },
-        `protected.user.update 요청 시작: ${input.userId}`,
+        `protected.user.update 요청 시작: ${input.id}`,
       );
 
       try {
-        const existingUser = await adminService.getUserById(input.userId);
+        const existingUser = await adminService.getUserById(input.id);
         if (!existingUser) {
           throw new TRPCError({
             code: "NOT_FOUND",
@@ -64,24 +64,22 @@ export const protectedUserRouter = router({
           });
         }
 
-        const updatedUser = await adminService.updateUser(input.userId, {
+        const updatedUser = await adminService.updateUser(input.id, {
           username: input.username,
           password: input.password,
           email: input.email,
-          planId: input.currentPlanId,
-          profileImageUrl: input.profileImageUrl,
-          usedStorage: input.usedStorage,
+          trialUsed: input.trialUsed,
         });
 
         logger.info(
           { requestId: ctx.req.id },
-          `protected.user.update 요청 성공: ${input.userId}`,
+          `protected.user.update 요청 성공: ${input.id}`,
         );
         return updatedUser;
       } catch (error) {
         logger.error(
           { requestId: ctx.req.id, error },
-          `protected.user.update 요청 실패: ${input.userId}`,
+          `protected.user.update 요청 실패: ${input.id}`,
         );
 
         throw new TRPCError({
@@ -125,16 +123,18 @@ export const protectedUserRouter = router({
         });
       }
     }),
+
   get: adminProcedure
-    .input(z.object({ userId: z.string() }))
+    .input(z.object({ id: z.string() }))
+    .output(AdminUserGetOutputDTOSchema)
     .query(async ({ input, ctx }) => {
       logger.info(
         { requestId: ctx.req.id },
-        `protected.user.get 요청 시작: ${input.userId}`,
+        `protected.user.get 요청 시작: ${input.id}`,
       );
 
       try {
-        const user = await adminService.getUserById(input.userId);
+        const user = await adminService.getUserById(input.id);
         if (!user) {
           throw new TRPCError({
             code: "NOT_FOUND",
@@ -144,13 +144,13 @@ export const protectedUserRouter = router({
 
         logger.info(
           { requestId: ctx.req.id },
-          `protected.user.get 요청 성공: ${input.userId}`,
+          `protected.user.get 요청 성공: ${input.id}`,
         );
         return user;
       } catch (error) {
         logger.error(
           { requestId: ctx.req.id, error },
-          `protected.user.get 요청 실패: ${input.userId}`,
+          `protected.user.get 요청 실패: ${input.id}`,
         );
 
         throw new TRPCError({

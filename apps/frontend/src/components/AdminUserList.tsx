@@ -1,6 +1,6 @@
 import { useState, useMemo } from "react";
 import type { UserDTO } from "@cirrodrive/schemas/user";
-import { UserItem } from "./UserItem.js";
+import { AdminUserItem } from "./AdminUserItem.js";
 import { useUserSearchBarStore } from "#store/useUserSearchBarStore.js";
 import { useUserDelete } from "#services/admin/useDeleteUser.js";
 
@@ -20,7 +20,7 @@ interface SearchFields {
   currentPlanId: boolean;
 }
 
-export function UserList({ users }: UserListProps): JSX.Element {
+export function AdminUserList({ users }: UserListProps): JSX.Element {
   const { searchTerm, searchFields } = useUserSearchBarStore() as {
     searchTerm: string;
     searchFields: SearchFields;
@@ -147,7 +147,11 @@ export function UserList({ users }: UserListProps): JSX.Element {
       <div className="flex h-[720px] w-full flex-col divide-y divide-muted-foreground overflow-auto border-y border-y-muted-foreground">
         {sortedUsers.length > 0 ?
           sortedUsers.map((user) => (
-            <UserItem key={user.id} user={user} onDelete={handleUserDelete} />
+            <AdminUserItem
+              key={user.id}
+              user={user}
+              onDelete={handleUserDelete}
+            />
           ))
         : <div className="px-16 py-4 text-muted-foreground">
             검색 결과가 없습니다.

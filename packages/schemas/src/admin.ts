@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { userSchema } from "#schemas/user";
 
 export const userInputSchema = z.object({
   username: z.string(),
@@ -19,3 +20,33 @@ export const adminUserDTOSchema = z.object({
   isAdmin: z.boolean().default(true),
   createdAt: z.date(),
 });
+
+export const AdminUserGetOutputDTOSchema = userSchema
+  .pick({
+    id: true,
+    username: true,
+    email: true,
+    currentPlanId: true,
+    trialUsed: true,
+    usedStorage: true,
+    createdAt: true,
+    updatedAt: true,
+  })
+  .required();
+
+export type AdminUserGetOutputDTO = z.infer<typeof AdminUserGetOutputDTOSchema>;
+
+export const AdminUserUpdateInputDTOSchema = userSchema
+  .pick({
+    id: true,
+    username: true,
+    password: true,
+    email: true,
+    trialUsed: true,
+  })
+  .partial()
+  .required({ id: true });
+
+export type AdminUserUpdateInputDTO = z.infer<
+  typeof AdminUserUpdateInputDTOSchema
+>;

@@ -284,7 +284,7 @@ export class AdminService {
       email?: string;
       planId?: string;
       profileImageUrl?: string | null;
-      usedStorage?: number;
+      trialUsed?: boolean;
     },
   ): Promise<User> {
     try {
@@ -307,7 +307,7 @@ export class AdminService {
         email: data.email ?? existingUser.email,
         currentPlan: data.planId ? { connect: { id: data.planId } } : undefined,
         profileImageUrl: data.profileImageUrl ?? existingUser.profileImageUrl,
-        usedStorage: data.usedStorage ?? existingUser.usedStorage,
+        trialUsed: data.trialUsed ?? existingUser.trialUsed,
       };
 
       if (data.password) {

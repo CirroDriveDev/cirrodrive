@@ -1,5 +1,5 @@
 import { LoadingSpinner } from "#components/shared/LoadingSpinner.js";
-import { UserList } from "#components/UserList.js";
+import { AdminUserList } from "#components/AdminUserList.js";
 import { useUserList } from "#services/useUserList.js";
 import { UserSearchBar } from "#components/layout/UserSearchBar.js";
 
@@ -26,7 +26,7 @@ export function AdminUserPage(): JSX.Element {
           !userListQuery.isError &&
           userListQuery.data
         ) ?
-          <UserList users={userListQuery.data ?? []} />
+          <AdminUserList users={userListQuery.data ?? []} />
         : null}
       </div>
     </div>
