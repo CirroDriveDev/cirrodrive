@@ -51,10 +51,6 @@
     "preview": "vite preview",
     "test": "vitest",
     "test:ci": "vitest --run --reporter=default --reporter=json",
-    "test:integration": "vitest --dir test/integrations",
-    "test:integration:ci": "vitest run --dir test/integrations --reporter=default --reporter=json",
-    "test:unit": "vitest --dir test/units",
-    "test:unit:ci": "vitest run --dir test/units --reporter=default --reporter=json",
     "typecheck": "tsc --noEmit --skipLibCheck",
     "ui-add": "shadcn add"
   },
