@@ -9,8 +9,8 @@ import type {
 import type { TRPCClientErrorLike } from "@trpc/client";
 import type { UseTRPCMutationOptions } from "@trpc/react-query/shared";
 import { trpc } from "#services/trpc.js";
-import { useEmailCode } from "#services/useEmailCode.js";
 
+// 이메일 인증 관련 필드와 로직은 삭제하고, 단순하게 이름, 이메일, 비밀번호, 비밀번호 확인만 받습니다.
 const accountCreationSchema = z
   .object({
     username: z.string().min(1, "이름을 입력하세요."),
@@ -19,13 +19,12 @@ const accountCreationSchema = z
     confirmPassword: z
       .string()
       .min(8, "비밀번호 확인도 최소 8자 이상이어야 합니다."),
+    // 프로필 이미지 URL은 사용자 입력 대신 제출 시 기본값을 사용합니다.
     profileImageUrl: z
       .string()
       .url("올바른 URL 형식이어야 합니다.")
       .optional()
-      .or(z.literal("")), // 빈 문자열 허용
-    isAdmin: z.boolean(),
-    verificationCode: z.string().optional(),
+      .or(z.literal("")),
   })
   .refine((data) => data.password === data.confirmPassword, {
     message: "비밀번호가 일치하지 않습니다.",
@@ -42,12 +41,6 @@ type UseAccountCreationOptions = UseTRPCMutationOptions<
 
 export interface UseAccountCreationReturn {
   email: string;
-  verificationCode: string;
-  timer: number;
-  cooldown: number;
-  isEmailVerified: boolean;
-  sendError?: string;
-  verifyError?: string;
   input: AccountCreationInput;
   validationError: ZodFormattedError<AccountCreationInput> | undefined;
   submissionError: string | undefined;
@@ -56,60 +49,37 @@ export interface UseAccountCreationReturn {
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>,
   ) => void;
   handleFormSubmit: (e: React.FormEvent) => void;
-  handleCodeInputChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
-  handleSendCode: () => Promise<void>;
-  handleVerifyCode: () => Promise<void>;
 }
 
 export const useAccountCreation = (
   opts?: UseAccountCreationOptions,
 ): UseAccountCreationReturn => {
+  // verificationCode와 이메일 인증 관련 필드는 제거하고 최소한의 필드만 초기화합니다.
   const [input, setInput] = useState<AccountCreationInput>({
     username: "",
     email: "",
     password: "",
     confirmPassword: "",
-    profileImageUrl: "",
-    isAdmin: false,
-    verificationCode: "",
+    profileImageUrl: "", // 제출 시 기본 이미지로 대체됨.
   });
 
   const [validationError, setValidationError] =
     useState<ZodFormattedError<AccountCreationInput>>();
   const [submissionError, setSubmissionError] = useState<string>();
 
-  const {
-    email,
-    verificationCode,
-    handleCodeInputChange,
-    handleSendCode,
-    handleVerifyCode,
-    timer,
-    cooldown,
-    isEmailVerified,
-    sendError,
-    verifyError,
-  } = useEmailCode();
-
   const mutation = trpc.protected.user.create.useMutation({
     ...opts,
-    onSuccess: (_data) => {
+    onSuccess: () => {
       setSubmissionError(undefined);
+      // 성공 후 입력폼 초기화
       setInput({
         username: "",
         email: "",
         password: "",
         confirmPassword: "",
         profileImageUrl: "",
-        isAdmin: false,
-        verificationCode: "",
       });
-      // 관리자 계정 여부에 따라 다른 메시지 표시
-      if (input.isAdmin) {
-        toast.success("관리자 계정 생성이 완료되었습니다.");
-      } else {
-        toast.success("계정 생성이 완료되었습니다.");
-      }
+      toast.success("계정 생성이 완료되었습니다.");
     },
     onError: (error) => {
       setSubmissionError(
@@ -131,30 +101,25 @@ export const useAccountCreation = (
   const handleFormSubmit = (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (!isEmailVerified) {
-      setSubmissionError("이메일 인증이 필요합니다.");
-      return;
-    }
-
-    const result = accountCreationSchema.safeParse({
-      ...input,
-      email,
-      verificationCode,
-    });
+    const result = accountCreationSchema.safeParse(input);
 
     if (result.success) {
       setValidationError(undefined);
-
-      const { username, password, isAdmin, profileImageUrl } = result.data;
+      const { username, email, password, profileImageUrl } = result.data;
+      // 기본 프로필 이미지 URL (cirrodrive/apps/frontend/public/logo.png) 다 이걸로 설정
+      const defaultProfileUrl = `${window.location.origin}/logo.png`;
+      const finalProfileImageUrl =
+        profileImageUrl && profileImageUrl.trim() !== "" ?
+          profileImageUrl
+        : defaultProfileUrl;
 
       mutation.mutate({
         username,
         email,
         password,
-        isAdmin,
         usedStorage: 0,
         currentPlanId: "",
-        profileImageUrl: profileImageUrl ?? null,
+        profileImageUrl: finalProfileImageUrl,
       });
     } else {
       setValidationError(result.error.format());
@@ -163,21 +128,12 @@ export const useAccountCreation = (
   };
 
   return {
-    email,
-    verificationCode,
-    timer,
-    cooldown,
-    isEmailVerified,
-    sendError,
-    verifyError,
+    email: input.email,
     input,
     validationError,
     submissionError,
     mutation,
     handleInputChange,
     handleFormSubmit,
-    handleCodeInputChange,
-    handleSendCode,
-    handleVerifyCode,
   };
 };
