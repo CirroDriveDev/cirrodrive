@@ -50,4 +50,18 @@ export class SubscriptionRepository extends BaseRepository {
   async deleteById(id: string): Promise<Subscription> {
     return this.prisma.subscription.delete({ where: { id } });
   }
+
+  async findSubscriptionsDueForBilling(currentDate: Date) {
+    return this.prisma.subscription.findMany({
+      where: {
+        status: { in: ["TRIAL", "ACTIVE"] },
+        nextBillingAt: { lte: currentDate },
+      },
+      include: {
+        plan: true,
+        billing: true,
+        user: true,
+      },
+    });
+  }
 }

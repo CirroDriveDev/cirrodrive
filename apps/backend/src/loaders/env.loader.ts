@@ -25,6 +25,8 @@ const envSchema = z
     AWS_CLOUDFRONT_PRIVATE_KEY: z.string(),
     AWS_CLOUDFRONT_EXPIRES_IN_SECONDS: z.coerce.number().default(3600),
     PAYMENT_TOSS_SECRET_KEY: z.string(),
+    BILLING_CRON_ENABLED: z.string().optional().default("true"),
+    BILLING_CRON_SCHEDULE: z.string().optional().default("0 * * * *"),
   })
   .transform((env) => {
     return {
@@ -51,4 +53,6 @@ export const env = envSchema.parse({
   AWS_CLOUDFRONT_EXPIRES_IN_SECONDS:
     process.env.AWS_CLOUDFRONT_EXPIRES_IN_SECONDS,
   PAYMENT_TOSS_SECRET_KEY: process.env.PAYMENT_TOSS_SECRET_KEY,
+  BILLING_CRON_ENABLED: process.env.BILLING_CRON_ENABLED,
+  BILLING_CRON_SCHEDULE: process.env.BILLING_CRON_SCHEDULE,
 });

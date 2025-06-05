@@ -32,6 +32,8 @@ import { SubscriptionManagerService } from "#services/subscription-manager.servi
 import { UsageRecordRepository } from "#repositories/usage-record.repository";
 import { BillingRepository } from "#repositories/billing.repository";
 import { StorageService } from "#services/storage.service";
+import { CronSchedulerService } from "#services/cron-scheduler.service";
+import { BillingCronService } from "#services/billing-cron.service";
 
 const inversifyLogger = logger.child({ prefix: "Inversify" });
 
@@ -83,6 +85,8 @@ container.bind(SubscriptionService).toSelf();
 container.bind(PaymentService).toSelf();
 container.bind(SubscriptionManagerService).toSelf();
 container.bind(StorageService).toSelf();
+container.bind(CronSchedulerService).toSelf();
+container.bind(BillingCronService).toSelf();
 
 inversifyLogger.info("Inversify loaded successfully");
 
