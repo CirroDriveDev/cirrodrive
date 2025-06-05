@@ -39,7 +39,6 @@ import { AdminLayout } from "#components/layout/admin/AdminLayout.js";
 import { UserWorkspaceLayout } from "#components/layout/user/UserWorkspaceLayout.js";
 import { GuestLayout } from "#components/layout/guest/GuestLayout.js";
 import { MyPageLayout } from "#components/layout/user/MyPageLayout.js";
-import { AccountCreationPage } from "#pages/admin/createuser.js";
 import { BillingConfirmPage } from "#pages/billing/confirm/[plan-id].js";
 import { PlansPage } from "#pages/mypage/plans.js";
 import { SubscriptionPage } from "#pages/mypage/subscription.js";
@@ -188,7 +187,6 @@ export function Router(): JSX.Element {
             <Route path="user" element={<AdminUserPage />} />
             <Route path="file" element={<AdminFilePage />} />
             <Route path="dashboard" element={<AdminDashboardPage />} />
-            <Route path="creat" element={<AccountCreationPage />} />
           </Route>
         </Route>
 

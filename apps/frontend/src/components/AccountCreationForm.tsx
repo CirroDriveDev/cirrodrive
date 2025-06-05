@@ -2,7 +2,15 @@ import { Button } from "#shadcn/components/Button.js";
 import { FormInputField } from "#components/shared/FormInputField.js";
 import { useAccountCreation } from "#services/useAccountCreation.js";
 
-export function AccountCreationForm(): JSX.Element {
+interface AccountCreationFormProps {
+  // 계정 생성이 완료되면 호출되어 다이얼로그를 닫는 등 상위 컴포넌트의 동작을 처리합니다.
+  onSubmit?: () => void;
+}
+
+export function AccountCreationForm({
+  onSubmit,
+}: AccountCreationFormProps): JSX.Element {
+  // 두 번째 인자로 onSubmit 콜백을 전달하여, 성공 시 AccountCreationForm을 사용하는 부모(예: 다이얼로그)에서 후속 처리를 할 수 있습니다.
   const {
     input,
     validationError,
@@ -10,12 +18,7 @@ export function AccountCreationForm(): JSX.Element {
     handleInputChange,
     handleFormSubmit,
     mutation,
-  } = useAccountCreation({
-    onSuccess: () => {
-      // 성공 메시지는 useAccountCreation 내부에서 처리합니다.
-    },
-    retry: 0,
-  });
+  } = useAccountCreation({}, onSubmit);
 
   const { username, email, password, confirmPassword } = input;
 

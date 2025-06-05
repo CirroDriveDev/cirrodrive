@@ -1,4 +1,4 @@
-import { toast } from "react-toastify"; // Ensure toast is properly imported
+import { toast } from "react-toastify";
 import { useState } from "react";
 import { z, type ZodFormattedError } from "zod";
 import type {
@@ -10,7 +10,7 @@ import type { TRPCClientErrorLike } from "@trpc/client";
 import type { UseTRPCMutationOptions } from "@trpc/react-query/shared";
 import { trpc } from "#services/trpc.js";
 
-// 이메일 인증 관련 필드와 로직은 삭제하고, 단순하게 이름, 이메일, 비밀번호, 비밀번호 확인만 받습니다.
+// 계정 생성 검증 스키마
 const accountCreationSchema = z
   .object({
     username: z.string().min(1, "이름을 입력하세요."),
@@ -19,7 +19,7 @@ const accountCreationSchema = z
     confirmPassword: z
       .string()
       .min(8, "비밀번호 확인도 최소 8자 이상이어야 합니다."),
-    // 프로필 이미지 URL은 사용자 입력 대신 제출 시 기본값을 사용합니다.
+    // 프로필 이미지 URL은 선택적이며, 사용자가 입력하지 않으면 기본값을 사용합니다.
     profileImageUrl: z
       .string()
       .url("올바른 URL 형식이어야 합니다.")
@@ -51,16 +51,20 @@ export interface UseAccountCreationReturn {
   handleFormSubmit: (e: React.FormEvent) => void;
 }
 
+/**
+ * UseAccountCreation 훅은 두 번째 파라미터로 onSuccessCallback을 받아, 계정 생성 성공 시 해당 콜백을
+ * 호출합니다.
+ */
 export const useAccountCreation = (
   opts?: UseAccountCreationOptions,
+  onSuccessCallback?: () => void,
 ): UseAccountCreationReturn => {
-  // verificationCode와 이메일 인증 관련 필드는 제거하고 최소한의 필드만 초기화합니다.
   const [input, setInput] = useState<AccountCreationInput>({
     username: "",
     email: "",
     password: "",
     confirmPassword: "",
-    profileImageUrl: "", // 제출 시 기본 이미지로 대체됨.
+    profileImageUrl: "",
   });
 
   const [validationError, setValidationError] =
@@ -71,7 +75,7 @@ export const useAccountCreation = (
     ...opts,
     onSuccess: () => {
       setSubmissionError(undefined);
-      // 성공 후 입력폼 초기화
+      // 계정 생성 성공 후 입력 폼 초기화
       setInput({
         username: "",
         email: "",
@@ -80,6 +84,9 @@ export const useAccountCreation = (
         profileImageUrl: "",
       });
       toast.success("계정 생성이 완료되었습니다.");
+      if (onSuccessCallback) {
+        onSuccessCallback();
+      }
     },
     onError: (error) => {
       setSubmissionError(
@@ -106,8 +113,10 @@ export const useAccountCreation = (
     if (result.success) {
       setValidationError(undefined);
       const { username, email, password, profileImageUrl } = result.data;
-      // 기본 프로필 이미지 URL (cirrodrive/apps/frontend/public/logo.png) 다 이걸로 설정
-      const defaultProfileUrl = `${window.location.origin}/logo.png`;
+
+      // 고유 토큰을 생성하여 기본 프로필 이미지 URL에 쿼리 파라미터로 붙입니다.
+      const uniqueToken = Date.now().toString(); // 또는 uuid를 사용할 수 있습니다.
+      const defaultProfileUrl = `${window.location.origin}/logo.png?token=${uniqueToken}`;
       const finalProfileImageUrl =
         profileImageUrl && profileImageUrl.trim() !== "" ?
           profileImageUrl

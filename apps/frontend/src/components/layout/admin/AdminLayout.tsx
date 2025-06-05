@@ -1,5 +1,5 @@
 import { Outlet } from "react-router";
-import { Home, Users, FileText, PlusCircle } from "lucide-react";
+import { Home, Users, FileText } from "lucide-react";
 import { type MenuItem } from "#types/menuItem.js";
 import { AdminHeader } from "#components/layout/admin/AdminHeader.js";
 import { AdminSidebar } from "#components/layout/admin/AdminSidebar.js";
@@ -20,11 +20,6 @@ export const adminMenu: MenuItem[] = [
     path: "/admin/file",
     label: "파일 관리",
     icon: FileText,
-  },
-  {
-    path: "/admin/creat",
-    label: "사용자 계정 생성",
-    icon: PlusCircle,
   },
 ] as const satisfies MenuItem[];
 
