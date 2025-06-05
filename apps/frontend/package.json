@@ -88,6 +88,7 @@
     "@radix-ui/themes": "^3.2.1",
     "@tanstack/react-query": "catalog:",
     "@tanstack/react-query-devtools": "catalog:",
+    "@tanstack/react-table": "^8.21.3",
     "@tosspayments/tosspayments-sdk": "^2.3.5",
     "@trpc/client": "catalog:",
     "@trpc/react-query": "catalog:",
