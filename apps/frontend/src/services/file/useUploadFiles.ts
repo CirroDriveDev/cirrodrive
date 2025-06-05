@@ -11,7 +11,6 @@ import {
 import { trpc } from "#services/trpc.js";
 import { entryUpdatedEvent } from "#services/entryUpdatedEvent.js";
 import { useTransferStore } from "#store/useTransferStore.js";
-import { useStorageActions } from "#hooks/useStorageActions.js";
 
 export interface UploadRequest {
   file: File;
