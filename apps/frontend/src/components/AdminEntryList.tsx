@@ -124,7 +124,13 @@ export function AdminEntryList({ entries }: AdminEntryListProps): JSX.Element {
           <AdminEntryItem
             key={`${entry.id}:${entry.name}:${entry.type}`}
             entry={entry}
-            onDelete={(id) => deleteFile(id)}
+            onDelete={async (id) => {
+              try {
+                await deleteFile(id);
+              } catch {
+                // 오류 처리: useAdminDeleteFile.ts에서 이미 토스트를 처리했으므로 추가 토스트 없이 넘어갑니다.
+              }
+            }}
           />
         ))}
       </div>

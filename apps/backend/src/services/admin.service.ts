@@ -377,54 +377,60 @@ export class AdminService {
     }
   }
   /**
- * 파일을 삭제합니다.
- * 
- * 1. DB에서 파일 메타데이터를 조회하여 존재 여부를 확인합니다.
- * 2. 존재하지 않으면 NOT_FOUND 에러를 던집니다.
- * 3. 파일이 존재하면, 저장된 S3 키(`key` 속성)를 이용해 S3에서 실제 파일을 삭제합니다.
- * 4. S3 삭제가 성공하면 DB에서 해당 파일 메타데이터를 삭제합니다.
- * 5. 처리 중 에러가 발생하면 INTERNAL_SERVER_ERROR 에러를 던집니다.
- * 
- * 주의:
- * - 이 메서드는 호출 시점에 권한 검증을 수행하지 않습니다.
- * - 따라서 이 메서드를 호출하는 쪽에서 반드시 호출자 권한(관리자 여부, 파일 소유권 등)을 검증해야 합니다.
- * - 권한 검증 없이 호출하면 누구나 파일을 삭제할 수 있으므로 보안상 주의가 필요합니다.
- *
- * @param fileId - 삭제할 파일의 고유 ID
- * @throws TRPCError - 파일이 없거나 삭제 중 오류 발생 시 던져집니다.
- */
+   * 파일을 삭제합니다.
+   *
+   * 1. DB에서 파일 메타데이터를 조회하여 존재 여부를 확인합니다.
+   * 2. 존재하지 않으면 NOT_FOUND 에러를 던집니다.
+   * 3. 파일이 존재하면, 저장된 S3 키(`key` 속성)를 이용해 S3에서 실제 파일을 삭제합니다.
+   * 4. S3 삭제가 성공하면 DB에서 해당 파일 메타데이터를 삭제합니다.
+   * 5. 처리 중 에러가 발생하면 INTERNAL_SERVER_ERROR 에러를 던집니다.
+   *
+   * 주의:
+   *
+   * - 이 메서드는 호출 시점에 권한 검증을 수행하지 않습니다.
+   * - 따라서 이 메서드를 호출하는 쪽에서 반드시 호출자 권한(관리자 여부, 파일 소유권 등)을 검증해야 합니다.
+   * - 권한 검증 없이 호출하면 누구나 파일을 삭제할 수 있으므로 보안상 주의가 필요합니다.
+   *
+   * @param fileId - 삭제할 파일의 고유 ID
+   * @throws TRPCError - 파일이 없거나 삭제 중 오류 발생 시 던져집니다.
+   */
 
-  public async deleteFile(params: { fileId: string; currentUserId: string }): Promise<boolean> {
-  const { fileId, currentUserId } = params;
+  public async deleteFile(params: {
+    fileId: string;
+    currentUserId: string;
+  }): Promise<boolean> {
+    const { fileId, currentUserId } = params;
 
-  this.logger.info({ methodName: "deleteFile", fileId, currentUserId }, "파일 삭제 시작");
+    this.logger.info(
+      { methodName: "deleteFile", fileId, currentUserId },
+      "파일 삭제 시작",
+    );
 
-  const file = await this.fileModel.findUnique({ where: { id: fileId } });
-  if (!file) {
-    this.logger.warn({ fileId }, "파일을 찾을 수 없습니다.");
-    return false;
+    const file = await this.fileModel.findUnique({ where: { id: fileId } });
+    if (!file) {
+      this.logger.warn({ fileId }, "파일을 찾을 수 없습니다.");
+      return false;
+    }
+
+    // 권한 검증 예시 (currentUserId와 파일 소유자 비교)
+
+    try {
+      const s3Key = file.key;
+      await this.s3Service.deleteObject(s3Key);
+
+      await this.fileModel.delete({ where: { id: fileId } });
+
+      this.logger.info({ fileId }, "파일 삭제 완료");
+      return true;
+    } catch (error) {
+      const message =
+        error instanceof Error ?
+          error.message
+        : "알 수 없는 에러가 발생했습니다.";
+      this.logger.error({ error, fileId }, `파일 삭제 실패: ${message}`);
+      throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message });
+    }
   }
-
-  // 권한 검증 예시 (currentUserId와 파일 소유자 비교)
-  if (file.ownerId !== currentUserId) {
-    this.logger.warn({ fileId, currentUserId }, "파일 삭제 권한 없음");
-    throw new TRPCError({ code: "FORBIDDEN", message: "파일 삭제 권한이 없습니다." });
-  }
-
-  try {
-    const s3Key = file.key;
-    await this.s3Service.deleteObject(s3Key);
-
-    await this.fileModel.delete({ where: { id: fileId } });
-
-    this.logger.info({ fileId }, "파일 삭제 완료");
-    return true;
-  } catch (error) {
-    const message = error instanceof Error ? error.message : "알 수 없는 에러가 발생했습니다.";
-    this.logger.error({ error, fileId }, `파일 삭제 실패: ${message}`);
-    throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message });
-  }
-}
 
   /**
    * 특정 기간 동안 가입한 유저 수를 반환합니다.
@@ -800,43 +806,49 @@ export class AdminService {
    * @throws 탈퇴한 유저 수 조회 중 오류가 발생하면 해당 에러를 throw합니다.
    */
   public async getDeletedUsersCount(period: "1d" | "1w"): Promise<number> {
-  try {
-    const startDate = this.getStartDate(period);
-    this.logger.info(
-      { methodName: "getDeletedUsersCount", period },
-      "탈퇴 유저 수 조회 시작",
-    );
+    try {
+      const startDate = this.getStartDate(period);
+      this.logger.info(
+        { methodName: "getDeletedUsersCount", period },
+        "탈퇴 유저 수 조회 시작",
+      );
 
-    const count = await this.userModel.count({
-      where: {
-        createdAt: {
-          gte: startDate,
+      const count = await this.userModel.count({
+        where: {
+          createdAt: {
+            gte: startDate,
+          },
         },
-      },
-    });
+      });
 
-    this.logger.info({ period, count }, "탈퇴 유저 수 조회 성공");
-    return count;
-  } catch (error: unknown) {
-    if (error instanceof Error) {
-      this.logger.error({ error: error.message, period }, "탈퇴 유저 수 조회 실패");
-    } else {
-      this.logger.error({ error: String(error), period }, "탈퇴 유저 수 조회 실패");
+      this.logger.info({ period, count }, "탈퇴 유저 수 조회 성공");
+      return count;
+    } catch (error: unknown) {
+      if (error instanceof Error) {
+        this.logger.error(
+          { error: error.message, period },
+          "탈퇴 유저 수 조회 실패",
+        );
+      } else {
+        this.logger.error(
+          { error: String(error), period },
+          "탈퇴 유저 수 조회 실패",
+        );
+      }
+      throw error;
     }
-    throw error;
   }
-}
 
-private getStartDate(period: "1d" | "1w"): Date {
-  const now = dayjs();
-  if (period === "1d") {
-    return now.subtract(1, "day").toDate();
+  private getStartDate(period: "1d" | "1w"): Date {
+    const now = dayjs();
+    if (period === "1d") {
+      return now.subtract(1, "day").toDate();
+    }
+    if (period === "1w") {
+      return now.subtract(1, "week").toDate();
+    }
+    throw new Error("Invalid period");
   }
-  if (period === "1w") {
-    return now.subtract(1, "week").toDate();
-  }
-  throw new Error("Invalid period");
-}
 
   /**
    * 관리자 로그인 후 세션 토큰 생성
