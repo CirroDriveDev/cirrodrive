@@ -11,7 +11,7 @@ export async function seed() {
     price: 0,
     interval: "MONTHLY",
     intervalCount: 1, // 기본값은 1로 설정
-    storageLimit: 1024 * 1024 * 1024, // 1GB in bytes
+    storageLimit: 1024 * 1024 * 10, // 1MB in bytes
     trialDays: 0,
   });
 
