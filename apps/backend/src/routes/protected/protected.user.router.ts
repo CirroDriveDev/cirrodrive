@@ -294,35 +294,6 @@ export const protectedUserRouter = router({
       });
     }
   }),
-  listDeletedUsers: adminProcedure
-    .input(z.object({ period: z.enum(["1d", "1w"]) }))
-    .query(async ({ input, ctx }) => {
-      logger.info(
-        { requestId: ctx.req.id },
-        `protected.user.listDeletedUsers 요청 시작: ${input.period}`,
-      );
-
-      try {
-        const deletedUsersCount = await adminService.getDeletedUsersCount(
-          input.period,
-        );
-
-        logger.info(
-          { requestId: ctx.req.id },
-          `protected.user.listDeletedUsers 요청 성공: ${input.period}`,
-        );
-        return { deletedUsersCount };
-      } catch (error) {
-        logger.error(
-          { requestId: ctx.req.id, error },
-          "protected.user.listDeletedUsers 요청 실패",
-        );
-        throw new TRPCError({
-          code: "INTERNAL_SERVER_ERROR",
-          message: "탈퇴한 회원 수 조회 중 오류가 발생했습니다.",
-        });
-      }
-    }),
   recentFiles: adminProcedure.query(async ({ ctx }) => {
     const currentUserId = ctx.admin.id;
     if (!currentUserId) {

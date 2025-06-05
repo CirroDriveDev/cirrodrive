@@ -394,29 +394,37 @@ export class AdminService {
  * @throws TRPCError - 파일이 없거나 삭제 중 오류 발생 시 던져집니다.
  */
 
-  public async deleteFile(fileId: string): Promise<void> {
-    try {
-      this.logger.info({ methodName: "deleteFile", fileId }, "파일 삭제 시작");
+  public async deleteFile(params: { fileId: string; currentUserId: string }): Promise<boolean> {
+  const { fileId, currentUserId } = params;
 
-      const file = await this.fileModel.findUnique({ where: { id: fileId } });
-      if (!file) {
-        this.logger.warn({ fileId }, "파일을 찾을 수 없습니다.");
-        throw new TRPCError({ code: "NOT_FOUND", message: "파일을 찾을 수 없습니다." });
-      }
+  this.logger.info({ methodName: "deleteFile", fileId, currentUserId }, "파일 삭제 시작");
 
-      // savedPath 대신 실제 DB에 있는 key 속성을 사용
-      const s3Key = file.key;
-      await this.s3Service.deleteObject(s3Key);
-
-      await this.fileModel.delete({ where: { id: fileId } });
-
-      this.logger.info({ fileId }, "파일 삭제 완료");
-    } catch (error) {
-      const message = error instanceof Error ? error.message : "알 수 없는 에러가 발생했습니다.";
-      this.logger.error({ error, fileId }, `파일 삭제 실패: ${message}`);
-      throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message });
-    }
+  const file = await this.fileModel.findUnique({ where: { id: fileId } });
+  if (!file) {
+    this.logger.warn({ fileId }, "파일을 찾을 수 없습니다.");
+    return false;
   }
+
+  // 권한 검증 예시 (currentUserId와 파일 소유자 비교)
+  if (file.ownerId !== currentUserId) {
+    this.logger.warn({ fileId, currentUserId }, "파일 삭제 권한 없음");
+    throw new TRPCError({ code: "FORBIDDEN", message: "파일 삭제 권한이 없습니다." });
+  }
+
+  try {
+    const s3Key = file.key;
+    await this.s3Service.deleteObject(s3Key);
+
+    await this.fileModel.delete({ where: { id: fileId } });
+
+    this.logger.info({ fileId }, "파일 삭제 완료");
+    return true;
+  } catch (error) {
+    const message = error instanceof Error ? error.message : "알 수 없는 에러가 발생했습니다.";
+    this.logger.error({ error, fileId }, `파일 삭제 실패: ${message}`);
+    throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message });
+  }
+}
 
   /**
    * 특정 기간 동안 가입한 유저 수를 반환합니다.
