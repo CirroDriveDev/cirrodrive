@@ -16,6 +16,8 @@ import { PlanService } from "#services/plan.service";
 import { BillingService } from "#services/billing.service";
 import { PaymentService } from "#services/payment.service";
 import { AdminUserRepository } from "#repositories/admin-user.repository";
+import { FileService } from "#services/file.service";
+import { S3Service } from "#services/s3.service";
 
 @injectable()
 export class AdminService {
@@ -31,6 +33,8 @@ export class AdminService {
     private paymentService: PaymentService,
     @inject(AdminUserRepository)
     private adminUserRepo: AdminUserRepository,
+    @inject(FileService) private fileService: FileService,
+    @inject(S3Service) private s3Service: S3Service,
   ) {
     this.logger = logger.child({ serviceName: "AdminService" });
   }
@@ -373,71 +377,44 @@ export class AdminService {
     }
   }
   /**
-   * 파일을 삭제합니다.
-   *
-   * @param fileId - 삭제할 파일의 ID
-   * @param currentUserId - 현재 관리자 ID (삭제 요청자)
-   * @returns 삭제 성공 여부
-   * @throws 관리자 권한 없음, 파일 없음, 삭제 실패 시 예외 발생
-   */
-  public async deleteFile({
-    fileId,
-    currentUserId,
-  }: {
-    fileId: string;
-    currentUserId: string;
-  }): Promise<boolean> {
+ * 파일을 삭제합니다.
+ * 
+ * 1. DB에서 파일 메타데이터를 조회하여 존재 여부를 확인합니다.
+ * 2. 존재하지 않으면 NOT_FOUND 에러를 던집니다.
+ * 3. 파일이 존재하면, 저장된 S3 키(`key` 속성)를 이용해 S3에서 실제 파일을 삭제합니다.
+ * 4. S3 삭제가 성공하면 DB에서 해당 파일 메타데이터를 삭제합니다.
+ * 5. 처리 중 에러가 발생하면 INTERNAL_SERVER_ERROR 에러를 던집니다.
+ * 
+ * 주의:
+ * - 이 메서드는 호출 시점에 권한 검증을 수행하지 않습니다.
+ * - 따라서 이 메서드를 호출하는 쪽에서 반드시 호출자 권한(관리자 여부, 파일 소유권 등)을 검증해야 합니다.
+ * - 권한 검증 없이 호출하면 누구나 파일을 삭제할 수 있으므로 보안상 주의가 필요합니다.
+ *
+ * @param fileId - 삭제할 파일의 고유 ID
+ * @throws TRPCError - 파일이 없거나 삭제 중 오류 발생 시 던져집니다.
+ */
+
+  public async deleteFile(fileId: string): Promise<void> {
     try {
-      // 관리자 권한 확인
-      const user = await this.userModel.findUnique({
-        where: { id: currentUserId },
-      });
-
-      if (!user?.isAdmin) {
-        throw new TRPCError({
-          code: "UNAUTHORIZED",
-          message: "관리자만 파일을 삭제할 수 있습니다.",
-        });
-      }
-
       this.logger.info({ methodName: "deleteFile", fileId }, "파일 삭제 시작");
 
-      // 파일 존재 여부 확인
-      const file = await this.fileModel.findUnique({
-        where: { id: fileId },
-      });
-
+      const file = await this.fileModel.findUnique({ where: { id: fileId } });
       if (!file) {
-        this.logger.warn({ fileId }, "삭제할 파일을 찾을 수 없음");
-        return false;
+        this.logger.warn({ fileId }, "파일을 찾을 수 없습니다.");
+        throw new TRPCError({ code: "NOT_FOUND", message: "파일을 찾을 수 없습니다." });
       }
 
-      // 메타데이터 삭제
-      await this.fileModel.delete({
-        where: { id: fileId },
-      });
+      // savedPath 대신 실제 DB에 있는 key 속성을 사용
+      const s3Key = file.key;
+      await this.s3Service.deleteObject(s3Key);
+
+      await this.fileModel.delete({ where: { id: fileId } });
 
       this.logger.info({ fileId }, "파일 삭제 완료");
-
-      return true;
     } catch (error) {
-      this.logger.error({ error, fileId }, "파일 삭제 실패");
-      throw new TRPCError({
-        code: "INTERNAL_SERVER_ERROR",
-        message: "파일 삭제 중 오류가 발생했습니다.",
-      });
-    }
-  }
-  // 특정 기간에 따른 날짜 계산 함수 (private)
-  private getStartDate(period: "1d" | "1w" | "6m"): Date {
-    const now = dayjs();
-    switch (period) {
-      case "1d":
-        return now.subtract(1, "day").toDate();
-      case "1w":
-        return now.subtract(1, "week").toDate();
-      case "6m":
-        return now.subtract(6, "month").toDate();
+      const message = error instanceof Error ? error.message : "알 수 없는 에러가 발생했습니다.";
+      this.logger.error({ error, fileId }, `파일 삭제 실패: ${message}`);
+      throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message });
     }
   }
 
@@ -724,39 +701,6 @@ export class AdminService {
       return count;
     } catch (error) {
       this.logger.error({ error }, "전체 유저 수 조회 실패");
-      throw error;
-    }
-  }
-
-  /**
-   * 특정 기간 동안 탈퇴한 유저 수를 반환합니다.
-   *
-   * 입력된 기간(`"1d"` 혹은 `"1w"`) 동안 탈퇴한 유저 수를 데이터베이스에서 집계하여 반환합니다.
-   *
-   * @param period - 탈퇴 유저 수를 조회할 기간 (`"1d"` 또는 `"1w"`)
-   * @returns `{ number }` - 지정된 기간 동안 탈퇴한 유저 수
-   * @throws 탈퇴한 유저 수 조회 중 오류가 발생하면 해당 에러를 throw합니다.
-   */
-  public async getDeletedUsersCount(period: "1d" | "1w"): Promise<number> {
-    try {
-      const startDate = this.getStartDate(period);
-      this.logger.info(
-        { methodName: "getDeletedUsersCount", period },
-        "탈퇴 유저 수 조회 시작",
-      );
-
-      const count = await this.userModel.count({
-        where: {
-          createdAt: {
-            gte: startDate,
-          },
-        },
-      });
-
-      this.logger.info({ period, count }, "탈퇴 유저 수 조회 성공");
-      return count;
-    } catch (error) {
-      this.logger.error({ error, period }, "탈퇴 유저 수 조회 실패");
       throw error;
     }
   }
