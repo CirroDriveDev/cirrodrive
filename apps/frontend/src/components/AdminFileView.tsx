@@ -62,9 +62,11 @@ export function AdminFileView(): JSX.Element {
         matches.push(sizeStr.toLowerCase().includes(keyword(searchTerms.size)));
       }
 
-      // ID 검색 조건: **정확한 일치** (부분 검색이 아닌)
+      // ID 검색 조건: **부분 일치**
       if (searchTerms.id) {
-        matches.push(file.id.toLowerCase() === keyword(searchTerms.id));
+        matches.push(
+          file.owner.id.toLowerCase().includes(keyword(searchTerms.id)),
+        );
       }
 
       // 활성화된 모든 검색 조건이 일치해야 해당 항목이 포함됩니다.
