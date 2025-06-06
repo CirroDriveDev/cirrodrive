@@ -6,7 +6,7 @@ export const fileMetadataSchema = z.object({
     .string()
     .min(1, { message: "파일 이름을 입력해주세요." })
     .max(64, { message: "파일 이름은 64자 이하로 입력해주세요." }),
-  size: z.number(),
+  size: z.bigint(),
   extension: z.string(),
   hash: z.string(),
   savedPath: z.string(),
