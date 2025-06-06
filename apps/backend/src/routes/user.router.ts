@@ -51,7 +51,7 @@ export const userRouter = router({
         });
       }
       try {
-        const user = await userService.create({
+        const user = await userService.register({
           username: input.username,
           password: input.password,
           email: input.email,
