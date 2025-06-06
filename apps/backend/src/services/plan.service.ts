@@ -22,7 +22,7 @@ export class PlanService {
   public async getAllPlans() {
     this.logger.debug("Fetching all plans");
     const plans = await this.planRepotitory.listAll();
-    return plans.map(plan => ({
+    return plans.map((plan) => ({
       ...plan,
       storageLimit: Number(plan.storageLimit),
     }));

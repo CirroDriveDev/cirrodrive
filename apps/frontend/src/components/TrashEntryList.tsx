@@ -85,7 +85,7 @@ export function TrashEntryList({ entries }: TrashEntryListProps): JSX.Element {
       </div>
 
       {/* List */}
-      <div className="border-y-muted-foreground flex h-[720px] w-full flex-col divide-yoverflow-auto border-y">
+      <div className="divide-yoverflow-auto flex h-[720px] w-full flex-col border-y border-y-muted-foreground">
         {sortedEntries.map((entry) => (
           <EntryItem
             key={`${entry.id}:${entry.name}:${entry.type}`}

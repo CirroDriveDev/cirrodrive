@@ -21,15 +21,14 @@ function generateSimpleId(): string {
 
 export function useDownloadSingleFile() {
   const [isPending, setIsPending] = useState(false);
-  const {
-    addTransfer,
-    updateProgress,
-    setStatus,
-    removeTransfer,
-  } = useTransferStore();
+  const { addTransfer, updateProgress, setStatus, removeTransfer } =
+    useTransferStore();
 
-  const downloadSingleFile = async (options: DownloadSingleFileOptions): Promise<void> => {
-    const { fileId, code, name, size, onProgress, onSuccess, onError } = options;
+  const downloadSingleFile = async (
+    options: DownloadSingleFileOptions,
+  ): Promise<void> => {
+    const { fileId, code, name, size, onProgress, onSuccess, onError } =
+      options;
     const controller = new AbortController();
     const id = generateSimpleId();
 
@@ -53,10 +52,11 @@ export function useDownloadSingleFile() {
     setStatus(id, "inProgress");
 
     try {
-      const { downloadUrl } = await trpcClient.file.download.getDownloadUrl.query({
-        fileId,
-        code,
-      });
+      const { downloadUrl } =
+        await trpcClient.file.download.getDownloadUrl.query({
+          fileId,
+          code,
+        });
 
       await downloadFileFromUrl({
         url: downloadUrl,
@@ -71,7 +71,8 @@ export function useDownloadSingleFile() {
       setStatus(id, "success");
       onSuccess?.();
     } catch (e) {
-      const error = e instanceof Error ? e : new Error("Unknown error during download");
+      const error =
+        e instanceof Error ? e : new Error("Unknown error during download");
       setStatus(id, "error", error.message);
       toast.error(error.message);
       onError?.(error);

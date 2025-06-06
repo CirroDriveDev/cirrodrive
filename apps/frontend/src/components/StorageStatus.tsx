@@ -13,7 +13,7 @@ export function StorageStatus(): JSX.Element {
   // 사용량 및 퍼센트 계산
   const percent = quota > 0 ? Math.min((used / quota) * 100, 100) : 0;
   const remaining = Math.max(quota - used, 0);
-  
+
   // 상태별 색상 및 아이콘 결정
   const getStatusColor = () => {
     if (percent >= 100) return "text-red-600";
@@ -53,7 +53,7 @@ export function StorageStatus(): JSX.Element {
   }
 
   return (
-    <div className="space-y-3 p-3 border rounded-lg bg-card">
+    <div className="space-y-3 rounded-lg border bg-card p-3">
       {/* 헤더 */}
       <div className="flex items-center gap-2">
         <HardDrive className="h-4 w-4 text-muted-foreground" />
@@ -61,7 +61,7 @@ export function StorageStatus(): JSX.Element {
       </div>
 
       {/* 사용량 텍스트 */}
-      <div className="flex justify-between items-center text-sm">
+      <div className="flex items-center justify-between text-sm">
         <span className="text-muted-foreground">
           {formatStorage(used)} / {formatStorage(quota)} 사용
         </span>
@@ -71,7 +71,7 @@ export function StorageStatus(): JSX.Element {
       </div>
 
       {/* 프로그레스 바 */}
-      <div className="relative w-full h-2 rounded-full bg-muted overflow-hidden">
+      <div className="relative h-2 w-full overflow-hidden rounded-full bg-muted">
         <div
           className={`h-full transition-all duration-300 ${getProgressColor()}`}
           style={{ width: `${Math.min(percent, 100)}%` }}
@@ -84,10 +84,12 @@ export function StorageStatus(): JSX.Element {
       </div>
 
       {/* 상태 메시지 */}
-      {(isNearLimit || percent >= 75) ? <div className={`flex items-center gap-2 text-xs ${getStatusColor()}`}>
+      {isNearLimit || percent >= 75 ?
+        <div className={`flex items-center gap-2 text-xs ${getStatusColor()}`}>
           {getStatusIcon()}
           {getStatusMessage()}
-        </div> : null}
+        </div>
+      : null}
     </div>
   );
 }

@@ -13,7 +13,7 @@ export function MyPage(): JSX.Element {
   };
 
   return (
-    <div className="p-6 max-w-4xl mx-auto space-y-8">
+    <div className="mx-auto max-w-4xl space-y-8 p-6">
       <h1 className="text-3xl font-bold">마이페이지</h1>
       <MyPlanSection />
       <PaymentHistorySection /> {/* ✅ 결제 내역 섹션 추가 */}

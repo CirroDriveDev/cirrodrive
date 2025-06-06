@@ -42,9 +42,9 @@ export function SubscriptionPage(): JSX.Element {
   // subscription.error는 실제 에러인 경우에만 처리 (null 반환은 정상적인 상황)
   if (currentPlan.error || subscription.error) {
     return (
-      <div className="p-6 max-w-4xl mx-auto">
-        <div className="text-center py-8">
-          <h2 className="text-xl font-semibold text-gray-900 mb-2">
+      <div className="mx-auto max-w-4xl p-6">
+        <div className="py-8 text-center">
+          <h2 className="mb-2 text-xl font-semibold text-gray-900">
             구독 정보를 불러올 수 없습니다
           </h2>
           <p className="text-gray-600">잠시 후 다시 시도해주세요.</p>
@@ -74,12 +74,12 @@ export function SubscriptionPage(): JSX.Element {
   };
 
   return (
-    <div className="p-6 max-w-4xl mx-auto space-y-6">
+    <div className="mx-auto max-w-4xl space-y-6 p-6">
       <div className="flex items-center justify-between">
         <h1 className="text-3xl font-bold">내 요금제</h1>
         <Link to="/mypage/plans">
           <Button variant="outline">
-            <CreditCardIcon className="w-4 h-4 mr-2" />
+            <CreditCardIcon className="mr-2 h-4 w-4" />
             {isUnsubscribed ? "요금제 보기" : "요금제 변경"}
           </Button>
         </Link>
@@ -89,24 +89,24 @@ export function SubscriptionPage(): JSX.Element {
       {isUnsubscribed ?
         <>
           {/* 요금제 없음 상태 알림 */}
-          <Card className="border-dashed border-2 border-gray-300">
+          <Card className="border-2 border-dashed border-gray-300">
             <CardHeader className="text-center">
-              <div className="flex justify-center mb-4">
-                <InboxIcon className="w-16 h-16 text-gray-400" />
+              <div className="mb-4 flex justify-center">
+                <InboxIcon className="h-16 w-16 text-gray-400" />
               </div>
               <CardTitle className="text-xl text-gray-700">
                 현재 사용 중인 요금제가 없습니다
               </CardTitle>
-              <p className="text-gray-600 mt-2">
+              <p className="mt-2 text-gray-600">
                 CirroDrive의 다양한 요금제를 확인하고 더 많은 저장 공간과 기능을
                 이용해보세요.
               </p>
             </CardHeader>
-            <CardContent className="text-center space-y-4">
-              <div className="flex flex-col sm:flex-row gap-3 justify-center">
+            <CardContent className="space-y-4 text-center">
+              <div className="flex flex-col justify-center gap-3 sm:flex-row">
                 <Link to="/mypage/plans">
                   <Button size="lg" className="w-full sm:w-auto">
-                    <ArrowUpIcon className="w-4 h-4 mr-2" />
+                    <ArrowUpIcon className="mr-2 h-4 w-4" />
                     요금제 보기
                   </Button>
                 </Link>
@@ -115,7 +115,7 @@ export function SubscriptionPage(): JSX.Element {
                   size="lg"
                   className="w-full sm:w-auto"
                 >
-                  <PackageIcon className="w-4 h-4 mr-2" />
+                  <PackageIcon className="mr-2 h-4 w-4" />
                   무료 플랜 계속 사용
                 </Button>
               </div>
@@ -128,7 +128,7 @@ export function SubscriptionPage(): JSX.Element {
           </Card>
 
           {/* 도움말 섹션 */}
-          <Card className="bg-blue-50 border-blue-200">
+          <Card className="border-blue-200 bg-blue-50">
             <CardHeader>
               <CardTitle className="text-lg text-blue-800">
                 💡 왜 요금제가 필요한가요?
@@ -137,27 +137,27 @@ export function SubscriptionPage(): JSX.Element {
             <CardContent>
               <div className="space-y-3 text-sm text-blue-700">
                 <div className="flex items-start space-x-2">
-                  <div className="w-2 h-2 bg-blue-500 rounded-full mt-2 flex-shrink-0" />
+                  <div className="mt-2 h-2 w-2 flex-shrink-0 rounded-full bg-blue-500" />
                   <p>
                     <strong>더 많은 저장공간:</strong> 무료 플랜의 5GB를 넘어
                     50GB~1TB까지 사용 가능
                   </p>
                 </div>
                 <div className="flex items-start space-x-2">
-                  <div className="w-2 h-2 bg-blue-500 rounded-full mt-2 flex-shrink-0" />
+                  <div className="mt-2 h-2 w-2 flex-shrink-0 rounded-full bg-blue-500" />
                   <p>
                     <strong>고급 공유 기능:</strong> 암호 보호, 만료 설정,
                     다운로드 제한 등
                   </p>
                 </div>
                 <div className="flex items-start space-x-2">
-                  <div className="w-2 h-2 bg-blue-500 rounded-full mt-2 flex-shrink-0" />
+                  <div className="mt-2 h-2 w-2 flex-shrink-0 rounded-full bg-blue-500" />
                   <p>
                     <strong>우선 지원:</strong> 더 빠른 고객지원과 기술 지원
                   </p>
                 </div>
                 <div className="flex items-start space-x-2">
-                  <div className="w-2 h-2 bg-blue-500 rounded-full mt-2 flex-shrink-0" />
+                  <div className="mt-2 h-2 w-2 flex-shrink-0 rounded-full bg-blue-500" />
                   <p>
                     <strong>안전한 백업:</strong> 중요한 파일들을 안전하게 보관
                   </p>
@@ -175,7 +175,7 @@ export function SubscriptionPage(): JSX.Element {
           <Card>
             <CardHeader>
               <CardTitle className="flex items-center">
-                <WalletIcon className="w-5 h-5 mr-2" />
+                <WalletIcon className="mr-2 h-5 w-5" />
                 현재 요금제
               </CardTitle>
             </CardHeader>
@@ -212,14 +212,14 @@ export function SubscriptionPage(): JSX.Element {
                 {subscription.data ?
                   <div className="flex items-center space-x-4 text-sm text-gray-600">
                     <div className="flex items-center">
-                      <CalendarIcon className="w-4 h-4 mr-1" />
+                      <CalendarIcon className="mr-1 h-4 w-4" />
                       시작일:{" "}
                       {new Date(subscription.data.startedAt).toLocaleDateString(
                         "ko-KR",
                       )}
                     </div>
                     <div className="flex items-center">
-                      <CalendarIcon className="w-4 h-4 mr-1" />
+                      <CalendarIcon className="mr-1 h-4 w-4" />
                       만료일:{" "}
                       {new Date(subscription.data.expiresAt).toLocaleDateString(
                         "ko-KR",
@@ -283,7 +283,7 @@ export function SubscriptionPage(): JSX.Element {
                   />
 
                   {storageUsage.data.isNearLimit ?
-                    <div className="p-3 bg-orange-50 border border-orange-200 rounded-lg">
+                    <div className="rounded-lg border border-orange-200 bg-orange-50 p-3">
                       <p className="text-sm text-orange-800">
                         ⚠️ 저장소 용량이 부족합니다. 더 많은 저장 공간이
                         필요하시면 요금제를 업그레이드하세요.
@@ -296,12 +296,12 @@ export function SubscriptionPage(): JSX.Element {
           : null}
 
           {/* 빠른 액션 */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
             <Link to="/mypage/payments">
-              <Card className="hover:shadow-md transition-shadow cursor-pointer">
+              <Card className="cursor-pointer transition-shadow hover:shadow-md">
                 <CardContent className="p-4">
                   <div className="flex items-center">
-                    <CreditCardIcon className="w-8 h-8 text-blue-500 mr-3" />
+                    <CreditCardIcon className="mr-3 h-8 w-8 text-blue-500" />
                     <div>
                       <h3 className="font-semibold">결제 내역</h3>
                       <p className="text-sm text-gray-600">
@@ -314,10 +314,10 @@ export function SubscriptionPage(): JSX.Element {
             </Link>
 
             <Link to="/mypage/plans">
-              <Card className="hover:shadow-md transition-shadow cursor-pointer">
+              <Card className="cursor-pointer transition-shadow hover:shadow-md">
                 <CardContent className="p-4">
                   <div className="flex items-center">
-                    <WalletIcon className="w-8 h-8 text-green-500 mr-3" />
+                    <WalletIcon className="mr-3 h-8 w-8 text-green-500" />
                     <div>
                       <h3 className="font-semibold">요금제 변경</h3>
                       <p className="text-sm text-gray-600">

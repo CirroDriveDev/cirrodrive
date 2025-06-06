@@ -4,7 +4,7 @@ import { HeaderSeparator } from "#components/layout/HeaderSeparator.js";
 
 export function MyPageHeader(): JSX.Element {
   return (
-    <header className="flex h-16 shrink-0 items-center gap-2 border-b px-4 bg-primary">
+    <header className="flex h-16 shrink-0 items-center gap-2 border-b bg-primary px-4">
       <div className="flex-grow" />
       <ModeToggle />
       <HeaderSeparator />

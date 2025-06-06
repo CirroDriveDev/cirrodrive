@@ -30,7 +30,7 @@ function formatSize(size: number): string {
 }
 
 export function DownloadPanel() {
-  const { transfers, removeTransfer} = useTransferStore();
+  const { transfers, removeTransfer } = useTransferStore();
   const downloads = transfers.filter((item) => item.type === "download");
   const [isVisible, setIsVisible] = useState(true);
   const prevStatuses = useRef(new Map<string, string>());
@@ -70,7 +70,7 @@ export function DownloadPanel() {
   if (!isVisible) return null;
 
   return (
-    <div className="fixed bottom-4 right-4 w-96 z-50 flex">
+    <div className="fixed bottom-4 right-4 z-50 flex w-96">
       <Collapsible asChild className="group/collapsible">
         <Card className="flex-grow">
           <CardHeader className="p-3">
@@ -83,14 +83,14 @@ export function DownloadPanel() {
                   className="text-foreground hover:text-red-500"
                   title="모든 항목 삭제"
                 >
-                  <Trash2 className="w-5 h-5" />
+                  <Trash2 className="h-5 w-5" />
                 </button>
                 <CollapsibleTrigger asChild>
                   <button
                     type="button"
                     className="text-foreground hover:text-muted-foreground"
                   >
-                    <ChevronUp className="w-6 h-6 transition-transform group-data-[state=open]/collapsible:rotate-180" />
+                    <ChevronUp className="h-6 w-6 transition-transform group-data-[state=open]/collapsible:rotate-180" />
                   </button>
                 </CollapsibleTrigger>
                 <button
@@ -99,7 +99,7 @@ export function DownloadPanel() {
                   className="text-foreground hover:text-muted-foreground"
                   title="패널 닫기"
                 >
-                  <XIcon className="w-6 h-6" />
+                  <XIcon className="h-6 w-6" />
                 </button>
               </div>
             </div>
@@ -107,7 +107,7 @@ export function DownloadPanel() {
 
           <CollapsibleContent asChild>
             <CardContent>
-              <ul className="min-h-12 max-h-60 overflow-y-auto custom-scrollbar pr-4">
+              <ul className="custom-scrollbar max-h-60 min-h-12 overflow-y-auto pr-4">
                 {downloads.map((item) => (
                   <DownloadItem key={item.id} item={item} />
                 ))}
@@ -138,12 +138,12 @@ function DownloadItem({ item }: { item: FileTransfer }) {
   };
 
   return (
-    <li className="h-12 flex items-center justify-between gap-4">
-      <Download className="w-4 h-4" />
-      <div className="flex-1 min-w-0">
+    <li className="flex h-12 items-center justify-between gap-4">
+      <Download className="h-4 w-4" />
+      <div className="min-w-0 flex-1">
         <div className="flex justify-between text-sm text-gray-800">
           <span className="flex items-center gap-1 truncate">
-            {name} <span className="text-xs text-gray-800 ml-1">({size})</span>
+            {name} <span className="ml-1 text-xs text-gray-800">({size})</span>
           </span>
           <span>{item.progress}%</span>
         </div>
@@ -154,20 +154,20 @@ function DownloadItem({ item }: { item: FileTransfer }) {
           <button
             type="button"
             onClick={() => removeTransfer(item.id)}
-            className="text-muted-foreground p-1 hover:text-muted"
+            className="p-1 text-muted-foreground hover:text-muted"
             title="삭제"
           >
-            <XIcon className="w-4 h-4" />
+            <XIcon className="h-4 w-4" />
           </button>
         )}
         {(item.status === "inProgress" || item.status === "pending") && (
           <button
             type="button"
             onClick={cancelItem}
-            className="text-muted-foreground p-1 hover:text-muted"
+            className="p-1 text-muted-foreground hover:text-muted"
             title="취소"
           >
-            <XIcon className="w-4 h-4" />
+            <XIcon className="h-4 w-4" />
           </button>
         )}
         {(item.status === "error" || item.status === "cancelled") && (
@@ -175,18 +175,18 @@ function DownloadItem({ item }: { item: FileTransfer }) {
             <button
               type="button"
               onClick={retryItem}
-              className="text-muted-foreground p-1 hover:text-muted"
+              className="p-1 text-muted-foreground hover:text-muted"
               title="재시작"
             >
-              <RotateCcwIcon className="w-4 h-4" />
+              <RotateCcwIcon className="h-4 w-4" />
             </button>
             <button
               type="button"
               onClick={() => removeTransfer(item.id)}
-              className="text-muted-foreground p-1 hover:text-muted"
+              className="p-1 text-muted-foreground hover:text-muted"
               title="삭제"
             >
-              <XIcon className="w-4 h-4" />
+              <XIcon className="h-4 w-4" />
             </button>
           </>
         )}

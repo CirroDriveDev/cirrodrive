@@ -21,7 +21,7 @@
     "docker:pull": "cross-env DOTENV_ENV=production dotenvx run --convention=flow -- docker compose pull",
     "docker:push": "cross-env DOTENV_ENV=production dotenvx run --convention=flow -- docker compose push",
     "docker:up": "cross-env DOTENV_ENV=production dotenvx run --convention=flow -- docker compose up -d --remove-orphans --renew-anon-volumes",
-    "format": "prettier --write . && turbo run format --continue -- --write",
+    "format": "prettier --write --ignore-path .prettierignore . '!packages/**' '!apps/**' '!tooling/**' && turbo run format --continue -- --write",
     "postinstall": "cross-env DOTENV_ENV=development dotenvx run --convention=flow -- turbo run -F @cirrodrive/database build",
     "lint": "turbo run lint --continue -- --fix",
     "lint:ws": "pnpx sherif@latest",

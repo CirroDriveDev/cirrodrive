@@ -4,10 +4,7 @@ import { immer } from "zustand/middleware/immer";
 import type { StateCreator } from "zustand";
 import type { UserDTO } from "@cirrodrive/schemas/user";
 import type { AdminUser } from "#types/admin.js";
-import type {
-  FileTransfer,
-  FileTransferStatus,
-} from "#types/file-transfer.js";
+import type { FileTransfer, FileTransferStatus } from "#types/file-transfer.js";
 
 // ------------------------------------
 // Store Slice Interfaces
@@ -77,13 +74,23 @@ export type StoreState = UserStore &
 // Store Slice Creators
 // ------------------------------------
 
-export const createUserSlice: StateCreator<StoreState, [["zustand/immer", never]], [], UserStore> = (set) => ({
+export const createUserSlice: StateCreator<
+  StoreState,
+  [["zustand/immer", never]],
+  [],
+  UserStore
+> = (set) => ({
   user: null,
   setUser: (user) => set(() => ({ user })),
   clearUser: () => set(() => ({ user: null })),
 });
 
-export const createModalSlice: StateCreator<StoreState, [["zustand/immer", never]], [], ModalStore> = (set) => ({
+export const createModalSlice: StateCreator<
+  StoreState,
+  [["zustand/immer", never]],
+  [],
+  ModalStore
+> = (set) => ({
   isOpen: false,
   title: "",
   content: null,
@@ -100,30 +107,55 @@ export const createModalSlice: StateCreator<StoreState, [["zustand/immer", never
     })),
 });
 
-export const createSearchBarSlice: StateCreator<StoreState, [["zustand/immer", never]], [], SearchBarStore> = (set) => ({
+export const createSearchBarSlice: StateCreator<
+  StoreState,
+  [["zustand/immer", never]],
+  [],
+  SearchBarStore
+> = (set) => ({
   searchTerm: "",
   setSearchTerm: (term) => set(() => ({ searchTerm: term })),
 });
 
-export const createRenameSlice: StateCreator<StoreState, [["zustand/immer", never]], [], RenameStore> = (set) => ({
+export const createRenameSlice: StateCreator<
+  StoreState,
+  [["zustand/immer", never]],
+  [],
+  RenameStore
+> = (set) => ({
   folderId: null,
   setFolderId: (folderId) => set(() => ({ folderId })),
   clearFolderId: () => set(() => ({ folderId: null })),
 });
 
-export const createJwtSlice: StateCreator<StoreState, [["zustand/immer", never]], [], JwtStore> = (set) => ({
+export const createJwtSlice: StateCreator<
+  StoreState,
+  [["zustand/immer", never]],
+  [],
+  JwtStore
+> = (set) => ({
   token: null,
   setToken: (token) => set(() => ({ token })),
   clearToken: () => set(() => ({ token: null })),
 });
 
-export const createAdminSlice: StateCreator<StoreState, [["zustand/immer", never]], [], AdminStore> = (set) => ({
+export const createAdminSlice: StateCreator<
+  StoreState,
+  [["zustand/immer", never]],
+  [],
+  AdminStore
+> = (set) => ({
   admin: null,
   setAdmin: (admin) => set(() => ({ admin })),
   clearAdmin: () => set(() => ({ admin: null })),
 });
 
-export const createTransferSlice: StateCreator<StoreState, [["zustand/immer", never]], [], TransferStore> = (set) => ({
+export const createTransferSlice: StateCreator<
+  StoreState,
+  [["zustand/immer", never]],
+  [],
+  TransferStore
+> = (set) => ({
   transfers: [],
   addTransfer: (transfer) =>
     set((state) => {
@@ -151,7 +183,12 @@ export const createTransferSlice: StateCreator<StoreState, [["zustand/immer", ne
     }),
 });
 
-export const createRedirectSlice: StateCreator<StoreState, [["zustand/immer", never]], [], RedirectStore> = (set) => ({
+export const createRedirectSlice: StateCreator<
+  StoreState,
+  [["zustand/immer", never]],
+  [],
+  RedirectStore
+> = (set) => ({
   redirectPath: null,
   setRedirectPath: (path) =>
     set((state) => {
@@ -183,7 +220,7 @@ export const useBoundStore = create<StoreState>()(
           admin: slices.admin,
           redirectPath: slices.redirectPath,
         }),
-      }
-    )
-  )
+      },
+    ),
+  ),
 );

@@ -29,22 +29,26 @@ export function StorageQuotaAlert({
       <AlertDescription className="pr-8">
         <div className="space-y-2">
           <p className="font-medium">저장 공간이 부족합니다</p>
-          {errorMessage ? <p className="text-sm">{errorMessage}</p> : null}
+          {errorMessage ?
+            <p className="text-sm">{errorMessage}</p>
+          : null}
           {remainingBytes !== undefined && remainingBytes >= 0 && (
             <p className="text-sm">
               사용 가능한 용량: {formatStorage(remainingBytes)}
             </p>
           )}
-          <div className="flex gap-2 mt-3">
-            {onUpgradePlan ? <Button
+          <div className="mt-3 flex gap-2">
+            {onUpgradePlan ?
+              <Button
                 size="sm"
                 variant="outline"
                 onClick={onUpgradePlan}
                 className="text-xs"
               >
-                <TrendingUp className="h-3 w-3 mr-1" />
+                <TrendingUp className="mr-1 h-3 w-3" />
                 플랜 업그레이드
-              </Button> : null}
+              </Button>
+            : null}
             <Button
               size="sm"
               variant="ghost"

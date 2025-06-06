@@ -33,19 +33,22 @@ export function FileUploadDropzone({
   const handleQuotaError = (error: UploadResultError) => {
     // 할당량 초과 에러인지 확인
     const errorMessage = JSON.stringify(error.error);
-    
+
     if (errorMessage.includes("저장 공간이 부족합니다")) {
       // 메시지에서 사용 가능한 용량 추출 시도
       const bytesMatch = /(?<bytes>\d+) bytes/.exec(errorMessage);
-      const remainingBytes = bytesMatch?.groups?.bytes ? parseInt(bytesMatch.groups.bytes) : undefined;
-      
+      const remainingBytes =
+        bytesMatch?.groups?.bytes ?
+          parseInt(bytesMatch.groups.bytes)
+        : undefined;
+
       setQuotaAlert({
         show: true,
         message: errorMessage,
         remainingBytes,
       });
     }
-    
+
     // 기존 에러 핸들러도 호출
     onSingleFileError?.(error);
   };

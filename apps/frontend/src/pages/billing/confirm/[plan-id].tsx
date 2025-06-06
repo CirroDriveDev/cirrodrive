@@ -135,7 +135,7 @@ export function PaymentConfirmCard({ plan }: { plan: PlanDTO }) {
   if (plan.price === 0) priceText += " (무료)";
 
   return (
-    <Card className="max-w-xl mx-auto">
+    <Card className="mx-auto max-w-xl">
       <CardHeader>
         <CardTitle>{plan.name} 업그레이드</CardTitle>
       </CardHeader>
@@ -277,7 +277,7 @@ function BillingMethodDialog({
           : null}
           <Button
             variant="secondary"
-            className="flex w-full mt-2 space-x-2"
+            className="mt-2 flex w-full space-x-2"
             onClick={onBillingAuth}
           >
             <PlusIcon />
@@ -319,7 +319,7 @@ function BillingMethodItem({
   };
 
   return (
-    <div className="flex items-center justify-between space-x-2 relative">
+    <div className="relative flex items-center justify-between space-x-2">
       <Button
         key={method.id}
         variant={selected ? "default" : "outline"}
@@ -336,7 +336,7 @@ function BillingMethodItem({
         <DialogTrigger asChild>
           <Button
             variant={isUsed.data ? "ghost" : "secondary"}
-            className="w-16 h-8 absolute right-2"
+            className="absolute right-2 h-8 w-16"
             disabled={isUsed.data}
           >
             {isUsed.data ? "사용 중" : "삭제"}

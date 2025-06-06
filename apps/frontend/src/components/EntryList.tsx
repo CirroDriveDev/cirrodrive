@@ -57,8 +57,8 @@ export function EntryList({
       const bComp = sortKey === "updatedAt" ? new Date(bVal).getTime() : bVal;
 
       if (typeof aComp === "string" && typeof bComp === "string") {
-        return sortOrder === "asc"
-          ? aComp.localeCompare(bComp)
+        return sortOrder === "asc" ?
+            aComp.localeCompare(bComp)
           : bComp.localeCompare(aComp);
       }
 
@@ -78,8 +78,8 @@ export function EntryList({
   return (
     <div className="flex w-full flex-col">
       {/* Header */}
-      <div className="flex w-full gap-x-4 px-4 py-2 text-sm font-semibold items-center">
-        <div className="w-8 flex items-center justify-center">
+      <div className="flex w-full items-center gap-x-4 px-4 py-2 text-sm font-semibold">
+        <div className="flex w-8 items-center justify-center">
           <input
             type="checkbox"
             checked={isAllChecked}
@@ -93,7 +93,10 @@ export function EntryList({
         >
           이름 {renderArrow("name")}
         </div>
-        <div className="w-52 cursor-pointer" onClick={() => handleSort("updatedAt")}>
+        <div
+          className="w-52 cursor-pointer"
+          onClick={() => handleSort("updatedAt")}
+        >
           수정 날짜 {renderArrow("updatedAt")}
         </div>
         <div className="w-20 cursor-pointer" onClick={() => handleSort("size")}>
@@ -102,7 +105,7 @@ export function EntryList({
       </div>
 
       {/* List */}
-      <div className="border-y-muted-foreground flex h-[720px] w-full flex-col divide-y-[1px] overflow-auto border-y">
+      <div className="flex h-[720px] w-full flex-col divide-y-[1px] overflow-auto border-y border-y-muted-foreground">
         {sortedEntries.map((entry) => {
           const isChecked = checkedFileList.some((f) => f.fileId === entry.id);
           return (
@@ -111,7 +114,10 @@ export function EntryList({
               entry={entry}
               isChecked={isChecked}
               onCheckChange={(checked) =>
-                toggleFileChecked({ fileId: entry.id, name: entry.name }, checked)
+                toggleFileChecked(
+                  { fileId: entry.id, name: entry.name },
+                  checked,
+                )
               }
             />
           );

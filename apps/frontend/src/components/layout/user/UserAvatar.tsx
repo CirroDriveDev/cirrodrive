@@ -15,7 +15,7 @@ export function UserAvatar(): JSX.Element {
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
         <Avatar>
-          <UserCircle className="w-full h-full" />
+          <UserCircle className="h-full w-full" />
         </Avatar>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end">

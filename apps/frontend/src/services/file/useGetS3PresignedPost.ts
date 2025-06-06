@@ -22,7 +22,11 @@ export function useGetS3PresignedPost() {
      * @param fileSize - 업로드할 파일의 크기 (bytes)
      * @returns
      */
-    getS3PresignedPost: (fileName: string, fileType: string, fileSize: number) => {
+    getS3PresignedPost: (
+      fileName: string,
+      fileType: string,
+      fileSize: number,
+    ) => {
       mutation.mutate(
         {
           fileName,
@@ -44,7 +48,11 @@ export function useGetS3PresignedPost() {
      * @param fileSize - 업로드할 파일의 크기 (bytes)
      * @returns PresignedPost
      */
-    getS3PresignedPostAsync: async (fileName: string, fileType: string, fileSize: number) => {
+    getS3PresignedPostAsync: async (
+      fileName: string,
+      fileType: string,
+      fileSize: number,
+    ) => {
       return await mutation.mutateAsync(
         {
           fileName,

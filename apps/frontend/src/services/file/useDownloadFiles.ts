@@ -16,12 +16,8 @@ export interface DownloadFilesOptions {
 export function useDownloadFiles() {
   const [isPending, setIsPending] = useState(false);
   const [errors, setErrors] = useState<Error[]>([]);
-  const {
-    addTransfer,
-    updateProgress,
-    setStatus,
-    removeTransfer,
-  } = useTransferStore();
+  const { addTransfer, updateProgress, setStatus, removeTransfer } =
+    useTransferStore();
 
   const downloadFiles = async (options: DownloadFilesOptions) => {
     setIsPending(true);
@@ -58,7 +54,8 @@ export function useDownloadFiles() {
               void downloadFiles({
                 files: [fileOpt],
                 onSingleFileSuccess: () => options.onSingleFileSuccess?.(idx),
-                onSingleFileError: (i, err) => options.onSingleFileError?.(idx, err),
+                onSingleFileError: (i, err) =>
+                  options.onSingleFileError?.(idx, err),
               });
             },
           });
@@ -89,8 +86,8 @@ export function useDownloadFiles() {
             errorList.push(err);
             options.onSingleFileError?.(idx, err);
           }
-        })
-      )
+        }),
+      ),
     );
 
     setErrors(errorList);

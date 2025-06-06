@@ -17,7 +17,6 @@ export default defineConfig({
   server: {
     proxy: {
       "/trpc": {
-         
         target: `http://localhost:${process.env.APP_BACKEND_PORT}`,
         changeOrigin: true,
         rewrite: (path) => path,

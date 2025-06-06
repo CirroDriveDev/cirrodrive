@@ -21,7 +21,7 @@ function startServer(app: express.Application): void {
   server = app.listen(env.APP_BACKEND_PORT, () => {
     logger.info(`Server listening on port: ${env.APP_BACKEND_PORT}`);
     logger.info(`Currently running on ${env.MODE} mode.`);
-    
+
     // Initialize cron jobs after server starts
     initializeCronJobs();
   });

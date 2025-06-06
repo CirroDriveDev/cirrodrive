@@ -39,7 +39,7 @@ export class SubscriptionService {
   public async getByIdWithPlan(id: string) {
     const subscription = await this.subscriptionRepository.getByIdWithPlan(id);
     if (!subscription) return null;
-    
+
     // Plan의 BigInt storageLimit을 number로 변환
     return {
       ...subscription,

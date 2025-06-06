@@ -8,7 +8,7 @@ export function BaseSidebarHeader({
   children?: React.ReactNode;
 }) {
   return (
-    <SidebarHeader className="h-16 flex items-center px-4 border-b">
+    <SidebarHeader className="flex h-16 items-center border-b px-4">
       {children}
     </SidebarHeader>
   );

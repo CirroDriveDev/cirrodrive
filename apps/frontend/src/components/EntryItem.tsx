@@ -83,7 +83,9 @@ export function EntryItem({
     setIsEditing(false);
   };
 
-  const handleKeyDown = (event: React.KeyboardEvent<HTMLInputElement>): void => {
+  const handleKeyDown = (
+    event: React.KeyboardEvent<HTMLInputElement>,
+  ): void => {
     if (event.key === "Enter") handleRenameSubmit();
     else if (event.key === "Escape") handleCancel();
   };
@@ -106,7 +108,9 @@ export function EntryItem({
   const { handleFolderDelete } = useFolderDelete(id);
   const deleteEntry = type === "folder" ? handleFolderDelete : handleFileDelete;
 
-  const handleDoubleClick = async (e: React.MouseEvent<HTMLDivElement>): Promise<void> => {
+  const handleDoubleClick = async (
+    e: React.MouseEvent<HTMLDivElement>,
+  ): Promise<void> => {
     if (onDoubleClick) {
       onDoubleClick(e);
     } else if (type === "folder") {
@@ -140,7 +144,7 @@ export function EntryItem({
 
       {/* 이름 */}
       <div className="flex min-w-32 flex-grow items-center gap-2" ref={nameRef}>
-        {isEditing ? (
+        {isEditing ?
           <div
             className="flex items-center gap-2"
             onKeyDown={(e) => e.stopPropagation()}
@@ -168,18 +172,15 @@ export function EntryItem({
               취소
             </button>
           </div>
-        ) : (
-          <div className="select-none truncate">
-            {isRenaming ? (
+        : <div className="select-none truncate">
+            {isRenaming ?
               <span className="flex items-center text-sm text-gray-400">
                 <Loader className="mr-2 animate-spin" size={16} />
                 저장 중...
               </span>
-            ) : (
-              truncatedName
-            )}
+            : truncatedName}
           </div>
-        )}
+        }
       </div>
 
       {/* 날짜, 크기 */}
@@ -198,7 +199,7 @@ export function EntryItem({
             className="w-56"
             onCloseAutoFocus={(e) => e.preventDefault()}
           >
-            {!trashedAt ? (
+            {!trashedAt ?
               <DropdownMenuGroup>
                 {type === "file" && (
                   <DropdownMenuItem
@@ -232,8 +233,7 @@ export function EntryItem({
                   <span>휴지통</span>
                 </DropdownMenuItem>
               </DropdownMenuGroup>
-            ) : (
-              <DropdownMenuGroup>
+            : <DropdownMenuGroup>
                 <DropdownMenuItem onClick={() => handleRestore(type)}>
                   <Activity />
                   <span>복원하기</span>
@@ -243,7 +243,7 @@ export function EntryItem({
                   <span>삭제하기</span>
                 </DropdownMenuItem>
               </DropdownMenuGroup>
-            )}
+            }
           </DropdownMenuContent>
         </DropdownMenu>
       </div>

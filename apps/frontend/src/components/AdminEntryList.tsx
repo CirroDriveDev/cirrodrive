@@ -93,7 +93,7 @@ export function AdminEntryList({ entries }: AdminEntryListProps): JSX.Element {
   return (
     <div className="flex w-full flex-col">
       {/* 헤더 영역 – 각 열 높이 h-12, 열 폭 고정 */}
-      <div className="flex w-full items-center justify-between px-16 py-2 h-12 text-base font-semibold text-muted-foreground">
+      <div className="flex h-12 w-full items-center justify-between px-16 py-2 text-base font-semibold text-muted-foreground">
         <div className="w-56 cursor-pointer" onClick={() => handleSort("name")}>
           파일이름 {renderArrow("name")}
         </div>

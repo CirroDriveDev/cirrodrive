@@ -109,9 +109,9 @@ export function SecurityPage(): JSX.Element {
 
   const getDeviceIcon = (deviceName: string) => {
     if (deviceName.includes("iPhone") || deviceName.includes("Android")) {
-      return <SmartphoneIcon className="w-4 h-4" />;
+      return <SmartphoneIcon className="h-4 w-4" />;
     }
-    return <MonitorIcon className="w-4 h-4" />;
+    return <MonitorIcon className="h-4 w-4" />;
   };
 
   // 핸들러 함수들
@@ -158,17 +158,17 @@ export function SecurityPage(): JSX.Element {
   };
 
   return (
-    <div className="p-6 max-w-4xl mx-auto space-y-6">
+    <div className="mx-auto max-w-4xl space-y-6 p-6">
       <div className="flex items-center justify-between">
         <h1 className="text-3xl font-bold">보안 설정</h1>
-        <ShieldIcon className="w-8 h-8 text-blue-500" />
+        <ShieldIcon className="h-8 w-8 text-blue-500" />
       </div>
 
       {/* 비밀번호 변경 섹션 */}
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center">
-            <KeyIcon className="w-5 h-5 mr-2" />
+            <KeyIcon className="mr-2 h-5 w-5" />
             비밀번호 변경
           </CardTitle>
           <CardDescription>
@@ -205,8 +205,8 @@ export function SecurityPage(): JSX.Element {
                 }
               >
                 {showPasswords.current ?
-                  <EyeOffIcon className="w-4 h-4" />
-                : <EyeIcon className="w-4 h-4" />}
+                  <EyeOffIcon className="h-4 w-4" />
+                : <EyeIcon className="h-4 w-4" />}
               </Button>
             </div>
           </div>
@@ -236,8 +236,8 @@ export function SecurityPage(): JSX.Element {
                 }
               >
                 {showPasswords.new ?
-                  <EyeOffIcon className="w-4 h-4" />
-                : <EyeIcon className="w-4 h-4" />}
+                  <EyeOffIcon className="h-4 w-4" />
+                : <EyeIcon className="h-4 w-4" />}
               </Button>
             </div>
           </div>
@@ -270,8 +270,8 @@ export function SecurityPage(): JSX.Element {
                 }
               >
                 {showPasswords.confirm ?
-                  <EyeOffIcon className="w-4 h-4" />
-                : <EyeIcon className="w-4 h-4" />}
+                  <EyeOffIcon className="h-4 w-4" />
+                : <EyeIcon className="h-4 w-4" />}
               </Button>
             </div>
           </div>
@@ -286,7 +286,7 @@ export function SecurityPage(): JSX.Element {
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center">
-            <MonitorIcon className="w-5 h-5 mr-2" />
+            <MonitorIcon className="mr-2 h-5 w-5" />
             기기 및 세션 관리
           </CardTitle>
           <CardDescription>
@@ -346,7 +346,7 @@ export function SecurityPage(): JSX.Element {
                               onClick={() => handleLogoutSession(session.id)}
                               className="text-red-600 hover:text-red-700"
                             >
-                              <LogOutIcon className="w-4 h-4 mr-1" />
+                              <LogOutIcon className="mr-1 h-4 w-4" />
                               로그아웃
                             </Button>
                           )}
@@ -356,14 +356,14 @@ export function SecurityPage(): JSX.Element {
                   </TableBody>
                 </Table>
               </div>
-            : <div className="text-center py-8 text-gray-500">
+            : <div className="py-8 text-center text-gray-500">
                 활성 세션이 없습니다.
               </div>
             }
 
-            <div className="text-sm text-foreground bg-muted p-3 rounded-lg">
-              💡 알지 못하는 기기나 위치에서의 로그인이 있다면 즉시
-              해당 세션을 로그아웃하고 비밀번호를 변경하세요.
+            <div className="rounded-lg bg-muted p-3 text-sm text-foreground">
+              💡 알지 못하는 기기나 위치에서의 로그인이 있다면 즉시 해당 세션을
+              로그아웃하고 비밀번호를 변경하세요.
             </div>
           </div>
         </CardContent>
@@ -388,15 +388,15 @@ export function SecurityPage(): JSX.Element {
             <DialogContent className="sm:max-w-md">
               <DialogHeader>
                 <DialogTitle className="flex items-center text-red-600">
-                  <AlertTriangleIcon className="w-5 h-5 mr-2" />
+                  <AlertTriangleIcon className="mr-2 h-5 w-5" />
                   계정 삭제 확인
                 </DialogTitle>
                 <DialogDescription className="space-y-3">
                   <p>정말로 계정을 삭제하시겠습니까?</p>
-                  <p className="text-sm text-red-600 font-medium">
+                  <p className="text-sm font-medium text-red-600">
                     삭제되는 데이터:
                   </p>
-                  <ul className="text-sm text-gray-600 list-disc list-inside space-y-1">
+                  <ul className="list-inside list-disc space-y-1 text-sm text-gray-600">
                     <li>모든 업로드된 파일</li>
                     <li>공유 링크 및 설정</li>
                     <li>결제 정보 및 구독</li>

@@ -26,7 +26,7 @@ export function MyPlanSection(): JSX.Element {
 
   if (currentSubscription.isPending) {
     return (
-      <div className="flex justify-center items-center">
+      <div className="flex items-center justify-center">
         <LoadingSpinner />
       </div>
     );
@@ -42,36 +42,36 @@ export function MyPlanSection(): JSX.Element {
       </CardHeader>
       <CardContent>
         <div className="space-y-3">
-          <div className="flex justify-between items-center">
-            <span className="text-muted-foreground font-medium">요금제</span>
-            <span className="font-semibold text-lg">
+          <div className="flex items-center justify-between">
+            <span className="font-medium text-muted-foreground">요금제</span>
+            <span className="text-lg font-semibold">
               {currentSubscription.data?.plan?.name ?? "-"}
             </span>
           </div>
-          <div className="flex justify-between items-center">
-            <span className="text-muted-foreground font-medium">상태</span>
+          <div className="flex items-center justify-between">
+            <span className="font-medium text-muted-foreground">상태</span>
             <span className="font-semibold">
               {currentSubscription.data?.status ?? "-"}
             </span>
           </div>
-          <div className="flex justify-between items-center">
-            <span className="text-muted-foreground font-medium">
+          <div className="flex items-center justify-between">
+            <span className="font-medium text-muted-foreground">
               구독 시작일
             </span>
             <span>{formatDate(currentSubscription.data?.startedAt)}</span>
           </div>
-          <div className="flex justify-between items-center">
-            <span className="text-muted-foreground font-medium">
+          <div className="flex items-center justify-between">
+            <span className="font-medium text-muted-foreground">
               다음 결제일
             </span>
             <span>{formatDate(currentSubscription.data?.nextBillingAt)}</span>
           </div>
-          <div className="flex justify-between items-center">
-            <span className="text-muted-foreground font-medium">만료일</span>
+          <div className="flex items-center justify-between">
+            <span className="font-medium text-muted-foreground">만료일</span>
             <span>{formatDate(currentSubscription.data?.expiresAt)}</span>
           </div>
-          <div className="flex justify-between items-center">
-            <span className="text-muted-foreground font-medium">요금</span>
+          <div className="flex items-center justify-between">
+            <span className="font-medium text-muted-foreground">요금</span>
             <span className="font-semibold text-primary">
               {currentSubscription.data?.plan?.price ?
                 `${currentSubscription.data.plan.price.toLocaleString()}원`

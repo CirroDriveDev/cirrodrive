@@ -21,11 +21,14 @@ export const protectedSessionRouter = router({
       }),
     )
     .query(({ ctx }) => {
-      return { authorized: true, admin: {
-      id: ctx.admin.id,
-      email: ctx.admin.email ?? '',
-      createdAt: ctx.admin.createdAt,
-    },};
+      return {
+        authorized: true,
+        admin: {
+          id: ctx.admin.id,
+          email: ctx.admin.email ?? "",
+          createdAt: ctx.admin.createdAt,
+        },
+      };
     }),
 
   /**

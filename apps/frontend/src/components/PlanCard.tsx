@@ -39,7 +39,7 @@ export function PlanCard({ plan, onChangePlan, isCurrentPlan }: PlanCardProps) {
       className={`flex min-h-96 w-full max-w-xs flex-col justify-between border shadow-md ${!isHighlight ? "border-primary ring-2 ring-primary" : "border-muted"}`}
     >
       <div className="flex w-full flex-col">
-        <CardHeader className="flex flex-col h-28">
+        <CardHeader className="flex h-28 flex-col">
           <div className="flex items-center justify-between">
             <CardTitle className="text-xl font-bold">{plan.name}</CardTitle>
             {!isHighlight ?

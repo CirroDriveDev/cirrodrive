@@ -5,7 +5,7 @@ import { Upload } from "#components/UploadImage.js";
 
 export function LandingPage(): JSX.Element {
   return (
-    <div className="mt-64 mx-16">
+    <div className="mx-16 mt-64">
       <div className="col-start-1 col-end-3 row-start-2 w-full p-4">
         <div className="grid grid-cols-[minmax(345px,1fr)_minmax(345px,1fr)] grid-rows-[repeat(2,minmax(600px,auto))]">
           <div className="flex flex-col items-end justify-center">

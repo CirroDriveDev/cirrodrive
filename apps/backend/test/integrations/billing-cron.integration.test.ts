@@ -67,7 +67,9 @@ describe("Billing Cron Integration", () => {
       // Arrange - no setup needed for external behavior test
 
       // Act & Assert - Should not throw even if internal errors occur
-      await expect(billingCronService.processPendingBilling()).resolves.not.toThrow();
+      await expect(
+        billingCronService.processPendingBilling(),
+      ).resolves.not.toThrow();
     });
   });
 

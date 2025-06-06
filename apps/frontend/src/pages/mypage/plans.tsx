@@ -75,16 +75,16 @@ export function PlansPage(): JSX.Element {
   );
 
   return (
-    <div className="p-6 max-w-4xl mx-auto space-y-6">
+    <div className="mx-auto max-w-4xl space-y-6 p-6">
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-3xl font-bold">요금제 변경</h1>
-          <p className="text-gray-600 mt-1">
+          <p className="mt-1 text-gray-600">
             원하는 요금제를 선택해 구독을 변경할 수 있습니다.
           </p>
         </div>
         <div className="flex items-center">
-          <CreditCardIcon className="w-6 h-6 text-blue-500" />
+          <CreditCardIcon className="h-6 w-6 text-blue-500" />
         </div>
       </div>
 
@@ -150,11 +150,11 @@ export function PlansPage(): JSX.Element {
         <CardContent>
           <div className="space-y-3 text-sm text-gray-600">
             <div className="flex items-start space-x-2">
-              <div className="w-2 h-2 bg-blue-500 rounded-full mt-2 flex-shrink-0" />
+              <div className="mt-2 h-2 w-2 flex-shrink-0 rounded-full bg-blue-500" />
               <p>요금제 변경 시 남은 기간은 자동으로 환산되어 적용됩니다.</p>
             </div>
             <div className="flex items-start space-x-2">
-              <div className="w-2 h-2 bg-blue-500 rounded-full mt-2 flex-shrink-0" />
+              <div className="mt-2 h-2 w-2 flex-shrink-0 rounded-full bg-blue-500" />
               <p>결제 및 환불 정책은 고객센터를 참고해주세요.</p>
             </div>
           </div>

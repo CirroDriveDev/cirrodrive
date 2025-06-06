@@ -42,7 +42,9 @@ export function FolderView({ folderId }: FolderViewProps): JSX.Element {
 
   const toggleFileChecked = (file: CheckedFile, isChecked: boolean) => {
     setCheckedFileList((prev) =>
-      isChecked ? [...prev, file] : prev.filter((f) => f.fileId !== file.fileId)
+      isChecked ?
+        [...prev, file]
+      : prev.filter((f) => f.fileId !== file.fileId),
     );
   };
 
@@ -85,7 +87,7 @@ export function FolderView({ folderId }: FolderViewProps): JSX.Element {
   const isAllChecked =
     fileEntries.length > 0 &&
     fileEntries.every((entry) =>
-      checkedFileList.some((f) => f.fileId === entry.id)
+      checkedFileList.some((f) => f.fileId === entry.id),
     );
 
   const toggleAllFiles = (checked: boolean) => {
@@ -121,14 +123,14 @@ export function FolderView({ folderId }: FolderViewProps): JSX.Element {
       {/* 경로 영역 */}
       <div className="flex h-16 w-full items-center space-x-4 p-4">
         <FolderName folderId={user!.rootFolderId} folderName="내 파일" />
-        {folderPathQuery.data?.length && folderPathQuery.data.length > 3 ? (
+        {folderPathQuery.data?.length && folderPathQuery.data.length > 3 ?
           <div className="flex h-16 items-center space-x-4">
             <ChevronRight />
             <div className="flex items-center justify-center text-lg font-bold">
               ···
             </div>
           </div>
-        ) : null}
+        : null}
         {folderPathQuery.data
           ?.slice(1)
           .slice(-2)
@@ -168,17 +170,16 @@ export function FolderView({ folderId }: FolderViewProps): JSX.Element {
 
       {/* 파일 리스트 영역 */}
       <div className="relative flex w-full px-4">
-        {entryListQuery.isLoading || !sortedEntries ? (
+        {entryListQuery.isLoading || !sortedEntries ?
           <LoadingSpinner />
-        ) : (
-          <EntryList
+        : <EntryList
             entries={sortedEntries}
             checkedFileList={checkedFileList}
             toggleFileChecked={toggleFileChecked}
             isAllChecked={isAllChecked}
             onToggleAll={toggleAllFiles}
           />
-        )}
+        }
 
         {/* 드롭존 오버레이 */}
         <div className="pointer-events-none absolute h-full w-full">

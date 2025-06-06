@@ -4,11 +4,11 @@ import { SidebarHeader } from "#shadcn/components/Sidebar.js";
 
 export function CommonSidebarHeader(): JSX.Element {
   return (
-    <SidebarHeader className="h-16 flex items-center px-4 border-b bg-primary">
-      <Link to="/" className="flex items-center space-x-2 flex-grow">
-        <div className="flex items-center space-x-2 flex-grow">
+    <SidebarHeader className="flex h-16 items-center border-b bg-primary px-4">
+      <Link to="/" className="flex flex-grow items-center space-x-2">
+        <div className="flex flex-grow items-center space-x-2">
           <Logo />
-          <div className="font-orbitron text-2xl font-bold text-white w-full text-center">
+          <div className="w-full text-center font-orbitron text-2xl font-bold text-white">
             Cirrodrive
           </div>
         </div>

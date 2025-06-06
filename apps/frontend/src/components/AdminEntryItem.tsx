@@ -41,10 +41,10 @@ export function AdminEntryItem({
   const ownerName = owner.username ?? owner.email ?? "Unknown";
 
   return (
-    <div className="flex w-full items-center px-5 py-10 h-12 text-base">
+    <div className="flex h-12 w-full items-center px-5 py-10 text-base">
       {/* 왼쪽 – 파일이름 영역: 아이콘 + 파일 이름, 열 폭 96 */}
-      <div className="flex items-center w-96 gap-2 ">
-        <div className="w-8 flex items-center justify-center">
+      <div className="flex w-96 items-center gap-2">
+        <div className="flex w-8 items-center justify-center">
           <EntryIcon variant={iconVariant} />
         </div>
         <div className="flex-1 truncate" ref={nameRef}>
@@ -56,9 +56,9 @@ export function AdminEntryItem({
         {new Date(updatedAt).toLocaleString()}
       </div>
       {/* 중앙 – 파일 크기 (열 폭 44) */}
-      <div className="w-44 ms-36 text-left">{displaySize}</div>
+      <div className="ms-36 w-44 text-left">{displaySize}</div>
       {/* 중앙 – 소유자 (열 폭 36) */}
-      <div className="ms-32 w-36 text-sm ">{ownerName}</div>
+      <div className="ms-32 w-36 text-sm">{ownerName}</div>
       {/* 오른쪽 – 액션열: 파일 삭제 드롭다운 (열 폭 10) */}
       <div className="ms-20 w-10 shrink-0 text-center">
         <DropdownMenu>
@@ -70,7 +70,7 @@ export function AdminEntryItem({
           <DropdownMenuContent className="w-48">
             <DropdownMenuGroup>
               <DropdownMenuItem onClick={() => onDelete(id)}>
-                <span className="text-sm font-medium ">파일 삭제</span>
+                <span className="text-sm font-medium">파일 삭제</span>
               </DropdownMenuItem>
             </DropdownMenuGroup>
           </DropdownMenuContent>

@@ -41,7 +41,7 @@ export class PaymentService {
     // 2. 구독 정보 조회
     const subscription =
       await this.subscriptionService.getByIdWithPlan(subscriptionId);
-    
+
     if (!subscription) {
       throw new TRPCError({
         code: "NOT_FOUND",

@@ -47,7 +47,7 @@ export function AdminLoginPage(): JSX.Element {
               className={errors.email ? "border-destructive" : ""}
             />
             {typeof errors.email?.message === "string" && (
-              <p className="text-destructive text-sm mt-1">
+              <p className="mt-1 text-sm text-destructive">
                 {errors.email.message}
               </p>
             )}
@@ -68,14 +68,14 @@ export function AdminLoginPage(): JSX.Element {
               className={errors.password ? "border-destructive" : ""}
             />
             {typeof errors.password?.message === "string" && (
-              <p className="text-destructive text-sm mt-1">
+              <p className="mt-1 text-sm text-destructive">
                 {errors.password.message}
               </p>
             )}
           </div>
           {submissionError ?
             <div className="h-8 w-full">
-              <p className="text-destructive text-center">{submissionError}</p>
+              <p className="text-center text-destructive">{submissionError}</p>
             </div>
           : null}
           <div className="flex w-full justify-center">

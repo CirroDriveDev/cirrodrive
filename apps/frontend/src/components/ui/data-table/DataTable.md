@@ -171,7 +171,7 @@ dataTableStatusColumn<TData>({
   id: "status",
   title: "상태",
   statusConfig: CommonStatusConfigs.user, // 상태 설정
-})
+});
 ```
 
 ### dataTableActionsColumn
@@ -191,7 +191,7 @@ dataTableActionsColumn<TData>({
 행 선택 체크박스 컬럼을 생성합니다.
 
 ```typescript
-dataTableSelectColumn<TData>({})
+dataTableSelectColumn<TData>({});
 ```
 
 ## 액션 시스템
@@ -214,10 +214,7 @@ const singleAction: DataTableAction<User> = {
 ```typescript
 const actionGroup: DataTableActionGroup<User> = {
   label: "사용자 관리",
-  actions: [
-    CommonActions.edit(handleEdit),
-    CommonActions.delete(handleDelete),
-  ],
+  actions: [CommonActions.edit(handleEdit), CommonActions.delete(handleDelete)],
 };
 ```
 
@@ -283,11 +280,11 @@ DataTable의 다양한 기능을 선택적으로 활성화할 수 있습니다:
 
 ```typescript
 interface DataTableFeatures {
-  sorting?: boolean;          // 정렬 기능
-  filtering?: boolean;        // 컬럼 필터링
-  globalFilter?: boolean;     // 전역 검색
-  pagination?: boolean;       // 페이지네이션
-  rowSelection?: boolean;     // 행 선택
+  sorting?: boolean; // 정렬 기능
+  filtering?: boolean; // 컬럼 필터링
+  globalFilter?: boolean; // 전역 검색
+  pagination?: boolean; // 페이지네이션
+  rowSelection?: boolean; // 행 선택
 }
 ```
 

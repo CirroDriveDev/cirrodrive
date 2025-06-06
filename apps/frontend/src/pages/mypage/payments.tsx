@@ -59,14 +59,14 @@ export function PaymentsPage(): JSX.Element {
       case "DONE":
         return (
           <Badge variant="default" className="bg-green-100 text-green-800">
-            <CheckCircleIcon className="w-3 h-3 mr-1" />
+            <CheckCircleIcon className="mr-1 h-3 w-3" />
             완료
           </Badge>
         );
       case "FAILED":
         return (
           <Badge variant="destructive">
-            <XCircleIcon className="w-3 h-3 mr-1" />
+            <XCircleIcon className="mr-1 h-3 w-3" />
             실패
           </Badge>
         );
@@ -74,14 +74,14 @@ export function PaymentsPage(): JSX.Element {
       case "IN_PROGRESS":
         return (
           <Badge variant="secondary">
-            <ClockIcon className="w-3 h-3 mr-1" />
+            <ClockIcon className="mr-1 h-3 w-3" />
             진행중
           </Badge>
         );
       case "CANCELED":
         return (
           <Badge variant="outline">
-            <XCircleIcon className="w-3 h-3 mr-1" />
+            <XCircleIcon className="mr-1 h-3 w-3" />
             취소됨
           </Badge>
         );
@@ -100,9 +100,9 @@ export function PaymentsPage(): JSX.Element {
 
   if (payments.error) {
     return (
-      <div className="p-6 max-w-6xl mx-auto">
-        <div className="text-center py-8">
-          <h2 className="text-xl font-semibold text-gray-900 mb-2">
+      <div className="mx-auto max-w-6xl p-6">
+        <div className="py-8 text-center">
+          <h2 className="mb-2 text-xl font-semibold text-gray-900">
             결제 내역을 불러올 수 없습니다
           </h2>
           <p className="text-gray-600">잠시 후 다시 시도해주세요.</p>
@@ -115,24 +115,24 @@ export function PaymentsPage(): JSX.Element {
   const hasPreviousPage = page > 0;
 
   return (
-    <div className="p-6 max-w-6xl mx-auto space-y-6">
+    <div className="mx-auto max-w-6xl space-y-6 p-6">
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-3xl font-bold">결제 내역</h1>
-          <p className="text-gray-600 mt-1">
+          <p className="mt-1 text-gray-600">
             과거 결제 내역을 확인할 수 있습니다
           </p>
         </div>
         <div className="flex items-center">
-          <CreditCardIcon className="w-6 h-6 text-blue-500" />
+          <CreditCardIcon className="h-6 w-6 text-blue-500" />
         </div>
       </div>
 
       {!payments.data?.payments || payments.data.payments.length === 0 ?
         <Card>
           <CardContent className="p-8 text-center">
-            <CreditCardIcon className="w-16 h-16 mx-auto text-gray-300 mb-4" />
-            <h3 className="text-lg font-semibold text-gray-900 mb-2">
+            <CreditCardIcon className="mx-auto mb-4 h-16 w-16 text-gray-300" />
+            <h3 className="mb-2 text-lg font-semibold text-gray-900">
               결제 내역이 없습니다
             </h3>
             <p className="text-gray-600">
@@ -163,7 +163,7 @@ export function PaymentsPage(): JSX.Element {
                       <TableRow key={payment.id}>
                         <TableCell>
                           <div className="flex items-center">
-                            <CalendarIcon className="w-4 h-4 mr-2 text-gray-400" />
+                            <CalendarIcon className="mr-2 h-4 w-4 text-gray-400" />
                             {formatDate(payment.createdAt)}
                           </div>
                         </TableCell>
@@ -202,10 +202,10 @@ export function PaymentsPage(): JSX.Element {
                 onClick={() => setPage((p) => p - 1)}
                 disabled={!hasPreviousPage}
               >
-                <ChevronLeftIcon className="w-4 h-4" />
+                <ChevronLeftIcon className="h-4 w-4" />
                 이전
               </Button>
-              <span className="text-sm font-medium px-3">
+              <span className="px-3 text-sm font-medium">
                 페이지 {page + 1}
               </span>
               <Button
@@ -215,7 +215,7 @@ export function PaymentsPage(): JSX.Element {
                 disabled={!hasNextPage}
               >
                 다음
-                <ChevronRightIcon className="w-4 h-4" />
+                <ChevronRightIcon className="h-4 w-4" />
               </Button>
             </div>
           </div>
@@ -230,17 +230,17 @@ export function PaymentsPage(): JSX.Element {
         <CardContent>
           <div className="space-y-3 text-sm text-gray-600">
             <div className="flex items-start space-x-2">
-              <div className="w-2 h-2 bg-blue-500 rounded-full mt-2 flex-shrink-0" />
+              <div className="mt-2 h-2 w-2 flex-shrink-0 rounded-full bg-blue-500" />
               <p>결제 내역은 최대 3년간 보관됩니다.</p>
             </div>
             <div className="flex items-start space-x-2">
-              <div className="w-2 h-2 bg-blue-500 rounded-full mt-2 flex-shrink-0" />
+              <div className="mt-2 h-2 w-2 flex-shrink-0 rounded-full bg-blue-500" />
               <p>
                 세금계산서나 현금영수증이 필요하시면 고객지원으로 문의해주세요.
               </p>
             </div>
             <div className="flex items-start space-x-2">
-              <div className="w-2 h-2 bg-blue-500 rounded-full mt-2 flex-shrink-0" />
+              <div className="mt-2 h-2 w-2 flex-shrink-0 rounded-full bg-blue-500" />
               <p>결제 취소나 환불은 결제 후 7일 이내에만 가능합니다.</p>
             </div>
           </div>

@@ -1,6 +1,11 @@
 import { injectable, inject } from "inversify";
 import type { Logger } from "pino";
-import type { Subscription, Plan, Billing, User } from "@cirrodrive/database/prisma";
+import type {
+  Subscription,
+  Plan,
+  Billing,
+  User,
+} from "@cirrodrive/database/prisma";
 import { $Enums } from "@cirrodrive/database/prisma";
 import { Symbols } from "#types/symbols";
 import { SubscriptionRepository } from "#repositories/subscription.repository";
@@ -58,7 +63,9 @@ export class BillingCronService {
   }
 
   @Transactional()
-  private async processSubscriptionBilling(subscription: SubscriptionWithRelations): Promise<void> {
+  private async processSubscriptionBilling(
+    subscription: SubscriptionWithRelations,
+  ): Promise<void> {
     const { id, userId, plan, billing, status, trialEndsAt } = subscription;
 
     try {
@@ -144,7 +151,9 @@ export class BillingCronService {
   }
 
   @Transactional()
-  private async handleRegularBilling(subscription: SubscriptionWithRelations): Promise<void> {
+  private async handleRegularBilling(
+    subscription: SubscriptionWithRelations,
+  ): Promise<void> {
     const { id, userId, plan } = subscription;
 
     this.logger.info(
