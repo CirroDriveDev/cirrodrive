@@ -1,15 +1,20 @@
 import { useMemo } from "react";
-import { AdminEntryList } from "#components/AdminEntryList.js";
-import { LoadingSpinner } from "#components/shared/LoadingSpinner.js";
+import { type ColumnDef } from "@tanstack/react-table";
+import { DataTable } from "#components/ui/data-table/DataTable.js";
 import { trpc } from "#services/trpc.js";
-import { useAdminSearchBarStore } from "#store/useAdminSearchBarStore.js";
-import { formatSize } from "#utils/formatSize"; // 파일 크기 포맷 함수
+import { formatSize } from "#utils/formatSize";
+import {
+  dataTableSelectColumn,
+  dataTableTextColumn,
+  dataTableDateColumn,
+  dataTableActionsColumn,
+} from "#components/ui/data-table/DataTableColumns.js";
+import { useAdminDeleteFile } from "#services/admin/useAdminDeleteFile.js";
 
 export function AdminFileView(): JSX.Element {
-  // TRPC의 protected.file.listFiles 프로시저를 사용하여 파일 데이터를 조회합니다.
   const { data: files, isLoading } = trpc.protected.file.listFiles.useQuery({});
+  const { deleteFile } = useAdminDeleteFile();
 
-  // 파일 목록 데이터 변환: owner 필드를 보완하고, type을 "file"로 고정합니다.
   const transformedEntries = useMemo(() => {
     return (files ?? []).map((file) => ({
       ...file,
@@ -31,60 +36,77 @@ export function AdminFileView(): JSX.Element {
     }));
   }, [files]);
 
-  // zustand의 검색 상태를 가져옵니다.
-  const { searchTerms } = useAdminSearchBarStore();
+  // DataTable 컬럼 정의
+  const columns = useMemo(
+    () => [
+      // 체크박스(행 선택) 컬럼
+      dataTableSelectColumn<(typeof transformedEntries)[0]>(),
+      // 파일 이름 컬럼
+      dataTableTextColumn<(typeof transformedEntries)[0]>({
+        accessorFn: (row) => row.name,
+        id: "name",
+        title: "파일 이름",
+      }),
+      // 수정 날짜 컬럼
+      dataTableDateColumn<(typeof transformedEntries)[0]>({
+        accessorFn: (row) => new Date(row.updatedAt),
+        id: "updatedAt",
+        title: "수정 날짜",
+        formatOptions: { year: "numeric", month: "2-digit", day: "2-digit" },
+      }),
+      // 파일 크기 컬럼
+      dataTableTextColumn<(typeof transformedEntries)[0]>({
+        accessorFn: (row) => (row.size !== null ? formatSize(row.size) : "-"),
+        id: "size",
+        title: "크기",
+      }),
+      // 액션(삭제) 컬럼
+      dataTableActionsColumn<(typeof transformedEntries)[0]>({
+        title: "작업",
+        actions: [
+          {
+            label: "파일 삭제",
+            onClick: (file) => {
+              void deleteFile(file.id);
+            },
+            variant: "destructive",
+          },
+        ],
+      }),
+    ],
+    [deleteFile],
+  );
 
-  // 검색 조건(파일이름, 수정날짜, 크기, ID)에 따라 파일 목록을 필터링합니다.
-  const filteredEntries = useMemo(() => {
-    return transformedEntries.filter((file) => {
-      // 입력값을 소문자 및 양쪽 공백 제거한 키워드로 변환하는 함수
-      const keyword = (s: string): string => s.trim().toLowerCase();
-      const matches: boolean[] = [];
+  const typedColumns = columns as ColumnDef<
+    (typeof transformedEntries)[0],
+    unknown
+  >[];
 
-      // 파일이름 검색 조건 (부분 일치)
-      if (searchTerms.name) {
-        matches.push(
-          file.name.toLowerCase().includes(keyword(searchTerms.name)),
-        );
-      }
-
-      // 수정날짜 검색 조건: toLocaleString() 사용 (부분 일치)
-      if (searchTerms.updatedAt) {
-        const updatedAtStr = new Date(file.updatedAt).toLocaleString();
-        matches.push(
-          updatedAtStr.toLowerCase().includes(keyword(searchTerms.updatedAt)),
-        );
-      }
-
-      // 크기 검색 조건: formatSize()를 사용하여 포맷된 문자열로 비교 (부분 일치)
-      if (searchTerms.size) {
-        const sizeStr = file.size !== null ? formatSize(file.size) : "";
-        matches.push(sizeStr.toLowerCase().includes(keyword(searchTerms.size)));
-      }
-
-      // ID 검색 조건: **부분 일치**
-      if (searchTerms.id) {
-        matches.push(
-          file.owner.id.toLowerCase().includes(keyword(searchTerms.id)),
-        );
-      }
-
-      // 활성화된 모든 검색 조건이 일치해야 해당 항목이 포함됩니다.
-      return matches.length === 0 ? true : matches.every(Boolean);
-    });
-  }, [transformedEntries, searchTerms]);
-
-  if (isLoading || !files) {
+  if (isLoading) {
     return (
       <div className="flex w-full items-center justify-center p-4">
-        <LoadingSpinner />
+        <div>Loading...</div>
       </div>
     );
   }
 
   return (
-    <div className="flex w-full flex-col">
-      <AdminEntryList entries={filteredEntries} />
+    <div className="w-full space-y-4">
+      <DataTable
+        data={transformedEntries}
+        columns={typedColumns}
+        features={{
+          sorting: true,
+          globalFilter: true,
+          pagination: true,
+          rowSelection: true,
+        }}
+        initialState={{
+          pagination: {
+            pageSize: 10,
+          },
+        }}
+      />
     </div>
   );
 }
