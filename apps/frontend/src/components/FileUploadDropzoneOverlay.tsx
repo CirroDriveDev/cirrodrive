@@ -1,36 +1,27 @@
 import { FileIcon } from "lucide-react";
-import { useFileUploadHandler } from "#hooks/useFileUploadHandler.js";
 import { useDragOverlay } from "#hooks/useDragOverlay.js";
-import { usePresignedPostUploader } from "#services/file/presigned-post-uploader.js";
-import {
-  type UploadResultError,
-  type UploadResultSuccess,
-  type UploadResult,
-} from "#types/use-uploader.js";
+import { useUpload } from "#services/upload/useUpload.js";
 
 interface DragAndDropUploadOverlayProps {
   folderId?: string; // 폴더 ID
-  onSuccess?: (results: UploadResult[]) => void;
-  onError?: (results: UploadResult[]) => void;
-  onSingleFileSuccess?: (result: UploadResultSuccess) => void;
-  onSingleFileError?: (result: UploadResultError) => void;
+  onSuccess?: (fileId: string, code: string) => void;
+  onError?: (error: string) => void;
 }
 
 export function FileUploadDropzoneOverlay({
   folderId,
   onSuccess,
   onError,
-  onSingleFileSuccess,
-  onSingleFileError,
 }: DragAndDropUploadOverlayProps): JSX.Element {
-  const { handleFiles } = useFileUploadHandler({
-    useUploader: usePresignedPostUploader,
-    folderId,
+  const { uploadFiles } = useUpload({
     onSuccess,
     onError,
-    onSingleFileSuccess,
-    onSingleFileError,
   });
+
+  const handleFiles = async (files: FileList | File[]) => {
+    if (!files?.length) return;
+    await uploadFiles(Array.from(files), { folderId });
+  };
 
   const { dragOver, handleDragOver, handleDragLeave, handleDrop } =
     useDragOverlay({

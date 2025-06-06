@@ -52,6 +52,7 @@ export interface TransferStore {
   addTransfer: (transfer: FileTransfer) => void;
   updateProgress: (id: string, progress: number) => void;
   setStatus: (id: string, status: FileTransferStatus, error?: string) => void;
+  updateTransfer: (id: string, updates: Partial<FileTransfer>) => void;
   removeTransfer: (id: string) => void;
 }
 
@@ -175,6 +176,13 @@ export const createTransferSlice: StateCreator<
           status,
           error: error ?? state.transfers[index].error,
         };
+      }
+    }),
+  updateTransfer: (id, updates) =>
+    set((state) => {
+      const index = state.transfers.findIndex((item) => item.id === id);
+      if (index !== -1) {
+        Object.assign(state.transfers[index], updates);
       }
     }),
   removeTransfer: (id) =>

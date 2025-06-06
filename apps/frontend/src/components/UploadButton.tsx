@@ -1,11 +1,7 @@
 import { Button } from "#shadcn/components/Button.js";
 import { useEntryList } from "#services/useEntryList.js";
 import { selectFile } from "#utils/selectFile.js";
-import {
-  useUploadFiles,
-  type UploadRequest,
-} from "#services/file/useUploadFiles.js";
-import { usePresignedPostUploader } from "#services/file/presigned-post-uploader.js";
+import { useUpload } from "#services/upload/useUpload.js";
 
 interface FolderViewProps {
   folderId: string;
@@ -14,13 +10,12 @@ interface FolderViewProps {
 export function UploadButton({ folderId }: FolderViewProps): JSX.Element {
   const { query: entryListQuery } = useEntryList(folderId);
 
-  const { uploadFiles } = useUploadFiles({
-    useUploader: usePresignedPostUploader,
+  const { uploadFiles } = useUpload({
     onSuccess: () => {
-      void entryListQuery.refetch(); // ✅ 전체 성공 후 재조회
+      void entryListQuery.refetch();
     },
     onError: () => {
-      void entryListQuery.refetch(); // ✅ 에러 발생 후에도 반영 가능
+      void entryListQuery.refetch();
     },
   });
 
@@ -28,12 +23,7 @@ export function UploadButton({ folderId }: FolderViewProps): JSX.Element {
     const files = await selectFile();
     if (!files) return;
 
-    const uploadRequests: UploadRequest[] = Array.from(files).map((file) => ({
-      file,
-      folderId,
-    }));
-
-    await uploadFiles(uploadRequests);
+    await uploadFiles(Array.from(files), { folderId });
   }
 
   return <Button onClick={handleFileSelect}>업로드</Button>;

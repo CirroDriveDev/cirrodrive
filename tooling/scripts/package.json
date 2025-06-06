@@ -10,7 +10,7 @@
     "lint": "eslint .",
     "remove-ext": "tsx src/remove-ext.ts",
     "seed": "vite-node src/seed.ts",
-    "test": "vitest",
+    "test": "vitest --run",
     "test:coverage": "vitest run --coverage",
     "test:watch": "vitest watch",
     "typecheck": "tsc --noEmit"

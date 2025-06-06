@@ -1,28 +1,21 @@
 import { useState } from "react";
 import { FileIcon } from "lucide-react";
-import { useFileUploadHandler } from "#hooks/useFileUploadHandler.js";
 import { useDragOverlay } from "#hooks/useDragOverlay.js";
-import { usePresignedPostUploader } from "#services/file/presigned-post-uploader.js";
+import { useUpload } from "#services/upload/useUpload.js";
 import { StorageQuotaAlert } from "#components/StorageQuotaAlert.js";
-import {
-  type UploadResultError,
-  type UploadResultSuccess,
-} from "#types/use-uploader.js";
 
 interface FileUploadDropzoneProps {
   maxFiles?: number;
-  onSuccess?: (results: UploadResultSuccess[]) => void;
-  onError?: (results: UploadResultError[]) => void;
-  onSingleFileSuccess?: (result: UploadResultSuccess) => void;
-  onSingleFileError?: (result: UploadResultError) => void;
+  folderId?: string;
+  onSuccess?: (fileId: string, code: string) => void;
+  onError?: (error: string) => void;
 }
 
 export function FileUploadDropzone({
   maxFiles = 1,
+  folderId,
   onSuccess,
   onError,
-  onSingleFileSuccess,
-  onSingleFileError,
 }: FileUploadDropzoneProps): JSX.Element {
   const [quotaAlert, setQuotaAlert] = useState<{
     show: boolean;
@@ -30,13 +23,10 @@ export function FileUploadDropzone({
     remainingBytes?: number;
   }>({ show: false });
 
-  const handleQuotaError = (error: UploadResultError) => {
-    // 할당량 초과 에러인지 확인
-    const errorMessage = JSON.stringify(error.error);
-
-    if (errorMessage.includes("저장 공간이 부족합니다")) {
+  const handleQuotaError = (error: string) => {
+    if (error.includes("저장 공간이 부족합니다")) {
       // 메시지에서 사용 가능한 용량 추출 시도
-      const bytesMatch = /(?<bytes>\d+) bytes/.exec(errorMessage);
+      const bytesMatch = /(?<bytes>\d+) bytes/.exec(error);
       const remainingBytes =
         bytesMatch?.groups?.bytes ?
           parseInt(bytesMatch.groups.bytes)
@@ -44,23 +34,30 @@ export function FileUploadDropzone({
 
       setQuotaAlert({
         show: true,
-        message: errorMessage,
+        message: error,
         remainingBytes,
       });
     }
 
     // 기존 에러 핸들러도 호출
-    onSingleFileError?.(error);
+    onError?.(error);
   };
 
-  const { handleFiles } = useFileUploadHandler({
-    useUploader: usePresignedPostUploader,
+  const { uploadFiles } = useUpload({
     onSuccess,
-    onError,
-    onSingleFileSuccess,
-    onSingleFileError: handleQuotaError,
-    maxFiles,
+    onError: handleQuotaError,
   });
+
+  const handleFiles = async (files: FileList | File[]) => {
+    if (!files?.length) return;
+
+    let fileArray = Array.from(files);
+    if (maxFiles && fileArray.length > maxFiles) {
+      fileArray = fileArray.slice(0, maxFiles);
+    }
+
+    await uploadFiles(fileArray, { folderId });
+  };
 
   const { dragOver, handleDragOver, handleDragLeave, handleDrop } =
     useDragOverlay({

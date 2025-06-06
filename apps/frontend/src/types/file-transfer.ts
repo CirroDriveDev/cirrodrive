@@ -9,6 +9,27 @@ export type FileTransferStatus =
   | "error"
   | "cancelled";
 
+// 멀티파트 업로드 청크 상태
+export type ChunkStatus = "pending" | "uploading" | "completed" | "failed";
+
+// 개별 청크 정보
+export interface UploadChunk {
+  partNumber: number;
+  size: number;
+  status: ChunkStatus;
+  progress: number; // 0~100
+  retryCount: number;
+}
+
+// 업로드 통계
+export interface UploadStats {
+  uploadSpeed: number; // bytes per second
+  estimatedTimeRemaining: number; // seconds
+  startTime: number; // timestamp
+  lastProgressTime: number; // timestamp
+  uploadMethod: "presigned-post" | "multipart";
+}
+
 // 공통 속성: 업로드와 다운로드 모두에 적용
 interface FileTransferBase {
   id: string; // 고유 식별자
@@ -19,7 +40,11 @@ interface FileTransferBase {
   error?: string; // 오류 메시지
   retry: () => void; // 재시도 함수
   cancel: () => void; // 취소 함수
+  pause?: () => void; // 일시정지 함수 (멀티파트만)
+  resume?: () => void; // 재개 함수 (멀티파트만)
   isRetry?: boolean; // 재시도 여부 (옵션)
+  stats?: UploadStats; // 업로드 통계
+  chunks?: UploadChunk[]; // 멀티파트 청크 정보
 }
 
 // 업로드 전용 타입

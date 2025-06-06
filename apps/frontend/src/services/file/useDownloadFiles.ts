@@ -1,9 +1,9 @@
 import { useState } from "react";
 import pLimit from "p-limit";
+import type { DownloadSingleFileOptions } from "./useDownloadSingleFile";
 import { trpcClient } from "#app/provider/trpcClient";
 import { downloadFileFromUrl } from "#utils/downloadFileFromUrl";
 import { useTransferStore } from "#store/useTransferStore";
-import type { DownloadSingleFileOptions } from "./useDownloadSingleFile";
 
 export interface DownloadFilesOptions {
   files: DownloadSingleFileOptions[];

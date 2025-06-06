@@ -21,7 +21,6 @@ import {
 } from "#shadcn/components/Collapsible.js";
 import { useTransferStore } from "#store/useTransferStore.js";
 import type { FileTransfer } from "#types/file-transfer";
-import { formatSize } from "#utils/formatSize.js";
 
 export function TransferPanel() {
   const { transfers, removeTransfer } = useTransferStore();
@@ -53,6 +52,8 @@ export function TransferPanel() {
   };
 
   if (!isVisible) return null;
+
+  const reverseTransfers = [...transfers].reverse();
 
   return (
     <div className="fixed bottom-4 left-4 z-50 flex w-96">
@@ -90,7 +91,7 @@ export function TransferPanel() {
           <CollapsibleContent asChild>
             <CardContent>
               <ul className="custom-scrollbar max-h-60 min-h-12 overflow-y-auto pr-4">
-                {transfers
+                {reverseTransfers
                   .filter((item) => item.isRetry !== true)
                   .map((item) => (
                     <FileTransferItem key={item.id} item={item} />
@@ -106,7 +107,6 @@ export function TransferPanel() {
 
 function FileTransferItem({ item }: { item: FileTransfer }) {
   const name = item.file.name;
-  const size = formatSize(item.totalBytes ?? 0);
   const { removeTransfer, setStatus } = useTransferStore();
 
   const cancelItem = () => {
@@ -124,16 +124,15 @@ function FileTransferItem({ item }: { item: FileTransfer }) {
       <UploadCloud className="h-4 w-4" />
     : <Download className="h-4 w-4" />;
 
-  const maxLength = 24;
+  const maxLength = 20;
 
   return (
-    <li className="flex h-12 w-96 items-center justify-between gap-4">
+    <li className="flex h-12 w-full items-center justify-between gap-4">
       {typeIcon}
       <div className="min-w-0 flex-1">
         <div className="flex justify-between text-sm text-foreground">
           <span className="flex items-center gap-1 truncate text-nowrap">
             {name.length > maxLength ? `${name.slice(0, maxLength)}...` : name}
-            <span className="ml-1 text-xs text-foreground">({size})</span>
           </span>
           <span>{Math.floor(item.progress)}%</span>
         </div>

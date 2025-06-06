@@ -12,6 +12,10 @@
       "./src/components/*",
       "./src/components/*.ts"
     ],
+    "#config/*": [
+      "./src/config/*",
+      "./src/config/*.ts"
+    ],
     "#hooks/*": [
       "./src/hooks/*",
       "./src/hooks/*.ts"
@@ -49,7 +53,7 @@
     "format": "prettier --check . --ignore-path ../../.gitignore",
     "lint": "eslint",
     "preview": "vite preview",
-    "test": "vitest",
+    "test": "vitest --run",
     "test:ci": "vitest --run --reporter=default --reporter=json",
     "typecheck": "tsc --noEmit --skipLibCheck",
     "ui-add": "shadcn add"

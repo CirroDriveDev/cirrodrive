@@ -2,7 +2,7 @@ import { useBoundStore } from "#store/useBoundStore.js";
 import type { TransferStore } from "#store/useBoundStore.js";
 
 export const useTransferStore: () => TransferStore = () => {
-  const { transfers, addTransfer, updateProgress, setStatus, removeTransfer } =
+  const { transfers, addTransfer, updateProgress, setStatus, updateTransfer, removeTransfer } =
     useBoundStore();
 
   return {
@@ -10,6 +10,7 @@ export const useTransferStore: () => TransferStore = () => {
     addTransfer,
     updateProgress,
     setStatus,
+    updateTransfer,
     removeTransfer,
   };
 };
