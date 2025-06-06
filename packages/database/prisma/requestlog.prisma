@@ -1,0 +1,13 @@
+model requestlog {
+  id            String   @id @default(cuid())
+  ipAddress     String?
+  sessionToken  String?
+  path          String
+  method        String
+  userAgent     String?
+  statusCode    Int
+  responseTime  Int
+  createdAt     DateTime @default(now())
+
+  userId        String?
+}

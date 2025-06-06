@@ -8,16 +8,18 @@ import type {
 } from "@cirrodrive/database/prisma";
 import { AuthService } from "#services/auth.service";
 import { AdminAuthService } from "#services/admin.auth.service";
+import { RateLimitService } from "#services/rate-limit.service";
 import { container } from "#loaders/inversify.loader";
 
 const authService = container.get<AuthService>(AuthService);
 const adminAuthService = container.get<AdminAuthService>(AdminAuthService);
+const rateLimitService = container.get<RateLimitService>(RateLimitService);
 
 /**
  * Main context creator - outer context와 inner context를 결합 기존 API와의 호환성을 위해 유지
  */
 export const createContext = async (opts: CreateExpressContextOptions) => {
-  const outerCtx = createOuterContext(opts);
+  const outerCtx = await createOuterContext(opts);
   const innerCtx = await createInnerContext(outerCtx);
 
   innerCtx.logger.info("요청 시작");
@@ -30,13 +32,50 @@ export type Context = OuterContext & InnerContext;
 /**
  * Outer context - 모든 요청에서 기본적으로 사용 가능한 context 인증과 무관하게 항상 제공되는 기본 정보들
  */
-export const createOuterContext = (opts: CreateExpressContextOptions) => {
+export const createOuterContext = async (opts: CreateExpressContextOptions) => {
   const { req, res, info } = opts;
   const traceId = req.id;
 
+  const ip =
+  typeof req.headers["x-forwarded-for"] === "string"
+    ? req.headers["x-forwarded-for"].split(",")[0].trim()
+    : req.socket.remoteAddress ?? "unknown";
+
+  const parsedAuthToken = z.string().safeParse(
+    req.cookies[AuthService.SESSION_TOKEN_COOKIE_NAME],
+  );
+  const parsedAdminToken = z.string().safeParse(
+    req.cookies[AdminAuthService.SESSION_TOKEN_COOKIE_NAME],
+  );
+
+  let sessionToken: string | null = null;
+
+  if (parsedAuthToken.success) {
+    sessionToken = parsedAuthToken.data;
+  } else if (parsedAdminToken.success) {
+    sessionToken = parsedAdminToken.data;
+  }
+
+
+  const pathname = typeof info.url?.pathname === "string" ? info.url.pathname : "unknown";
+
+  const userAgent =
+    typeof req.headers["user-agent"] === "string" ? req.headers["user-agent"] : "unknown";
+
+  // ✅ 요청 제한 검사
+  await rateLimitService.checkLimit(ip, sessionToken);
+
+  // ✅ 요청 로그 기록
+  await rateLimitService.logRequest({
+    ip,
+    sessionToken,
+    pathname,
+    userAgent,
+  });
+
   const logger = req.log.child({
     traceId,
-    path: info.url?.pathname,
+    path: pathname,
   });
 
   return {
