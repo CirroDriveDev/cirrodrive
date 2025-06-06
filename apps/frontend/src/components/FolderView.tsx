@@ -1,5 +1,6 @@
 import { ChevronRight, PlusIcon } from "lucide-react";
 import { useEffect, useState } from "react";
+import { toast } from "react-toastify";
 import { EntryList } from "#components/EntryList.js";
 import { LoadingSpinner } from "#components/shared/LoadingSpinner.js";
 import { Button } from "#shadcn/components/Button.js";
@@ -14,7 +15,6 @@ import { UploadButton } from "#components/UploadButton.js";
 import { useFileSearchBarStore } from "#store/useFileSearchBarStore.js";
 import { FileSearchBar } from "#components/layout/FileSearchBar.js";
 import { useDownloadFiles } from "#services/file/useDownloadFiles";
-import { toast } from "sonner";
 
 interface FolderViewProps {
   folderId: string;
@@ -113,7 +113,7 @@ export function FolderView({ folderId }: FolderViewProps): JSX.Element {
           toast.error(`${errors.length}개의 파일 다운로드 실패`);
         },
       });
-    } catch (err) {
+    } catch {
       toast.error("다운로드 도중 문제가 발생했습니다.");
     }
   };
@@ -185,7 +185,7 @@ export function FolderView({ folderId }: FolderViewProps): JSX.Element {
         <div className="pointer-events-none absolute h-full w-full">
           <FileUploadDropzoneOverlay
             folderId={folderId}
-            onSingleFileSuccess={() => {
+            onSuccess={() => {
               void entryListQuery.refetch();
             }}
           />
