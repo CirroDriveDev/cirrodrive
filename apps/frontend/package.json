@@ -54,7 +54,7 @@
     "typecheck": "tsc --noEmit --skipLibCheck",
     "ui-add": "shadcn add"
   },
-  "prettier": "@cirrodrive/prettier-config",
+  "prettier": "./.prettierrc.js",
   "dependencies": {
     "@cirrodrive/schemas": "workspace:*",
     "@cirrodrive/typescript-config": "workspace:*",
