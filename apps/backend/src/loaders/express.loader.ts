@@ -31,11 +31,6 @@ export const expressLoader = (): Express => {
     }),
   );
   app.use(cookieParser());
-  app.use(loggerMiddleware);
-
-  if (env.PROD) {
-    app.use(helmet());
-  }
 
   // 헬스 체크 엔드포인트
   app.get("/health", (req, res) => {
@@ -45,6 +40,12 @@ export const expressLoader = (): Express => {
       env: env.MODE,
     });
   });
+
+  app.use(loggerMiddleware);
+
+  if (env.PROD) {
+    app.use(helmet());
+  }
 
   app.use(TRPC_PATH, trpcMiddleware);
 
