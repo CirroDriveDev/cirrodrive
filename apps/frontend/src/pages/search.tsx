@@ -23,8 +23,25 @@ export function SearchResultsPage(): JSX.Element {
             return <LoadingSpinner />;
           }
           if (entries && entries.length > 0) {
-            return <EntryList entries={entries} />; // 검색 결과 출력
+            <EntryList
+              entries={entries}
+              checkedFileList={[]}
+              toggleFileChecked={(
+                _file: {
+                  fileId: string;
+                  name: string;
+                },
+                _isChecked: boolean,
+              ) => {
+                throw new Error("Function not implemented.");
+              }}
+              isAllChecked={false}
+              onToggleAll={(_checked: boolean) => {
+                throw new Error("Function not implemented.");
+              }}
+            />;
           }
+
           return (
             <div className="w-full text-center text-gray-500">
               검색어 &ldquo;{searchTerm}&quot;에 대한 결과가 없습니다.

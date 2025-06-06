@@ -29,7 +29,24 @@ export function DocumentsPage(): JSX.Element {
       <div className="flex w-full px-4">
         {entryListByUserQuery.isLoading || !entryListByUserQuery.data ?
           <LoadingSpinner />
-        : <EntryList entries={filteredEntries} />}
+        : <EntryList
+            entries={filteredEntries}
+            checkedFileList={[]}
+            toggleFileChecked={(
+              _file: {
+                fileId: string;
+                name: string;
+              },
+              _isChecked: boolean,
+            ) => {
+              throw new Error("Function not implemented.");
+            }}
+            isAllChecked={false}
+            onToggleAll={(_checked: boolean) => {
+              throw new Error("Function not implemented.");
+            }}
+          />
+        }
       </div>
     </div>
   );
