@@ -15,8 +15,8 @@ export const storageRouter = router({
   getUsage: authedProcedure
     .output(
       z.object({
-        used: z.number(), // 현재 사용량 (bytes)
-        quota: z.number(), // 총 할당량 (bytes)
+        used: z.coerce.bigint(), // 현재 사용량 (bytes)
+        quota: z.coerce.bigint(), // 총 할당량 (bytes)
         planId: z.string(), // 현재 요금제 ID
         isNearLimit: z.boolean(), // 사용량이 90% 이상 여부
       }),

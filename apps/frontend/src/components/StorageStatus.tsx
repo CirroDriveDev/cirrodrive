@@ -11,8 +11,8 @@ export function StorageStatus(): JSX.Element {
   const { used, quota, isNearLimit, isPending } = useStorage();
 
   // 사용량 및 퍼센트 계산
-  const percent = quota > 0 ? Math.min((used / quota) * 100, 100) : 0;
-  const remaining = Math.max(quota - used, 0);
+  const percent = Number(quota) > 0 ? Math.min((Number(used) / Number(quota)) * 100, 100) : 0;
+  const remaining = Math.max(Number(quota) - Number(used), 0);
 
   // 상태별 색상 및 아이콘 결정
   const getStatusColor = () => {

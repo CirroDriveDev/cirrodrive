@@ -21,7 +21,7 @@ export function FileItem({ file, onDelete }: FileItemProps): JSX.Element {
       <div className="flex-1">{file.name}</div>
       <div className="w-52">{displayDate}</div>
       <div className="w-24 text-right">
-        {file.size !== null ? (file.size / 1024).toFixed(2) : "-"}
+        {file.size !== null ? (Number(file.size) / 1024).toFixed(2) : "-"}
       </div>
       <div className="w-40 text-center">{file.ownerName}</div>
       <div className="w-24 text-center">{file.currentPlanId}</div>

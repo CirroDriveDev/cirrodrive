@@ -42,7 +42,7 @@ class UploadCore {
       const { presignedPost } = await this.getS3PresignedPost.mutateAsync({
         fileName: file.name,
         fileType: file.type || "application/octet-stream",
-        fileSize: file.size,
+        fileSize: BigInt(file.size),
       });
       const { url, fields } = presignedPost;
 
@@ -121,7 +121,7 @@ class UploadCore {
       const initResult = await this.createMultipartUpload.mutateAsync({
         fileName: file.name,
         fileType: file.type || "application/octet-stream",
-        fileSize: file.size,
+        fileSize: BigInt(file.size),
       });
       uploadId = initResult.uploadId;
       key = initResult.key;

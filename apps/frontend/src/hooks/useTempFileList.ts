@@ -41,7 +41,7 @@ export function useTempFileList(): {
         id: Date.now().toString(),
         type: "file",
         name: `임시파일-${now.getTime()}.txt`,
-        size: randomSize(),
+        size: BigInt(Math.floor(randomSize())),
         createdAt: now,
         updatedAt: now,
         trashedAt: null,

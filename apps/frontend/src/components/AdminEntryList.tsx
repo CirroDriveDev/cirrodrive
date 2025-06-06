@@ -27,7 +27,7 @@ const getComparableValue = (
     case "updatedAt":
       return entry.updatedAt;
     case "size":
-      return entry.type === "file" && entry.size !== null ? entry.size : 0;
+      return entry.type === "file" && entry.size !== null ? Number(entry.size) : 0;
     case "owner":
       return entry.owner.username ?? entry.owner.email ?? "";
     default:

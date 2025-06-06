@@ -28,7 +28,7 @@ export function RecentUploadedFiles(): JSX.Element {
                 {file.name}
               </div>
               <div className="whitespace-nowrap pl-4 text-sm text-gray-600 dark:text-gray-300">
-                {new Date(file.createdAt).toLocaleString()} / {file.size}
+                {new Date(file.createdAt).toLocaleString()} / {String(file.size)}
               </div>
             </div>
           </div>

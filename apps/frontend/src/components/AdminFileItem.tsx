@@ -12,7 +12,7 @@ interface FileWithOwner {
   id: string;
   name: string;
   extension: string;
-  size: number;
+  size: bigint;
   key: string;
   createdAt: Date;
   updatedAt: Date;
@@ -26,7 +26,7 @@ interface FileWithOwner {
     username: string;
     email: string;
     currentPlanId: string;
-    usedStorage: number;
+    usedStorage: bigint;
     profileImageUrl: string | null;
     createdAt: Date;
     updatedAt: Date;
@@ -52,7 +52,7 @@ export function AdminFileItem({
     <div className="flex w-full items-center justify-between px-16 py-2 text-sm hover:bg-accent">
       <div className="flex-1">{file.name}</div>
       <div className="w-52">{displayDate}</div>
-      <div className="w-24 text-right">{(file.size / 1024).toFixed(2)}</div>
+      <div className="w-24 text-right">{(Number(file.size) / 1024).toFixed(2)}</div>
       <div className="w-40 text-center">{displayDate}</div>
       <div className="w-24 text-center">{file.id.slice(0, 8)}</div>
       <div className="flex w-8 shrink-0 items-center justify-center">

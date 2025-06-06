@@ -3,6 +3,7 @@ import { FileIcon } from "lucide-react";
 import { useDragOverlay } from "#hooks/useDragOverlay.js";
 import { useUpload } from "#services/upload/useUpload.js";
 import { StorageQuotaAlert } from "#components/StorageQuotaAlert.js";
+import { StorageExceededDialog } from "#components/StorageExceededDialog.js";
 
 interface FileUploadDropzoneProps {
   maxFiles?: number;
@@ -43,7 +44,12 @@ export function FileUploadDropzone({
     onError?.(error);
   };
 
-  const { uploadFiles } = useUpload({
+  const { 
+    uploadFiles, 
+    showStorageDialog, 
+    setShowStorageDialog, 
+    storageDialogData 
+  } = useUpload({
     onSuccess,
     onError: handleQuotaError,
   });
@@ -68,6 +74,14 @@ export function FileUploadDropzone({
 
   return (
     <div className="space-y-4">
+      {/* 저장소 용량 부족 다이어로그 */}
+      {storageDialogData ? <StorageExceededDialog
+          open={showStorageDialog}
+          onOpenChange={setShowStorageDialog}
+          requiredSize={storageDialogData.required}
+          availableSize={storageDialogData.available}
+        /> : null}
+      
       {/* 할당량 초과 알림 */}
       <StorageQuotaAlert
         isVisible={quotaAlert.show}

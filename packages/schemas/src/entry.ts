@@ -8,7 +8,7 @@ const baseEntrySchema = z.object({
   createdAt: z.date(),
   updatedAt: z.date(),
   trashedAt: z.date().nullable(),
-  size: z.number(),
+  size: z.bigint(),
 });
 
 const fileEntrySchema = baseEntrySchema.extend({

@@ -56,7 +56,7 @@ export function AdminFileView(): JSX.Element {
       }),
       // 파일 크기 컬럼
       dataTableTextColumn<(typeof transformedEntries)[0]>({
-        accessorFn: (row) => (row.size !== null ? formatSize(row.size) : "-"),
+        accessorFn: (row) => (row.size !== null ? formatSize(Number(row.size)) : "-"),
         id: "size",
         title: "크기",
       }),

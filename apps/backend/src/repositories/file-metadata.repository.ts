@@ -51,7 +51,7 @@ export class FileMetadataRepository extends BaseRepository {
    * @param ownerId - 사용자 ID
    * @returns 총 파일 크기 (bytes)
    */
-  public async calculateTotalSizeByOwner(ownerId: string): Promise<number> {
+  public async calculateTotalSizeByOwner(ownerId: string): Promise<bigint> {
     const result = await this.prisma.fileMetadata.aggregate({
       where: {
         ownerId,
@@ -61,6 +61,6 @@ export class FileMetadataRepository extends BaseRepository {
       },
     });
 
-    return result._sum.size ?? 0;
+    return result._sum.size ?? BigInt(0);
   }
 }

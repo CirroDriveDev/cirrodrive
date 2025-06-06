@@ -96,7 +96,7 @@ export function EntryItem({
     name.length > width / 8 - 4 ? `${name.slice(0, width / 8 - 4)}...` : name;
 
   const displayUpdatedAt = entry.updatedAt.toLocaleString();
-  const displaySize = size ? formatSize(size) : "-";
+  const displaySize = size ? formatSize(Number(size)) : "-";
   const iconVariant = type === "folder" ? type : inferFileType(name);
 
   const { downloadSingleFile } = useDownloadSingleFile();

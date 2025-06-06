@@ -10,7 +10,7 @@ interface FileWithOwner {
   id: string;
   name: string;
   extension: string;
-  size: number;
+  size: bigint;
   key: string;
   createdAt: Date;
   updatedAt: Date;
@@ -24,7 +24,7 @@ interface FileWithOwner {
     username: string;
     email: string;
     currentPlanId: string;
-    usedStorage: number;
+    usedStorage: bigint;
     profileImageUrl: string | null;
     createdAt: Date;
     updatedAt: Date;
@@ -76,7 +76,7 @@ export function AdminFileList({
       );
     }
     if (searchTerms.size) {
-      const sizeKB = (file.size / 1024).toFixed(2);
+      const sizeKB = (Number(file.size) / 1024).toFixed(2);
       matches.push(sizeKB.includes(keyword(searchTerms.size)));
     }
     if (searchTerms.id) {

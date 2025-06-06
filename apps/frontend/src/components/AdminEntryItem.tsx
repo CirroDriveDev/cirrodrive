@@ -36,7 +36,7 @@ export function AdminEntryItem({
   const truncatedName =
     name.length > maxChars ? `${name.slice(0, maxChars)}...` : name;
   const displaySize =
-    type === "file" && entry.size !== null ? formatSize(entry.size) : "-";
+    type === "file" && entry.size !== null ? formatSize(Number(entry.size)) : "-";
   const iconVariant = type === "folder" ? "folder" : inferFileType(name);
   const ownerName = owner.username ?? owner.email ?? "Unknown";
 

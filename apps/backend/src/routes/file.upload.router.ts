@@ -30,7 +30,7 @@ export const fileUploadRouter = router({
       z.object({
         fileName: fileMetadataDTOSchema.shape.name,
         fileType: s3PresignedPostSchema.shape.fields.shape["Content-Type"],
-        fileSize: z.number().positive(),
+        fileSize: fileMetadataDTOSchema.shape.size,
       }),
     )
     .mutation(async ({ input, ctx }) => {
@@ -50,10 +50,9 @@ export const fileUploadRouter = router({
         const newUsage = storageStatus.used + fileSize;
 
         if (newUsage > storageStatus.quota) {
-          const remainingBytes = storageStatus.quota - storageStatus.used;
           throw new TRPCError({
             code: "FORBIDDEN",
-            message: `저장 공간이 부족합니다. 사용 가능한 용량: ${Math.max(0, remainingBytes)} bytes`,
+            message: `저장 공간이 부족합니다. `,
           });
         }
 
@@ -151,7 +150,7 @@ export const fileUploadRouter = router({
       z.object({
         fileName: fileMetadataDTOSchema.shape.name,
         fileType: s3PresignedPostSchema.shape.fields.shape["Content-Type"],
-        fileSize: z.number().positive(),
+        fileSize: fileMetadataDTOSchema.shape.size,
       }),
     )
     .output(
@@ -177,10 +176,9 @@ export const fileUploadRouter = router({
         const newUsage = storageStatus.used + fileSize;
 
         if (newUsage > storageStatus.quota) {
-          const remainingBytes = storageStatus.quota - storageStatus.used;
           throw new TRPCError({
             code: "FORBIDDEN",
-            message: `저장 공간이 부족합니다. 사용 가능한 용량: ${Math.max(0, remainingBytes)} bytes`,
+            message: `저장 공간이 부족합니다.`,
           });
         }
 

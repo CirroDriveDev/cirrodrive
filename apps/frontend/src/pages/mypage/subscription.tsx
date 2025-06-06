@@ -70,7 +70,7 @@ export function SubscriptionPage(): JSX.Element {
 
   const getUsagePercentage = () => {
     if (!storageUsage.data) return 0;
-    return Math.round((storageUsage.data.used / storageUsage.data.quota) * 100);
+    return Math.round((Number(storageUsage.data.used) / Number(storageUsage.data.quota)) * 100);
   };
 
   return (
@@ -265,8 +265,8 @@ export function SubscriptionPage(): JSX.Element {
                 <div className="space-y-4">
                   <div className="flex items-center justify-between">
                     <span className="text-sm font-medium">
-                      {formatBytes(storageUsage.data.used)} /{" "}
-                      {formatBytes(storageUsage.data.quota)}
+                      {formatBytes(Number(storageUsage.data.used))} /{" "}
+                      {formatBytes(Number(storageUsage.data.quota))}
                     </span>
                     <span className="text-sm text-gray-600">
                       {getUsagePercentage()}% 사용 중

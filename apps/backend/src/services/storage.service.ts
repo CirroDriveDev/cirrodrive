@@ -26,8 +26,8 @@ export class StorageService {
    * @returns 저장소 사용량, 할당량, 요금제 ID, 한계 근접 여부
    */
   public async getUsage(userId: string): Promise<{
-    used: number;
-    quota: number;
+    used: bigint;
+    quota: bigint;
     planId: string;
     isNearLimit: boolean;
   }> {
@@ -51,7 +51,7 @@ export class StorageService {
       const usedStorage = await this.calculateUsedStorage(userId);
 
       // 3. 요금제 할당량 (BigInt에서 number로 변환)
-      const quota = Number(currentPlan.storageLimit);
+      const quota = BigInt(currentPlan.storageLimit);
 
       // 4. 사용량이 90% 이상인지 확인
       const isNearLimit = quota > 0 ? usedStorage / quota >= 0.9 : false;
@@ -97,7 +97,7 @@ export class StorageService {
    * @param userId - 사용자 ID
    * @returns 사용한 저장소 크기 (bytes)
    */
-  private async calculateUsedStorage(userId: string): Promise<number> {
+  private async calculateUsedStorage(userId: string): Promise<bigint> {
     try {
       this.logger.debug(
         { methodName: "calculateUsedStorage", userId },

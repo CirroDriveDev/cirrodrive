@@ -46,7 +46,7 @@ export function CodePage(): JSX.Element {
             </div>
             <div className="flex w-full space-x-4 px-4 py-1">
               <div className="w-24">크기: </div>
-              <div className="">{formatSize(file.size)}</div>
+              <div className="">{formatSize(Number(file.size))}</div>
             </div>
           </div>
           {user ?
