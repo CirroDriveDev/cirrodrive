@@ -37,16 +37,16 @@ export const createOuterContext = async (opts: CreateExpressContextOptions) => {
   const traceId = req.id;
 
   const ip =
-  typeof req.headers["x-forwarded-for"] === "string"
-    ? req.headers["x-forwarded-for"].split(",")[0].trim()
-    : req.socket.remoteAddress ?? "unknown";
+    typeof req.headers["x-forwarded-for"] === "string" ?
+      req.headers["x-forwarded-for"].split(",")[0].trim()
+    : (req.socket.remoteAddress ?? "unknown");
 
-  const parsedAuthToken = z.string().safeParse(
-    req.cookies[AuthService.SESSION_TOKEN_COOKIE_NAME],
-  );
-  const parsedAdminToken = z.string().safeParse(
-    req.cookies[AdminAuthService.SESSION_TOKEN_COOKIE_NAME],
-  );
+  const parsedAuthToken = z
+    .string()
+    .safeParse(req.cookies[AuthService.SESSION_TOKEN_COOKIE_NAME]);
+  const parsedAdminToken = z
+    .string()
+    .safeParse(req.cookies[AdminAuthService.SESSION_TOKEN_COOKIE_NAME]);
 
   let sessionToken: string | null = null;
 
@@ -56,11 +56,13 @@ export const createOuterContext = async (opts: CreateExpressContextOptions) => {
     sessionToken = parsedAdminToken.data;
   }
 
-
-  const pathname = typeof info.url?.pathname === "string" ? info.url.pathname : "unknown";
+  const pathname =
+    typeof info.url?.pathname === "string" ? info.url.pathname : "unknown";
 
   const userAgent =
-    typeof req.headers["user-agent"] === "string" ? req.headers["user-agent"] : "unknown";
+    typeof req.headers["user-agent"] === "string" ?
+      req.headers["user-agent"]
+    : "unknown";
 
   // ✅ 요청 제한 검사
   await rateLimitService.checkLimit(ip, sessionToken);
@@ -127,7 +129,6 @@ export const createInnerContext = async (outerCtx: OuterContext) => {
       } else {
         adminAuthService.clearSessionTokenCookie({ response: res });
       }
-      return innerCtx;
     }
   }
 
