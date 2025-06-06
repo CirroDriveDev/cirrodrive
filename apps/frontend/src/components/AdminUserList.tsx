@@ -1,163 +1,113 @@
-import { useState, useMemo } from "react";
-import { type AdminUserGetOutputDTO } from "@cirrodrive/schemas/admin";
-import { AdminUserItem } from "./AdminUserItem.js";
-import { useUserSearchBarStore } from "#store/useUserSearchBarStore.js";
+// AdminUserList.tsx
+import { useState } from "react";
+import type { AdminUserGetOutputDTO } from "@cirrodrive/schemas/admin";
+import { DataTable } from "#components/ui/data-table/DataTable.js";
+import {
+  dataTableActionsColumn,
+  dataTableIdColumn,
+  dataTableTextColumn,
+  dataTableDateColumn,
+} from "#components/ui/data-table/DataTableColumns.js";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "#shadcn/components/Dialog.js";
+import { AdminUserEditForm } from "#components/AdminUserEditForm.js";
 import { useUserDelete } from "#services/admin/useDeleteUser.js";
 
-interface UserListProps {
+interface AdminUserListProps {
   users: AdminUserGetOutputDTO[];
 }
 
-type SortKey = "id" | "username" | "email" | "createdAt" | "currentPlanId";
-type SortOrder = "asc" | "desc" | "none";
-
-// searchFields 타입 정의에 currentPlanId 추가
-interface SearchFields {
-  id: boolean;
-  username: boolean;
-  email: boolean;
-  createdAt: boolean;
-  currentPlanId: boolean;
-}
-
-export function AdminUserList({ users }: UserListProps): JSX.Element {
-  const { searchTerm, searchFields } = useUserSearchBarStore() as {
-    searchTerm: string;
-    searchFields: SearchFields;
-  };
-
-  const [sortKey, setSortKey] = useState<SortKey | null>(null);
-  const [sortOrder, setSortOrder] = useState<SortOrder>("none");
+export function AdminUserList({ users }: AdminUserListProps): JSX.Element {
+  // DataTable내부에서 관리되는 데이터 상태 (초기값은 useUserList나 상위 컴포넌트로부터 전달받은 데이터)
+  const [data, setData] = useState<AdminUserGetOutputDTO[]>(users);
+  // 편집할 사용자를 위한 상태
+  const [editingUser, setEditingUser] = useState<AdminUserGetOutputDTO | null>(
+    null,
+  );
 
   const { handleUserDelete } = useUserDelete();
 
-  const handleSort = (key: SortKey): void => {
-    if (sortKey === key) {
-      if (sortOrder === "asc") setSortOrder("desc");
-      else if (sortOrder === "desc") {
-        setSortKey(null);
-        setSortOrder("none");
-      } else setSortOrder("asc");
-    } else {
-      setSortKey(key);
-      setSortOrder("asc");
-    }
+  // 편집 액션
+  const handleEdit = (user: AdminUserGetOutputDTO) => {
+    setEditingUser(user);
   };
 
-  const filteredUsers = users.filter((user) => {
-    const keyword = searchTerm.trim().toLowerCase();
-    if (keyword === "") return true;
-
-    const matches = [];
-
-    if (searchFields.id) {
-      matches.push(user.id.toString().includes(keyword));
-    }
-    if (searchFields.username) {
-      matches.push(user.username.toLowerCase().includes(keyword));
-    }
-    if (searchFields.email) {
-      matches.push(user.email.toLowerCase().includes(keyword));
-    }
-    if (searchFields.createdAt) {
-      matches.push(user.createdAt.toLocaleDateString().includes(keyword));
-    }
-    if (searchFields.currentPlanId) {
-      matches.push((user.currentPlanId ?? "").toLowerCase().includes(keyword));
-    }
-
-    return matches.some(Boolean);
-  });
-
-  const sortedUsers = useMemo(() => {
-    if (!sortKey || sortOrder === "none") return filteredUsers;
-
-    const copy = [...filteredUsers];
-    return copy.sort((a, b) => {
-      const aValue = a[sortKey];
-      const bValue = b[sortKey];
-
-      if (aValue === null && bValue === null) return 0;
-      if (aValue === null) return 1;
-      if (bValue === null) return -1;
-
-      if (typeof aValue === "string" && typeof bValue === "string") {
-        return sortOrder === "asc" ?
-            aValue.localeCompare(bValue)
-          : bValue.localeCompare(aValue);
-      }
-
-      if (typeof aValue === "number" && typeof bValue === "number") {
-        return sortOrder === "asc" ? aValue - bValue : bValue - aValue;
-      }
-
-      if (aValue instanceof Date && bValue instanceof Date) {
-        return sortOrder === "asc" ?
-            aValue.getTime() - bValue.getTime()
-          : bValue.getTime() - aValue.getTime();
-      }
-
-      return 0;
-    });
-  }, [filteredUsers, sortKey, sortOrder]);
-
-  const renderArrow = (key: SortKey): "▲" | "▼" | null => {
-    if (sortKey !== key || sortOrder === "none") return null;
-    return sortOrder === "asc" ? "▲" : "▼";
+  // 삭제 액션 – API 호출 후 DataTable 데이터 상태 업데이트
+  const handleDelete = (user: AdminUserGetOutputDTO) => {
+    handleUserDelete(user.id);
+    setData((prev) => prev.filter((u) => u.id !== user.id));
   };
+
+  const onEditSubmit = () => {
+    setEditingUser(null);
+  };
+
+  // DataTable 컬럼 정의 (각 셀은 DataTableCells.tsx 등 내부 모듈을 통해 렌더링)
+  const columns = [
+    dataTableIdColumn<AdminUserGetOutputDTO>(),
+    dataTableTextColumn<AdminUserGetOutputDTO>({
+      accessorFn: (row) => row.username,
+      id: "username",
+      title: "유저네임",
+    }),
+    dataTableTextColumn<AdminUserGetOutputDTO>({
+      accessorFn: (row) => row.email,
+      id: "email",
+      title: "이메일",
+    }),
+    dataTableDateColumn<AdminUserGetOutputDTO>({
+      accessorFn: (row) => row.createdAt,
+      id: "createdAt",
+      title: "가입일",
+      formatOptions: { year: "numeric", month: "2-digit", day: "2-digit" },
+    }),
+    dataTableTextColumn<AdminUserGetOutputDTO>({
+      accessorFn: (row) => row.currentPlanId,
+      id: "currentPlanId",
+      title: "등급",
+    }),
+    dataTableActionsColumn<AdminUserGetOutputDTO>({
+      title: "작업",
+      actions: [
+        { label: "사용자 수정", onClick: handleEdit, variant: "default" },
+        { label: "계정 삭제", onClick: handleDelete, variant: "destructive" },
+      ],
+    }),
+  ];
 
   return (
-    <div className="flex w-full flex-col">
-      {/* Header */}
-      <div className="flex w-full items-center justify-between px-16 py-2 text-sm font-semibold text-muted-foreground">
-        <div
-          className="w-16 shrink-0 cursor-pointer"
-          onClick={() => handleSort("id")}
-        >
-          ID {renderArrow("id")}
-        </div>
-        <div
-          className="w-40 cursor-pointer"
-          onClick={() => handleSort("username")}
-        >
-          유저네임 {renderArrow("username")}
-        </div>
-        <div
-          className="w-64 cursor-pointer"
-          onClick={() => handleSort("email")}
-        >
-          이메일 {renderArrow("email")}
-        </div>
-        <div
-          className="w-40 cursor-pointer"
-          onClick={() => handleSort("createdAt")}
-        >
-          가입일 {renderArrow("createdAt")}
-        </div>
-        <div
-          className="w-24 cursor-pointer"
-          onClick={() => handleSort("currentPlanId")}
-        >
-          등급 {renderArrow("currentPlanId")}
-        </div>
-        <div className="w-8 shrink-0 text-center">⋯</div>
-      </div>
-
-      {/* List */}
-      <div className="flex h-[720px] w-full flex-col divide-y divide-muted-foreground overflow-auto border-y border-y-muted-foreground">
-        {sortedUsers.length > 0 ?
-          sortedUsers.map((user) => (
-            <AdminUserItem
-              key={user.id}
-              user={user}
-              onDelete={handleUserDelete}
+    <>
+      <DataTable<AdminUserGetOutputDTO>
+        data={data}
+        columns={columns}
+        features={{
+          sorting: true,
+          filtering: true,
+          globalFilter: true,
+          pagination: true,
+          rowSelection: true,
+        }}
+        initialState={{
+          pagination: { pageSize: 10 },
+        }}
+      />
+      {editingUser ?
+        <Dialog open onOpenChange={() => setEditingUser(null)}>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>사용자 수정</DialogTitle>
+            </DialogHeader>
+            <AdminUserEditForm
+              defaultValues={editingUser}
+              onSubmit={onEditSubmit}
             />
-          ))
-        : <div className="px-16 py-4 text-muted-foreground">
-            검색 결과가 없습니다.
-          </div>
-        }
-      </div>
-    </div>
+          </DialogContent>
+        </Dialog>
+      : null}
+    </>
   );
 }

@@ -25,7 +25,7 @@ export function AccountCreationForm({
   return (
     <div className="flex flex-grow items-center justify-center">
       <section className="flex w-96 flex-col items-center justify-center space-y-4">
-        <h2 className="text-2xl font-bold">계정 생성</h2>
+        <h2 className="text-2xl font-bold" />
         <form
           className="flex w-full flex-col items-center justify-center space-y-4"
           onSubmit={handleFormSubmit}
