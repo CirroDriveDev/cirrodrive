@@ -11,14 +11,21 @@ import {
   DialogTitle,
 } from "#shadcn/components/Dialog.js";
 import { AccountCreationForm } from "#components/AccountCreationForm.js";
+import { AdminAccountCreationForm } from "#components/AdminAccountCreationForm.js";
 
 export function AdminUserPage(): JSX.Element {
   const { query: userListQuery } = useUserList();
-  const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
+  const [isUserCreateDialogOpen, setIsUserCreateDialogOpen] = useState(false);
+  const [isAdminCreateDialogOpen, setIsAdminCreateDialogOpen] = useState(false);
 
-  // 계정 생성 완료 시 다이얼로그를 닫기 위한 콜백
-  const handleCreationSuccess = () => {
-    setIsCreateDialogOpen(false);
+  // 사용자 계정 생성 완료 시 다이얼로그 닫기 콜백
+  const handleUserCreationSuccess = () => {
+    setIsUserCreateDialogOpen(false);
+  };
+
+  // 관리자 계정 생성 완료 시 다이얼로그 닫기 콜백
+  const handleAdminCreationSuccess = () => {
+    setIsAdminCreateDialogOpen(false);
   };
 
   return (
@@ -27,8 +34,11 @@ export function AdminUserPage(): JSX.Element {
         <h1 className="text-xl font-semibold">사용자 목록</h1>
         <div className="flex items-center space-x-4">
           <UserSearchBar />
-          <Button onClick={() => setIsCreateDialogOpen(true)}>
+          <Button onClick={() => setIsUserCreateDialogOpen(true)}>
             사용자 계정 생성
+          </Button>
+          <Button onClick={() => setIsAdminCreateDialogOpen(true)}>
+            관리자 계정 생성
           </Button>
         </div>
       </div>
@@ -49,13 +59,28 @@ export function AdminUserPage(): JSX.Element {
           <AdminUserList users={userListQuery.data} />
         : null}
       </div>
-      <Dialog open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen}>
+      <Dialog
+        open={isUserCreateDialogOpen}
+        onOpenChange={setIsUserCreateDialogOpen}
+      >
         <DialogContent>
           <DialogHeader>
             <DialogTitle>계정 생성</DialogTitle>
           </DialogHeader>
-          {/* onSubmit 콜백 전달: 계정 생성 성공 시 handleCreationSuccess가 호출되어 다이얼로그가 닫힘 */}
-          <AccountCreationForm onSubmit={handleCreationSuccess} />
+          {/* 사용자 계정 생성 폼 */}
+          <AccountCreationForm onSubmit={handleUserCreationSuccess} />
+        </DialogContent>
+      </Dialog>
+      <Dialog
+        open={isAdminCreateDialogOpen}
+        onOpenChange={setIsAdminCreateDialogOpen}
+      >
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>관리자 계정 생성</DialogTitle>
+          </DialogHeader>
+          {/* 관리자 계정 생성 폼 */}
+          <AdminAccountCreationForm onSubmit={handleAdminCreationSuccess} />
         </DialogContent>
       </Dialog>
     </div>
