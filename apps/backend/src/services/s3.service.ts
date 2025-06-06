@@ -12,6 +12,10 @@ import {
   DeleteObjectsCommand,
   CopyObjectCommand,
   GetObjectCommand,
+  CreateMultipartUploadCommand,
+  UploadPartCommand,
+  CompleteMultipartUploadCommand,
+  AbortMultipartUploadCommand,
 } from "@aws-sdk/client-s3";
 import type { Logger } from "pino";
 import { z } from "zod";
@@ -54,6 +58,27 @@ interface CreatePresignedPostInput {
   userId?: string;
 }
 
+interface CreateMultipartUploadInput {
+  fileName: string;
+  contentType: string;
+  userId?: string;
+}
+
+interface GetUploadPartSignedUrlInput {
+  uploadId: string;
+  key: string;
+  partNumber: number;
+}
+
+interface CompleteMultipartUploadInput {
+  uploadId: string;
+  key: string;
+  parts: {
+    partNumber: number;
+    etag: string;
+  }[];
+}
+
 export interface S3ServiceInterface {
   createPresignedPost: (
     input: CreatePresignedPostInput,
@@ -65,6 +90,10 @@ export interface S3ServiceInterface {
   deleteObjects: (keys: string[]) => Promise<void>;
   copyObject: (sourceKey: string, targetKey: string) => Promise<void>;
   objectExists: (key: string) => Promise<boolean>;
+  createMultipartUpload: (input: CreateMultipartUploadInput) => Promise<{ uploadId: string; key: string }>;
+  getUploadPartSignedUrl: (input: GetUploadPartSignedUrlInput) => Promise<string>;
+  completeMultipartUpload: (input: CompleteMultipartUploadInput) => Promise<void>;
+  abortMultipartUpload: (uploadId: string, key: string) => Promise<void>;
 }
 
 @injectable()
@@ -284,5 +313,133 @@ export class S3Service implements S3ServiceInterface {
       this.logger.error({ error }, "비회원 S3 파일 삭제 실패");
       throw error;
     }
+  }
+
+  /**
+   * 멀티파트 업로드를 시작합니다.
+   *
+   * @param input - 멀티파트 업로드 정보
+   * @returns 업로드 ID와 S3 키
+   */
+  public async createMultipartUpload(
+    input: CreateMultipartUploadInput,
+  ): Promise<{ uploadId: string; key: string }> {
+    const { fileName, contentType } = input;
+    const userId = input.userId ?? "anonymous";
+    const key = this.generateKey({ userId, fileName });
+
+    this.logger.debug("createMultipartUpload", { fileName, contentType, userId, key });
+
+    const command = new CreateMultipartUploadCommand({
+      Bucket: BUCKET_NAME,
+      Key: key,
+      ContentType: contentType,
+      Metadata: {
+        userId,
+      },
+    });
+
+    const result = await s3Client.send(command);
+
+    if (!result.UploadId) {
+      throw new Error("Failed to create multipart upload");
+    }
+
+    this.logger.debug("createMultipartUpload completed", {
+      uploadId: result.UploadId,
+      key,
+    });
+
+    return {
+      uploadId: result.UploadId,
+      key,
+    };
+  }
+
+  /**
+   * 멀티파트 업로드의 파트별 업로드 Signed URL을 생성합니다.
+   *
+   * @param input - 업로드 ID, 키, 파트 번호
+   * @returns 파트 업로드용 Signed URL
+   */
+  public async getUploadPartSignedUrl(
+    input: GetUploadPartSignedUrlInput,
+  ): Promise<string> {
+    const { uploadId, key, partNumber } = input;
+
+    this.logger.debug("getUploadPartSignedUrl", input);
+
+    const command = new UploadPartCommand({
+      Bucket: BUCKET_NAME,
+      Key: key,
+      UploadId: uploadId,
+      PartNumber: partNumber,
+    });
+
+    const signedUrl = await getSignedUrl(s3Client, command, {
+      expiresIn: 3600, // 1시간
+    });
+
+    this.logger.debug("getUploadPartSignedUrl completed", {
+      uploadId,
+      key,
+      partNumber,
+      signedUrl,
+    });
+
+    return signedUrl;
+  }
+
+  /**
+   * 멀티파트 업로드를 완료합니다.
+   *
+   * @param input - 업로드 ID, 키, 파트 정보 배열
+   */
+  public async completeMultipartUpload(
+    input: CompleteMultipartUploadInput,
+  ): Promise<void> {
+    const { uploadId, key, parts } = input;
+
+    this.logger.debug("completeMultipartUpload", input);
+
+    const command = new CompleteMultipartUploadCommand({
+      Bucket: BUCKET_NAME,
+      Key: key,
+      UploadId: uploadId,
+      MultipartUpload: {
+        Parts: parts.map((part) => ({
+          ETag: part.etag,
+          PartNumber: part.partNumber,
+        })),
+      },
+    });
+
+    await s3Client.send(command);
+
+    this.logger.debug("completeMultipartUpload completed", {
+      uploadId,
+      key,
+      partsCount: parts.length,
+    });
+  }
+
+  /**
+   * 멀티파트 업로드를 취소합니다.
+   *
+   * @param uploadId - 업로드 ID
+   * @param key - S3 키
+   */
+  public async abortMultipartUpload(uploadId: string, key: string): Promise<void> {
+    this.logger.debug("abortMultipartUpload", { uploadId, key });
+
+    const command = new AbortMultipartUploadCommand({
+      Bucket: BUCKET_NAME,
+      Key: key,
+      UploadId: uploadId,
+    });
+
+    await s3Client.send(command);
+
+    this.logger.debug("abortMultipartUpload completed", { uploadId, key });
   }
 }

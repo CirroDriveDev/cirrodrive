@@ -138,4 +138,233 @@ export const fileUploadRouter = router({
         fileId: file.id,
       };
     }),
+
+  /**
+   * 멀티파트 업로드를 시작합니다.
+   *
+   * @param fileName - 업로드할 파일의 이름
+   * @param fileType - 업로드할 파일의 MIME 타입
+   * @param fileSize - 업로드할 파일의 크기 (bytes)
+   */
+  createMultipartUpload: procedure
+    .input(
+      z.object({
+        fileName: fileMetadataDTOSchema.shape.name,
+        fileType: s3PresignedPostSchema.shape.fields.shape["Content-Type"],
+        fileSize: z.number().positive(),
+      }),
+    )
+    .output(
+      z.object({
+        uploadId: z.string(),
+        key: z.string(),
+      }),
+    )
+    .mutation(async ({ input, ctx }) => {
+      const { fileName, fileType, fileSize } = input;
+      const { user } = ctx;
+      const userId = user?.id ?? "anonymous";
+
+      logger.debug("createMultipartUpload", {
+        fileName,
+        fileType,
+        fileSize,
+      });
+
+      // 인증된 사용자의 경우 할당량 검증
+      if (user) {
+        const storageStatus = await storageService.getUsage(user.id);
+        const newUsage = storageStatus.used + fileSize;
+
+        if (newUsage > storageStatus.quota) {
+          const remainingBytes = storageStatus.quota - storageStatus.used;
+          throw new TRPCError({
+            code: "FORBIDDEN",
+            message: `저장 공간이 부족합니다. 사용 가능한 용량: ${Math.max(0, remainingBytes)} bytes`,
+          });
+        }
+
+        logger.info("Storage quota check passed for multipart upload", {
+          userId: user.id,
+          currentUsage: storageStatus.used,
+          fileSize,
+          newUsage,
+          quota: storageStatus.quota,
+        });
+      }
+
+      const { uploadId, key } = await s3Service.createMultipartUpload({
+        fileName,
+        contentType: fileType,
+        userId,
+      });
+
+      logger.debug("Multipart upload created", {
+        fileName,
+        uploadId,
+        key,
+        userId,
+      });
+
+      return { uploadId, key };
+    }),
+
+  /**
+   * 멀티파트 업로드의 파트별 업로드 URL을 생성합니다.
+   *
+   * @param uploadId - 멀티파트 업로드 ID
+   * @param key - S3 객체 키
+   * @param partNumber - 파트 번호 (1부터 시작)
+   */
+  getPartUploadUrl: procedure
+    .input(
+      z.object({
+        uploadId: z.string(),
+        key: z.string(),
+        partNumber: z.number().min(1).max(10000),
+      }),
+    )
+    .output(
+      z.object({
+        url: z.string(),
+      }),
+    )
+    .mutation(async ({ input }) => {
+      const { uploadId, key, partNumber } = input;
+
+      logger.debug("getPartUploadUrl", input);
+
+      const url = await s3Service.getUploadPartSignedUrl({
+        uploadId,
+        key,
+        partNumber,
+      });
+
+      logger.debug("Part upload URL generated", {
+        uploadId,
+        key,
+        partNumber,
+      });
+
+      return { url };
+    }),
+
+  /**
+   * 멀티파트 업로드를 완료합니다.
+   *
+   * @param uploadId - 멀티파트 업로드 ID
+   * @param key - S3 객체 키
+   * @param parts - 파트 정보 배열
+   * @param fileName - 파일명
+   * @param folderId - (선택) 부모 폴더 ID
+   */
+  completeMultipartUpload: procedure
+    .input(
+      z.object({
+        uploadId: z.string(),
+        key: z.string(),
+        parts: z.array(
+          z.object({
+            partNumber: z.number(),
+            etag: z.string(),
+          }),
+        ),
+        fileName: fileMetadataDTOSchema.shape.name,
+        folderId: z.string().optional(),
+      }),
+    )
+    .output(
+      z.object({
+        fileId: z.string(),
+        code: z.string().optional(),
+      }),
+    )
+    .mutation(async ({ input, ctx }) => {
+      const { uploadId, key, parts, fileName, folderId } = input;
+      const { user } = ctx;
+
+      logger.debug("completeMultipartUpload", {
+        uploadId,
+        key,
+        partsCount: parts.length,
+        fileName,
+        folderId,
+        userId: user?.id,
+      });
+
+      if ((!folderId && user) || (folderId && !user)) {
+        throw new Error(
+          "Folder ID must be provided if the user is authenticated, or not provided if the user is anonymous.",
+        );
+      }
+
+      // S3 멀티파트 업로드 완료
+      await s3Service.completeMultipartUpload({
+        uploadId,
+        key,
+        parts,
+      });
+
+      logger.info("Multipart upload completed in S3", {
+        uploadId,
+        key,
+        partsCount: parts.length,
+      });
+
+      // 파일 메타데이터 저장
+      const { file } = await fileUploadService.completeUpload({
+        name: fileName,
+        key,
+        ...(user && {
+          parentFolderId: folderId,
+          userId: user.id,
+        }),
+      });
+
+      if (!user) {
+        const code = await fileAccessCodeService.create({ fileId: file.id });
+
+        return {
+          fileId: file.id,
+          code: code.code,
+        };
+      }
+
+      return {
+        fileId: file.id,
+      };
+    }),
+
+  /**
+   * 멀티파트 업로드를 취소합니다.
+   *
+   * @param uploadId - 멀티파트 업로드 ID
+   * @param key - S3 객체 키
+   */
+  abortMultipartUpload: procedure
+    .input(
+      z.object({
+        uploadId: z.string(),
+        key: z.string(),
+      }),
+    )
+    .output(
+      z.object({
+        success: z.boolean(),
+      }),
+    )
+    .mutation(async ({ input }) => {
+      const { uploadId, key } = input;
+
+      logger.debug("abortMultipartUpload", input);
+
+      await s3Service.abortMultipartUpload(uploadId, key);
+
+      logger.info("Multipart upload aborted", {
+        uploadId,
+        key,
+      });
+
+      return { success: true };
+    }),
 });
