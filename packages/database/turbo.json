@@ -57,24 +57,6 @@
         "AUTH_DEFAULT_ADMIN_PASSWORD",
         "AUTH_DEFAULT_ADMIN_USERNAME"
       ]
-    },
-    "test": {
-      "dependsOn": ["db:push"],
-      "env": [
-        "DATABASE_URL",
-        "AUTH_DEFAULT_ADMIN_EMAIL",
-        "AUTH_DEFAULT_ADMIN_PASSWORD",
-        "AUTH_DEFAULT_ADMIN_USERNAME"
-      ]
-    },
-    "test:ci": {
-      "dependsOn": ["db:push"],
-      "env": [
-        "DATABASE_URL",
-        "AUTH_DEFAULT_ADMIN_EMAIL",
-        "AUTH_DEFAULT_ADMIN_PASSWORD",
-        "AUTH_DEFAULT_ADMIN_USERNAME"
-      ]
     }
   }
 }

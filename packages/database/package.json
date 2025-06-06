@@ -39,8 +39,6 @@
     "dev": "prisma studio --browser none",
     "format": "prettier --check .",
     "lint": "eslint",
-    "test": "vitest",
-    "test:coverage": "vitest run --coverage",
     "typecheck": "tsc --noEmit"
   },
   "prettier": "@cirrodrive/prettier-config",
