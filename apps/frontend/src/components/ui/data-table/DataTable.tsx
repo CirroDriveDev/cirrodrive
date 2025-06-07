@@ -31,7 +31,8 @@ export interface DataTableFeatures {
   globalFilter?: boolean;
 }
 
-interface DataTableProps<TData, TValue> {
+// TData는 최소 id 프로퍼티를 반드시 갖도록 제약합니다.
+interface DataTableProps<TData extends { id: string }, TValue> {
   columns: ColumnDef<TData, TValue>[];
   data: TData[];
   features?: DataTableFeatures;
@@ -49,16 +50,21 @@ interface DataTableProps<TData, TValue> {
       pageSize?: number;
     };
   };
+  // extraToolbar prop 추가: 테이블 인스턴스를 인자로 받아 추가 노드를 반환합니다.
+  extraToolbar?: (
+    table: ReturnType<typeof useReactTable<TData>>,
+  ) => React.ReactNode;
 }
 
-// eslint-disable-next-line @typescript-eslint/no-unnecessary-type-constraint, @typescript-eslint/no-explicit-any -- this is needed for the generic type TData
-export function DataTable<TData, TValue extends any = any>({
+// 제네릭 선언에 id 제약을 추가합니다.
+export function DataTable<TData extends { id: string }, TValue = unknown>({
   columns,
   data,
   features = {},
   searchableColumns = [],
   searchPlaceholder = "Search",
   noResultsMessage = "No results.",
+  extraToolbar, // extraToolbar prop 추가
 }: DataTableProps<TData, TValue>) {
   const [sorting, setSorting] = useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
@@ -71,6 +77,8 @@ export function DataTable<TData, TValue extends any = any>({
   const table = useReactTable({
     data,
     columns,
+    // 각 행의 고유 ID로 데이터의 id 필드를 사용합니다.
+    getRowId: (row) => row.id,
     getCoreRowModel: getCoreRowModel(),
     ...(features.pagination && {
       getPaginationRowModel: getPaginationRowModel(),
@@ -120,6 +128,7 @@ export function DataTable<TData, TValue extends any = any>({
           features={features}
         />
       )}
+      {extraToolbar ? extraToolbar(table) : null}
       <div className="rounded-md border">
         <Table>
           <TableHeader>
