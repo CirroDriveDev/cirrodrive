@@ -1,4 +1,3 @@
-// EntryTableWithActions.tsx
 import * as React from "react"
 import {
   ColumnDef,
@@ -10,6 +9,7 @@ import {
   SortingState,
   useReactTable,
   VisibilityState,
+  type Column,
 } from "@tanstack/react-table"
 
 import {
@@ -48,9 +48,12 @@ interface EntryTableWithActionsProps {
   onToggleAll: (checked: boolean) => void
 }
 
-function SelectCheckboxHeader({ isAllChecked, onToggleAll }: {
-  isAllChecked: boolean;
-  onToggleAll: (checked: boolean) => void;
+function SelectCheckboxHeader({
+  isAllChecked,
+  onToggleAll,
+}: {
+  isAllChecked: boolean
+  onToggleAll: (checked: boolean) => void
 }) {
   return (
     <Checkbox
@@ -61,10 +64,12 @@ function SelectCheckboxHeader({ isAllChecked, onToggleAll }: {
   )
 }
 
-function SelectCheckboxCell({ entry, isChecked, onCheck }: {
-  entry: EntryDTO;
-  isChecked: boolean;
-  onCheck: (checked: boolean) => void;
+function SelectCheckboxCell({
+  isChecked,
+  onCheck,
+}: {
+  isChecked: boolean
+  onCheck: (checked: boolean) => void
 }) {
   return (
     <Checkbox
@@ -74,11 +79,15 @@ function SelectCheckboxCell({ entry, isChecked, onCheck }: {
   )
 }
 
-function SortableHeader({ label, column }: {
-  label: string;
-  column: any;
+function SortableHeader({
+  label,
+  column,
+}: {
+  label: string
+  column: Column<EntryDTO, unknown>
 }) {
-  const isSorted = column.getIsSorted();
+  const isSorted = column.getIsSorted() as false | "asc" | "desc"
+
   return (
     <Button
       variant="ghost"
@@ -126,9 +135,10 @@ export function EntryTableWithActions({
         const isChecked = checkedFileList.some(f => f.fileId === entry.id)
         return (
           <SelectCheckboxCell
-            entry={entry}
             isChecked={isChecked}
-            onCheck={(checked) => toggleFileChecked({ fileId: entry.id, name: entry.name }, checked)}
+            onCheck={(checked) =>
+              toggleFileChecked({ fileId: entry.id, name: entry.name }, checked)
+            }
           />
         )
       },
@@ -144,7 +154,10 @@ export function EntryTableWithActions({
         const entry = row.original
         return (
           <div className="flex items-center gap-2">
-            <EntryIcon variant={entry.type} className="h-4 w-4 text-muted-foreground" />
+            <EntryIcon
+              variant={entry.type}
+              className="h-4 w-4 text-muted-foreground"
+            />
             <span>{entry.name}</span>
           </div>
         )
@@ -230,14 +243,20 @@ export function EntryTableWithActions({
                 <TableRow key={row.id}>
                   {row.getVisibleCells().map((cell) => (
                     <TableCell key={cell.id}>
-                      {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                      {flexRender(
+                        cell.column.columnDef.cell,
+                        cell.getContext()
+                      )}
                     </TableCell>
                   ))}
                 </TableRow>
               ))
             ) : (
               <TableRow>
-                <TableCell colSpan={columns.length} className="h-24 text-center">
+                <TableCell
+                  colSpan={columns.length}
+                  className="h-24 text-center"
+                >
                   결과 없음
                 </TableCell>
               </TableRow>
