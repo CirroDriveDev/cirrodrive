@@ -37,9 +37,9 @@ export const createOuterContext = async (opts: CreateExpressContextOptions) => {
   const traceId = req.id;
 
   const ip =
-    typeof req.headers["x-forwarded-for"] === "string" ?
-      req.headers["x-forwarded-for"].split(",")[0].trim()
-    : (req.socket.remoteAddress ?? "unknown");
+    typeof req.headers["x-forwarded-for"] === "string"
+      ? req.headers["x-forwarded-for"].split(",")[0].trim()
+      : req.socket.remoteAddress ?? "unknown";
 
   const parsedAuthToken = z
     .string()
@@ -60,12 +60,16 @@ export const createOuterContext = async (opts: CreateExpressContextOptions) => {
     typeof info.url?.pathname === "string" ? info.url.pathname : "unknown";
 
   const userAgent =
-    typeof req.headers["user-agent"] === "string" ?
-      req.headers["user-agent"]
-    : "unknown";
+    typeof req.headers["user-agent"] === "string"
+      ? req.headers["user-agent"]
+      : "unknown";
 
-  // ✅ 요청 제한 검사
-  await rateLimitService.checkLimit(ip, sessionToken);
+   // ✅ 요청 제한 검사
+  if (sessionToken) {
+    await rateLimitService.checkLimit(ip, pathname, sessionToken);
+  } else {
+    await rateLimitService.checkIpOnlyLimit(ip);
+  }
 
   // ✅ 요청 로그 기록
   await rateLimitService.logRequest({
