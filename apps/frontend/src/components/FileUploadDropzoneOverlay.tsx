@@ -4,15 +4,17 @@ import { useUpload } from "#services/upload/useUpload.js";
 import { StorageExceededDialog } from "#components/StorageExceededDialog.js";
 
 interface DragAndDropUploadOverlayProps {
-  folderId?: string; // 폴더 ID
+  folderId?: string;
   onSuccess?: (fileId: string, code: string) => void;
   onError?: (error: string) => void;
+  onSingleFileSuccess?: () => void; // ✅ 추가됨
 }
 
 export function FileUploadDropzoneOverlay({
   folderId,
   onSuccess,
   onError,
+  onSingleFileSuccess, // ✅ 추가됨
 }: DragAndDropUploadOverlayProps): JSX.Element {
   const {
     uploadFiles,
@@ -20,7 +22,10 @@ export function FileUploadDropzoneOverlay({
     setShowStorageDialog,
     storageDialogData,
   } = useUpload({
-    onSuccess,
+    onSuccess: (fileId, code) => {
+      onSuccess?.(fileId, code);
+      onSingleFileSuccess?.(); // ✅ 호출됨
+    },
     onError,
   });
 
@@ -47,7 +52,7 @@ export function FileUploadDropzoneOverlay({
           availableSize={storageDialogData.available}
         />
       ) : null}
-      
+
       <div
         onDrop={handleDrop}
         onDragOver={handleDragOver}
