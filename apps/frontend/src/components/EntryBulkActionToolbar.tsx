@@ -4,7 +4,8 @@ import { toast } from "sonner"
 import { useDownloadFiles } from "#services/file/useDownloadFiles"
 import type { CheckedFile } from "#components/EntryDataTable.js"
 
-interface Props {
+// ✅ 이름 수정
+interface EntryBulkActionToolbarProps {
   checkedFileList: CheckedFile[]
   onMove: () => void
   onDelete: () => void
@@ -14,7 +15,7 @@ export function EntryBulkActionToolbar({
   checkedFileList,
   onMove,
   onDelete,
-}: Props) {
+}: EntryBulkActionToolbarProps) {
   const { downloadFiles, isPending } = useDownloadFiles()
 
   const handleDownload = async () => {

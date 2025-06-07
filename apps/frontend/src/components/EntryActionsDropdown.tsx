@@ -24,11 +24,11 @@ import { useMoveEntry } from "#hooks/useMoveEntry.js"
 import { useGetCodeByFileId } from "#services/useCreateCode.js"
 import type { EntryDTO } from "@cirrodrive/schemas/entry"
 
-interface Props {
+interface EntryActionsDropdownProps {
   entry: EntryDTO
 }
 
-export function EntryActionsDropdown({ entry }: Props) {
+export function EntryActionsDropdown({ entry }: EntryActionsDropdownProps) {
   const { id, name, type, trashedAt } = entry
 
   const { downloadSingleFile } = useDownloadSingleFile()
@@ -39,6 +39,11 @@ export function EntryActionsDropdown({ entry }: Props) {
   const { handleFileDelete } = useFileDelete(id)
   const { handleFolderDelete } = useFolderDelete(id)
   const deleteEntry = type === "folder" ? handleFolderDelete : handleFileDelete
+
+  // 빈 함수 대체 (eslint 경고 피하기)
+  const handleRename = () => {
+    // TODO: 이름 변경 모달 열기
+  }
 
   return (
     <DropdownMenu>
@@ -58,7 +63,7 @@ export function EntryActionsDropdown({ entry }: Props) {
                 <span>다운로드</span>
               </DropdownMenuItem>
             )}
-            <DropdownMenuItem onClick={() => {}}>
+            <DropdownMenuItem onClick={handleRename}>
               <Edit2 className="mr-2 h-4 w-4" />
               <span>이름 변경</span>
             </DropdownMenuItem>

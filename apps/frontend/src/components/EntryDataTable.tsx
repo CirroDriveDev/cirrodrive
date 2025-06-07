@@ -40,12 +40,64 @@ export interface CheckedFile {
   name: string
 }
 
-interface Props {
+interface EntryTableWithActionsProps {
   entries: EntryDTO[]
   checkedFileList: CheckedFile[]
   toggleFileChecked: (file: CheckedFile, isChecked: boolean) => void
   isAllChecked: boolean
   onToggleAll: (checked: boolean) => void
+}
+
+function SelectCheckboxHeader({ isAllChecked, onToggleAll }: {
+  isAllChecked: boolean;
+  onToggleAll: (checked: boolean) => void;
+}) {
+  return (
+    <Checkbox
+      checked={isAllChecked}
+      onCheckedChange={(checked) => onToggleAll(!!checked)}
+      aria-label="전체 선택"
+    />
+  )
+}
+
+function SelectCheckboxCell({ entry, isChecked, onCheck }: {
+  entry: EntryDTO;
+  isChecked: boolean;
+  onCheck: (checked: boolean) => void;
+}) {
+  return (
+    <Checkbox
+      checked={isChecked}
+      onCheckedChange={(checked) => onCheck(!!checked)}
+    />
+  )
+}
+
+function SortableHeader({ label, column }: {
+  label: string;
+  column: any;
+}) {
+  const isSorted = column.getIsSorted();
+  return (
+    <Button
+      variant="ghost"
+      onClick={() => {
+        if (!isSorted) column.toggleSorting(false)
+        else if (isSorted === "asc") column.toggleSorting(true)
+        else column.clearSorting()
+      }}
+    >
+      {label}
+      {isSorted === "asc" ? (
+        <ChevronUp className="ml-2 h-4 w-4" />
+      ) : isSorted === "desc" ? (
+        <ChevronDown className="ml-2 h-4 w-4" />
+      ) : (
+        <ChevronsUpDown className="ml-2 h-4 w-4" />
+      )}
+    </Button>
+  )
 }
 
 export function EntryTableWithActions({
@@ -54,7 +106,7 @@ export function EntryTableWithActions({
   toggleFileChecked,
   isAllChecked,
   onToggleAll,
-}: Props) {
+}: EntryTableWithActionsProps) {
   const [sorting, setSorting] = React.useState<SortingState>([])
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>([])
   const [columnVisibility, setColumnVisibility] = React.useState<VisibilityState>({})
@@ -64,21 +116,19 @@ export function EntryTableWithActions({
     {
       id: "select",
       header: () => (
-        <Checkbox
-          checked={isAllChecked}
-          onCheckedChange={(checked) => onToggleAll(!!checked)}
-          aria-label="전체 선택"
+        <SelectCheckboxHeader
+          isAllChecked={isAllChecked}
+          onToggleAll={onToggleAll}
         />
       ),
       cell: ({ row }) => {
         const entry = row.original
         const isChecked = checkedFileList.some(f => f.fileId === entry.id)
         return (
-          <Checkbox
-            checked={isChecked}
-            onCheckedChange={(checked) =>
-              toggleFileChecked({ fileId: entry.id, name: entry.name }, !!checked)
-            }
+          <SelectCheckboxCell
+            entry={entry}
+            isChecked={isChecked}
+            onCheck={(checked) => toggleFileChecked({ fileId: entry.id, name: entry.name }, checked)}
           />
         )
       },
@@ -87,28 +137,9 @@ export function EntryTableWithActions({
     },
     {
       accessorKey: "name",
-      header: ({ column }) => {
-        const isSorted = column.getIsSorted()
-        return (
-          <Button
-            variant="ghost"
-            onClick={() => {
-              if (!isSorted) column.toggleSorting(false)
-              else if (isSorted === "asc") column.toggleSorting(true)
-              else setSorting([])
-            }}
-          >
-            이름
-            {isSorted === "asc" ? (
-              <ChevronUp className="ml-2 h-4 w-4" />
-            ) : isSorted === "desc" ? (
-              <ChevronDown className="ml-2 h-4 w-4" />
-            ) : (
-              <ChevronsUpDown className="ml-2 h-4 w-4" />
-            )}
-          </Button>
-        )
-      },
+      header: ({ column }) => (
+        <SortableHeader label="이름" column={column} />
+      ),
       cell: ({ row }) => {
         const entry = row.original
         return (
@@ -121,28 +152,9 @@ export function EntryTableWithActions({
     },
     {
       accessorKey: "updatedAt",
-      header: ({ column }) => {
-        const isSorted = column.getIsSorted()
-        return (
-          <Button
-            variant="ghost"
-            onClick={() => {
-              if (!isSorted) column.toggleSorting(false)
-              else if (isSorted === "asc") column.toggleSorting(true)
-              else setSorting([])
-            }}
-          >
-            수정일
-            {isSorted === "asc" ? (
-              <ChevronUp className="ml-2 h-4 w-4" />
-            ) : isSorted === "desc" ? (
-              <ChevronDown className="ml-2 h-4 w-4" />
-            ) : (
-              <ChevronsUpDown className="ml-2 h-4 w-4" />
-            )}
-          </Button>
-        )
-      },
+      header: ({ column }) => (
+        <SortableHeader label="수정일" column={column} />
+      ),
       cell: ({ row }) =>
         new Date(row.original.updatedAt).toLocaleDateString("ko-KR", {
           year: "numeric",
@@ -152,30 +164,11 @@ export function EntryTableWithActions({
     },
     {
       accessorKey: "size",
-      header: ({ column }) => {
-        const isSorted = column.getIsSorted()
-        return (
-          <div className="flex justify-end pr-[2rem]">
-            <Button
-              variant="ghost"
-              onClick={() => {
-                if (!isSorted) column.toggleSorting(false)
-                else if (isSorted === "asc") column.toggleSorting(true)
-                else setSorting([])
-              }}
-            >
-              크기
-              {isSorted === "asc" ? (
-                <ChevronUp className="ml-2 h-4" />
-              ) : isSorted === "desc" ? (
-                <ChevronDown className="ml-2 h-4" />
-              ) : (
-                <ChevronsUpDown className="ml-2 h-4" />
-              )}
-            </Button>
-          </div>
-        )
-      },
+      header: ({ column }) => (
+        <div className="flex justify-end pr-[2rem]">
+          <SortableHeader label="크기" column={column} />
+        </div>
+      ),
       cell: ({ row }) => (
         <div className="text-right pr-[2rem]">
           {row.original.size ? formatSize(Number(row.original.size)) : "-"}
