@@ -41,8 +41,23 @@ export function TrashEntryList({ entries }: TrashEntryListProps): JSX.Element {
       if (aVal === null) return 1;
       if (bVal === null) return -1;
 
-      const aComp = sortKey === "updatedAt" ? new Date(aVal as Date).getTime() : sortKey === "size" ? Number(aVal) : aVal;
-      const bComp = sortKey === "updatedAt" ? new Date(bVal as Date).getTime() : sortKey === "size" ? Number(bVal) : bVal;
+      let aComp;
+      if (sortKey === "updatedAt") {
+        aComp = new Date(aVal as Date).getTime();
+      } else if (sortKey === "size") {
+        aComp = Number(aVal);
+      } else {
+        aComp = aVal;
+      }
+
+      let bComp;
+      if (sortKey === "updatedAt") {
+        bComp = new Date(bVal as Date).getTime();
+      } else if (sortKey === "size") {
+        bComp = Number(bVal);
+      } else {
+        bComp = bVal;
+      }
 
       if (typeof aComp === "string" && typeof bComp === "string") {
         return sortOrder === "asc" ?
