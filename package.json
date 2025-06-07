@@ -34,15 +34,12 @@
   },
   "prettier": "@cirrodrive/prettier-config",
   "dependencies": {
-    "ioredis": "^5.6.1",
-    "ms": "^2.1.3",
     "tsx": "catalog:"
   },
   "devDependencies": {
     "@cirrodrive/eslint-config": "workspace:*",
     "@cirrodrive/prettier-config": "workspace:*",
     "@dotenvx/dotenvx": "^1.44.0",
-    "@types/ms": "^2.1.0",
     "@types/node": "^20.17.47",
     "cross-env": "^7.0.3",
     "glob": "^11.0.2",
