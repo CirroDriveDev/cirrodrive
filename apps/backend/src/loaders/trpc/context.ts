@@ -34,17 +34,9 @@ export const createOuterContext = (opts: CreateExpressContextOptions) => {
   const { req, res, info } = opts;
   const traceId = req.id;
 
-  const ip =
-    typeof req.headers["x-forwarded-for"] === "string" ?
-      req.headers["x-forwarded-for"].split(",")[0].trim()
-    : (req.socket.remoteAddress ?? "unknown");
-
-  const pathname =
-    typeof info.url?.pathname === "string" ? info.url.pathname : "unknown";
-
   const logger = req.log.child({
     traceId,
-    path: pathname,
+    path: info.url?.pathname,
   });
 
   return {

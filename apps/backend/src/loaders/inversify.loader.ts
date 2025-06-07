@@ -34,7 +34,6 @@ import { BillingRepository } from "#repositories/billing.repository";
 import { StorageService } from "#services/storage.service";
 import { CronSchedulerService } from "#services/cron-scheduler.service";
 import { BillingCronService } from "#services/billing-cron.service";
-import { RateLimitService } from "#services/rate-limit.service";
 
 const inversifyLogger = logger.child({ prefix: "Inversify" });
 
@@ -88,7 +87,6 @@ container.bind(SubscriptionManagerService).toSelf();
 container.bind(StorageService).toSelf();
 container.bind(CronSchedulerService).toSelf();
 container.bind(BillingCronService).toSelf();
-container.bind(RateLimitService).toSelf();
 
 inversifyLogger.info("Inversify loaded successfully");
 
