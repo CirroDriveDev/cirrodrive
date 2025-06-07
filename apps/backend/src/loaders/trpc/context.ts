@@ -39,6 +39,11 @@ export const createOuterContext = (opts: CreateExpressContextOptions) => {
     path: info.url?.pathname,
   });
 
+  const ip =
+    typeof req.headers["x-forwarded-for"] === "string" ?
+      req.headers["x-forwarded-for"].split(",")[0].trim()
+    : (req.socket.remoteAddress ?? "unknown");
+
   return {
     req,
     res,
